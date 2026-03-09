@@ -5,17 +5,14 @@ const baseUrl = process.argv[2] ?? process.env.SMOKE_BASE_URL ?? 'http://127.0.0
 
 const scripts = ['smoke_persistence.mjs', 'smoke_dialogue.mjs'];
 
-for (const script of scripts) {
-	await runScript(script, baseUrl);
-}
+await Promise.all(scripts.map((script) => runScript(script, baseUrl)));
 
 console.log(`All smoke checks passed against ${baseUrl}`);
 
 function runScript(script, targetBaseUrl) {
 	return new Promise((resolvePromise, rejectPromise) => {
 		const child = spawn(process.execPath, [resolve('scripts', script), targetBaseUrl], {
-			stdio: 'inherit',
-			env: process.env
+			stdio: 'inherit'
 		});
 
 		child.on('error', rejectPromise);

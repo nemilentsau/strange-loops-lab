@@ -5,16 +5,18 @@
 		title,
 		eyebrow = 'Work surface',
 		badge,
+		tone,
 		children
 	}: {
 		title: string;
 		eyebrow?: string;
 		badge?: string;
+		tone?: 'verified' | 'computed' | 'coaching';
 		children: Snippet;
 	} = $props();
 </script>
 
-<section class="surface-panel">
+<section class="surface-panel" data-tone={tone}>
 	<div class="surface-panel__header">
 		<div>
 			<p class="eyebrow">{eyebrow}</p>

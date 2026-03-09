@@ -16,16 +16,16 @@ import sys
 
 def main() -> int:
     args = [
-        os.environ.get("CLAUDE_CLI_PATH", "claude"),
+        os.environ["CLAUDE_CLI_PATH"],
         "-p",
         "--output-format",
         "json",
         "--permission-mode",
         "bypassPermissions",
         "--effort",
-        os.environ.get("CLAUDE_DIALOGUE_EFFORT", "low"),
+        os.environ["CLAUDE_DIALOGUE_EFFORT"],
         "--model",
-        os.environ.get("CLAUDE_DIALOGUE_MODEL", "sonnet"),
+        os.environ["CLAUDE_DIALOGUE_MODEL"],
         "--append-system-prompt",
         os.environ["DIALOGUE_SYSTEM_PROMPT"],
         "--agents",
@@ -35,7 +35,10 @@ def main() -> int:
         os.environ["DIALOGUE_PROMPT"],
     ]
 
-    timeout_seconds = max(int(os.environ.get("CLAUDE_DIALOGUE_TIMEOUT_MS", "120000")) / 1000.0, 1.0)
+    # Use a slightly shorter timeout than the caller so this process can
+    # report a structured error before the parent kills it.
+    caller_timeout_ms = int(os.environ.get("CLAUDE_DIALOGUE_TIMEOUT_MS", "120000"))
+    timeout_seconds = max((caller_timeout_ms - 5000) / 1000.0, 1.0)
     env = dict(os.environ)
     env["CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"] = "1"
 

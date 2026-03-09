@@ -21,7 +21,46 @@ export const SURFACE_SEQUENCE = [
 export type SurfaceId = (typeof SURFACE_SEQUENCE)[number];
 export type DialogueMode = 'Explain-Back Examiner' | 'Socratic Partner';
 
+export const LAB_PHASES = ['explore', 'map', 'prove', 'reflect'] as const;
+export type LabPhase = (typeof LAB_PHASES)[number];
+
+export const PHASE_SURFACES: Record<LabPhase, SurfaceId[]> = {
+	explore: ['sandbox', 'trace'],
+	map: ['graph'],
+	prove: ['invariants'],
+	reflect: ['dialogue', 'artifacts']
+};
+
+export const PHASE_META: Record<
+	LabPhase,
+	{ index: number; label: string; epistemicLabel: string; tone: 'verified' | 'computed' | 'coaching' }
+> = {
+	explore: { index: 1, label: 'Explore', epistemicLabel: 'inside the system', tone: 'verified' },
+	map: { index: 2, label: 'Map', epistemicLabel: 'the boundary', tone: 'computed' },
+	prove: { index: 3, label: 'Prove', epistemicLabel: 'outside the system', tone: 'verified' },
+	reflect: { index: 4, label: 'Reflect', epistemicLabel: 'synthesis', tone: 'coaching' }
+};
+
+export function phaseForSurface(surface: SurfaceId): LabPhase {
+	for (const [phase, surfaces] of Object.entries(PHASE_SURFACES)) {
+		if ((surfaces as SurfaceId[]).includes(surface)) {
+			return phase as LabPhase;
+		}
+	}
+	return 'explore';
+}
+
+function phasesFromVisitedSurfaces(visited: SurfaceId[]): LabPhase[] {
+	const phases = new Set<LabPhase>();
+	for (const surface of visited) {
+		phases.add(phaseForSurface(surface));
+	}
+	return LAB_PHASES.filter((p) => phases.has(p));
+}
+
 export interface Module1Draft {
+	activePhase: LabPhase;
+	visitedPhases: LabPhase[];
 	activeSurface: SurfaceId;
 	dialogueMode: DialogueMode;
 	dialogueInput: string;
@@ -41,6 +80,8 @@ const DIALOGUE_MODES: DialogueMode[] = ['Explain-Back Examiner', 'Socratic Partn
 
 export function createModule1Draft(): Module1Draft {
 	return {
+		activePhase: 'explore',
+		visitedPhases: ['explore'],
 		activeSurface: 'sandbox',
 		dialogueMode: 'Explain-Back Examiner',
 		dialogueInput: '',
@@ -66,8 +107,15 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 
 	const candidate = input as Partial<Module1Draft>;
 
+	const activeSurface = isSurfaceId(candidate.activeSurface) ? candidate.activeSurface : fallback.activeSurface;
+	const visitedSurfaces = normalizeVisitedSurfaces(candidate.visitedSurfaces);
+
 	return {
-		activeSurface: isSurfaceId(candidate.activeSurface) ? candidate.activeSurface : fallback.activeSurface,
+		activePhase: isLabPhase(candidate.activePhase)
+			? candidate.activePhase
+			: phaseForSurface(activeSurface),
+		visitedPhases: normalizeVisitedPhases(candidate.visitedPhases, visitedSurfaces),
+		activeSurface,
 		dialogueMode: isDialogueMode(candidate.dialogueMode)
 			? candidate.dialogueMode
 			: fallback.dialogueMode,
@@ -92,7 +140,7 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 		),
 		selectedGraphNode:
 			typeof candidate.selectedGraphNode === 'string' ? candidate.selectedGraphNode : null,
-		visitedSurfaces: normalizeVisitedSurfaces(candidate.visitedSurfaces),
+		visitedSurfaces,
 		lastEditedAt: typeof candidate.lastEditedAt === 'string' ? candidate.lastEditedAt : null
 	};
 }
@@ -128,6 +176,19 @@ export function writeModule1Draft(
 
 function isSurfaceId(value: unknown): value is SurfaceId {
 	return typeof value === 'string' && SURFACE_SEQUENCE.includes(value as SurfaceId);
+}
+
+function isLabPhase(value: unknown): value is LabPhase {
+	return typeof value === 'string' && LAB_PHASES.includes(value as LabPhase);
+}
+
+function normalizeVisitedPhases(input: unknown, visitedSurfaces: SurfaceId[]): LabPhase[] {
+	if (Array.isArray(input)) {
+		const valid = input.filter(isLabPhase);
+		const unique = valid.filter((v, i, a) => a.indexOf(v) === i);
+		if (unique.length > 0) return unique;
+	}
+	return phasesFromVisitedSurfaces(visitedSurfaces);
 }
 
 function isDialogueMode(value: unknown): value is DialogueMode {
