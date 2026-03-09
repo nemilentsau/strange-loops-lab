@@ -52,7 +52,8 @@ a {
 
 button,
 input,
-textarea {
+textarea,
+select {
 	font: inherit;
 }
 
@@ -371,7 +372,8 @@ textarea {
 }
 
 .text-field,
-.text-area {
+.text-area,
+.select-field {
 	width: 100%;
 	padding: 14px 16px;
 	border: 1px solid rgba(239, 231, 212, 0.12);
@@ -384,6 +386,147 @@ textarea {
 .text-area {
 	min-height: 170px;
 	resize: vertical;
+}
+
+.control-grid,
+.graph-summary,
+.graph-layout {
+	display: grid;
+	gap: 14px;
+}
+
+.control-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.graph-summary {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.graph-metric,
+.graph-inspector__section {
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+}
+
+.graph-metric strong,
+.graph-inspector h3 {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 1.4rem;
+}
+
+.graph-metric span {
+	color: var(--muted);
+}
+
+.graph-layout {
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	align-items: start;
+}
+
+.graph-node-list {
+	display: grid;
+	gap: 10px;
+	max-height: 420px;
+	overflow: auto;
+	padding-right: 4px;
+}
+
+.graph-node {
+	width: 100%;
+	padding: 14px;
+	border: 1px solid var(--line);
+	border-radius: 16px;
+	background: rgba(239, 231, 212, 0.03);
+	color: var(--paper);
+	cursor: pointer;
+	text-align: left;
+	transition:
+		transform 160ms ease,
+		border-color 160ms ease,
+		background 160ms ease;
+}
+
+.graph-node:hover,
+.graph-node:focus-visible {
+	transform: translateY(-1px);
+	border-color: rgba(208, 169, 95, 0.28);
+	background: rgba(208, 169, 95, 0.08);
+}
+
+.graph-node[data-active='true'] {
+	border-color: rgba(127, 195, 189, 0.34);
+	background: rgba(127, 195, 189, 0.1);
+}
+
+.graph-node__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+	font-family: 'IBM Plex Mono', monospace;
+}
+
+.graph-node small {
+	color: var(--muted);
+}
+
+.graph-inspector {
+	display: grid;
+	gap: 12px;
+}
+
+.invariant-stack,
+.rule-result-list {
+	display: grid;
+	gap: 14px;
+}
+
+.invariant-card,
+.rule-result {
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+}
+
+.invariant-card--built-in {
+	background:
+		linear-gradient(180deg, rgba(208, 169, 95, 0.1), rgba(239, 231, 212, 0.03)),
+		rgba(239, 231, 212, 0.03);
+}
+
+.rule-result__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+.rule-result small {
+	display: block;
+	margin-top: 10px;
+	color: var(--muted);
+}
+
+.path-list {
+	display: grid;
+	gap: 10px;
+	margin: 0;
+	padding-left: 20px;
+}
+
+.path-list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	color: var(--muted-strong);
 }
 
 .current-string-panel {
@@ -480,7 +623,10 @@ textarea {
 	.hero,
 	.module-hero,
 	.module-layout,
-	.panel-grid--three {
+	.panel-grid--three,
+	.graph-layout,
+	.control-grid,
+	.graph-summary {
 		grid-template-columns: 1fr;
 	}
 

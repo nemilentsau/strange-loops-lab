@@ -52,6 +52,7 @@ The current scaffold is a root SvelteKit app managed with `npm`.
 - Run frontend checks: `npm run check`
 - Run unit tests: `npm run test`
 - Build production output: `npm run build`
+- SQLite persistence lives at `data/strange-loops.db` unless `STRANGE_LOOPS_DB_PATH` is set
 
 There is no separate Python service yet.
 

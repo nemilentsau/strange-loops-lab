@@ -28,6 +28,8 @@ npm run test
 npm run build
 ```
 
+SQLite persistence is created automatically at `data/strange-loops.db`.
+
 ---
 
 ## What this is
@@ -163,6 +165,9 @@ Early build with the application shell in place.
 The current work is focused on:
 - shared scaffolding
 - MIU rule engine and derivation trace core
+- bounded reachability explorer
+- invariant explorer for MU non-reachability
+- SQLite-backed snapshots and saved artifacts
 - state persistence
 - Module 1 interaction design
 - testing whether the interactions actually deepen understanding
@@ -184,9 +189,9 @@ It is aimed at making difficult ideas more tangible.
 
 - [x] establish project scaffolding
 - [x] build Module 1 MIU sandbox
-- [ ] build derivation graph explorer
-- [ ] build invariant explorer
-- [ ] add artifact persistence
+- [x] build derivation graph explorer
+- [x] build invariant explorer
+- [x] add artifact persistence
 - [ ] add first dialogue mode
 - [ ] evaluate what actually helped and revise before Module 2
 

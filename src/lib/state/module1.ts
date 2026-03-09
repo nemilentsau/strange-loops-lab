@@ -5,6 +5,8 @@ import {
 } from '$lib/miu/core';
 
 export const MODULE1_STORAGE_KEY = 'strange-loops/module-1/v2';
+export const GRAPH_DEPTH_OPTIONS = [1, 2, 3, 4, 5] as const;
+export const GRAPH_NODE_LIMIT_OPTIONS = [8, 16, 24, 40, 64] as const;
 
 export const SURFACE_SEQUENCE = [
 	'sandbox',
@@ -25,6 +27,9 @@ export interface Module1Draft {
 	invariantCandidate: string;
 	notes: string;
 	trace: DerivationTrace;
+	graphDepth: number;
+	graphNodeLimit: number;
+	selectedGraphNode: string | null;
 	visitedSurfaces: SurfaceId[];
 	lastEditedAt: string | null;
 }
@@ -36,9 +41,12 @@ export function createModule1Draft(): Module1Draft {
 		activeSurface: 'sandbox',
 		dialogueMode: 'Explain-Back Examiner',
 		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
-		invariantCandidate: 'count(I) mod 3',
+		invariantCandidate: 'count(I) mod 3 != 0',
 		notes: '',
 		trace: createDerivationTrace(),
+		graphDepth: 3,
+		graphNodeLimit: 16,
+		selectedGraphNode: null,
 		visitedSurfaces: ['sandbox'],
 		lastEditedAt: null
 	};
@@ -68,6 +76,14 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 				: fallback.invariantCandidate,
 		notes: typeof candidate.notes === 'string' ? candidate.notes : fallback.notes,
 		trace: normalizeTrace(candidate.trace),
+		graphDepth: normalizeNumericOption(candidate.graphDepth, GRAPH_DEPTH_OPTIONS, fallback.graphDepth),
+		graphNodeLimit: normalizeNumericOption(
+			candidate.graphNodeLimit,
+			GRAPH_NODE_LIMIT_OPTIONS,
+			fallback.graphNodeLimit
+		),
+		selectedGraphNode:
+			typeof candidate.selectedGraphNode === 'string' ? candidate.selectedGraphNode : null,
 		visitedSurfaces: normalizeVisitedSurfaces(candidate.visitedSurfaces),
 		lastEditedAt: typeof candidate.lastEditedAt === 'string' ? candidate.lastEditedAt : null
 	};
@@ -118,4 +134,12 @@ function normalizeVisitedSurfaces(input: unknown): SurfaceId[] {
 	const unique = input.filter(isSurfaceId).filter((value, index, values) => values.indexOf(value) === index);
 
 	return unique.length > 0 ? unique : ['sandbox'];
+}
+
+function normalizeNumericOption(
+	input: unknown,
+	allowedValues: readonly number[],
+	fallback: number
+): number {
+	return typeof input === 'number' && allowedValues.includes(input) ? input : fallback;
 }
