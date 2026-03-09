@@ -3,6 +3,7 @@ import {
 	normalizeTrace,
 	type DerivationTrace
 } from '$lib/miu/core';
+import type { DialogueResult } from '$lib/dialogue/types';
 
 export const MODULE1_STORAGE_KEY = 'strange-loops/module-1/v2';
 export const GRAPH_DEPTH_OPTIONS = [1, 2, 3, 4, 5] as const;
@@ -23,6 +24,8 @@ export type DialogueMode = 'Explain-Back Examiner' | 'Socratic Partner';
 export interface Module1Draft {
 	activeSurface: SurfaceId;
 	dialogueMode: DialogueMode;
+	dialogueInput: string;
+	lastDialogue: DialogueResult | null;
 	workingQuestion: string;
 	invariantCandidate: string;
 	notes: string;
@@ -40,6 +43,8 @@ export function createModule1Draft(): Module1Draft {
 	return {
 		activeSurface: 'sandbox',
 		dialogueMode: 'Explain-Back Examiner',
+		dialogueInput: '',
+		lastDialogue: null,
 		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
 		invariantCandidate: 'count(I) mod 3 != 0',
 		notes: '',
@@ -66,6 +71,9 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 		dialogueMode: isDialogueMode(candidate.dialogueMode)
 			? candidate.dialogueMode
 			: fallback.dialogueMode,
+		dialogueInput:
+			typeof candidate.dialogueInput === 'string' ? candidate.dialogueInput : fallback.dialogueInput,
+		lastDialogue: normalizeDialogue(candidate.lastDialogue),
 		workingQuestion:
 			typeof candidate.workingQuestion === 'string'
 				? candidate.workingQuestion
@@ -142,4 +150,40 @@ function normalizeNumericOption(
 	fallback: number
 ): number {
 	return typeof input === 'number' && allowedValues.includes(input) ? input : fallback;
+}
+
+function normalizeDialogue(input: unknown): DialogueResult | null {
+	if (!input || typeof input !== 'object') {
+		return null;
+	}
+
+	const candidate = input as Partial<DialogueResult>;
+
+	if (
+		!Array.isArray(candidate.messages) ||
+		typeof candidate.finalResponse !== 'string' ||
+		(candidate.sessionId !== null && candidate.sessionId !== undefined && typeof candidate.sessionId !== 'string') ||
+		(candidate.costUsd !== null && candidate.costUsd !== undefined && typeof candidate.costUsd !== 'number')
+	) {
+		return null;
+	}
+
+	const messages = candidate.messages.filter(
+		(message): message is DialogueResult['messages'][number] =>
+			!!message &&
+			typeof message === 'object' &&
+			(message.agent === 'examiner' || message.agent === 'proof_coach') &&
+			typeof message.content === 'string'
+	);
+
+	if (messages.length !== candidate.messages.length) {
+		return null;
+	}
+
+	return {
+		messages,
+		finalResponse: candidate.finalResponse,
+		sessionId: candidate.sessionId ?? null,
+		costUsd: candidate.costUsd ?? null
+	};
 }

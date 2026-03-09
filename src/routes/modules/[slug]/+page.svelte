@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import type { DialogueResult } from '$lib/dialogue/types';
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import type { ModuleSummary } from '$lib/content/modules';
 	import {
@@ -83,6 +84,8 @@
 	let snapshotStatus = $state('SQLite snapshot not loaded yet.');
 	let artifactStatus = $state('SQLite artifact list not loaded yet.');
 	let savedArtifacts = $state<SavedArtifactSummary[]>([]);
+	let dialogueStatus = $state('No dialogue run yet.');
+	let dialogueRunning = $state(false);
 	const currentTraceStep = $derived(
 		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
 	);
@@ -175,7 +178,11 @@
 	}
 
 	function updateDialogueMode(mode: DialogueMode) {
-		patchDraft({ dialogueMode: mode });
+		patchDraft({
+			dialogueMode: mode,
+			activeSurface: 'dialogue',
+			visitedSurfaces: ensureVisited('dialogue')
+		});
 	}
 
 	function applyMove(move: MiuMove) {
@@ -371,6 +378,67 @@
 	function noteArtifactTitle(): string {
 		const preview = draft.notes.trim().slice(0, 36);
 		return preview ? `Note: ${preview}` : 'Module 1 note';
+	}
+
+	function updateDialogueInput(event: Event) {
+		const target = event.currentTarget as HTMLTextAreaElement;
+		patchDraft({
+			activeSurface: 'dialogue',
+			dialogueInput: target.value,
+			visitedSurfaces: ensureVisited('dialogue')
+		});
+	}
+
+	async function runDialogue() {
+		const userInput = draft.dialogueInput.trim();
+
+		if (!userInput) {
+			dialogueStatus = 'Enter an explanation or question before running dialogue mode.';
+			return;
+		}
+
+		dialogueRunning = true;
+		dialogueStatus = 'Running Claude Code agent team...';
+
+		try {
+			const response = await fetch(`/api/modules/${module.slug}/dialogue`, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ userInput, draft })
+			});
+
+			const payload = (await response.json()) as {
+				error?: string;
+				dialogue?: DialogueResult;
+				artifact?: SavedArtifactSummary;
+			};
+
+			if (!response.ok || !payload.dialogue) {
+				dialogueStatus = payload.error ?? 'Dialogue request failed.';
+				return;
+			}
+
+			patchDraft({
+				activeSurface: 'dialogue',
+				lastDialogue: payload.dialogue,
+				visitedSurfaces: ensureVisited('dialogue', 'artifacts')
+			});
+
+			if (payload.artifact) {
+				savedArtifacts = [payload.artifact, ...savedArtifacts];
+			}
+
+			dialogueStatus = payload.dialogue.costUsd
+				? `Dialogue finished. Cost: $${payload.dialogue.costUsd.toFixed(4)}.`
+				: 'Dialogue finished.';
+			artifactStatus = payload.artifact
+				? `Saved dialogue artifact to SQLite at ${formatTimestamp(payload.artifact.createdAt)}.`
+				: artifactStatus;
+		} catch {
+			dialogueStatus = 'Dialogue request failed.';
+		} finally {
+			dialogueRunning = false;
+		}
 	}
 </script>
 
@@ -698,6 +766,50 @@
 						{/if}
 					</div>
 				</div>
+			</SurfacePanel>
+
+			<SurfacePanel title="Dialogue Mode" eyebrow="Claude agent team" badge="coaching only">
+				<label class="field-label" for="dialogue-input">
+					Your explanation or question
+					<textarea
+						id="dialogue-input"
+						class="text-area"
+						oninput={updateDialogueInput}
+					>{draft.dialogueInput}</textarea>
+				</label>
+				<div class="status-row">
+					<button
+						class="button button--ghost"
+						type="button"
+						onclick={runDialogue}
+						disabled={dialogueRunning}
+					>
+						{dialogueRunning ? 'Running...' : 'Run dialogue'}
+					</button>
+				</div>
+				<p class="field-note">{dialogueStatus}</p>
+
+				{#if draft.lastDialogue}
+					<div class="dialogue-transcript">
+						{#each draft.lastDialogue.messages as message}
+							<div class="dialogue-turn" data-agent={message.agent}>
+								<div class="dialogue-turn__top">
+									<strong>{message.agent === 'examiner' ? 'Examiner' : 'Proof Coach'}</strong>
+									<span class="badge" data-tone="coaching">coaching</span>
+								</div>
+								<p>{message.content}</p>
+							</div>
+						{/each}
+
+						<div class="dialogue-final">
+							<p class="eyebrow">Final response</p>
+							<p>{draft.lastDialogue.finalResponse}</p>
+							{#if draft.lastDialogue.sessionId}
+								<small>Claude session {draft.lastDialogue.sessionId}</small>
+							{/if}
+						</div>
+					</div>
+				{/if}
 			</SurfacePanel>
 
 			<SurfacePanel title="Work Surfaces" eyebrow="Module shell">

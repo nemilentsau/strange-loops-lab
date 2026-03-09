@@ -481,7 +481,8 @@ select {
 }
 
 .invariant-stack,
-.rule-result-list {
+.rule-result-list,
+.dialogue-transcript {
 	display: grid;
 	gap: 14px;
 }
@@ -509,6 +510,45 @@ select {
 }
 
 .rule-result small {
+	display: block;
+	margin-top: 10px;
+	color: var(--muted);
+}
+
+.dialogue-turn,
+.dialogue-final {
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+}
+
+.dialogue-turn[data-agent='examiner'] {
+	border-color: rgba(127, 195, 189, 0.22);
+	background: rgba(127, 195, 189, 0.08);
+}
+
+.dialogue-turn[data-agent='proof_coach'] {
+	border-color: rgba(208, 169, 95, 0.22);
+	background: rgba(208, 169, 95, 0.08);
+}
+
+.dialogue-turn__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+.dialogue-turn p,
+.dialogue-final p {
+	margin: 0;
+	color: var(--muted-strong);
+	line-height: 1.65;
+}
+
+.dialogue-final small {
 	display: block;
 	margin-top: 10px;
 	color: var(--muted);

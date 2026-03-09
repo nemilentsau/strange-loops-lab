@@ -53,6 +53,7 @@ The current scaffold is a root SvelteKit app managed with `npm`.
 - Run unit tests: `npm run test`
 - Build production output: `npm run build`
 - SQLite persistence lives at `data/strange-loops.db` unless `STRANGE_LOOPS_DB_PATH` is set
+- Dialogue mode shells out to local Claude Code; configurable via `CLAUDE_CLI_PATH`, `CLAUDE_DIALOGUE_MODEL`, `CLAUDE_DIALOGUE_TIMEOUT_MS`, and `CLAUDE_DIALOGUE_EFFORT`
 
 There is no separate Python service yet.
 

@@ -15,6 +15,8 @@ The goal is simple: make abstract ideas tangible.
 
 The current scaffold is a root **SvelteKit** app.
 
+Dialogue mode expects a local Claude Code installation and authentication.
+
 ```bash
 npm install
 npm run dev
@@ -29,6 +31,15 @@ npm run build
 ```
 
 SQLite persistence is created automatically at `data/strange-loops.db`.
+
+Optional dialogue env:
+
+```bash
+CLAUDE_CLI_PATH=claude
+CLAUDE_DIALOGUE_MODEL=sonnet
+CLAUDE_DIALOGUE_TIMEOUT_MS=120000
+CLAUDE_DIALOGUE_EFFORT=low
+```
 
 ---
 
@@ -168,6 +179,7 @@ The current work is focused on:
 - bounded reachability explorer
 - invariant explorer for MU non-reachability
 - SQLite-backed snapshots and saved artifacts
+- Claude Code agent-team dialogue mode
 - state persistence
 - Module 1 interaction design
 - testing whether the interactions actually deepen understanding
@@ -192,7 +204,7 @@ It is aimed at making difficult ideas more tangible.
 - [x] build derivation graph explorer
 - [x] build invariant explorer
 - [x] add artifact persistence
-- [ ] add first dialogue mode
+- [x] add first dialogue mode
 - [ ] evaluate what actually helped and revise before Module 2
 
 ---
