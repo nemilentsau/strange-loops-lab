@@ -46,6 +46,20 @@
 
 	const module = $derived(data.module as ModuleSummary);
 	const dialogueModes: DialogueMode[] = ['Explain-Back Examiner', 'Socratic Partner'];
+	const reflectionPrompts = [
+		{
+			title: 'Why search fails',
+			text: 'Explain why exploring more derivations cannot by itself prove that MU is unreachable.'
+		},
+		{
+			title: 'Weak step in the proof',
+			text: 'State the single rule you had to justify most carefully, and explain why it preserves the invariant.'
+		},
+		{
+			title: 'Object vs meta',
+			text: 'Describe the difference between applying an MIU rule and proving a fact about all MIU derivations.'
+		}
+	] as const;
 
 	const timestampFormatter = new Intl.DateTimeFormat('en-US', {
 		dateStyle: 'medium',
@@ -73,6 +87,7 @@
 	const currentString = $derived(currentTraceStep.value);
 	const iCount = $derived((currentString.match(/I/g) || []).length);
 	const mod3Class = $derived(iCount % 3);
+	const activePhaseMeta = $derived(PHASE_META[draft.activePhase]);
 	const legalMoves = $derived(enumerateMiuMoves(currentString));
 	const uniqueReachableStates = $derived(
 		Array.from(new Map(legalMoves.map((move) => [move.result, move])).values())
@@ -160,14 +175,36 @@
 		});
 	}
 
-	function updateInvariantFromStrip(event: Event) {
-		const target = event.currentTarget as HTMLInputElement;
-		patchDraft({ invariantCandidate: target.value });
-	}
-
 	function updateNotes(event: Event) {
 		const target = event.currentTarget as HTMLTextAreaElement;
 		patchDraft({ notes: target.value });
+	}
+
+	function seedReflectionPrompt(prompt: string) {
+		const seeded = draft.notes.trim()
+			? `${draft.notes.trim()}\n\n${prompt}\n`
+			: `${prompt}\n`;
+
+		patchDraft({
+			activePhase: 'reflect',
+			activeSurface: 'artifacts',
+			notes: seeded,
+			visitedSurfaces: ensureVisited('artifacts'),
+			visitedPhases: ensureVisitedPhases('reflect')
+		});
+	}
+
+	function phaseCueFor(phase: LabPhase): string {
+		switch (phase) {
+			case 'explore':
+				return 'Work inside the system first. Follow legal rules and feel the local mechanics.';
+			case 'map':
+				return 'Zoom out. The graph shows the reachable boundary, not just one derivation.';
+			case 'prove':
+				return 'Step outside the system. Build an argument about all reachable strings.';
+			case 'reflect':
+				return 'Turn the proof into understanding, then preserve what you learned.';
+		}
 	}
 
 	function updateDialogueMode(mode: DialogueMode) {
@@ -496,9 +533,10 @@
 		{iCount}
 		{mod3Class}
 		workingQuestion={draft.workingQuestion}
-		invariantCandidate={draft.invariantCandidate}
+		phaseLabel={activePhaseMeta.label}
+		phaseEpistemicLabel={activePhaseMeta.epistemicLabel}
+		phaseCue={phaseCueFor(draft.activePhase)}
 		onUpdateQuestion={updateQuestion}
-		onUpdateInvariant={updateInvariantFromStrip}
 	/>
 
 	<PhaseNav
@@ -538,6 +576,7 @@
 		{:else if draft.activePhase === 'prove'}
 			<div class="phase-content" data-phase="prove">
 				<PhaseProve
+					{currentString}
 					invariantCandidate={draft.invariantCandidate}
 					{builtInInvariant}
 					{candidateInvariant}
@@ -558,10 +597,12 @@
 					{artifactStatus}
 					{savedArtifacts}
 					{dialogueModes}
+					{reflectionPrompts}
 					onUpdateDialogueInput={updateDialogueInput}
 					onRunDialogue={runDialogue}
 					onUpdateDialogueMode={updateDialogueMode}
 					onUpdateNotes={updateNotes}
+					onUseReflectionPrompt={seedReflectionPrompt}
 					onSaveSnapshot={saveSnapshotToDatabase}
 					onSaveNote={saveNoteArtifact}
 					onSaveTrace={saveTraceArtifact}

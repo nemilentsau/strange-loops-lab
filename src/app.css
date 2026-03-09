@@ -1,6 +1,6 @@
-@import 'tailwindcss';
-
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@import 'tailwindcss';
 
 :root {
 	--bg: #0f1418;
@@ -447,7 +447,7 @@ select {
 
 .context-strip__fields {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
 	gap: 10px;
 }
 
@@ -482,6 +482,31 @@ select {
 .context-field__input:focus {
 	outline: none;
 	border-color: rgba(208, 169, 95, 0.34);
+}
+
+.context-lens {
+	display: grid;
+	gap: 6px;
+	padding: 12px 14px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+}
+
+.context-lens strong {
+	font-size: 1rem;
+	letter-spacing: 0.02em;
+}
+
+.context-lens small,
+.context-lens p {
+	margin: 0;
+	color: var(--muted);
+	line-height: 1.45;
+}
+
+.context-lens[data-tone='coaching'] {
+	border-color: rgba(210, 130, 107, 0.22);
 }
 
 /* ── Phase Navigation ── */
@@ -652,6 +677,83 @@ select {
 .phase-reflect {
 	display: grid;
 	gap: 20px;
+}
+
+.proof-rail,
+.reflection-prompt-stack,
+.reflection-prompt-grid {
+	display: grid;
+	gap: 14px;
+}
+
+.proof-step {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 16px;
+	padding: 18px;
+	border: 1px solid var(--line);
+	border-radius: 22px;
+	background: rgba(239, 231, 212, 0.03);
+}
+
+.proof-step--conclusion {
+	background:
+		linear-gradient(180deg, rgba(127, 195, 189, 0.1), rgba(239, 231, 212, 0.03)),
+		rgba(239, 231, 212, 0.03);
+}
+
+.proof-step__index {
+	display: grid;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	border: 1px solid rgba(127, 195, 189, 0.28);
+	border-radius: 50%;
+	color: var(--teal);
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
+.proof-step__body {
+	display: grid;
+	gap: 12px;
+}
+
+.proof-step h3,
+.reflection-prompt strong {
+	margin: 0;
+}
+
+.reflection-prompt-grid {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.reflection-prompt {
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+	color: var(--paper);
+	cursor: pointer;
+	text-align: left;
+	transition:
+		transform 160ms ease,
+		border-color 160ms ease,
+		background 160ms ease;
+}
+
+.reflection-prompt:hover,
+.reflection-prompt:focus-visible {
+	transform: translateY(-1px);
+	border-color: rgba(210, 130, 107, 0.28);
+	background: rgba(210, 130, 107, 0.09);
+}
+
+.reflection-prompt p {
+	margin: 8px 0 0;
+	color: var(--muted-strong);
+	line-height: 1.55;
 }
 
 /* ── Surface Panel tone variants ── */
@@ -995,7 +1097,8 @@ select {
 	.panel-grid--three,
 	.graph-layout,
 	.control-grid,
-	.graph-summary {
+	.graph-summary,
+	.reflection-prompt-grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -1010,6 +1113,10 @@ select {
 	}
 
 	.context-strip__fields {
+		grid-template-columns: 1fr;
+	}
+
+	.proof-step {
 		grid-template-columns: 1fr;
 	}
 

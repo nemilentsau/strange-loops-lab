@@ -10,6 +10,11 @@
 		createdAt: string;
 	}
 
+	interface ReflectionPrompt {
+		title: string;
+		text: string;
+	}
+
 	let {
 		dialogueInput,
 		dialogueMode,
@@ -21,10 +26,12 @@
 		artifactStatus,
 		savedArtifacts,
 		dialogueModes,
+		reflectionPrompts,
 		onUpdateDialogueInput,
 		onRunDialogue,
 		onUpdateDialogueMode,
 		onUpdateNotes,
+		onUseReflectionPrompt,
 		onSaveSnapshot,
 		onSaveNote,
 		onSaveTrace,
@@ -40,10 +47,12 @@
 		artifactStatus: string;
 		savedArtifacts: SavedArtifactSummary[];
 		dialogueModes: DialogueMode[];
+		reflectionPrompts: readonly ReflectionPrompt[];
 		onUpdateDialogueInput: (event: Event) => void;
 		onRunDialogue: () => void;
 		onUpdateDialogueMode: (mode: DialogueMode) => void;
 		onUpdateNotes: (event: Event) => void;
+		onUseReflectionPrompt: (prompt: string) => void;
 		onSaveSnapshot: () => void;
 		onSaveNote: () => void;
 		onSaveTrace: () => void;
@@ -116,6 +125,27 @@
 	</SurfacePanel>
 
 	<SurfacePanel title="Artifact Notebook" eyebrow="Persistence" tone="coaching">
+		<div class="reflection-prompt-stack">
+			<div class="surface-panel__header">
+				<div>
+					<p class="eyebrow">Guided reflection</p>
+					<h3>Use a prompt if the blank page is too open.</h3>
+				</div>
+			</div>
+			<div class="reflection-prompt-grid">
+				{#each reflectionPrompts as prompt}
+					<button
+						class="reflection-prompt"
+						type="button"
+						onclick={() => onUseReflectionPrompt(prompt.text)}
+					>
+						<strong>{prompt.title}</strong>
+						<p>{prompt.text}</p>
+					</button>
+				{/each}
+			</div>
+		</div>
+
 		<label class="field-label" for="module-notes">
 			Notes and reflections
 			<textarea

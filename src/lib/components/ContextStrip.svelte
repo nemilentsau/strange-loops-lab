@@ -5,18 +5,20 @@
 		iCount,
 		mod3Class,
 		workingQuestion,
-		invariantCandidate,
+		phaseLabel,
+		phaseEpistemicLabel,
+		phaseCue,
 		onUpdateQuestion,
-		onUpdateInvariant
 	}: {
 		currentString: string;
 		stepCount: number;
 		iCount: number;
 		mod3Class: number;
 		workingQuestion: string;
-		invariantCandidate: string;
+		phaseLabel: string;
+		phaseEpistemicLabel: string;
+		phaseCue: string;
 		onUpdateQuestion: (event: Event) => void;
-		onUpdateInvariant: (event: Event) => void;
 	} = $props();
 </script>
 
@@ -51,16 +53,12 @@
 				oninput={onUpdateQuestion}
 			/>
 		</label>
-		<label class="context-field" for="ctx-invariant">
-			<span class="context-field__label">Invariant</span>
-			<input
-				id="ctx-invariant"
-				class="context-field__input"
-				type="text"
-				placeholder="e.g., count(I) mod 3 != 0"
-				value={invariantCandidate}
-				oninput={onUpdateInvariant}
-			/>
-		</label>
+
+		<div class="context-lens" data-tone={phaseLabel === 'Reflect' ? 'coaching' : 'verified'}>
+			<span class="context-field__label">Current lens</span>
+			<strong>{phaseLabel}</strong>
+			<small>{phaseEpistemicLabel}</small>
+			<p>{phaseCue}</p>
+		</div>
 	</div>
 </div>
