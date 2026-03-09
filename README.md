@@ -11,6 +11,25 @@ The goal is simple: make abstract ideas tangible.
 
 ---
 
+## Quick start
+
+The current scaffold is a root **SvelteKit** app.
+
+```bash
+npm install
+npm run dev
+```
+
+Validation:
+
+```bash
+npm run check
+npm run test
+npm run build
+```
+
+---
+
 ## What this is
 
 **Strange Loops Lab** is a multi-module interactive learning environment built
@@ -139,7 +158,7 @@ when it has not.
 
 ## Status
 
-Early build.
+Early build with the application shell in place.
 
 The current work is focused on:
 - shared scaffolding
@@ -162,7 +181,7 @@ It is aimed at making difficult ideas more tangible.
 
 ## Near-term roadmap
 
-- [ ] establish project scaffolding
+- [x] establish project scaffolding
 - [ ] build Module 1 MIU sandbox
 - [ ] build derivation graph explorer
 - [ ] build invariant explorer

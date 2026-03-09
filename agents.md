@@ -1,3 +1,11 @@
+## Project Configuration
+
+- **Language**: TypeScript
+- **Package Manager**: npm
+- **Add-ons**: none
+
+---
+
 # Agent Instructions
 
 ## Current stage
@@ -37,14 +45,18 @@ corresponding docs in the same pass.
 
 ## Dependencies and commands
 
-There is no finalized build/test command matrix in this repo yet.
+The current scaffold is a root SvelteKit app managed with `npm`.
 
-- If you introduce Python dependencies, use `uv`.
-- If you introduce a JS app/toolchain, document the package manager and commands in this file and `README.md`.
-- When adding scaffold code, also add the minimal runnable validation commands for that scaffold.
+- Install dependencies: `npm install`
+- Run the app: `npm run dev`
+- Run frontend checks: `npm run check`
+- Run unit tests: `npm run test`
+- Build production output: `npm run build`
 
-Do not copy command instructions from another project unless the corresponding
-files and toolchains exist here.
+There is no separate Python service yet.
+
+- If Python dependencies are introduced later, use `uv`.
+- Keep new commands documented here and in `README.md` as the scaffold grows.
 
 ## Local skills
 
