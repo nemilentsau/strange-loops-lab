@@ -1,63 +1,59 @@
 # Agent Instructions
 
-## Dependencies
+## Current stage
 
-This project uses **uv** for Python dependency management. To install or add packages:
+This repository is still in the specification and scaffolding phase.
 
-```bash
-uv pip install <package>                         # install into .venv
-uv pip install -r requirements.txt               # sync from requirements file
-```
+Treat the docs as the source of truth for product direction, and avoid
+hard-coding assumptions from a conventional `frontend/` + `backend/` split
+unless the repo actually grows that structure.
 
-Never use `pip` directly — always use `uv pip`.
+Current implementation focus:
+- project scaffolding
+- Module 1 (`MIU`) interaction design
+- persistence/artifact model
+- verifier vs. LLM boundary
 
-## Backend checks
+## Primary references
 
-After backend code edits:
+Read only the files relevant to the task:
 
-1. The virtualenv lives at the repo root: `.venv/`.
-2. Run type and lint checks from the `backend/` folder (ignore `scripts/`).
-3. Use `../.venv/bin/pyright .` in `backend/`.
-4. Use `../.venv/bin/ruff check` in `backend/`.
-5. Report any errors and fix them before proceeding.
+- Product vision: `README.md`, `docs/strange-loops-vision.md`
+- Architecture: `docs/product-architecture.md`
+- Agent behavior: `docs/spec.md`, `docs/agents-prompt.md`
+- Module 1 scope: `docs/strange-loops-module-1.md`
+- Build requirements for the first implementation pass: `docs/strange-loops-coding-spec.md`
+- Guidance on keeping agent instructions lean: `coding-agents-guide.md`
 
-## Tests
+If you change architecture, module scope, or agent responsibilities, update the
+corresponding docs in the same pass.
 
-Run tests from `backend/`:
+## Working rules
 
-```bash
-../.venv/bin/python -m pytest tests/ -v
-```
+- Keep setup conservative. Prefer decisions that preserve fast iteration for Module 1.
+- Do not assume a separate Python service or a separate frontend app already exists just because the architecture doc allows for one later.
+- Preserve the epistemic contract: mechanically checked results and LLM coaching must stay clearly separated.
+- Add new local skills only when a workflow becomes repeated, specialized, and hard to recover from repo context alone.
 
-**Zero failures policy:** The full test suite must pass with zero failures. Any failing test — whether related to your changes or not — must be investigated and fixed before finishing. Do not dismiss pre-existing failures; they indicate either stale tests or regressions that need attention.
+## Dependencies and commands
 
-Run relevant tests based on what you changed:
+There is no finalized build/test command matrix in this repo yet.
 
-| Changed | Run |
-|---------|-----|
-| `contracts/models.py` | `pytest tests/test_contracts.py` then `python scripts/gen_schemas.py` (updates validate_output.sh, prompts.py, contracts.ts, runs consistency test) |
-| `.cursor/hooks/validate_output.sh` | `pytest tests/test_validate_output_hook.py` |
-| Routing logic, state management, orchestrator flow | `pytest tests/test_routing.py tests/test_graph_topology.py tests/test_cursor_runner.py` |
-| `step_critique.py`, `cursor/prompts.py` (critique prompt builders) | `pytest tests/test_critique_prompts.py` |
+- If you introduce Python dependencies, use `uv`.
+- If you introduce a JS app/toolchain, document the package manager and commands in this file and `README.md`.
+- When adding scaffold code, also add the minimal runnable validation commands for that scaffold.
 
-Before writing new tests, read `.claude/skills/testing/SKILL.md`.
+Do not copy command instructions from another project unless the corresponding
+files and toolchains exist here.
 
-## Frontend checks
+## Local skills
 
-After frontend-only changes (backend checks not required):
+Current repo-local skills worth keeping:
 
-1. Run checks from the `frontend/` folder.
-2. Use `npm run check` in `frontend/`.
-3. Report any errors and fix them before proceeding.
+- `.agents/skills/testing/SKILL.md` — read before adding or restructuring tests
+- `.agents/skills/ux-design/SKILL.md` — use for distinctive UI work when building the module experience
 
-## Reference
-
-Architecture: see `docs/DESIGN.md`
-Context flow between agents: `docs/context_flow.md` (authoritative — update when pipeline changes)
-Backend conventions and procedures: `.claude/skills/backend/`
-Frontend patterns (Svelte 5 runes, SSE): `.claude/skills/frontend/`
-Cursor orchestrator deep-dive: `.claude/skills/cursor-backend/`
-Testing conventions: `.claude/skills/testing/`
-Doc maintenance (which docs to update for which changes): `.claude/skills/docs/`
-Trace analysis during improvement loops: `.claude/skills/trace-analysis/` (defines which tools to use — Read/Glob/Grep only, never Bash)
-Backend docs: `docs/backends/langgraph.md`, `docs/backends/cursor.md`
+Removed or avoid-for-now categories:
+- data-analysis / dashboard-specific skills from the old project
+- backend-framework-specific procedures not supported by this repo yet
+- speculative skills for workflows that have not repeated here
