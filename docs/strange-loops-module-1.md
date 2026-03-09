@@ -1,4 +1,12 @@
-# Strange Loops Companion — Module 1 Specification
+# Strange Loops Lab — Module 1 Specification and Status
+
+## Document status
+This document now serves two purposes:
+
+- the conceptual specification for Module 1,
+- a status tracker for what is already implemented in the current build.
+
+Last updated: March 9, 2026.
 
 ## Module title
 **Module 1: Formal Systems & Their Walls**
@@ -13,6 +21,36 @@ Module 1 should make the following insight tangible:
 > A formal system can generate strings internally, but some truths about that system become visible only when you step outside it and reason at the meta-level.
 
 The MIU system is the concrete vehicle for this.
+
+---
+
+## 0. Current implementation snapshot
+
+### Implemented in the current build
+- root SvelteKit application shell with a Module 1 route
+- deterministic MIU rule engine
+- MIU sandbox with legal-next-move enumeration
+- derivation trace with jump, restart, undo, and branching from prior states
+- bounded derivation graph explorer with provenance display
+- invariant explorer with:
+  - built-in MU non-reachability argument,
+  - custom modular candidates of the form `count(I) mod k = r` and `!= r`,
+  - concrete counterexamples when a candidate fails
+- SQLite-backed snapshots and saved artifacts
+- Claude Code agent-team dialogue mode
+- local smoke scripts for persistence and dialogue flows
+
+### Present but still shallow
+- object-level vs meta-level framing exists in copy and panel structure, but not yet as a strong dedicated proof workflow
+- dialogue mode is usable, but still needs quality evaluation and refinement against real learner transcripts
+- artifact persistence works, but artifact types are still basic and not yet shaped into a strong learning notebook
+
+### Highest-priority remaining work
+- proof-mode workflow that helps the user assemble an actual invariant argument
+- stronger UI treatment of the object-level / meta-level split
+- explicit invalid-move demonstration instead of prevention-only UI
+- task structure and reflection prompts that make the module feel more guided
+- post-build pedagogical evaluation before committing to Module 2
 
 ---
 
@@ -61,6 +99,10 @@ The MIU system is the smallest laboratory for that move.
   - string rewriting systems
   - graph search / state-space explosion
   - invariants as preserved quantities
+
+Current status:
+- everything in this section exists in at least a first-pass implementation
+- the main remaining gaps are pedagogical depth, proof assembly, and stronger framing rather than raw feature absence
 
 ## Out of scope for Module 1
 - generalized theorem proving
@@ -138,6 +180,10 @@ The user should articulate:
 
 This phase is a good fit for explain-back or Socratic dialogue.
 
+Current status:
+- dialogue-assisted reflection exists
+- explicit proof assembly and reflective prompts still need to be made more structured
+
 ---
 
 ## 6. Functional features
@@ -156,6 +202,11 @@ Useful extras if cheap:
 - highlight the substring affected by a rule,
 - support click-to-apply on matching regions,
 - show all applicable next moves.
+
+Current build notes:
+- all applicable next moves are shown
+- history branching, undo, and restart are implemented
+- invalid moves are mostly prevented rather than entered and explained after the fact
 
 ## 6.2 Derivation trace viewer
 Required behaviors:
@@ -179,6 +230,10 @@ Nice-to-have behaviors:
 - highlight shortest known path to a selected node,
 - support filters by depth or rule type.
 
+Current build notes:
+- bounded exploration, deduplicated nodes, and provenance inspection are implemented
+- the explorer is useful, but still needs stronger pedagogical guidance so it teaches rather than merely exposes state growth
+
 ## 6.4 Invariant explorer
 Required behaviors:
 - present at least one built-in invariant argument tied to the MIU problem,
@@ -198,6 +253,10 @@ The exact implementation can start narrow. What matters is that the user can exp
 - checking preservation,
 - using that preservation to reason globally.
 
+Current build notes:
+- the implementation is intentionally narrow and focused on modular `I`-count invariants
+- this is sufficient for Module 1’s main proof idea, but broader candidate families should wait until there is evidence they improve understanding
+
 ## 6.5 Meta-level framing
 The UI should mark the shift between:
 - **Inside the system**  
@@ -208,6 +267,10 @@ and
   proving facts about the full space of derivations
 
 This distinction should not be hidden in prose alone. It should be reinforced by layout or mode.
+
+Current build notes:
+- this distinction is present conceptually, but not yet forceful enough in the interface
+- a dedicated proof-mode or side-by-side object/meta panel is still needed
 
 ## 6.6 Dialogue mode
 Only one LLM mode is required initially.
@@ -228,6 +291,11 @@ Alternative acceptable choice:
 
 Do **not** implement both initially unless one is nearly free.
 
+Current build notes:
+- the current build has a functioning Claude Code dialogue path backed by a small agent team
+- dialogue is persisted as an artifact
+- the next issue is dialogue quality and fit, not basic availability
+
 ## 6.7 Artifact persistence
 Persist at least:
 - latest sandbox state,
@@ -237,6 +305,12 @@ Persist at least:
 - dialogue transcript,
 - notes / reflections,
 - user-entered confidence note if included.
+
+Current build notes:
+- latest module snapshot persistence exists
+- dialogue artifacts exist
+- notes and graph/invariant state are included in persisted draft state
+- artifact taxonomy and reuse still need work
 
 ---
 
@@ -403,6 +477,10 @@ A user can:
 4. explain why MU is unreachable,
 5. save their work.
 
+Status:
+- this is substantially true in the current build
+- the missing part is turning the existing surfaces into a clearer proof-building workflow
+
 ### 11.3 Conceptual clarity
 The module makes the following distinction visible and usable:
 - derivation inside the system,
@@ -422,6 +500,10 @@ The module is usable without:
 - getting buried in graph noise,
 - confusing LLM coaching with formal verification.
 
+Status:
+- persistence and epistemic separation are in place
+- graph noise and proof-assembly clarity still need attention
+
 ---
 
 ## 12. Feedback questions for the post-build review
@@ -437,3 +519,41 @@ After using Module 1 while reading, evaluate:
 7. What reusable primitive emerged that will help future modules?
 
 The answers to these questions should determine whether Module 2 expands confidently or whether Module 1 needs refinement first.
+
+---
+
+## 13. Recommended next work
+
+The next pass on Module 1 should focus on depth, not breadth.
+
+### Priority 1: proof mode
+Build a dedicated flow for:
+- claim,
+- candidate invariant,
+- per-rule preservation checks,
+- conclusion about MU.
+
+This is the most important missing piece because it turns exploration into an actual argument.
+
+### Priority 2: stronger object/meta framing
+Make the UI visibly separate:
+- rule-following inside the system,
+- proof about the system from outside it.
+
+This is one of the main learning goals of the module and should not rely on prose alone.
+
+### Priority 3: invalid-move explanation
+Allow the user to propose a next string and have the verifier explain why it is invalid.
+
+The current prevention-first interaction is efficient, but not always pedagogically strongest.
+
+### Priority 4: guided tasks and reflection
+Add a small number of prompts such as:
+- find strings that seem promising but remain blocked,
+- propose an invariant that fails,
+- explain why search is not enough.
+
+This would give the module a clearer arc.
+
+### Priority 5: evaluate what actually helped
+Before expanding to Module 2, test the current build against actual use and answer the feedback questions in Section 12.

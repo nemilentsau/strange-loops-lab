@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 import type { DialogueResult } from '$lib/dialogue/types';
@@ -77,34 +78,25 @@ export async function runModule1Dialogue(
 	}
 
 	const prompt = buildDialoguePrompt(draft, userInput);
-	const args = [
-		'-p',
-		'--output-format',
-		'json',
-		'--permission-mode',
-		'bypassPermissions',
-		'--effort',
-		process.env.CLAUDE_DIALOGUE_EFFORT ?? 'low',
-		'--model',
-		process.env.CLAUDE_DIALOGUE_MODEL ?? 'sonnet',
-		'--append-system-prompt',
-		LEAD_SYSTEM_PROMPT,
-		'--agents',
-		CUSTOM_AGENTS,
-		'--json-schema',
-		DIALOGUE_JSON_SCHEMA,
-		prompt
-	];
-
-	const { stdout } = await runner(process.env.CLAUDE_CLI_PATH ?? 'claude', args, {
+	const { stdout, stderr } = await runner('python3', [resolve('scripts/run_claude_dialogue.py')], {
 		cwd: process.cwd(),
 		env: {
 			...process.env,
-			CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: '1'
+			CLAUDE_CLI_PATH: process.env.CLAUDE_CLI_PATH ?? 'claude',
+			CLAUDE_DIALOGUE_EFFORT: process.env.CLAUDE_DIALOGUE_EFFORT ?? 'low',
+			CLAUDE_DIALOGUE_MODEL: process.env.CLAUDE_DIALOGUE_MODEL ?? 'sonnet',
+			DIALOGUE_SYSTEM_PROMPT: LEAD_SYSTEM_PROMPT,
+			DIALOGUE_AGENTS: CUSTOM_AGENTS,
+			DIALOGUE_JSON_SCHEMA: DIALOGUE_JSON_SCHEMA,
+			DIALOGUE_PROMPT: prompt
 		},
 		maxBuffer: 1024 * 1024 * 4,
 		timeout: Number(process.env.CLAUDE_DIALOGUE_TIMEOUT_MS ?? 120000)
 	});
+
+	if (!stdout.trim() && stderr.trim()) {
+		throw new Error(stderr);
+	}
 
 	return parseDialogueEnvelope(stdout);
 }
@@ -115,38 +107,34 @@ export function buildDialoguePrompt(draft: Module1Draft, userInput: string): str
 	const traceValues = draft.trace.steps.map((step) => step.value).join(' -> ');
 	const invariant = builtInInvariantAnalysis(currentString);
 
-	return `Run a Strange Loops Module 1 tutoring dialogue.
-
-Consult exactly these two agents once each:
+	return `Use the custom agents exactly once each, in this order:
 1. examiner
 2. proof_coach
 
-After consulting them, return a final response for the learner that:
-- synthesizes the strongest points
-- stays concise
-- remains explicitly in coaching mode
-- does not claim mechanical proof unless it is directly grounded in the provided verifier facts
+Ask examiner for one concise probing question or critique.
+Ask proof_coach for one concise missing premise, missing distinction, or unsupported leap.
 
-Module context:
-- Module: Formal Systems & Their Walls
-- Dialogue mode selected by user: ${draft.dialogueMode}
-- Active surface: ${draft.activeSurface}
-- Current MIU string: ${currentString}
-- Current derivation trace: ${traceValues}
-- Reachability bounds: depth ${draft.graphDepth}, node limit ${draft.graphNodeLimit}
-- Candidate invariant: ${draft.invariantCandidate}
-- Built-in invariant status: ${invariant.preserved ? 'preserved' : 'not preserved'}
-- Built-in invariant consequence: ${invariant.consequence ?? 'none'}
-- User notes: ${draft.notes || '(none)'}
+After both agent replies return, produce final_response for the learner.
 
-Learner message:
-${userInput}
+Constraints:
+- Stay in coaching mode only.
+- Do not claim formal proof unless directly grounded in the provided verifier facts.
+- Keep every message concise.
+- messages[0] must be examiner.
+- messages[1] must be proof_coach.
 
-Response requirements:
-- messages[0] must be the examiner turn
-- messages[1] must be the proof_coach turn
-- final_response should address the learner directly
-- keep each agent turn and the final response concise and high signal`;
+Context:
+- module: Formal Systems & Their Walls
+- mode: ${draft.dialogueMode}
+- active_surface: ${draft.activeSurface}
+- current_string: ${currentString}
+- trace: ${traceValues}
+- invariant_candidate: ${draft.invariantCandidate}
+- built_in_invariant: ${invariant.consequence ?? 'none'}
+- user_notes: ${draft.notes || '(none)'}
+
+Learner input:
+${userInput}`;
 }
 
 export function parseDialogueEnvelope(stdout: string): DialogueResult {

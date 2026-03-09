@@ -8,9 +8,9 @@ describe('dialogue team runner', () => {
 		const draft = createModule1Draft();
 		const prompt = buildDialoguePrompt(draft, 'I think MU is unreachable because I cannot find it.');
 
-		expect(prompt).toContain('Dialogue mode selected by user');
-		expect(prompt).toContain('Current MIU string: MI');
-		expect(prompt).toContain('Learner message');
+		expect(prompt).toContain('mode: Explain-Back Examiner');
+		expect(prompt).toContain('current_string: MI');
+		expect(prompt).toContain('Learner input');
 	});
 
 	it('parses structured Claude output', () => {
@@ -69,9 +69,11 @@ describe('dialogue team runner', () => {
 		);
 
 		expect(runner).toHaveBeenCalledOnce();
-		const [, args] = runner.mock.calls[0]!;
-		expect(args).toContain('--agents');
-		expect(args).toContain('--json-schema');
+		const [file, args, options] = runner.mock.calls[0]!;
+		expect(file).toBe('python3');
+		expect(args[0]).toContain('scripts/run_claude_dialogue.py');
+		expect(options.env.DIALOGUE_AGENTS).toContain('examiner');
+		expect(options.env.DIALOGUE_JSON_SCHEMA).toContain('final_response');
 		expect(result.finalResponse).toBe('Final response');
 	});
 });

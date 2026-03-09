@@ -52,6 +52,9 @@ The current scaffold is a root SvelteKit app managed with `npm`.
 - Run frontend checks: `npm run check`
 - Run unit tests: `npm run test`
 - Build production output: `npm run build`
+- Run the full smoke suite against a running server: `npm run smoke:all -- http://127.0.0.1:4175`
+- Run the dialogue smoke test against a running server: `npm run smoke:dialogue -- http://127.0.0.1:4175`
+- Run the persistence smoke test against a running server: `npm run smoke:persistence -- http://127.0.0.1:4175`
 - SQLite persistence lives at `data/strange-loops.db` unless `STRANGE_LOOPS_DB_PATH` is set
 - Dialogue mode shells out to local Claude Code; configurable via `CLAUDE_CLI_PATH`, `CLAUDE_DIALOGUE_MODEL`, `CLAUDE_DIALOGUE_TIMEOUT_MS`, and `CLAUDE_DIALOGUE_EFFORT`
 

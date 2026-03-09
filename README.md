@@ -32,6 +32,15 @@ npm run build
 
 SQLite persistence is created automatically at `data/strange-loops.db`.
 
+Dialogue smoke test against a running app server:
+
+```bash
+npm run preview -- --host 127.0.0.1 --port 4175
+npm run smoke:all -- http://127.0.0.1:4175
+npm run smoke:dialogue -- http://127.0.0.1:4175
+npm run smoke:persistence -- http://127.0.0.1:4175
+```
+
 Optional dialogue env:
 
 ```bash
