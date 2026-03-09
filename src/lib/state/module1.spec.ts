@@ -14,6 +14,7 @@ describe('module1 draft state', () => {
 
 		expect(draft.activeSurface).toBe('sandbox');
 		expect(draft.dialogueMode).toBe('Explain-Back Examiner');
+		expect(draft.trace.steps.map((step) => step.value)).toEqual(['MI']);
 		expect(draft.visitedSurfaces).toEqual(['sandbox']);
 	});
 
@@ -22,6 +23,7 @@ describe('module1 draft state', () => {
 			activeSurface: 'forbidden',
 			dialogueMode: 'oracle',
 			workingQuestion: 7,
+			trace: { steps: [{ value: 'MU', via: null }], currentIndex: 12 },
 			visitedSurfaces: ['graph', 'graph', 'bad'],
 			lastEditedAt: '2026-03-09T09:00:00.000Z'
 		});
@@ -29,6 +31,7 @@ describe('module1 draft state', () => {
 		expect(draft.activeSurface).toBe('sandbox');
 		expect(draft.dialogueMode).toBe('Explain-Back Examiner');
 		expect(draft.workingQuestion).toContain('Can MI become MU');
+		expect(draft.trace.steps.map((step) => step.value)).toEqual(['MI']);
 		expect(draft.visitedSurfaces).toEqual(['graph']);
 		expect(draft.lastEditedAt).toBe('2026-03-09T09:00:00.000Z');
 	});

@@ -386,6 +386,88 @@ textarea {
 	resize: vertical;
 }
 
+.current-string-panel {
+	display: grid;
+	gap: 12px;
+	padding: 18px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+}
+
+.current-string {
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: clamp(2rem, 5vw, 3.5rem);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	color: var(--accent-strong);
+}
+
+.move-grid,
+.trace-list {
+	display: grid;
+	gap: 12px;
+}
+
+.move-card,
+.trace-step {
+	width: 100%;
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: rgba(239, 231, 212, 0.03);
+	color: var(--paper);
+	cursor: pointer;
+	text-align: left;
+	transition:
+		transform 160ms ease,
+		border-color 160ms ease,
+		background 160ms ease;
+}
+
+.move-card:hover,
+.trace-step:hover,
+.move-card:focus-visible,
+.trace-step:focus-visible {
+	transform: translateY(-1px);
+	border-color: rgba(208, 169, 95, 0.28);
+	background: rgba(208, 169, 95, 0.08);
+}
+
+.move-card__top,
+.trace-step__meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+.move-card p,
+.trace-step small {
+	margin: 0;
+	color: var(--muted-strong);
+	line-height: 1.55;
+}
+
+.move-card small {
+	display: block;
+	margin-top: 10px;
+	color: var(--muted);
+}
+
+.trace-step[data-active='true'] {
+	border-color: rgba(127, 195, 189, 0.34);
+	background: rgba(127, 195, 189, 0.1);
+}
+
+.trace-step__value {
+	margin-bottom: 8px;
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 1.15rem;
+	letter-spacing: 0.08em;
+}
+
 .placeholder-copy {
 	margin: 0;
 	padding: 18px;

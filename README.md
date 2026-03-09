@@ -162,6 +162,7 @@ Early build with the application shell in place.
 
 The current work is focused on:
 - shared scaffolding
+- MIU rule engine and derivation trace core
 - state persistence
 - Module 1 interaction design
 - testing whether the interactions actually deepen understanding
@@ -182,7 +183,7 @@ It is aimed at making difficult ideas more tangible.
 ## Near-term roadmap
 
 - [x] establish project scaffolding
-- [ ] build Module 1 MIU sandbox
+- [x] build Module 1 MIU sandbox
 - [ ] build derivation graph explorer
 - [ ] build invariant explorer
 - [ ] add artifact persistence

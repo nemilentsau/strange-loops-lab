@@ -1,4 +1,10 @@
-export const MODULE1_STORAGE_KEY = 'strange-loops/module-1/v1';
+import {
+	createDerivationTrace,
+	normalizeTrace,
+	type DerivationTrace
+} from '$lib/miu/core';
+
+export const MODULE1_STORAGE_KEY = 'strange-loops/module-1/v2';
 
 export const SURFACE_SEQUENCE = [
 	'sandbox',
@@ -18,6 +24,7 @@ export interface Module1Draft {
 	workingQuestion: string;
 	invariantCandidate: string;
 	notes: string;
+	trace: DerivationTrace;
 	visitedSurfaces: SurfaceId[];
 	lastEditedAt: string | null;
 }
@@ -31,6 +38,7 @@ export function createModule1Draft(): Module1Draft {
 		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
 		invariantCandidate: 'count(I) mod 3',
 		notes: '',
+		trace: createDerivationTrace(),
 		visitedSurfaces: ['sandbox'],
 		lastEditedAt: null
 	};
@@ -59,6 +67,7 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 				? candidate.invariantCandidate
 				: fallback.invariantCandidate,
 		notes: typeof candidate.notes === 'string' ? candidate.notes : fallback.notes,
+		trace: normalizeTrace(candidate.trace),
 		visitedSurfaces: normalizeVisitedSurfaces(candidate.visitedSurfaces),
 		lastEditedAt: typeof candidate.lastEditedAt === 'string' ? candidate.lastEditedAt : null
 	};

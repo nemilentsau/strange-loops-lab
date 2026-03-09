@@ -3,6 +3,14 @@
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import type { ModuleSummary } from '$lib/content/modules';
 	import {
+		applyMoveToTrace,
+		enumerateMiuMoves,
+		jumpToTraceStep,
+		restartTrace,
+		stepBackTrace,
+		type MiuMove
+	} from '$lib/miu/core';
+	import {
 		SURFACE_SEQUENCE,
 		createModule1Draft,
 		readModule1Draft,
@@ -53,6 +61,14 @@
 	let draft = $state(createModule1Draft());
 	let hydrated = $state(false);
 	let lastEditedLabel = $state('No local edits yet');
+	const currentTraceStep = $derived(
+		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
+	);
+	const currentString = $derived(currentTraceStep.value);
+	const legalMoves = $derived(enumerateMiuMoves(currentString));
+	const uniqueReachableStates = $derived(
+		Array.from(new Map(legalMoves.map((move) => [move.result, move])).values())
+	);
 
 	onMount(() => {
 		if (module.slug !== 'module-1' || !browser) {
@@ -115,6 +131,42 @@
 
 	function updateDialogueMode(mode: DialogueMode) {
 		patchDraft({ dialogueMode: mode });
+	}
+
+	function applyMove(move: MiuMove) {
+		patchDraft({
+			activeSurface: 'sandbox',
+			trace: applyMoveToTrace(draft.trace, move),
+			visitedSurfaces: ensureVisited('sandbox', 'trace')
+		});
+	}
+
+	function jumpToStep(index: number) {
+		patchDraft({
+			activeSurface: 'trace',
+			trace: jumpToTraceStep(draft.trace, index),
+			visitedSurfaces: ensureVisited('trace')
+		});
+	}
+
+	function undoMove() {
+		patchDraft({
+			activeSurface: 'trace',
+			trace: stepBackTrace(draft.trace),
+			visitedSurfaces: ensureVisited('trace')
+		});
+	}
+
+	function restartFromInitial() {
+		patchDraft({
+			activeSurface: 'sandbox',
+			trace: restartTrace(draft.trace),
+			visitedSurfaces: ensureVisited('sandbox', 'trace')
+		});
+	}
+
+	function ensureVisited(...surfaces: SurfaceId[]): SurfaceId[] {
+		return Array.from(new Set([...draft.visitedSurfaces, ...surfaces]));
 	}
 </script>
 
@@ -185,8 +237,71 @@
 					</label>
 				</div>
 				<p class="field-note">
-					This is scaffold state, not the full MIU engine yet. The point is to preserve a clean
-					module notebook and route for the real interaction surfaces.
+					The notebook state is persisted, but the MIU sandbox below is now driven by the same
+					deterministic rule engine the tests exercise.
+				</p>
+			</SurfacePanel>
+
+			<SurfacePanel title="MIU Sandbox" eyebrow="Inside the system" badge="verified rules">
+				<div class="current-string-panel">
+					<p class="eyebrow">Current string</p>
+					<div class="current-string">{currentString}</div>
+					<p class="field-note">
+						Only legal next moves are shown. Applying one appends to the derivation trace and
+						preserves exact rule metadata.
+					</p>
+				</div>
+
+				<div class="status-row">
+					<button class="button button--ghost" type="button" onclick={undoMove}>Step back</button>
+					<button class="button button--ghost" type="button" onclick={restartFromInitial}>
+						Restart from MI
+					</button>
+				</div>
+
+				<div class="move-grid">
+					{#if legalMoves.length > 0}
+						{#each legalMoves as move}
+							<button class="move-card" type="button" onclick={() => applyMove(move)}>
+								<div class="move-card__top">
+									<strong>{move.ruleLabel}</strong>
+									<span>{move.result}</span>
+								</div>
+								<p>{move.detail}</p>
+								<small>Span {move.start + 1}-{move.end}</small>
+							</button>
+						{/each}
+					{:else}
+						<p class="placeholder-copy">No legal moves exist from this state.</p>
+					{/if}
+				</div>
+			</SurfacePanel>
+
+			<SurfacePanel title="Derivation Trace" eyebrow="Ordered history" badge="branchable">
+				<div class="trace-list">
+					{#each draft.trace.steps as step, index}
+						<button
+							class="trace-step"
+							type="button"
+							data-active={index === draft.trace.currentIndex}
+							onclick={() => jumpToStep(index)}
+						>
+							<div class="trace-step__meta">
+								<strong>Step {index}</strong>
+								<span>{step.via ? step.via.ruleLabel : 'Initial state'}</span>
+							</div>
+							<div class="trace-step__value">{step.value}</div>
+							{#if step.via}
+								<small>{step.via.detail} Span {step.via.start + 1}-{step.via.end}.</small>
+							{:else}
+								<small>Starting point for the derivation.</small>
+							{/if}
+						</button>
+					{/each}
+				</div>
+				<p class="field-note">
+					Click any earlier step, then apply a legal move from the sandbox to branch from that
+					point instead of mutating later history in place.
 				</p>
 			</SurfacePanel>
 
@@ -256,6 +371,20 @@
 				</div>
 			</SurfacePanel>
 
+			<SurfacePanel title="Immediate Reachability" eyebrow="Computed preview">
+				<ul class="ledger">
+					{#each uniqueReachableStates as move}
+						<li>
+							<strong>{move.result}</strong>
+							<span>{move.ruleLabel}</span>
+						</li>
+					{/each}
+				</ul>
+				<p class="field-note">
+					This is a bounded preview of the next reachable layer, not the full graph explorer yet.
+				</p>
+			</SurfacePanel>
+
 			<SurfacePanel title="Scaffold Ledger" eyebrow="What exists now">
 				<ul class="ledger">
 					<li>
@@ -272,7 +401,7 @@
 					</li>
 					<li>
 						<strong>MIU engine</strong>
-						<span>next</span>
+						<span>ready</span>
 					</li>
 				</ul>
 			</SurfacePanel>
