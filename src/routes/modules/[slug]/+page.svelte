@@ -533,9 +533,6 @@
 		{iCount}
 		{mod3Class}
 		workingQuestion={draft.workingQuestion}
-		phaseLabel={activePhaseMeta.label}
-		phaseEpistemicLabel={activePhaseMeta.epistemicLabel}
-		phaseCue={phaseCueFor(draft.activePhase)}
 		onUpdateQuestion={updateQuestion}
 	/>
 

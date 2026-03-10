@@ -5,9 +5,6 @@
 		iCount,
 		mod3Class,
 		workingQuestion,
-		phaseLabel,
-		phaseEpistemicLabel,
-		phaseCue,
 		onUpdateQuestion,
 	}: {
 		currentString: string;
@@ -15,9 +12,6 @@
 		iCount: number;
 		mod3Class: number;
 		workingQuestion: string;
-		phaseLabel: string;
-		phaseEpistemicLabel: string;
-		phaseCue: string;
 		onUpdateQuestion: (event: Event) => void;
 	} = $props();
 </script>
@@ -53,12 +47,5 @@
 				oninput={onUpdateQuestion}
 			/>
 		</label>
-
-		<div class="context-lens" data-tone={phaseLabel === 'Reflect' ? 'coaching' : 'verified'}>
-			<span class="context-field__label">Current lens</span>
-			<strong>{phaseLabel}</strong>
-			<small>{phaseEpistemicLabel}</small>
-			<p>{phaseCue}</p>
-		</div>
 	</div>
 </div>

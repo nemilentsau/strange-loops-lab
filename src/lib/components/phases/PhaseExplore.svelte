@@ -26,40 +26,56 @@
 
 <div class="phase-explore">
 	<div class="phase-explore__main">
-		<SurfacePanel title="MIU Sandbox" eyebrow="Inside the system" badge="verified rules" tone="verified">
-			<div class="current-string-panel">
-				<p class="eyebrow">Current string</p>
-				<div class="current-string">{currentString}</div>
-				<p class="field-note">
-					Only legal next moves are shown. Applying one appends to the derivation trace and
-					preserves exact rule metadata.
-				</p>
-			</div>
+		<div class="phase-explore__left">
+			<SurfacePanel title="MIU Sandbox" eyebrow="Inside the system" badge="verified rules" tone="verified">
+				<div class="current-string-panel">
+					<p class="eyebrow">Current string</p>
+					<div class="current-string">{currentString}</div>
+					<p class="field-note">
+						Only legal next moves are shown. Applying one appends to the derivation trace and
+						preserves exact rule metadata.
+					</p>
+				</div>
 
-			<div class="status-row">
-				<button class="button button--ghost" type="button" onclick={onUndo}>Step back</button>
-				<button class="button button--ghost" type="button" onclick={onRestart}>
-					Restart from MI
-				</button>
-			</div>
+				<div class="status-row">
+					<button class="button button--ghost" type="button" onclick={onUndo}>Step back</button>
+					<button class="button button--ghost" type="button" onclick={onRestart}>
+						Restart from MI
+					</button>
+				</div>
 
-			<div class="move-grid">
-				{#if legalMoves.length > 0}
-					{#each legalMoves as move}
-						<button class="move-card" type="button" onclick={() => onApplyMove(move)}>
-							<div class="move-card__top">
-								<strong>{move.ruleLabel}</strong>
-								<span>{move.result}</span>
-							</div>
-							<p>{move.detail}</p>
-							<small>Span {move.start + 1}-{move.end}</small>
-						</button>
+				<div class="move-grid">
+					{#if legalMoves.length > 0}
+						{#each legalMoves as move}
+							<button class="move-card" type="button" onclick={() => onApplyMove(move)}>
+								<div class="move-card__top">
+									<strong>{move.ruleLabel}</strong>
+									<span>{move.result}</span>
+								</div>
+								<p>{move.detail}</p>
+								<small>Span {move.start + 1}-{move.end}</small>
+							</button>
+						{/each}
+					{:else}
+						<p class="placeholder-copy">No legal moves exist from this state.</p>
+					{/if}
+				</div>
+			</SurfacePanel>
+
+			<SurfacePanel title="Immediate Reachability" eyebrow="Computed preview" tone="verified">
+				<ul class="ledger">
+					{#each uniqueReachableStates as move}
+						<li>
+							<strong>{move.result}</strong>
+							<span>{move.ruleLabel}</span>
+						</li>
 					{/each}
-				{:else}
-					<p class="placeholder-copy">No legal moves exist from this state.</p>
-				{/if}
-			</div>
-		</SurfacePanel>
+				</ul>
+				<p class="field-note">
+					A bounded preview of the next reachable layer from the current string.
+				</p>
+			</SurfacePanel>
+		</div>
 
 		<SurfacePanel title="Derivation Trace" eyebrow="Ordered history" badge="branchable" tone="verified">
 			<div class="trace-list">
@@ -89,18 +105,4 @@
 			</p>
 		</SurfacePanel>
 	</div>
-
-	<SurfacePanel title="Immediate Reachability" eyebrow="Computed preview" tone="verified">
-		<ul class="ledger">
-			{#each uniqueReachableStates as move}
-				<li>
-					<strong>{move.result}</strong>
-					<span>{move.ruleLabel}</span>
-				</li>
-			{/each}
-		</ul>
-		<p class="field-note">
-			A bounded preview of the next reachable layer from the current string.
-		</p>
-	</SurfacePanel>
 </div>

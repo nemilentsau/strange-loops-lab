@@ -67,8 +67,12 @@
 			<span>edges</span>
 		</div>
 		<div class="graph-metric">
-			<strong>{reachabilityGraph.truncatedBy ? `by ${reachabilityGraph.truncatedBy}` : 'none'}</strong>
-			<span>truncation</span>
+			{#if reachabilityGraph.truncatedBy}
+				<strong>{reachabilityGraph.truncatedBy}</strong>
+				<span>truncated by</span>
+			{:else}
+				<span class="graph-metric__none">no truncation</span>
+			{/if}
 		</div>
 	</div>
 
