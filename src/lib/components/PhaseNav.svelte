@@ -19,14 +19,7 @@
 		{@const isVisited = visitedPhases.includes(phase)}
 
 		{#if i > 0}
-			<div
-				class="phase-nav__connector"
-				class:phase-nav__connector--meta-shift={i === 2}
-			>
-				{#if i === 2}
-					<span class="phase-nav__shift-label">stepping outside the system</span>
-				{/if}
-			</div>
+			<div class="phase-nav__connector"></div>
 		{/if}
 
 		<button
