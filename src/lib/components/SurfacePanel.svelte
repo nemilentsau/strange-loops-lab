@@ -5,12 +5,14 @@
 		title,
 		eyebrow = 'Work surface',
 		badge,
+		badgeTooltip,
 		tone,
 		children
 	}: {
 		title: string;
 		eyebrow?: string;
 		badge?: string;
+		badgeTooltip?: string;
 		tone?: 'verified' | 'computed' | 'coaching';
 		children: Snippet;
 	} = $props();
@@ -24,7 +26,7 @@
 		</div>
 
 		{#if badge}
-			<span class="legend-chip">{badge}</span>
+			<span class="legend-chip" title={badgeTooltip}>{badge}</span>
 		{/if}
 	</div>
 

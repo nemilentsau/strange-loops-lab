@@ -10,6 +10,15 @@
 		visitedPhases: LabPhase[];
 		onSelectPhase: (phase: LabPhase) => void;
 	} = $props();
+
+	function cueForPhase(phase: LabPhase): string {
+		switch (phase) {
+			case 'explore': return 'Play with the rules. Try to reach MU.';
+			case 'map': return 'See the full search space.';
+			case 'prove': return 'Build an argument about all strings.';
+			case 'reflect': return 'Explain and preserve what you learned.';
+		}
+	}
 </script>
 
 <nav class="phase-nav" aria-label="Lab phases">
@@ -35,6 +44,9 @@
 			<span class="phase-nav__label">
 				<strong>{meta.label}</strong>
 				<small>{meta.epistemicLabel}</small>
+				{#if isActive}
+					<span class="phase-nav__cue">{cueForPhase(phase)}</span>
+				{/if}
 			</span>
 		</button>
 	{/each}

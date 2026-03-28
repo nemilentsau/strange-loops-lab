@@ -53,15 +53,21 @@
 	const reflectionPrompts = [
 		{
 			title: 'Why search fails',
-			text: 'Explain why exploring more derivations cannot by itself prove that MU is unreachable.'
+			subtitle: 'Even infinite patience wouldn\'t help. Why?',
+			text: 'Explain why exploring more derivations cannot by itself prove that MU is unreachable.',
+			colorClass: 'reflection-prompt--rose'
 		},
 		{
 			title: 'Weak step in the proof',
-			text: 'State the single rule you had to justify most carefully, and explain why it preserves the invariant.'
+			subtitle: 'Which rule was hardest to check?',
+			text: 'State the single rule you had to justify most carefully, and explain why it preserves the invariant.',
+			colorClass: 'reflection-prompt--teal'
 		},
 		{
 			title: 'Object vs meta',
-			text: 'Describe the difference between applying an MIU rule and proving a fact about all MIU derivations.'
+			subtitle: 'Two different kinds of reasoning.',
+			text: 'Describe the difference between applying an MIU rule and proving a fact about all MIU derivations.',
+			colorClass: 'reflection-prompt--gold'
 		}
 	] as const;
 
@@ -73,11 +79,17 @@
 	let draft = $state(createModule1Draft());
 	let hydrated = $state(false);
 	let lastEditedLabel = $state('No local edits yet');
-	let snapshotStatus = $state('SQLite snapshot not loaded yet.');
-	let artifactStatus = $state('SQLite artifact list not loaded yet.');
+	let snapshotStatus = $state('Your saved progress will appear here.');
+	let artifactStatus = $state('Your saved work will appear here.');
 	let savedArtifacts = $state<Module1Artifact[]>([]);
-	let dialogueStatus = $state('No dialogue run yet.');
+	let dialogueStatus = $state('Submit your explanation above to get coaching feedback.');
 	let dialogueRunning = $state(false);
+	let welcomeDismissed = $state(false);
+	const isNewSession = $derived(
+		draft.trace.steps.length <= 1 &&
+		draft.visitedPhases.length <= 1 &&
+		draft.visitedPhases[0] === 'explore'
+	);
 	const currentTraceStep = $derived(
 		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
 	);
@@ -356,13 +368,13 @@
 					draft = chosenDraft;
 					snapshotStatus =
 						chosenDraft === remoteDraft
-							? `Loaded SQLite snapshot from ${formatTimestamp(snapshotPayload.snapshot?.updatedAt ?? null)}.`
-							: 'Kept newer local draft and left the older SQLite snapshot untouched.';
+							? `Loaded saved progress from ${formatTimestamp(snapshotPayload.snapshot?.updatedAt ?? null)}.`
+							: 'Kept newer local draft.';
 				} else {
-					snapshotStatus = 'No SQLite snapshot saved yet.';
+					snapshotStatus = 'Your saved progress will appear here.';
 				}
 			} else {
-				snapshotStatus = 'SQLite snapshot request failed.';
+				snapshotStatus = 'Could not load saved progress.';
 			}
 
 			if (artifactsResponse.ok) {
@@ -371,13 +383,13 @@
 				artifactStatus =
 					savedArtifacts.length > 0
 						? `Loaded ${savedArtifacts.length} saved artifact${savedArtifacts.length === 1 ? '' : 's'}.`
-						: 'No saved SQLite artifacts yet.';
+						: 'Your saved work will appear here.';
 			} else {
-				artifactStatus = 'SQLite artifact request failed.';
+				artifactStatus = 'Could not load saved work.';
 			}
 		} catch {
-			snapshotStatus = 'SQLite persistence is unavailable in this session.';
-			artifactStatus = 'SQLite persistence is unavailable in this session.';
+			snapshotStatus = 'Saving is unavailable in this session.';
+			artifactStatus = 'Saving is unavailable in this session.';
 		}
 	}
 
@@ -390,14 +402,14 @@
 			});
 
 			if (!response.ok) {
-				snapshotStatus = 'Failed to save SQLite snapshot.';
+				snapshotStatus = 'Failed to save progress.';
 				return;
 			}
 
 			const payload = (await response.json()) as { snapshot: { updatedAt: string } };
-			snapshotStatus = `SQLite snapshot saved at ${formatTimestamp(payload.snapshot.updatedAt)}.`;
+			snapshotStatus = `Progress saved at ${formatTimestamp(payload.snapshot.updatedAt)}.`;
 		} catch {
-			snapshotStatus = 'SQLite snapshot save failed.';
+			snapshotStatus = 'Failed to save progress.';
 		}
 	}
 
@@ -470,7 +482,7 @@
 			}
 
 			savedArtifacts = [artifact, ...savedArtifacts];
-			artifactStatus = `Saved ${artifactType} artifact to SQLite at ${formatTimestamp(artifact.createdAt)}.`;
+			artifactStatus = `Saved ${artifactType} artifact at ${formatTimestamp(artifact.createdAt)}.`;
 		} catch {
 			artifactStatus = `Saving ${artifactType} artifact failed.`;
 		}
@@ -513,9 +525,9 @@
 		const fresh = createModule1Draft();
 		draft = { ...fresh, lastEditedAt: new Date().toISOString() };
 		writeModule1Draft(window.localStorage, draft);
-		snapshotStatus = 'Session reset. SQLite snapshot unchanged.';
-		artifactStatus = 'Session reset. Saved artifacts still in SQLite.';
-		dialogueStatus = 'No dialogue run yet.';
+		snapshotStatus = 'Session reset. Saved progress unchanged.';
+		artifactStatus = 'Session reset. Saved artifacts still available.';
+		dialogueStatus = 'Submit your explanation above to get coaching feedback.';
 		lastEditedLabel = timestampFormatter.format(new Date());
 	}
 
@@ -530,6 +542,16 @@
 		});
 	}
 
+	function populateDialogueSuggestion(text: string) {
+		patchDraft({
+			activePhase: 'reflect',
+			activeSurface: 'dialogue',
+			dialogueInput: text,
+			visitedSurfaces: ensureVisited('dialogue'),
+			visitedPhases: ensureVisitedPhases('reflect')
+		});
+	}
+
 	async function runDialogue() {
 		const userInput = draft.dialogueInput.trim();
 
@@ -539,7 +561,7 @@
 		}
 
 		dialogueRunning = true;
-		dialogueStatus = 'Running Claude Code agent team...';
+		dialogueStatus = 'Getting coaching feedback...';
 
 		try {
 			const response = await fetch(`/api/modules/${module.slug}/dialogue`, {
@@ -574,13 +596,13 @@
 			}
 
 			dialogueStatus = payload.dialogue.costUsd
-				? `Dialogue finished. Cost: $${payload.dialogue.costUsd.toFixed(4)}.`
-				: 'Dialogue finished.';
+				? `Feedback received. Cost: $${payload.dialogue.costUsd.toFixed(4)}.`
+				: 'Feedback received.';
 			artifactStatus = artifact
-				? `Saved dialogue artifact to SQLite at ${formatTimestamp(artifact.createdAt)}.`
+				? `Saved dialogue artifact at ${formatTimestamp(artifact.createdAt)}.`
 				: artifactStatus;
 		} catch {
-			dialogueStatus = 'Dialogue request failed.';
+			dialogueStatus = 'Feedback request failed.';
 		} finally {
 			dialogueRunning = false;
 			}
@@ -637,6 +659,17 @@
 		visitedPhases={draft.visitedPhases}
 		onSelectPhase={selectPhase}
 	/>
+
+	{#if isNewSession && !welcomeDismissed}
+		<div class="welcome-banner">
+			<p class="welcome-banner__text">
+				<strong>Welcome to the MIU lab.</strong> You'll explore the MIU system, feel the limits of search, then build a proof. Start by trying the rules below.
+			</p>
+			<button class="welcome-banner__dismiss" type="button" onclick={() => { welcomeDismissed = true; }}>
+				Got it
+			</button>
+		</div>
+	{/if}
 
 	<section class="module-phases">
 		{#if draft.activePhase === 'explore'}
@@ -708,6 +741,7 @@
 					onSaveNote={saveNoteArtifact}
 					onSaveTrace={saveTraceArtifact}
 					onRestoreArtifact={restoreArtifact}
+					onPopulateSuggestion={populateDialogueSuggestion}
 					{formatTimestamp}
 				/>
 			</div>

@@ -9,7 +9,9 @@
 
 	interface ReflectionPrompt {
 		title: string;
+		subtitle: string;
 		text: string;
+		colorClass: string;
 	}
 
 	let {
@@ -31,6 +33,7 @@
 		onSaveNote,
 		onSaveTrace,
 		onRestoreArtifact,
+		onPopulateSuggestion,
 		formatTimestamp
 	}: {
 		dialogueInput: string;
@@ -51,6 +54,7 @@
 		onSaveNote: () => void;
 		onSaveTrace: () => void;
 		onRestoreArtifact: (artifact: Module1Artifact) => void;
+		onPopulateSuggestion: (text: string) => void;
 		formatTimestamp: (value: string | null) => string;
 	} = $props();
 
@@ -77,10 +81,18 @@
 	function capitalize(value: string): string {
 		return value.charAt(0).toUpperCase() + value.slice(1);
 	}
+
+	const hasDialogueRun = $derived(lastDialogue !== null);
 </script>
 
 <div class="phase-reflect">
-	<SurfacePanel title="Dialogue Mode" eyebrow="Claude agent team" badge="coaching only" tone="coaching">
+	<SurfacePanel
+		title="Dialogue Mode"
+		eyebrow="Coaching"
+		badge="Coaching, not proof"
+		badgeTooltip="The examiner probes your understanding — it does not verify or certify proof correctness."
+		tone="coaching"
+	>
 		<div class="dialogue-mode-card">
 			<strong>{dialogueMode}</strong>
 			<small>
@@ -105,10 +117,24 @@
 				onclick={onRunDialogue}
 				disabled={dialogueRunning}
 			>
-				{dialogueRunning ? 'Running...' : 'Run dialogue'}
+				{dialogueRunning ? 'Getting feedback...' : 'Get feedback'}
 			</button>
 		</div>
-		<p class="field-note">{dialogueStatus}</p>
+
+		{#if !hasDialogueRun && !dialogueRunning}
+			<div class="dialogue-empty-state">
+				<p>Describe what you understood about the proof. The examiner will probe your explanation to help you find gaps.</p>
+				<button
+					class="dialogue-empty-state__suggestion"
+					type="button"
+					onclick={() => onPopulateSuggestion('I think MU is unreachable because...')}
+				>
+					Try: "I think MU is unreachable because..."
+				</button>
+			</div>
+		{:else}
+			<p class="field-note">{dialogueStatus}</p>
+		{/if}
 
 		{#if lastDialogue}
 			<div class="dialogue-transcript">
@@ -126,14 +152,14 @@
 					<p class="eyebrow">Final response</p>
 					<p>{lastDialogue.finalResponse}</p>
 					{#if lastDialogue.sessionId}
-						<small>Claude session {lastDialogue.sessionId}</small>
+						<small>Session {lastDialogue.sessionId}</small>
 					{/if}
 				</div>
 			</div>
 		{/if}
 	</SurfacePanel>
 
-	<SurfacePanel title="Artifact Notebook" eyebrow="Persistence" tone="coaching">
+	<SurfacePanel title="Artifact Notebook" eyebrow="Your notebook" tone="coaching">
 		<div class="reflection-prompt-stack">
 			<div class="surface-panel__header">
 				<div>
@@ -144,11 +170,12 @@
 			<div class="reflection-prompt-grid">
 				{#each reflectionPrompts as prompt}
 					<button
-						class="reflection-prompt"
+						class="reflection-prompt {prompt.colorClass}"
 						type="button"
 						onclick={() => onUseReflectionPrompt(prompt.text)}
 					>
 						<strong>{prompt.title}</strong>
+						<span class="reflection-prompt__subtitle">{prompt.subtitle}</span>
 						<p>{prompt.text}</p>
 					</button>
 				{/each}
@@ -165,19 +192,33 @@
 				oninput={onUpdateNotes}
 			></textarea>
 		</label>
-		<div class="status-row">
-			<button class="button button--ghost" type="button" onclick={onSaveSnapshot}>
-				Save snapshot to SQLite
-			</button>
-			<button class="button button--ghost" type="button" onclick={onSaveNote}>
-				Save note artifact
-			</button>
-			<button class="button button--ghost" type="button" onclick={onSaveTrace}>
-				Save trace artifact
-			</button>
+
+		<div class="save-actions">
+			<div class="save-action">
+				<button class="button button--ghost" type="button" onclick={onSaveSnapshot}>
+					Save progress
+				</button>
+				<span class="save-action__hint">Saves your entire session so you can resume later.</span>
+			</div>
+			<p class="field-note">{snapshotStatus}</p>
+
+			<div class="save-actions__group">
+				<div class="save-action">
+					<button class="button button--ghost" type="button" onclick={onSaveNote}>
+						Save notes
+					</button>
+					<span class="save-action__hint">Captures your current notes as a named artifact.</span>
+				</div>
+				<div class="save-action">
+					<button class="button button--ghost" type="button" onclick={onSaveTrace}>
+						Save derivation
+					</button>
+					<span class="save-action__hint">Captures the derivation trace you built in Explore.</span>
+				</div>
+			</div>
+			<p class="field-note">{artifactStatus}</p>
 		</div>
-		<p class="field-note">{snapshotStatus}</p>
-		<p class="field-note">{artifactStatus}</p>
+
 		{#if savedArtifacts.length > 0}
 			<ul class="ledger artifact-ledger">
 				{#each savedArtifacts as artifact}
