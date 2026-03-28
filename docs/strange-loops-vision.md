@@ -564,6 +564,7 @@ Build:
 
 Goal:
 - confirm that the product actually helps while reading.
+- keep refining Module 1 until the interaction design, artifact model, and dialogue behavior earn expansion.
 
 ### Phase 2 — Module 2
 Build:
@@ -572,6 +573,9 @@ Build:
 
 Goal:
 - establish diagonalization as a central reusable engine.
+
+Status note:
+- this phase is intentionally deferred until Module 1 has been revised and re-evaluated through actual use
 
 ### Phase 3 — Module 3
 Build:

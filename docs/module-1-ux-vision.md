@@ -1,5 +1,12 @@
 # Module 1 UX Vision
 
+## Document status
+
+This is a supporting UX-direction document.
+
+The source of truth for Module 1 implementation status, scope, and priorities is
+`docs/strange-loops-module-1.md`.
+
 ## Purpose
 
 Module 1 should feel like a disciplined lab, not a dashboard of unrelated widgets.
@@ -132,21 +139,23 @@ Reason:
 
 ---
 
-## What is implemented in this pass
+## What is implemented now
 
 - the context strip no longer asks for an invariant up front
-- the context strip now shows the current phase lens
+- the phase-based flow now exists as `Explore -> Map -> Prove -> Reflect`
 - the Prove phase now includes a proof scaffold and custom-candidate input
 - the Reflect phase now includes guided reflection prompts
-- test SQLite data is cleared so the next run starts with a clean persistence state
+- persistence and artifact controls are integrated into `Reflect`
 
 ---
 
-## What still remains after this pass
+## What still remains
 
+- the context strip phase/lens cue is still not fully surfaced
 - invalid-move demonstration with explicit verifier rejection
 - stronger task-based onboarding inside Explore and Map
 - better artifact taxonomy, especially for proof attempts
+- dialogue mode differentiation is still weaker than the UI labels suggest
 - evaluation of whether the dialogue mode materially improves understanding
 
 ---

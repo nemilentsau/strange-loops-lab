@@ -1,12 +1,19 @@
-# Strange Loops Lab — Module 1 Specification and Status
+# Strange Loops Lab — Module 1 Specification, Status, and Improvement Plan
 
 ## Document status
-This document now serves two purposes:
+This document is the canonical source of truth for Module 1.
+
+It serves three purposes:
 
 - the conceptual specification for Module 1,
-- a status tracker for what is already implemented in the current build.
+- the implementation status tracker for the current build,
+- the prioritized improvement plan for the next passes.
 
-Last updated: March 9, 2026.
+Supporting docs such as `README.md` and `docs/module-1-ux-vision.md` should
+stay consistent with this document rather than carrying competing status
+snapshots.
+
+Last updated: March 28, 2026.
 
 ## Module title
 **Module 1: Formal Systems & Their Walls**
@@ -28,6 +35,7 @@ The MIU system is the concrete vehicle for this.
 
 ### Implemented in the current build
 - root SvelteKit application shell with a Module 1 route
+- phase-based module flow: `Explore -> Map -> Prove -> Reflect`
 - deterministic MIU rule engine
 - MIU sandbox with legal-next-move enumeration
 - derivation trace with jump, restart, undo, and branching from prior states
@@ -36,21 +44,37 @@ The MIU system is the concrete vehicle for this.
   - built-in MU non-reachability argument,
   - custom modular candidates of the form `count(I) mod k = r` and `!= r`,
   - concrete counterexamples when a candidate fails
+- proof scaffold in the `Prove` phase
+- guided reflection prompts in the `Reflect` phase
 - SQLite-backed snapshots and saved artifacts
 - Claude Code agent-team dialogue mode
 - local smoke scripts for persistence and dialogue flows
 
 ### Present but still shallow
-- object-level vs meta-level framing exists in copy and panel structure, but not yet as a strong dedicated proof workflow
+- object-level vs meta-level framing exists in phase labels, copy, and panel structure, but it is still not forceful enough in the interface
 - dialogue mode is usable, but still needs quality evaluation and refinement against real learner transcripts
 - artifact persistence works, but artifact types are still basic and not yet shaped into a strong learning notebook
+- the graph explorer is accurate and inspectable, but still needs stronger teaching structure so it does more than expose state growth
+
+### Present but inconsistent
+- the UX direction calls for a visible phase/lens cue in the context strip, but that cue is not yet fully surfaced in the current interface
+- the UI exposes `Explain-Back Examiner` and `Socratic Partner` labels, but the backend still behaves as one small agent-team workflow with the selected mode used mostly as context rather than as a truly different interaction policy
+- the module already has a proof scaffold and guided reflection prompts, so older references that treat both as missing should be considered stale
 
 ### Highest-priority remaining work
-- proof-mode workflow that helps the user assemble an actual invariant argument
 - stronger UI treatment of the object-level / meta-level split
 - explicit invalid-move demonstration instead of prevention-only UI
-- task structure and reflection prompts that make the module feel more guided
-- post-build pedagogical evaluation before committing to Module 2
+- stronger task structure in `Explore` and `Map`
+- better artifact taxonomy for proof attempts, invariant runs, and synthesis notes
+- dialogue quality evaluation and mode cleanup
+- repeated pedagogical evaluation before any serious move toward later modules
+
+### Roadmap stance
+There is no near-term plan to move on to Module 2.
+
+Module 2 remains part of the long-term map, but Module 1 should continue to be
+refined until it is both intellectually honest and demonstrably useful while
+reading.
 
 ---
 
@@ -182,7 +206,8 @@ This phase is a good fit for explain-back or Socratic dialogue.
 
 Current status:
 - dialogue-assisted reflection exists
-- explicit proof assembly and reflective prompts still need to be made more structured
+- explicit proof assembly and reflective prompts now exist in first-pass form
+- the remaining work is to make them feel more guided, better tied to artifacts, and more effective in practice
 
 ---
 
@@ -270,7 +295,8 @@ This distinction should not be hidden in prose alone. It should be reinforced by
 
 Current build notes:
 - this distinction is present conceptually, but not yet forceful enough in the interface
-- a dedicated proof-mode or side-by-side object/meta panel is still needed
+- the phase-based structure helps, but the intended phase/lens cue is not yet fully visible
+- a stronger proof-mode treatment or clearer side-by-side object/meta framing is still needed
 
 ## 6.6 Dialogue mode
 Only one LLM mode is required initially.
@@ -295,6 +321,7 @@ Current build notes:
 - the current build has a functioning Claude Code dialogue path backed by a small agent team
 - dialogue is persisted as an artifact
 - the next issue is dialogue quality and fit, not basic availability
+- the UI currently names two dialogue modes, but backend behavior is not yet differentiated enough to justify them as truly separate modes
 
 ## 6.7 Artifact persistence
 Persist at least:
@@ -308,8 +335,9 @@ Persist at least:
 
 Current build notes:
 - latest module snapshot persistence exists
-- dialogue artifacts exist
+- note, trace, and dialogue artifacts exist
 - notes and graph/invariant state are included in persisted draft state
+- invariant runs and proof attempts are not yet first-class saved artifacts
 - artifact taxonomy and reuse still need work
 
 ---
@@ -518,42 +546,88 @@ After using Module 1 while reading, evaluate:
 6. Which interaction felt like busywork?
 7. What reusable primitive emerged that will help future modules?
 
-The answers to these questions should determine whether Module 2 expands confidently or whether Module 1 needs refinement first.
+The answers to these questions should determine the next Module 1 refinement
+pass. Module 2 should remain deferred until Module 1 proves durable learning
+value through actual use.
 
 ---
 
-## 13. Recommended next work
+## 13. Improvement plan
 
-The next pass on Module 1 should focus on depth, not breadth.
+The next pass on Module 1 should focus on depth, coherence, and pedagogical
+evidence rather than on adding new module breadth.
 
-### Priority 1: proof mode
-Build a dedicated flow for:
-- claim,
-- candidate invariant,
-- per-rule preservation checks,
-- conclusion about MU.
+### Priority 1: strengthen the object-level / meta-level split
+Make the interface itself do more of the teaching.
 
-This is the most important missing piece because it turns exploration into an actual argument.
+Target changes:
+- surface the intended phase/lens cue in the context strip
+- make the boundary between `Explore` / `Map` and `Prove` more visually explicit
+- clarify when the user is seeing verified rule behavior, computed structure, or coaching
 
-### Priority 2: stronger object/meta framing
-Make the UI visibly separate:
-- rule-following inside the system,
-- proof about the system from outside it.
+Why this comes first:
+- this distinction is the central learning goal of the module
+- the current build gestures at it, but still relies too much on prose and panel titles
 
-This is one of the main learning goals of the module and should not rely on prose alone.
+### Priority 2: add an invalid-move workbench
+Allow the user to propose a next string and get verifier-backed rejection
+feedback.
 
-### Priority 3: invalid-move explanation
-Allow the user to propose a next string and have the verifier explain why it is invalid.
+Target changes:
+- freeform proposed-next-string input in `Explore`
+- deterministic legality check against the current state
+- explicit explanation of why a move is invalid and which rule assumptions fail
 
-The current prevention-first interaction is efficient, but not always pedagogically strongest.
+Why this matters:
+- prevention is safe but not always educational
+- understanding why a move fails is part of understanding the system boundary
 
-### Priority 4: guided tasks and reflection
-Add a small number of prompts such as:
-- find strings that seem promising but remain blocked,
-- propose an invariant that fails,
-- explain why search is not enough.
+### Priority 3: make `Explore` and `Map` teach more actively
+Add just enough task structure to create search pressure before the proof move.
 
-This would give the module a clearer arc.
+Target changes:
+- short guided tasks in `Explore`
+- small prompts in `Map` that direct attention to branching, repetition, and blowup
+- prompts that distinguish “not yet found” from “cannot be reached”
 
-### Priority 5: evaluate what actually helped
-Before expanding to Module 2, test the current build against actual use and answer the feedback questions in Section 12.
+Why this matters:
+- the graph is justified only if it helps the user feel the limits of search
+- the invariant should feel motivated rather than dropped in from above
+
+### Priority 4: upgrade artifact persistence into a real notebook
+Make proof-related work first-class instead of folding everything into notes and
+snapshots.
+
+Target changes:
+- first-class invariant-run artifacts
+- first-class proof-attempt artifacts
+- clearer artifact titles and reuse paths
+- optional confidence or confusion tagging only if it supports reflection rather than fake scoring
+
+Why this matters:
+- the product philosophy is artifacts over noise
+- the current persistence layer is reliable, but the artifact model is still too coarse
+
+### Priority 5: clean up dialogue mode honesty and quality
+Either make the modes meaningfully different or collapse them into one honest
+mode until differentiation is real.
+
+Target changes:
+- align the UI labels with actual backend behavior
+- evaluate transcript quality against real learner use
+- tune prompts around the exact Module 1 weak points: invariant preservation, search vs proof, and object/meta confusion
+
+Why this matters:
+- dialogue is already integrated, so the next question is whether it improves learning
+- the product should not imply deeper mode specialization than the current system actually has
+
+### Priority 6: run a Module 1 evaluation loop
+Use the module repeatedly while reading and record what changed understanding.
+
+Target changes:
+- answer the feedback questions in Section 12 with actual usage notes
+- identify which interactions felt essential, ornamental, or actively confusing
+- revise Module 1 again before reopening later-module planning
+
+Exit condition:
+- Module 1 should feel stable enough that later work is blocked by new conceptual needs, not by unresolved local UX and pedagogy problems

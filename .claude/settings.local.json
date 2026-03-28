@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npx tsc --noEmit --project tsconfig.json)",
+      "Bash(npx svelte-check --threshold error)",
+      "Bash(grep -n \"updateInvariant\\\\|updateQuestion\\\\|updateNotes\" /Users/andreinemilentsau/Projects/strange-loops-lab/src/routes/modules/[slug]/+page.svelte)",
+      "Bash(grep -n \"activePhase:\" /Users/andreinemilentsau/Projects/strange-loops-lab/src/routes/modules/[slug]/+page.svelte)",
+      "Bash(npm install tailwindcss @tailwindcss/vite)",
+      "Bash(npx svelte-check --tsconfig ./tsconfig.json)",
+      "Bash(ls -la /Users/andreinemilentsau/Projects/strange-loops-lab/*.json)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

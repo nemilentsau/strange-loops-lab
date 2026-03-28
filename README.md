@@ -76,19 +76,23 @@ something you can manipulate, inspect, and reason with.
 
 This project is being built iteratively while reading GEB.
 
-### Phase 1
+### Active build phase
 Scaffolding + **Module 1: Formal Systems & Their Walls**
 
-Initial module goals:
+Module 1 is the only active implementation focus for the foreseeable future.
+Module 2 remains part of the long-term vision, but it is not the next build
+target.
 
-- MIU-system sandbox
-- derivation tree / reachability graph explorer
-- invariant explorer
-- explicit object-level vs meta-level framing
-- one dialogue mode for conceptual feedback
+Current Module 1 goals:
 
-The purpose of Module 1 is not just to “solve the MU puzzle,” but to make
-one foundational idea intuitive:
+- sharpen the proof-building workflow around invariants
+- make the object-level / meta-level split more explicit in the UI
+- improve invalid-move pedagogy rather than only preventing illegal moves
+- turn persistence into a stronger learning notebook
+- evaluate whether dialogue actually improves understanding
+
+The purpose of Module 1 is not just to “solve the MU puzzle,” but to make one
+foundational idea intuitive:
 
 > Sometimes you cannot understand the limits of a formal system from inside
 > the system alone. You need to step outside it.
@@ -180,18 +184,26 @@ when it has not.
 
 ## Status
 
-Early build with the application shell in place.
+Working first pass with the application shell in place.
 
-The current work is focused on:
-- shared scaffolding
+Implemented now:
+- shared SvelteKit scaffolding
 - MIU rule engine and derivation trace core
 - bounded reachability explorer
 - invariant explorer for MU non-reachability
 - SQLite-backed snapshots and saved artifacts
-- Claude Code agent-team dialogue mode
-- state persistence
-- Module 1 interaction design
+- Claude Code dialogue path
+
+Current refinement work:
+- stronger object-level / meta-level framing
+- better proof assembly in the `Prove` phase
+- explicit invalid-move explanation
+- better artifact taxonomy for proof attempts and reflections
 - testing whether the interactions actually deepen understanding
+
+Module 1 status and next-work priorities are tracked in:
+- `docs/strange-loops-module-1.md`
+- `docs/module-1-ux-vision.md`
 
 ---
 
@@ -214,7 +226,11 @@ It is aimed at making difficult ideas more tangible.
 - [x] build invariant explorer
 - [x] add artifact persistence
 - [x] add first dialogue mode
-- [ ] evaluate what actually helped and revise before Module 2
+- [ ] strengthen object-level / meta-level framing
+- [ ] add explicit invalid-move explanation
+- [ ] improve guided tasks, proof artifacts, and reflection support
+- [ ] evaluate what actually helped through repeated Module 1 use
+- [ ] keep Module 2 deferred until Module 1 proves durable value
 
 ---
 
