@@ -19,7 +19,7 @@ export const SURFACE_SEQUENCE = [
 ] as const;
 
 export type SurfaceId = (typeof SURFACE_SEQUENCE)[number];
-export type DialogueMode = 'Explain-Back Examiner' | 'Socratic Partner';
+export type DialogueMode = 'Explain-Back Examiner';
 
 export const LAB_PHASES = ['explore', 'map', 'prove', 'reflect'] as const;
 export type LabPhase = (typeof LAB_PHASES)[number];
@@ -66,6 +66,7 @@ export interface Module1Draft {
 	dialogueInput: string;
 	lastDialogue: DialogueResult | null;
 	workingQuestion: string;
+	proposalInput: string;
 	invariantCandidate: string;
 	notes: string;
 	trace: DerivationTrace;
@@ -76,7 +77,7 @@ export interface Module1Draft {
 	lastEditedAt: string | null;
 }
 
-const DIALOGUE_MODES: DialogueMode[] = ['Explain-Back Examiner', 'Socratic Partner'];
+const DIALOGUE_MODES: DialogueMode[] = ['Explain-Back Examiner'];
 
 export function createModule1Draft(): Module1Draft {
 	return {
@@ -87,6 +88,7 @@ export function createModule1Draft(): Module1Draft {
 		dialogueInput: '',
 		lastDialogue: null,
 		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
+		proposalInput: 'MU',
 		invariantCandidate: 'count(I) mod 3 != 0',
 		notes: '',
 		trace: createDerivationTrace(),
@@ -121,13 +123,15 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 			: fallback.dialogueMode,
 		dialogueInput:
 			typeof candidate.dialogueInput === 'string' ? candidate.dialogueInput : fallback.dialogueInput,
-		lastDialogue: normalizeDialogue(candidate.lastDialogue),
-		workingQuestion:
-			typeof candidate.workingQuestion === 'string'
-				? candidate.workingQuestion
-				: fallback.workingQuestion,
-		invariantCandidate:
-			typeof candidate.invariantCandidate === 'string'
+			lastDialogue: normalizeDialogue(candidate.lastDialogue),
+			workingQuestion:
+				typeof candidate.workingQuestion === 'string'
+					? candidate.workingQuestion
+					: fallback.workingQuestion,
+			proposalInput:
+				typeof candidate.proposalInput === 'string' ? candidate.proposalInput : fallback.proposalInput,
+			invariantCandidate:
+				typeof candidate.invariantCandidate === 'string'
 				? candidate.invariantCandidate
 				: fallback.invariantCandidate,
 		notes: typeof candidate.notes === 'string' ? candidate.notes : fallback.notes,

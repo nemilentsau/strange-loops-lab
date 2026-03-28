@@ -2,21 +2,27 @@
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import type { InvariantAnalysis } from '$lib/miu/invariants';
 
-	let {
-		currentString,
-		invariantCandidate,
-		builtInInvariant,
-		candidateInvariant,
-		onApplyBuiltIn,
-		onUpdateInvariant
-	}: {
-		currentString: string;
-		invariantCandidate: string;
-		builtInInvariant: InvariantAnalysis;
-		candidateInvariant: InvariantAnalysis;
-		onApplyBuiltIn: () => void;
-		onUpdateInvariant: (event: Event) => void;
-	} = $props();
+		let {
+			currentString,
+			invariantCandidate,
+			builtInInvariant,
+			candidateInvariant,
+			artifactStatus,
+			onApplyBuiltIn,
+			onSaveInvariantArtifact,
+			onSaveProofArtifact,
+			onUpdateInvariant
+		}: {
+			currentString: string;
+			invariantCandidate: string;
+			builtInInvariant: InvariantAnalysis;
+			candidateInvariant: InvariantAnalysis;
+			artifactStatus: string;
+			onApplyBuiltIn: () => void;
+			onSaveInvariantArtifact: () => void;
+			onSaveProofArtifact: () => void;
+			onUpdateInvariant: (event: Event) => void;
+		} = $props();
 </script>
 
 <SurfacePanel title="Invariant Explorer" eyebrow="Meta-level proof move" badge="verified arithmetic" tone="verified">
@@ -135,8 +141,8 @@
 			</div>
 		</div>
 
-		<div class="invariant-card invariant-card--built-in">
-			<div class="surface-panel__header">
+			<div class="invariant-card invariant-card--built-in">
+				<div class="surface-panel__header">
 				<div>
 					<p class="eyebrow">Reference route</p>
 					<h3>count(I) mod 3 != 0</h3>
@@ -150,9 +156,27 @@
 				subtracts 3, and Rule 2 doubles it, flipping 1 and 2 modulo 3 without ever producing
 				0.
 			</p>
-			{#if builtInInvariant.consequence}
-				<p class="placeholder-copy">{builtInInvariant.consequence}</p>
-			{/if}
+				{#if builtInInvariant.consequence}
+					<p class="placeholder-copy">{builtInInvariant.consequence}</p>
+				{/if}
+			</div>
+
+			<div class="invariant-card invariant-card--artifact">
+				<div class="surface-panel__header">
+					<div>
+						<p class="eyebrow">Notebook</p>
+						<h3>Save this proof work as its own artifact.</h3>
+					</div>
+				</div>
+				<div class="status-row">
+					<button class="button button--ghost button--sm" type="button" onclick={onSaveInvariantArtifact}>
+						Save invariant run
+					</button>
+					<button class="button button--ghost button--sm" type="button" onclick={onSaveProofArtifact}>
+						Save proof attempt
+					</button>
+				</div>
+				<p class="field-note">{artifactStatus}</p>
+			</div>
 		</div>
-	</div>
-</SurfacePanel>
+	</SurfacePanel>

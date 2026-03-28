@@ -4,6 +4,10 @@
 		stepCount,
 		iCount,
 		mod3Class,
+		phaseLabel,
+		phaseEpistemicLabel,
+		phaseCue,
+		phaseTone,
 		workingQuestion,
 		onUpdateQuestion,
 	}: {
@@ -11,6 +15,10 @@
 		stepCount: number;
 		iCount: number;
 		mod3Class: number;
+		phaseLabel: string;
+		phaseEpistemicLabel: string;
+		phaseCue: string;
+		phaseTone: 'verified' | 'computed' | 'coaching';
 		workingQuestion: string;
 		onUpdateQuestion: (event: Event) => void;
 	} = $props();
@@ -33,6 +41,14 @@
 				<span class="context-metric__value">{mod3Class}</span>
 			</span>
 		</div>
+	</div>
+
+	<div class="context-strip__lens" data-tone={phaseTone}>
+		<div class="context-strip__lens-top">
+			<span class="badge" data-tone={phaseTone}>{phaseLabel}</span>
+			<small>{phaseEpistemicLabel}</small>
+		</div>
+		<p>{phaseCue}</p>
 	</div>
 
 	<div class="context-strip__fields">

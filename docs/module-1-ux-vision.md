@@ -143,19 +143,22 @@ Reason:
 
 - the context strip no longer asks for an invariant up front
 - the phase-based flow now exists as `Explore -> Map -> Prove -> Reflect`
+- the context strip now shows the current phase lens
+- the `Explore` phase now includes a verifier workbench for invalid proposals
+- the `Explore` and `Map` phases now include guided tasks
 - the Prove phase now includes a proof scaffold and custom-candidate input
+- the Prove phase can now save invariant runs and proof attempts as distinct artifacts
 - the Reflect phase now includes guided reflection prompts
 - persistence and artifact controls are integrated into `Reflect`
+- dialogue mode has been simplified to one honest coaching mode
 
 ---
 
 ## What still remains
 
-- the context strip phase/lens cue is still not fully surfaced
-- invalid-move demonstration with explicit verifier rejection
-- stronger task-based onboarding inside Explore and Map
-- better artifact taxonomy, especially for proof attempts
-- dialogue mode differentiation is still weaker than the UI labels suggest
+- stronger spatial separation between object-level and meta-level work
+- better tuning of which guided tasks genuinely help
+- better artifact review and reuse, especially for proof attempts
 - evaluation of whether the dialogue mode materially improves understanding
 
 ---

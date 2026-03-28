@@ -3,30 +3,79 @@
 	import { GRAPH_DEPTH_OPTIONS, GRAPH_NODE_LIMIT_OPTIONS } from '$lib/state/module1';
 	import type { ReachabilityGraph, ReachabilityNode, ProvenanceStep } from '$lib/miu/graph';
 
+	interface MapGuideTask {
+		title: string;
+		body: string;
+		question: string;
+		nodeId?: string | null;
+	}
+
 	let {
 		reachabilityGraph,
 		selectedGraphNodeId,
 		selectedGraphNode,
 		selectedGraphPath,
+		repeatedGraphNodeId,
 		graphDepth,
 		graphNodeLimit,
 		onUpdateGraphDepth,
 		onUpdateGraphNodeLimit,
-		onSelectGraphNode
+		onSelectGraphNode,
+		onUseGuideTask
 	}: {
 		reachabilityGraph: ReachabilityGraph;
 		selectedGraphNodeId: string;
 		selectedGraphNode: ReachabilityNode;
 		selectedGraphPath: ProvenanceStep[];
+		repeatedGraphNodeId: string | null;
 		graphDepth: number;
 		graphNodeLimit: number;
 		onUpdateGraphDepth: (event: Event) => void;
 		onUpdateGraphNodeLimit: (event: Event) => void;
 		onSelectGraphNode: (nodeId: string) => void;
+		onUseGuideTask: (question: string, nodeId?: string) => void;
 	} = $props();
+
+	const guideTasks = $derived<MapGuideTask[]>([
+		{
+			title: 'Find repetition',
+			body: 'Inspect a node with more than one incoming edge and decide what repeated discovery really means.',
+			question: 'What does it mean when two different legal paths converge on the same node?',
+			nodeId: repeatedGraphNodeId
+		},
+		{
+			title: 'Push the boundary',
+			body: 'Raise depth or node count and watch how quickly the reachable space grows.',
+			question: 'How fast does the state space grow as I raise the exploration bounds?'
+		},
+		{
+			title: 'Search is not proof',
+			body: 'Use the graph to feel the limit of exploration, then state what still remains unproven.',
+			question: 'Even if MU never appears in this graph, what would still be missing from a proof?'
+		}
+	]);
 </script>
 
 <SurfacePanel title="Reachability Explorer" eyebrow="The boundary" badge="computed graph" tone="computed">
+	<div class="guide-grid">
+		{#each guideTasks as task}
+			<div class="guide-card guide-card--map">
+				<div>
+					<strong>{task.title}</strong>
+					<p>{task.body}</p>
+				</div>
+				<button
+					class="button button--ghost button--sm"
+					type="button"
+					onclick={() => onUseGuideTask(task.question, task.nodeId ?? undefined)}
+					disabled={task.title === 'Find repetition' && !task.nodeId}
+				>
+					{task.nodeId ? 'Focus task' : 'Use as question'}
+				</button>
+			</div>
+		{/each}
+	</div>
+
 	<div class="control-grid">
 		<label class="field-label" for="graph-depth">
 			Max depth

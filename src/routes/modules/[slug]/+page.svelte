@@ -9,6 +9,7 @@
 	import PhaseReflect from '$lib/components/phases/PhaseReflect.svelte';
 	import type { ModuleSummary } from '$lib/content/modules';
 	import {
+		analyzeMiuProposal,
 		applyMoveToTrace,
 		enumerateMiuMoves,
 		jumpToTraceStep,
@@ -23,7 +24,8 @@
 	import {
 		buildReachabilityGraph,
 		graphNodeExists,
-		tracePathToNode
+		tracePathToNode,
+		type ReachabilityGraph
 	} from '$lib/miu/graph';
 	import {
 		LAB_PHASES,
@@ -33,7 +35,6 @@
 		normalizeModule1Draft,
 		readModule1Draft,
 		writeModule1Draft,
-		type DialogueMode,
 		type LabPhase,
 		type Module1Draft,
 		type SurfaceId
@@ -45,7 +46,6 @@
 	let { data }: { data: PageData } = $props();
 
 	const module = $derived(data.module as ModuleSummary);
-	const dialogueModes: DialogueMode[] = ['Explain-Back Examiner', 'Socratic Partner'];
 	const reflectionPrompts = [
 		{
 			title: 'Why search fails',
@@ -88,7 +88,11 @@
 	const iCount = $derived((currentString.match(/I/g) || []).length);
 	const mod3Class = $derived(iCount % 3);
 	const activePhaseMeta = $derived(PHASE_META[draft.activePhase]);
+	const activePhaseCue = $derived(phaseCueFor(draft.activePhase));
 	const legalMoves = $derived(enumerateMiuMoves(currentString));
+	const proposalAnalysis = $derived(
+		draft.proposalInput.trim() ? analyzeMiuProposal(currentString, draft.proposalInput) : null
+	);
 	const uniqueReachableStates = $derived(
 		Array.from(new Map(legalMoves.map((move) => [move.result, move])).values())
 	);
@@ -106,6 +110,7 @@
 	const selectedGraphNode = $derived(
 		reachabilityGraph.nodes.find((node) => node.id === selectedGraphNodeId) ?? reachabilityGraph.nodes[0]!
 	);
+	const repeatedGraphNodeId = $derived(findRepeatedGraphNodeId(reachabilityGraph));
 	const selectedGraphPath = $derived(tracePathToNode(reachabilityGraph, selectedGraphNodeId));
 	const builtInInvariant = $derived(builtInInvariantAnalysis(currentString));
 	const candidateInvariant = $derived(analyzeInvariantCandidate(draft.invariantCandidate, currentString));
@@ -159,10 +164,21 @@
 		});
 	}
 
-	function updateQuestion(event: Event) {
-		const target = event.currentTarget as HTMLInputElement;
-		patchDraft({ workingQuestion: target.value });
-	}
+		function updateQuestion(event: Event) {
+			const target = event.currentTarget as HTMLInputElement;
+			patchDraft({ workingQuestion: target.value });
+		}
+
+		function updateProposalInput(event: Event) {
+			const target = event.currentTarget as HTMLInputElement;
+			patchDraft({
+				activePhase: 'explore',
+				activeSurface: 'sandbox',
+				proposalInput: target.value,
+				visitedSurfaces: ensureVisited('sandbox'),
+				visitedPhases: ensureVisitedPhases('explore')
+			});
+		}
 
 	function updateInvariant(event: Event) {
 		const target = event.currentTarget as HTMLInputElement;
@@ -194,8 +210,8 @@
 		});
 	}
 
-	function phaseCueFor(phase: LabPhase): string {
-		switch (phase) {
+		function phaseCueFor(phase: LabPhase): string {
+			switch (phase) {
 			case 'explore':
 				return 'Work inside the system first. Follow legal rules and feel the local mechanics.';
 			case 'map':
@@ -204,28 +220,44 @@
 				return 'Step outside the system. Build an argument about all reachable strings.';
 			case 'reflect':
 				return 'Turn the proof into understanding, then preserve what you learned.';
+			}
 		}
-	}
 
-	function updateDialogueMode(mode: DialogueMode) {
-		patchDraft({
-			dialogueMode: mode,
-			activePhase: 'reflect',
-			activeSurface: 'dialogue',
-			visitedSurfaces: ensureVisited('dialogue'),
-			visitedPhases: ensureVisitedPhases('reflect')
-		});
-	}
-
-	function applyMove(move: MiuMove) {
+		function applyMove(move: MiuMove) {
 		patchDraft({
 			activePhase: 'explore',
 			activeSurface: 'sandbox',
 			trace: applyMoveToTrace(draft.trace, move),
 			visitedSurfaces: ensureVisited('sandbox', 'trace'),
 			visitedPhases: ensureVisitedPhases('explore')
-		});
-	}
+			});
+		}
+
+		function applyProposalMatch(move: MiuMove) {
+			applyMove(move);
+		}
+
+		function useExploreGuideTask(question: string, proposal?: string) {
+			patchDraft({
+				activePhase: 'explore',
+				activeSurface: 'sandbox',
+				workingQuestion: question,
+				proposalInput: proposal ?? draft.proposalInput,
+				visitedSurfaces: ensureVisited('sandbox', 'trace'),
+				visitedPhases: ensureVisitedPhases('explore')
+			});
+		}
+
+		function useMapGuideTask(question: string, nodeId?: string) {
+			patchDraft({
+				activePhase: 'map',
+				activeSurface: 'graph',
+				workingQuestion: question,
+				selectedGraphNode: nodeId ?? draft.selectedGraphNode,
+				visitedSurfaces: ensureVisited('graph'),
+				visitedPhases: ensureVisitedPhases('map')
+			});
+		}
 
 	function jumpToStep(index: number) {
 		patchDraft({
@@ -387,12 +419,39 @@
 		});
 	}
 
-	async function saveTraceArtifact() {
-		await createArtifact('trace', `Trace to ${currentString}`, {
-			trace: draft.trace,
-			currentString
-		});
-	}
+		async function saveTraceArtifact() {
+			await createArtifact('trace', `Trace to ${currentString}`, {
+				trace: draft.trace,
+				currentString
+			});
+		}
+
+		async function saveInvariantArtifact() {
+			if (candidateInvariant.kind !== 'supported') {
+				artifactStatus = 'Use a supported invariant candidate before saving an invariant artifact.';
+				return;
+			}
+
+			await createArtifact('invariant-run', `Invariant run: ${candidateInvariant.label}`, {
+				currentString,
+				workingQuestion: draft.workingQuestion,
+				trace: draft.trace,
+				candidate: candidateInvariant,
+				builtIn: builtInInvariant
+			});
+		}
+
+		async function saveProofArtifact() {
+			await createArtifact('proof-attempt', proofArtifactTitle(), {
+				claim: 'MU is unreachable from MI.',
+				currentString,
+				workingQuestion: draft.workingQuestion,
+				trace: draft.trace,
+				candidate: candidateInvariant,
+				notes: draft.notes,
+				conclusion: candidateInvariant.consequence
+			});
+		}
 
 	async function createArtifact(artifactType: string, title: string, payload: unknown) {
 		try {
@@ -427,10 +486,15 @@
 		return value ? timestampFormatter.format(new Date(value)) : 'an unknown time';
 	}
 
-	function noteArtifactTitle(): string {
-		const preview = draft.notes.trim().slice(0, 36);
-		return preview ? `Note: ${preview}` : 'Module 1 note';
-	}
+		function noteArtifactTitle(): string {
+			const preview = draft.notes.trim().slice(0, 36);
+			return preview ? `Note: ${preview}` : 'Module 1 note';
+		}
+
+		function proofArtifactTitle(): string {
+			const preview = draft.invariantCandidate.trim();
+			return preview ? `Proof attempt: ${preview}` : 'Proof attempt';
+		}
 
 	function resetSession() {
 		const fresh = createModule1Draft();
@@ -453,7 +517,7 @@
 		});
 	}
 
-	async function runDialogue() {
+		async function runDialogue() {
 		const userInput = draft.dialogueInput.trim();
 
 		if (!userInput) {
@@ -504,9 +568,22 @@
 			dialogueStatus = 'Dialogue request failed.';
 		} finally {
 			dialogueRunning = false;
+			}
 		}
-	}
-</script>
+
+		function findRepeatedGraphNodeId(graph: ReachabilityGraph): string | null {
+			const incomingCounts = new Map<string, number>();
+			for (const edge of graph.edges) {
+				incomingCounts.set(edge.to, (incomingCounts.get(edge.to) ?? 0) + 1);
+			}
+			for (const node of graph.nodes) {
+				if ((incomingCounts.get(node.id) ?? 0) > 1) {
+					return node.id;
+				}
+			}
+			return null;
+		}
+	</script>
 
 <svelte:head>
 	<title>Strange Loops Lab | {module.title}</title>
@@ -527,14 +604,18 @@
 		</div>
 	</section>
 
-	<ContextStrip
-		{currentString}
-		stepCount={draft.trace.currentIndex}
-		{iCount}
-		{mod3Class}
-		workingQuestion={draft.workingQuestion}
-		onUpdateQuestion={updateQuestion}
-	/>
+		<ContextStrip
+			{currentString}
+			stepCount={draft.trace.currentIndex}
+			{iCount}
+			{mod3Class}
+			phaseLabel={activePhaseMeta.label}
+			phaseEpistemicLabel={activePhaseMeta.epistemicLabel}
+			phaseCue={activePhaseCue}
+			phaseTone={activePhaseMeta.tone}
+			workingQuestion={draft.workingQuestion}
+			onUpdateQuestion={updateQuestion}
+		/>
 
 	<PhaseNav
 		activePhase={draft.activePhase}
@@ -545,42 +626,52 @@
 	<section class="module-phases">
 		{#if draft.activePhase === 'explore'}
 			<div class="phase-content" data-phase="explore">
-				<PhaseExplore
-					{currentString}
-					{legalMoves}
-					{uniqueReachableStates}
-					trace={draft.trace}
-					onApplyMove={applyMove}
-					onJumpToStep={jumpToStep}
-					onUndo={undoMove}
-					onRestart={restartFromInitial}
-				/>
-			</div>
-		{:else if draft.activePhase === 'map'}
+					<PhaseExplore
+						{currentString}
+						{legalMoves}
+						proposalInput={draft.proposalInput}
+						{proposalAnalysis}
+						{uniqueReachableStates}
+						trace={draft.trace}
+						onApplyMove={applyMove}
+						onApplyProposalMatch={applyProposalMatch}
+						onJumpToStep={jumpToStep}
+						onUndo={undoMove}
+						onRestart={restartFromInitial}
+						onUpdateProposal={updateProposalInput}
+						onUseGuideTask={useExploreGuideTask}
+					/>
+				</div>
+			{:else if draft.activePhase === 'map'}
 			<div class="phase-content" data-phase="map">
 				<PhaseMap
 					{reachabilityGraph}
 					{selectedGraphNodeId}
-					{selectedGraphNode}
-					{selectedGraphPath}
-					graphDepth={draft.graphDepth}
-					graphNodeLimit={draft.graphNodeLimit}
-					onUpdateGraphDepth={updateGraphDepth}
-					onUpdateGraphNodeLimit={updateGraphNodeLimit}
-					onSelectGraphNode={selectGraphNode}
-				/>
-			</div>
-		{:else if draft.activePhase === 'prove'}
+						{selectedGraphNode}
+						{selectedGraphPath}
+						{repeatedGraphNodeId}
+						graphDepth={draft.graphDepth}
+						graphNodeLimit={draft.graphNodeLimit}
+						onUpdateGraphDepth={updateGraphDepth}
+						onUpdateGraphNodeLimit={updateGraphNodeLimit}
+						onSelectGraphNode={selectGraphNode}
+						onUseGuideTask={useMapGuideTask}
+					/>
+				</div>
+			{:else if draft.activePhase === 'prove'}
 			<div class="phase-content" data-phase="prove">
 				<PhaseProve
 					{currentString}
 					invariantCandidate={draft.invariantCandidate}
-					{builtInInvariant}
-					{candidateInvariant}
-					onApplyBuiltIn={applyBuiltInInvariant}
-					onUpdateInvariant={updateInvariant}
-				/>
-			</div>
+						{builtInInvariant}
+						{candidateInvariant}
+						{artifactStatus}
+						onApplyBuiltIn={applyBuiltInInvariant}
+						onSaveInvariantArtifact={saveInvariantArtifact}
+						onSaveProofArtifact={saveProofArtifact}
+						onUpdateInvariant={updateInvariant}
+					/>
+				</div>
 		{:else if draft.activePhase === 'reflect'}
 			<div class="phase-content" data-phase="reflect">
 				<PhaseReflect
@@ -590,17 +681,15 @@
 					{dialogueRunning}
 					{dialogueStatus}
 					notes={draft.notes}
-					{snapshotStatus}
-					{artifactStatus}
-					{savedArtifacts}
-					{dialogueModes}
-					{reflectionPrompts}
-					onUpdateDialogueInput={updateDialogueInput}
-					onRunDialogue={runDialogue}
-					onUpdateDialogueMode={updateDialogueMode}
-					onUpdateNotes={updateNotes}
-					onUseReflectionPrompt={seedReflectionPrompt}
-					onSaveSnapshot={saveSnapshotToDatabase}
+						{snapshotStatus}
+						{artifactStatus}
+						{savedArtifacts}
+						{reflectionPrompts}
+						onUpdateDialogueInput={updateDialogueInput}
+						onRunDialogue={runDialogue}
+						onUpdateNotes={updateNotes}
+						onUseReflectionPrompt={seedReflectionPrompt}
+						onSaveSnapshot={saveSnapshotToDatabase}
 					onSaveNote={saveNoteArtifact}
 					onSaveTrace={saveTraceArtifact}
 					{formatTimestamp}

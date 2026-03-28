@@ -20,19 +20,17 @@
 		dialogueMode,
 		lastDialogue,
 		dialogueRunning,
-		dialogueStatus,
-		notes,
-		snapshotStatus,
-		artifactStatus,
-		savedArtifacts,
-		dialogueModes,
-		reflectionPrompts,
-		onUpdateDialogueInput,
-		onRunDialogue,
-		onUpdateDialogueMode,
-		onUpdateNotes,
-		onUseReflectionPrompt,
-		onSaveSnapshot,
+			dialogueStatus,
+			notes,
+			snapshotStatus,
+			artifactStatus,
+			savedArtifacts,
+			reflectionPrompts,
+			onUpdateDialogueInput,
+			onRunDialogue,
+			onUpdateNotes,
+			onUseReflectionPrompt,
+			onSaveSnapshot,
 		onSaveNote,
 		onSaveTrace,
 		formatTimestamp
@@ -41,19 +39,17 @@
 		dialogueMode: DialogueMode;
 		lastDialogue: DialogueResult | null;
 		dialogueRunning: boolean;
-		dialogueStatus: string;
-		notes: string;
-		snapshotStatus: string;
-		artifactStatus: string;
-		savedArtifacts: SavedArtifactSummary[];
-		dialogueModes: DialogueMode[];
-		reflectionPrompts: readonly ReflectionPrompt[];
-		onUpdateDialogueInput: (event: Event) => void;
-		onRunDialogue: () => void;
-		onUpdateDialogueMode: (mode: DialogueMode) => void;
-		onUpdateNotes: (event: Event) => void;
-		onUseReflectionPrompt: (prompt: string) => void;
-		onSaveSnapshot: () => void;
+			dialogueStatus: string;
+			notes: string;
+			snapshotStatus: string;
+			artifactStatus: string;
+			savedArtifacts: SavedArtifactSummary[];
+			reflectionPrompts: readonly ReflectionPrompt[];
+			onUpdateDialogueInput: (event: Event) => void;
+			onRunDialogue: () => void;
+			onUpdateNotes: (event: Event) => void;
+			onUseReflectionPrompt: (prompt: string) => void;
+			onSaveSnapshot: () => void;
 		onSaveNote: () => void;
 		onSaveTrace: () => void;
 		formatTimestamp: (value: string | null) => string;
@@ -62,22 +58,12 @@
 
 <div class="phase-reflect">
 	<SurfacePanel title="Dialogue Mode" eyebrow="Claude agent team" badge="coaching only" tone="coaching">
-		<div class="dialogue-row">
-			{#each dialogueModes as mode}
-				<button
-					class="dialogue-chip"
-					type="button"
-					data-active={dialogueMode === mode}
-					onclick={() => onUpdateDialogueMode(mode)}
-				>
-					<strong>{mode}</strong>
-					<small>
-						{mode === 'Explain-Back Examiner'
-							? 'Probe the user explanation until the weak step becomes explicit.'
-							: 'Keep the answer budget low and sharpen the next question instead.'}
-					</small>
-				</button>
-			{/each}
+		<div class="dialogue-mode-card">
+			<strong>{dialogueMode}</strong>
+			<small>
+				One honest coaching mode for now: probe the user explanation until the weak step becomes
+				explicit, without pretending to certify proof.
+			</small>
 		</div>
 
 		<label class="field-label" for="dialogue-input">

@@ -1,32 +1,87 @@
 <script lang="ts">
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
-	import type { MiuMove } from '$lib/miu/core';
-	import type { DerivationTrace } from '$lib/miu/core';
+	import type { DerivationTrace, MiuMove, MiuProposalAnalysis } from '$lib/miu/core';
+
+	interface ExploreGuideTask {
+		title: string;
+		body: string;
+		question: string;
+		proposal?: string;
+	}
 
 	let {
 		currentString,
 		legalMoves,
+		proposalInput,
+		proposalAnalysis,
 		uniqueReachableStates,
 		trace,
 		onApplyMove,
+		onApplyProposalMatch,
 		onJumpToStep,
 		onUndo,
-		onRestart
+		onRestart,
+		onUpdateProposal,
+		onUseGuideTask
 	}: {
 		currentString: string;
 		legalMoves: MiuMove[];
+		proposalInput: string;
+		proposalAnalysis: MiuProposalAnalysis | null;
 		uniqueReachableStates: MiuMove[];
 		trace: DerivationTrace;
 		onApplyMove: (move: MiuMove) => void;
+		onApplyProposalMatch: (move: MiuMove) => void;
 		onJumpToStep: (index: number) => void;
 		onUndo: () => void;
 		onRestart: () => void;
+		onUpdateProposal: (event: Event) => void;
+		onUseGuideTask: (question: string, proposal?: string) => void;
 	} = $props();
+
+	const guideTasks: ExploreGuideTask[] = [
+		{
+			title: 'Test the tempting target',
+			body: 'Try `MU` in the verifier workbench and compare “looks promising” with “is a legal next step.”',
+			question: 'What distinguishes a tempting target from a legal next step in the MIU system?',
+			proposal: 'MU'
+		},
+		{
+			title: 'Force the first subtraction',
+			body: 'Look for the first state where Rule 3 becomes available at all.',
+			question: 'What has to happen before Rule 3 can even fire?'
+		},
+		{
+			title: 'Look for convergence',
+			body: 'Branch from an earlier trace step and see whether different derivations can land on the same string.',
+			question: 'Can two different derivations reach the same MIU string?'
+		}
+	] as const;
 </script>
 
 <div class="phase-explore">
 	<div class="phase-explore__main">
 		<div class="phase-explore__left">
+			<SurfacePanel title="Guided Tasks" eyebrow="Explore with intent" tone="computed">
+				<div class="guide-grid">
+					{#each guideTasks as task}
+						<div class="guide-card">
+							<div>
+								<strong>{task.title}</strong>
+								<p>{task.body}</p>
+							</div>
+							<button
+								class="button button--ghost button--sm"
+								type="button"
+								onclick={() => onUseGuideTask(task.question, task.proposal)}
+							>
+								Use as question
+							</button>
+						</div>
+					{/each}
+				</div>
+			</SurfacePanel>
+
 			<SurfacePanel title="MIU Sandbox" eyebrow="Inside the system" badge="verified rules" tone="verified">
 				<div class="current-string-panel">
 					<p class="eyebrow">Current string</p>
@@ -60,6 +115,83 @@
 						<p class="placeholder-copy">No legal moves exist from this state.</p>
 					{/if}
 				</div>
+			</SurfacePanel>
+
+			<SurfacePanel
+				title="Verifier Workbench"
+				eyebrow="Why a proposal fails"
+				badge="deterministic check"
+				tone="verified"
+			>
+				<label class="field-label" for="proposal-input">
+					Propose the next string yourself
+					<input
+						id="proposal-input"
+						class="text-field"
+						type="text"
+						placeholder="e.g., MU"
+						value={proposalInput}
+						oninput={onUpdateProposal}
+					/>
+				</label>
+
+				{#if proposalAnalysis}
+					<div class="proposal-summary" data-valid={proposalAnalysis.exactMatches.length > 0}>
+						<div class="proposal-summary__top">
+							<strong>{proposalAnalysis.summary}</strong>
+							<span
+								class="badge"
+								data-tone={proposalAnalysis.exactMatches.length > 0 ? 'verified' : 'coaching'}
+							>
+								{proposalAnalysis.exactMatches.length > 0 ? 'legal' : 'rejected'}
+							</span>
+						</div>
+
+						{#if proposalAnalysis.exactMatches.length > 0}
+							<button
+								class="button button--ghost button--sm"
+								type="button"
+								onclick={() => onApplyProposalMatch(proposalAnalysis.exactMatches[0]!)}
+							>
+								Apply matched move
+							</button>
+						{/if}
+					</div>
+
+					{#if proposalAnalysis.syntaxValid}
+						<div class="rule-result-list">
+							{#each proposalAnalysis.ruleChecks as check}
+								<div class="rule-result">
+									<div class="rule-result__top">
+										<strong>{check.ruleLabel}</strong>
+										<span
+											class="badge"
+											data-tone={check.status === 'matches' ? 'verified' : 'coaching'}
+										>
+											{check.status === 'matches'
+												? 'matches'
+												: check.status === 'unavailable'
+													? 'unavailable'
+													: 'different result'}
+										</span>
+									</div>
+									<p class="field-note">{check.explanation}</p>
+									{#if check.legalResults.length > 0}
+										<small>
+											Legal result{check.legalResults.length === 1 ? '' : 's'}:
+											{check.legalResults.join(', ')}
+										</small>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					{/if}
+				{:else}
+					<p class="field-note">
+						Type a candidate next string to see the verifier explain whether any MIU rule can
+						produce it from the current state.
+					</p>
+				{/if}
 			</SurfacePanel>
 
 			<SurfacePanel title="Immediate Reachability" eyebrow="Computed preview" tone="verified">

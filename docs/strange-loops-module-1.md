@@ -36,37 +36,35 @@ The MIU system is the concrete vehicle for this.
 ### Implemented in the current build
 - root SvelteKit application shell with a Module 1 route
 - phase-based module flow: `Explore -> Map -> Prove -> Reflect`
+- visible phase/lens cue in the context strip
 - deterministic MIU rule engine
 - MIU sandbox with legal-next-move enumeration
+- invalid-move workbench with verifier-backed rejection feedback
 - derivation trace with jump, restart, undo, and branching from prior states
 - bounded derivation graph explorer with provenance display
+- guided tasks in `Explore` and `Map`
 - invariant explorer with:
   - built-in MU non-reachability argument,
   - custom modular candidates of the form `count(I) mod k = r` and `!= r`,
   - concrete counterexamples when a candidate fails
 - proof scaffold in the `Prove` phase
+- first-class invariant-run and proof-attempt artifacts
 - guided reflection prompts in the `Reflect` phase
 - SQLite-backed snapshots and saved artifacts
-- Claude Code agent-team dialogue mode
+- one honest Claude Code dialogue mode
 - local smoke scripts for persistence and dialogue flows
 
 ### Present but still shallow
 - object-level vs meta-level framing exists in phase labels, copy, and panel structure, but it is still not forceful enough in the interface
 - dialogue mode is usable, but still needs quality evaluation and refinement against real learner transcripts
-- artifact persistence works, but artifact types are still basic and not yet shaped into a strong learning notebook
+- artifact persistence is now broader, but still not yet shaped into a truly reusable learning notebook
 - the graph explorer is accurate and inspectable, but still needs stronger teaching structure so it does more than expose state growth
-
-### Present but inconsistent
-- the UX direction calls for a visible phase/lens cue in the context strip, but that cue is not yet fully surfaced in the current interface
-- the UI exposes `Explain-Back Examiner` and `Socratic Partner` labels, but the backend still behaves as one small agent-team workflow with the selected mode used mostly as context rather than as a truly different interaction policy
-- the module already has a proof scaffold and guided reflection prompts, so older references that treat both as missing should be considered stale
 
 ### Highest-priority remaining work
 - stronger UI treatment of the object-level / meta-level split
-- explicit invalid-move demonstration instead of prevention-only UI
-- stronger task structure in `Explore` and `Map`
-- better artifact taxonomy for proof attempts, invariant runs, and synthesis notes
-- dialogue quality evaluation and mode cleanup
+- better review and reuse flow for saved artifacts
+- dialogue quality evaluation against real learner transcripts
+- graph pedagogy refinement so the `Map` phase teaches more than bounded expansion
 - repeated pedagogical evaluation before any serious move toward later modules
 
 ### Roadmap stance
@@ -207,7 +205,7 @@ This phase is a good fit for explain-back or Socratic dialogue.
 Current status:
 - dialogue-assisted reflection exists
 - explicit proof assembly and reflective prompts now exist in first-pass form
-- the remaining work is to make them feel more guided, better tied to artifacts, and more effective in practice
+- the remaining work is to make them more effective in practice and more reusable across sessions
 
 ---
 
@@ -231,7 +229,7 @@ Useful extras if cheap:
 Current build notes:
 - all applicable next moves are shown
 - history branching, undo, and restart are implemented
-- invalid moves are mostly prevented rather than entered and explained after the fact
+- invalid moves can now be proposed explicitly in the verifier workbench and rejected with rule-level explanations
 
 ## 6.2 Derivation trace viewer
 Required behaviors:
@@ -257,6 +255,7 @@ Nice-to-have behaviors:
 
 Current build notes:
 - bounded exploration, deduplicated nodes, and provenance inspection are implemented
+- guided tasks now help direct attention toward repetition, search pressure, and the difference between exploration and proof
 - the explorer is useful, but still needs stronger pedagogical guidance so it teaches rather than merely exposes state growth
 
 ## 6.4 Invariant explorer
@@ -295,7 +294,7 @@ This distinction should not be hidden in prose alone. It should be reinforced by
 
 Current build notes:
 - this distinction is present conceptually, but not yet forceful enough in the interface
-- the phase-based structure helps, but the intended phase/lens cue is not yet fully visible
+- the phase-based structure and context-strip lens now make the shift more visible
 - a stronger proof-mode treatment or clearer side-by-side object/meta framing is still needed
 
 ## 6.6 Dialogue mode
@@ -321,7 +320,7 @@ Current build notes:
 - the current build has a functioning Claude Code dialogue path backed by a small agent team
 - dialogue is persisted as an artifact
 - the next issue is dialogue quality and fit, not basic availability
-- the UI currently names two dialogue modes, but backend behavior is not yet differentiated enough to justify them as truly separate modes
+- the UI now keeps to one honest dialogue mode instead of promising mode differentiation that the backend does not yet implement
 
 ## 6.7 Artifact persistence
 Persist at least:
@@ -335,9 +334,8 @@ Persist at least:
 
 Current build notes:
 - latest module snapshot persistence exists
-- note, trace, and dialogue artifacts exist
+- note, trace, dialogue, invariant-run, and proof-attempt artifacts exist
 - notes and graph/invariant state are included in persisted draft state
-- invariant runs and proof attempts are not yet first-class saved artifacts
 - artifact taxonomy and reuse still need work
 
 ---
@@ -561,7 +559,6 @@ evidence rather than on adding new module breadth.
 Make the interface itself do more of the teaching.
 
 Target changes:
-- surface the intended phase/lens cue in the context strip
 - make the boundary between `Explore` / `Map` and `Prove` more visually explicit
 - clarify when the user is seeing verified rule behavior, computed structure, or coaching
 
@@ -570,50 +567,48 @@ Why this comes first:
 - the current build gestures at it, but still relies too much on prose and panel titles
 
 ### Priority 2: add an invalid-move workbench
-Allow the user to propose a next string and get verifier-backed rejection
-feedback.
+This work now exists in first-pass form. The next issue is refinement rather
+than raw availability.
 
 Target changes:
-- freeform proposed-next-string input in `Explore`
-- deterministic legality check against the current state
-- explicit explanation of why a move is invalid and which rule assumptions fail
+- improve the explanation wording so it teaches the rule boundary even more clearly
+- decide whether the workbench should support span-sensitive proposal help or stay string-level
+- test whether people actually use it before expanding it further
 
 Why this matters:
 - prevention is safe but not always educational
 - understanding why a move fails is part of understanding the system boundary
 
 ### Priority 3: make `Explore` and `Map` teach more actively
-Add just enough task structure to create search pressure before the proof move.
+This now exists in first-pass form. The next pass should tune which tasks
+actually help.
 
 Target changes:
-- short guided tasks in `Explore`
-- small prompts in `Map` that direct attention to branching, repetition, and blowup
-- prompts that distinguish “not yet found” from “cannot be reached”
+- keep only the guided tasks that create real search pressure
+- refine task wording based on actual use
+- add stronger links from `Map` observations into the `Prove` phase when warranted
 
 Why this matters:
 - the graph is justified only if it helps the user feel the limits of search
 - the invariant should feel motivated rather than dropped in from above
 
 ### Priority 4: upgrade artifact persistence into a real notebook
-Make proof-related work first-class instead of folding everything into notes and
-snapshots.
+Make the new proof-related artifacts genuinely reusable instead of merely
+storable.
 
 Target changes:
-- first-class invariant-run artifacts
-- first-class proof-attempt artifacts
 - clearer artifact titles and reuse paths
 - optional confidence or confusion tagging only if it supports reflection rather than fake scoring
+- better ways to reopen a saved artifact into the live module surfaces
 
 Why this matters:
 - the product philosophy is artifacts over noise
 - the current persistence layer is reliable, but the artifact model is still too coarse
 
 ### Priority 5: clean up dialogue mode honesty and quality
-Either make the modes meaningfully different or collapse them into one honest
-mode until differentiation is real.
+The mode honesty cleanup is now done. The remaining work is dialogue quality.
 
 Target changes:
-- align the UI labels with actual backend behavior
 - evaluate transcript quality against real learner use
 - tune prompts around the exact Module 1 weak points: invariant preservation, search vs proof, and object/meta confusion
 

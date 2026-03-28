@@ -25,6 +25,24 @@ export interface DerivationTrace {
 	currentIndex: number;
 }
 
+export interface MiuProposalRuleCheck {
+	ruleId: MiuRuleId;
+	ruleLabel: string;
+	status: 'matches' | 'different-result' | 'unavailable';
+	explanation: string;
+	legalResults: string[];
+	matchingMoves: MiuMove[];
+}
+
+export interface MiuProposalAnalysis {
+	source: string;
+	proposed: string;
+	syntaxValid: boolean;
+	exactMatches: MiuMove[];
+	ruleChecks: MiuProposalRuleCheck[];
+	summary: string;
+}
+
 export function enumerateMiuMoves(source: string): MiuMove[] {
 	assertValidMiuString(source);
 
@@ -46,6 +64,39 @@ export function applyMiuMove(source: string, move: MiuMove): string {
 	}
 
 	return legalMove.result;
+}
+
+export function analyzeMiuProposal(source: string, proposedInput: string): MiuProposalAnalysis {
+	assertValidMiuString(source);
+
+	const proposed = proposedInput.trim();
+
+	if (!isValidMiuString(proposed)) {
+		return {
+			source,
+			proposed,
+			syntaxValid: false,
+			exactMatches: [],
+			ruleChecks: [],
+			summary: 'Not a valid MIU string. States must start with M and then use only I and U.'
+		};
+	}
+
+	const legalMoves = enumerateMiuMoves(source);
+	const exactMatches = legalMoves.filter((move) => move.result === proposed);
+	const ruleChecks = MIU_RULES.map((ruleId) => inspectRuleProposal(source, proposed, ruleId, legalMoves));
+
+	return {
+		source,
+		proposed,
+		syntaxValid: true,
+		exactMatches,
+		ruleChecks,
+		summary:
+			exactMatches.length > 0
+				? summarizeExactMatches(exactMatches)
+				: `No legal MIU rule produces ${proposed} from ${source}.`
+	};
 }
 
 export function createDerivationTrace(initialValue = MIU_INITIAL_STRING): DerivationTrace {
@@ -198,6 +249,50 @@ function normalizeMove(input: unknown, result: string): MiuMove | null {
 	};
 }
 
+function inspectRuleProposal(
+	source: string,
+	proposed: string,
+	ruleId: MiuRuleId,
+	legalMoves: MiuMove[]
+): MiuProposalRuleCheck {
+	const ruleMoves = legalMoves.filter((move) => move.ruleId === ruleId);
+	const matchingMoves = ruleMoves.filter((move) => move.result === proposed);
+
+	if (matchingMoves.length > 0) {
+		return {
+			ruleId,
+			ruleLabel: matchingMoves[0]!.ruleLabel,
+			status: 'matches',
+			explanation:
+				matchingMoves.length === 1
+					? `${matchingMoves[0]!.ruleLabel} matches at span ${matchingMoves[0]!.start + 1}-${matchingMoves[0]!.end}.`
+					: `${matchingMoves[0]!.ruleLabel} matches in ${matchingMoves.length} different spans.`,
+			legalResults: uniqueResults(ruleMoves),
+			matchingMoves
+		};
+	}
+
+	if (ruleMoves.length === 0) {
+		return {
+			ruleId,
+			ruleLabel: labelForRule(ruleId),
+			status: 'unavailable',
+			explanation: unavailableRuleExplanation(source, ruleId),
+			legalResults: [],
+			matchingMoves: []
+		};
+	}
+
+	return {
+		ruleId,
+		ruleLabel: labelForRule(ruleId),
+		status: 'different-result',
+		explanation: differentResultExplanation(ruleId, proposed, ruleMoves),
+		legalResults: uniqueResults(ruleMoves),
+		matchingMoves: []
+	};
+}
+
 function appendUMoves(source: string): MiuMove[] {
 	if (!source.endsWith('I')) {
 		return [];
@@ -281,6 +376,57 @@ function createMove(move: Omit<MiuMove, 'key'>): MiuMove {
 		...move,
 		key: `${move.ruleId}:${move.start}:${move.end}:${move.result}`
 	};
+}
+
+function summarizeExactMatches(moves: MiuMove[]): string {
+	if (moves.length === 1) {
+		return `Legal next step via ${moves[0]!.ruleLabel}.`;
+	}
+
+	const labels = Array.from(new Set(moves.map((move) => move.ruleLabel))).join(' and ');
+	return `Legal next step via ${labels}.`;
+}
+
+function differentResultExplanation(ruleId: MiuRuleId, proposed: string, ruleMoves: MiuMove[]): string {
+	const legalResults = uniqueResults(ruleMoves);
+	const preview = legalResults.slice(0, 3).join(', ');
+	const suffix = legalResults.length > 3 ? ', ...' : '';
+
+	if (legalResults.length === 1) {
+		return `${labelForRule(ruleId)} is applicable here, but it would produce ${legalResults[0]}, not ${proposed}.`;
+	}
+
+	return `${labelForRule(ruleId)} is applicable here, but it can only produce ${preview}${suffix}, not ${proposed}.`;
+}
+
+function unavailableRuleExplanation(source: string, ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return 'Rule 1 is unavailable because the current string does not end in I.';
+		case 'double-tail':
+			return 'Rule 2 is unavailable only when the current string is not a valid MIU state.';
+		case 'replace-iii':
+			return 'Rule 3 is unavailable because the current string has no III span.';
+		case 'delete-uu':
+			return 'Rule 4 is unavailable because the current string has no UU span.';
+	}
+}
+
+function uniqueResults(moves: MiuMove[]): string[] {
+	return Array.from(new Set(moves.map((move) => move.result)));
+}
+
+function labelForRule(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return 'Rule 1';
+		case 'double-tail':
+			return 'Rule 2';
+		case 'replace-iii':
+			return 'Rule 3';
+		case 'delete-uu':
+			return 'Rule 4';
+	}
 }
 
 function assertValidMiuString(value: string): void {

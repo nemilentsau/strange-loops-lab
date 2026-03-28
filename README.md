@@ -196,9 +196,9 @@ Implemented now:
 
 Current refinement work:
 - stronger object-level / meta-level framing
-- better proof assembly in the `Prove` phase
-- explicit invalid-move explanation
-- better artifact taxonomy for proof attempts and reflections
+- evaluating whether the new proof workflow actually teaches better
+- improving graph pedagogy beyond basic bounded exploration
+- turning saved artifacts into a stronger notebook rather than a flat list
 - testing whether the interactions actually deepen understanding
 
 Module 1 status and next-work priorities are tracked in:
@@ -226,9 +226,10 @@ It is aimed at making difficult ideas more tangible.
 - [x] build invariant explorer
 - [x] add artifact persistence
 - [x] add first dialogue mode
-- [ ] strengthen object-level / meta-level framing
-- [ ] add explicit invalid-move explanation
-- [ ] improve guided tasks, proof artifacts, and reflection support
+- [x] surface the phase/lens cue in Module 1
+- [x] add explicit invalid-move explanation
+- [x] improve guided tasks, proof artifacts, and reflection support
+- [ ] continue tightening object-level / meta-level framing
 - [ ] evaluate what actually helped through repeated Module 1 use
 - [ ] keep Module 2 deferred until Module 1 proves durable value
 
