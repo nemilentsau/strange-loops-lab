@@ -88,7 +88,7 @@ Current Module 1 goals:
 - sharpen the proof-building workflow around invariants
 - make the object-level / meta-level split more explicit in the UI
 - improve invalid-move pedagogy rather than only preventing illegal moves
-- turn persistence into a stronger learning notebook
+- turn persistence into a stronger learning notebook with reusable artifacts
 - evaluate whether dialogue actually improves understanding
 
 The purpose of Module 1 is not just to “solve the MU puzzle,” but to make one
@@ -184,7 +184,7 @@ when it has not.
 
 ## Status
 
-Working first pass with the application shell in place.
+Working first pass with Module 1 live and under refinement.
 
 Implemented now:
 - shared SvelteKit scaffolding
@@ -192,18 +192,33 @@ Implemented now:
 - bounded reachability explorer
 - invariant explorer for MU non-reachability
 - SQLite-backed snapshots and saved artifacts
+- artifact restore/reopen flow back into live Module 1 surfaces
 - Claude Code dialogue path
 
 Current refinement work:
 - stronger object-level / meta-level framing
 - evaluating whether the new proof workflow actually teaches better
 - improving graph pedagogy beyond basic bounded exploration
-- turning saved artifacts into a stronger notebook rather than a flat list
+- improving notebook review and curation beyond the first-pass restore flow
 - testing whether the interactions actually deepen understanding
 
 Module 1 status and next-work priorities are tracked in:
 - `docs/strange-loops-module-1.md`
 - `docs/module-1-ux-vision.md`
+
+## Current docs
+
+The active docs set is intentionally small:
+
+- `README.md` for project overview and current build posture
+- `docs/strange-loops-module-1.md` for canonical Module 1 scope, status, and improvement priorities
+- `docs/module-1-ux-vision.md` for supporting Module 1 UX direction
+- `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
+- `docs/agent-behavior.md` for the current dialogue/agent contract
+- `docs/strange-loops-vision.md` for the long-term conceptual roadmap
+
+Older first-pass implementation specs and duplicate agent-behavior docs have
+been retired so the current state lives in fewer places.
 
 ---
 

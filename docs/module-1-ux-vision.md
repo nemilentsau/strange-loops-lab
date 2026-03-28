@@ -150,6 +150,7 @@ Reason:
 - the Prove phase can now save invariant runs and proof attempts as distinct artifacts
 - the Reflect phase now includes guided reflection prompts
 - persistence and artifact controls are integrated into `Reflect`
+- saved artifacts can now reopen into the corresponding live phase surfaces
 - dialogue mode has been simplified to one honest coaching mode
 
 ---
@@ -158,7 +159,7 @@ Reason:
 
 - stronger spatial separation between object-level and meta-level work
 - better tuning of which guided tasks genuinely help
-- better artifact review and reuse, especially for proof attempts
+- better artifact review and curation once multiple saved sessions accumulate
 - evaluation of whether the dialogue mode materially improves understanding
 
 ---

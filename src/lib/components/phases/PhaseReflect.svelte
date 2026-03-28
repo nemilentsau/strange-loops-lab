@@ -1,14 +1,11 @@
 <script lang="ts">
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import type { DialogueResult } from '$lib/dialogue/types';
-	import type { DialogueMode } from '$lib/state/module1';
-
-	interface SavedArtifactSummary {
-		id: number;
-		artifactType: string;
-		title: string;
-		createdAt: string;
-	}
+	import {
+		restoreTargetForModule1Artifact,
+		type DialogueMode,
+		type Module1Artifact
+	} from '$lib/state/module1';
 
 	interface ReflectionPrompt {
 		title: string;
@@ -20,40 +17,66 @@
 		dialogueMode,
 		lastDialogue,
 		dialogueRunning,
-			dialogueStatus,
-			notes,
-			snapshotStatus,
-			artifactStatus,
-			savedArtifacts,
-			reflectionPrompts,
-			onUpdateDialogueInput,
-			onRunDialogue,
-			onUpdateNotes,
-			onUseReflectionPrompt,
-			onSaveSnapshot,
+		dialogueStatus,
+		notes,
+		snapshotStatus,
+		artifactStatus,
+		savedArtifacts,
+		reflectionPrompts,
+		onUpdateDialogueInput,
+		onRunDialogue,
+		onUpdateNotes,
+		onUseReflectionPrompt,
+		onSaveSnapshot,
 		onSaveNote,
 		onSaveTrace,
+		onRestoreArtifact,
 		formatTimestamp
 	}: {
 		dialogueInput: string;
 		dialogueMode: DialogueMode;
 		lastDialogue: DialogueResult | null;
 		dialogueRunning: boolean;
-			dialogueStatus: string;
-			notes: string;
-			snapshotStatus: string;
-			artifactStatus: string;
-			savedArtifacts: SavedArtifactSummary[];
-			reflectionPrompts: readonly ReflectionPrompt[];
-			onUpdateDialogueInput: (event: Event) => void;
-			onRunDialogue: () => void;
-			onUpdateNotes: (event: Event) => void;
-			onUseReflectionPrompt: (prompt: string) => void;
-			onSaveSnapshot: () => void;
+		dialogueStatus: string;
+		notes: string;
+		snapshotStatus: string;
+		artifactStatus: string;
+		savedArtifacts: Module1Artifact[];
+		reflectionPrompts: readonly ReflectionPrompt[];
+		onUpdateDialogueInput: (event: Event) => void;
+		onRunDialogue: () => void;
+		onUpdateNotes: (event: Event) => void;
+		onUseReflectionPrompt: (prompt: string) => void;
+		onSaveSnapshot: () => void;
 		onSaveNote: () => void;
 		onSaveTrace: () => void;
+		onRestoreArtifact: (artifact: Module1Artifact) => void;
 		formatTimestamp: (value: string | null) => string;
 	} = $props();
+
+	function restoreLabelFor(artifactType: string): string {
+		const target = restoreTargetForModule1Artifact(artifactType);
+
+		if (!target) {
+			return 'Restore unavailable';
+		}
+
+		return `Restore to ${capitalize(target.phase)}`;
+	}
+
+	function restoreHintFor(artifactType: string): string {
+		const target = restoreTargetForModule1Artifact(artifactType);
+
+		if (!target) {
+			return 'saved only';
+		}
+
+		return `reopens in ${capitalize(target.phase)}`;
+	}
+
+	function capitalize(value: string): string {
+		return value.charAt(0).toUpperCase() + value.slice(1);
+	}
 </script>
 
 <div class="phase-reflect">
@@ -156,11 +179,24 @@
 		<p class="field-note">{snapshotStatus}</p>
 		<p class="field-note">{artifactStatus}</p>
 		{#if savedArtifacts.length > 0}
-			<ul class="ledger">
+			<ul class="ledger artifact-ledger">
 				{#each savedArtifacts as artifact}
-					<li>
-						<strong>{artifact.title}</strong>
-						<span>{artifact.artifactType} · {formatTimestamp(artifact.createdAt)}</span>
+					<li class="artifact-ledger__item">
+						<div class="artifact-ledger__meta">
+							<strong>{artifact.title}</strong>
+							<span>
+								{artifact.artifactType} · {restoreHintFor(artifact.artifactType)} ·
+								{formatTimestamp(artifact.createdAt)}
+							</span>
+						</div>
+						<button
+							class="button button--ghost button--sm"
+							type="button"
+							onclick={() => onRestoreArtifact(artifact)}
+							disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
+						>
+							{restoreLabelFor(artifact.artifactType)}
+						</button>
 					</li>
 				{/each}
 			</ul>

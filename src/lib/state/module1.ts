@@ -77,6 +77,25 @@ export interface Module1Draft {
 	lastEditedAt: string | null;
 }
 
+export interface Module1Artifact {
+	id: number;
+	artifactType: string;
+	title: string;
+	payload: unknown;
+	createdAt: string;
+}
+
+export type RestoreModule1ArtifactResult =
+	| {
+			ok: true;
+			draft: Module1Draft;
+			status: string;
+	  }
+	| {
+			ok: false;
+			status: string;
+	  };
+
 const DIALOGUE_MODES: DialogueMode[] = ['Explain-Back Examiner'];
 
 export function createModule1Draft(): Module1Draft {
@@ -123,15 +142,15 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 			: fallback.dialogueMode,
 		dialogueInput:
 			typeof candidate.dialogueInput === 'string' ? candidate.dialogueInput : fallback.dialogueInput,
-			lastDialogue: normalizeDialogue(candidate.lastDialogue),
-			workingQuestion:
-				typeof candidate.workingQuestion === 'string'
-					? candidate.workingQuestion
-					: fallback.workingQuestion,
-			proposalInput:
-				typeof candidate.proposalInput === 'string' ? candidate.proposalInput : fallback.proposalInput,
-			invariantCandidate:
-				typeof candidate.invariantCandidate === 'string'
+		lastDialogue: normalizeDialogue(candidate.lastDialogue),
+		workingQuestion:
+			typeof candidate.workingQuestion === 'string'
+				? candidate.workingQuestion
+				: fallback.workingQuestion,
+		proposalInput:
+			typeof candidate.proposalInput === 'string' ? candidate.proposalInput : fallback.proposalInput,
+		invariantCandidate:
+			typeof candidate.invariantCandidate === 'string'
 				? candidate.invariantCandidate
 				: fallback.invariantCandidate,
 		notes: typeof candidate.notes === 'string' ? candidate.notes : fallback.notes,
@@ -176,6 +195,83 @@ export function writeModule1Draft(
 	}
 
 	storage.setItem(MODULE1_STORAGE_KEY, JSON.stringify(draft));
+}
+
+export function normalizeModule1Artifact(input: unknown): Module1Artifact | null {
+	if (!input || typeof input !== 'object') {
+		return null;
+	}
+
+	const candidate = input as Partial<Module1Artifact>;
+
+	if (
+		typeof candidate.id !== 'number' ||
+		typeof candidate.artifactType !== 'string' ||
+		typeof candidate.title !== 'string' ||
+		typeof candidate.createdAt !== 'string'
+	) {
+		return null;
+	}
+
+	return {
+		id: candidate.id,
+		artifactType: candidate.artifactType,
+		title: candidate.title,
+		payload: candidate.payload ?? null,
+		createdAt: candidate.createdAt
+	};
+}
+
+export function normalizeModule1Artifacts(input: unknown): Module1Artifact[] {
+	if (!Array.isArray(input)) {
+		return [];
+	}
+
+	return input
+		.map((artifact) => normalizeModule1Artifact(artifact))
+		.filter((artifact): artifact is Module1Artifact => artifact !== null);
+}
+
+export function restoreTargetForModule1Artifact(
+	artifactType: string
+): { phase: LabPhase; surface: SurfaceId } | null {
+	switch (artifactType) {
+		case 'note':
+			return { phase: 'reflect', surface: 'artifacts' };
+		case 'trace':
+			return { phase: 'explore', surface: 'trace' };
+		case 'invariant-run':
+		case 'proof-attempt':
+			return { phase: 'prove', surface: 'invariants' };
+		case 'dialogue':
+			return { phase: 'reflect', surface: 'dialogue' };
+		default:
+			return null;
+	}
+}
+
+export function restoreModule1Artifact(
+	draft: Module1Draft,
+	artifact: Module1Artifact,
+	restoredAt = new Date().toISOString()
+): RestoreModule1ArtifactResult {
+	switch (artifact.artifactType) {
+		case 'note':
+			return restoreNoteArtifact(draft, artifact, restoredAt);
+		case 'trace':
+			return restoreTraceArtifact(draft, artifact, restoredAt);
+		case 'invariant-run':
+			return restoreInvariantArtifact(draft, artifact, restoredAt);
+		case 'proof-attempt':
+			return restoreProofArtifact(draft, artifact, restoredAt);
+		case 'dialogue':
+			return restoreDialogueArtifact(draft, artifact, restoredAt);
+		default:
+			return {
+				ok: false,
+				status: `Restore is not implemented for ${artifact.artifactType} artifacts.`
+			};
+	}
 }
 
 function isSurfaceId(value: unknown): value is SurfaceId {
@@ -251,4 +347,201 @@ function normalizeDialogue(input: unknown): DialogueResult | null {
 		sessionId: candidate.sessionId ?? null,
 		costUsd: candidate.costUsd ?? null
 	};
+}
+
+function restoreNoteArtifact(
+	draft: Module1Draft,
+	artifact: Module1Artifact,
+	restoredAt: string
+): RestoreModule1ArtifactResult {
+	const payload = asRecord(artifact.payload);
+
+	if (!payload || typeof payload.notes !== 'string') {
+		return { ok: false, status: 'Saved note payload is incomplete and could not be restored.' };
+	}
+
+	return {
+		ok: true,
+		draft: buildRestoredDraft(
+			draft,
+			{ activePhase: 'reflect', activeSurface: 'artifacts', notes: payload.notes },
+			restoredAt
+		),
+		status: `Restored note artifact "${artifact.title}" into Reflect.`
+	};
+}
+
+function restoreTraceArtifact(
+	draft: Module1Draft,
+	artifact: Module1Artifact,
+	restoredAt: string
+): RestoreModule1ArtifactResult {
+	const payload = asRecord(artifact.payload);
+
+	if (!payload || !('trace' in payload)) {
+		return { ok: false, status: 'Saved trace payload is incomplete and could not be restored.' };
+	}
+
+	return {
+		ok: true,
+		draft: buildRestoredDraft(
+			draft,
+			{
+				activePhase: 'explore',
+				activeSurface: 'trace',
+				trace: normalizeTrace(payload.trace)
+			},
+			restoredAt
+		),
+		status: `Restored trace artifact "${artifact.title}" into Explore.`
+	};
+}
+
+function restoreInvariantArtifact(
+	draft: Module1Draft,
+	artifact: Module1Artifact,
+	restoredAt: string
+): RestoreModule1ArtifactResult {
+	const payload = asRecord(artifact.payload);
+	const candidateLabel = payload ? extractCandidateLabel(payload.candidate) : null;
+
+	if (!payload || !candidateLabel) {
+		return {
+			ok: false,
+			status: 'Saved invariant artifact is missing its candidate and could not be restored.'
+		};
+	}
+
+	const nextDraft: Partial<Module1Draft> & { activePhase: LabPhase; activeSurface: SurfaceId } = {
+		activePhase: 'prove',
+		activeSurface: 'invariants',
+		invariantCandidate: candidateLabel
+	};
+
+	if ('trace' in payload) {
+		nextDraft.trace = normalizeTrace(payload.trace);
+	}
+
+	if (typeof payload.workingQuestion === 'string') {
+		nextDraft.workingQuestion = payload.workingQuestion;
+	}
+
+	return {
+		ok: true,
+		draft: buildRestoredDraft(draft, nextDraft, restoredAt),
+		status: `Restored invariant artifact "${artifact.title}" into Prove.`
+	};
+}
+
+function restoreProofArtifact(
+	draft: Module1Draft,
+	artifact: Module1Artifact,
+	restoredAt: string
+): RestoreModule1ArtifactResult {
+	const payload = asRecord(artifact.payload);
+	const candidateLabel = payload ? extractCandidateLabel(payload.candidate) : null;
+	const notes = payload && typeof payload.notes === 'string' ? payload.notes : null;
+
+	if (!payload || (!candidateLabel && notes === null)) {
+		return {
+			ok: false,
+			status: 'Saved proof attempt is missing its reusable fields and could not be restored.'
+		};
+	}
+
+	const nextDraft: Partial<Module1Draft> & { activePhase: LabPhase; activeSurface: SurfaceId } = {
+		activePhase: 'prove',
+		activeSurface: 'invariants'
+	};
+
+	if (candidateLabel) {
+		nextDraft.invariantCandidate = candidateLabel;
+	}
+
+	if (notes !== null) {
+		nextDraft.notes = notes;
+	}
+
+	if ('trace' in payload) {
+		nextDraft.trace = normalizeTrace(payload.trace);
+	}
+
+	if (typeof payload.workingQuestion === 'string') {
+		nextDraft.workingQuestion = payload.workingQuestion;
+	}
+
+	return {
+		ok: true,
+		draft: buildRestoredDraft(draft, nextDraft, restoredAt),
+		status: `Restored proof attempt "${artifact.title}" into Prove and reloaded its notes.`
+	};
+}
+
+function restoreDialogueArtifact(
+	draft: Module1Draft,
+	artifact: Module1Artifact,
+	restoredAt: string
+): RestoreModule1ArtifactResult {
+	const payload = asRecord(artifact.payload);
+	const dialogue = payload ? normalizeDialogue(payload.dialogue) : null;
+
+	if (!payload || !dialogue) {
+		return {
+			ok: false,
+			status: 'Saved dialogue artifact is incomplete and could not be restored.'
+		};
+	}
+
+	return {
+		ok: true,
+		draft: buildRestoredDraft(
+			draft,
+			{
+				activePhase: 'reflect',
+				activeSurface: 'dialogue',
+				dialogueInput:
+					typeof payload.userInput === 'string' ? payload.userInput : draft.dialogueInput,
+				dialogueMode: isDialogueMode(payload.mode) ? payload.mode : draft.dialogueMode,
+				lastDialogue: dialogue
+			},
+			restoredAt,
+			['artifacts']
+		),
+		status: `Restored dialogue artifact "${artifact.title}" into Reflect.`
+	};
+}
+
+function buildRestoredDraft(
+	draft: Module1Draft,
+	next: Partial<Module1Draft> & { activePhase: LabPhase; activeSurface: SurfaceId },
+	restoredAt: string,
+	extraVisitedSurfaces: SurfaceId[] = []
+): Module1Draft {
+	return normalizeModule1Draft({
+		...draft,
+		...next,
+		activePhase: next.activePhase,
+		activeSurface: next.activeSurface,
+		visitedPhases: appendUnique(draft.visitedPhases, next.activePhase),
+		visitedSurfaces: appendUnique(
+			draft.visitedSurfaces,
+			next.activeSurface,
+			...extraVisitedSurfaces
+		),
+		lastEditedAt: restoredAt
+	});
+}
+
+function extractCandidateLabel(input: unknown): string | null {
+	const candidate = asRecord(input);
+
+	return candidate && typeof candidate.label === 'string' ? candidate.label : null;
+}
+
+function asRecord(input: unknown): Record<string, unknown> | null {
+	return input && typeof input === 'object' ? (input as Record<string, unknown>) : null;
+}
+
+function appendUnique<T>(current: T[], ...values: T[]): T[] {
+	return Array.from(new Set([...current, ...values]));
 }

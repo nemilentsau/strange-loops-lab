@@ -19,6 +19,20 @@ The project starts as a personal reading companion and experimental laboratory:
 - observe what actually deepens understanding,
 - then decide what deserves expansion.
 
+### Current build posture
+
+The current implementation is a live first pass of Module 1 inside a single
+SvelteKit app. Module 2 and later modules remain part of the roadmap, but they
+are intentionally deferred until Module 1 has been revised and evaluated
+through actual use.
+
+Use the current docs this way:
+
+- `README.md` for project overview and current build posture
+- `docs/strange-loops-module-1.md` for canonical Module 1 status and next work
+- `docs/product-architecture.md` for the actual current architecture
+- `docs/agent-behavior.md` for the current dialogue/agent contract
+
 ---
 
 ## 2. Product philosophy
@@ -130,6 +144,11 @@ LLM functionality should be framed as:
 
 - **Explain-Back Examiner**  
   probes the user's explanation to reveal weak understanding.
+
+Current implementation note:
+- the live product currently exposes one honest coaching mode:
+  Explain-Back Examiner
+- other modes remain part of the long-term design vocabulary, not the current UI contract
 
 ### 4.3 What the LLM is not
 The LLM is **not** a formal proof checker unless backed by a real verifier.
@@ -554,7 +573,10 @@ The user should be able to come back to:
 ## 12. Iteration roadmap
 
 ### Phase 1 — Scaffolding + Module 1
-Build:
+State:
+- shell, persistence, Module 1, and one coaching path now exist in a working first pass
+
+Continue refining:
 - navigation shell,
 - artifact persistence,
 - graph explorer primitive,

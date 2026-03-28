@@ -32,10 +32,14 @@
 		PHASE_META,
 		PHASE_SURFACES,
 		createModule1Draft,
+		normalizeModule1Artifact,
+		normalizeModule1Artifacts,
 		normalizeModule1Draft,
 		readModule1Draft,
+		restoreModule1Artifact,
 		writeModule1Draft,
 		type LabPhase,
+		type Module1Artifact,
 		type Module1Draft,
 		type SurfaceId
 	} from '$lib/state/module1';
@@ -66,19 +70,12 @@
 		timeStyle: 'short'
 	});
 
-	interface SavedArtifactSummary {
-		id: number;
-		artifactType: string;
-		title: string;
-		createdAt: string;
-	}
-
 	let draft = $state(createModule1Draft());
 	let hydrated = $state(false);
 	let lastEditedLabel = $state('No local edits yet');
 	let snapshotStatus = $state('SQLite snapshot not loaded yet.');
 	let artifactStatus = $state('SQLite artifact list not loaded yet.');
-	let savedArtifacts = $state<SavedArtifactSummary[]>([]);
+	let savedArtifacts = $state<Module1Artifact[]>([]);
 	let dialogueStatus = $state('No dialogue run yet.');
 	let dialogueRunning = $state(false);
 	const currentTraceStep = $derived(
@@ -369,13 +366,11 @@
 			}
 
 			if (artifactsResponse.ok) {
-				const artifactPayload = (await artifactsResponse.json()) as {
-					artifacts: SavedArtifactSummary[];
-				};
-				savedArtifacts = artifactPayload.artifacts;
+				const artifactPayload = (await artifactsResponse.json()) as { artifacts?: unknown };
+				savedArtifacts = normalizeModule1Artifacts(artifactPayload.artifacts);
 				artifactStatus =
-					artifactPayload.artifacts.length > 0
-						? `Loaded ${artifactPayload.artifacts.length} saved artifact${artifactPayload.artifacts.length === 1 ? '' : 's'}.`
+					savedArtifacts.length > 0
+						? `Loaded ${savedArtifacts.length} saved artifact${savedArtifacts.length === 1 ? '' : 's'}.`
 						: 'No saved SQLite artifacts yet.';
 			} else {
 				artifactStatus = 'SQLite artifact request failed.';
@@ -419,39 +414,39 @@
 		});
 	}
 
-		async function saveTraceArtifact() {
-			await createArtifact('trace', `Trace to ${currentString}`, {
-				trace: draft.trace,
-				currentString
-			});
+	async function saveTraceArtifact() {
+		await createArtifact('trace', `Trace to ${currentString}`, {
+			trace: draft.trace,
+			currentString
+		});
+	}
+
+	async function saveInvariantArtifact() {
+		if (candidateInvariant.kind !== 'supported') {
+			artifactStatus = 'Use a supported invariant candidate before saving an invariant artifact.';
+			return;
 		}
 
-		async function saveInvariantArtifact() {
-			if (candidateInvariant.kind !== 'supported') {
-				artifactStatus = 'Use a supported invariant candidate before saving an invariant artifact.';
-				return;
-			}
+		await createArtifact('invariant-run', `Invariant run: ${candidateInvariant.label}`, {
+			currentString,
+			workingQuestion: draft.workingQuestion,
+			trace: draft.trace,
+			candidate: candidateInvariant,
+			builtIn: builtInInvariant
+		});
+	}
 
-			await createArtifact('invariant-run', `Invariant run: ${candidateInvariant.label}`, {
-				currentString,
-				workingQuestion: draft.workingQuestion,
-				trace: draft.trace,
-				candidate: candidateInvariant,
-				builtIn: builtInInvariant
-			});
-		}
-
-		async function saveProofArtifact() {
-			await createArtifact('proof-attempt', proofArtifactTitle(), {
-				claim: 'MU is unreachable from MI.',
-				currentString,
-				workingQuestion: draft.workingQuestion,
-				trace: draft.trace,
-				candidate: candidateInvariant,
-				notes: draft.notes,
-				conclusion: candidateInvariant.consequence
-			});
-		}
+	async function saveProofArtifact() {
+		await createArtifact('proof-attempt', proofArtifactTitle(), {
+			claim: 'MU is unreachable from MI.',
+			currentString,
+			workingQuestion: draft.workingQuestion,
+			trace: draft.trace,
+			candidate: candidateInvariant,
+			notes: draft.notes,
+			conclusion: candidateInvariant.consequence
+		});
+	}
 
 	async function createArtifact(artifactType: string, title: string, payload: unknown) {
 		try {
@@ -466,12 +461,30 @@
 				return;
 			}
 
-			const result = (await response.json()) as { artifact: SavedArtifactSummary };
-			savedArtifacts = [result.artifact, ...savedArtifacts];
-			artifactStatus = `Saved ${artifactType} artifact to SQLite at ${formatTimestamp(result.artifact.createdAt)}.`;
+			const result = (await response.json()) as { artifact?: unknown };
+			const artifact = normalizeModule1Artifact(result.artifact);
+
+			if (!artifact) {
+				artifactStatus = `Saved ${artifactType} artifact, but the response payload was malformed.`;
+				return;
+			}
+
+			savedArtifacts = [artifact, ...savedArtifacts];
+			artifactStatus = `Saved ${artifactType} artifact to SQLite at ${formatTimestamp(artifact.createdAt)}.`;
 		} catch {
 			artifactStatus = `Saving ${artifactType} artifact failed.`;
 		}
+	}
+
+	function restoreArtifact(artifact: Module1Artifact) {
+		const restored = restoreModule1Artifact(draft, artifact);
+		artifactStatus = restored.status;
+
+		if (!restored.ok) {
+			return;
+		}
+
+		draft = restored.draft;
 	}
 
 	function pickNewestDraft(localDraft: Module1Draft, remoteDraft: Module1Draft): Module1Draft {
@@ -486,15 +499,15 @@
 		return value ? timestampFormatter.format(new Date(value)) : 'an unknown time';
 	}
 
-		function noteArtifactTitle(): string {
-			const preview = draft.notes.trim().slice(0, 36);
-			return preview ? `Note: ${preview}` : 'Module 1 note';
-		}
+	function noteArtifactTitle(): string {
+		const preview = draft.notes.trim().slice(0, 36);
+		return preview ? `Note: ${preview}` : 'Module 1 note';
+	}
 
-		function proofArtifactTitle(): string {
-			const preview = draft.invariantCandidate.trim();
-			return preview ? `Proof attempt: ${preview}` : 'Proof attempt';
-		}
+	function proofArtifactTitle(): string {
+		const preview = draft.invariantCandidate.trim();
+		return preview ? `Proof attempt: ${preview}` : 'Proof attempt';
+	}
 
 	function resetSession() {
 		const fresh = createModule1Draft();
@@ -517,7 +530,7 @@
 		});
 	}
 
-		async function runDialogue() {
+	async function runDialogue() {
 		const userInput = draft.dialogueInput.trim();
 
 		if (!userInput) {
@@ -538,7 +551,7 @@
 			const payload = (await response.json()) as {
 				error?: string;
 				dialogue?: DialogueResult;
-				artifact?: SavedArtifactSummary;
+				artifact?: unknown;
 			};
 
 			if (!response.ok || !payload.dialogue) {
@@ -554,15 +567,17 @@
 				visitedPhases: ensureVisitedPhases('reflect')
 			});
 
-			if (payload.artifact) {
-				savedArtifacts = [payload.artifact, ...savedArtifacts];
+			const artifact = normalizeModule1Artifact(payload.artifact);
+
+			if (artifact) {
+				savedArtifacts = [artifact, ...savedArtifacts];
 			}
 
 			dialogueStatus = payload.dialogue.costUsd
 				? `Dialogue finished. Cost: $${payload.dialogue.costUsd.toFixed(4)}.`
 				: 'Dialogue finished.';
-			artifactStatus = payload.artifact
-				? `Saved dialogue artifact to SQLite at ${formatTimestamp(payload.artifact.createdAt)}.`
+			artifactStatus = artifact
+				? `Saved dialogue artifact to SQLite at ${formatTimestamp(artifact.createdAt)}.`
 				: artifactStatus;
 		} catch {
 			dialogueStatus = 'Dialogue request failed.';
@@ -681,17 +696,18 @@
 					{dialogueRunning}
 					{dialogueStatus}
 					notes={draft.notes}
-						{snapshotStatus}
-						{artifactStatus}
-						{savedArtifacts}
-						{reflectionPrompts}
-						onUpdateDialogueInput={updateDialogueInput}
-						onRunDialogue={runDialogue}
-						onUpdateNotes={updateNotes}
-						onUseReflectionPrompt={seedReflectionPrompt}
-						onSaveSnapshot={saveSnapshotToDatabase}
+					{snapshotStatus}
+					{artifactStatus}
+					{savedArtifacts}
+					{reflectionPrompts}
+					onUpdateDialogueInput={updateDialogueInput}
+					onRunDialogue={runDialogue}
+					onUpdateNotes={updateNotes}
+					onUseReflectionPrompt={seedReflectionPrompt}
+					onSaveSnapshot={saveSnapshotToDatabase}
 					onSaveNote={saveNoteArtifact}
 					onSaveTrace={saveTraceArtifact}
+					onRestoreArtifact={restoreArtifact}
 					{formatTimestamp}
 				/>
 			</div>

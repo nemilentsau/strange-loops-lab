@@ -51,13 +51,14 @@ The MIU system is the concrete vehicle for this.
 - first-class invariant-run and proof-attempt artifacts
 - guided reflection prompts in the `Reflect` phase
 - SQLite-backed snapshots and saved artifacts
+- artifact restore/reopen actions from the notebook back into live module phases
 - one honest Claude Code dialogue mode
 - local smoke scripts for persistence and dialogue flows
 
 ### Present but still shallow
 - object-level vs meta-level framing exists in phase labels, copy, and panel structure, but it is still not forceful enough in the interface
 - dialogue mode is usable, but still needs quality evaluation and refinement against real learner transcripts
-- artifact persistence is now broader, but still not yet shaped into a truly reusable learning notebook
+- artifact persistence now includes first-pass restore/reopen flow, but notebook review and curation are still thin
 - the graph explorer is accurate and inspectable, but still needs stronger teaching structure so it does more than expose state growth
 
 ### Highest-priority remaining work
@@ -336,7 +337,8 @@ Current build notes:
 - latest module snapshot persistence exists
 - note, trace, dialogue, invariant-run, and proof-attempt artifacts exist
 - notes and graph/invariant state are included in persisted draft state
-- artifact taxonomy and reuse still need work
+- saved artifacts can now reopen their corresponding live surfaces
+- artifact taxonomy, review, and curation still need work
 
 ---
 
@@ -592,18 +594,18 @@ Why this matters:
 - the graph is justified only if it helps the user feel the limits of search
 - the invariant should feel motivated rather than dropped in from above
 
-### Priority 4: upgrade artifact persistence into a real notebook
-Make the new proof-related artifacts genuinely reusable instead of merely
-storable.
+### Priority 4: deepen artifact persistence into a real notebook
+First-pass restore/reopen flow now exists. The next pass should improve review,
+curation, and notebook quality rather than basic reopen mechanics.
 
 Target changes:
 - clearer artifact titles and reuse paths
 - optional confidence or confusion tagging only if it supports reflection rather than fake scoring
-- better ways to reopen a saved artifact into the live module surfaces
+- better artifact review, comparison, and filtering once several sessions accumulate
 
 Why this matters:
 - the product philosophy is artifacts over noise
-- the current persistence layer is reliable, but the artifact model is still too coarse
+- the current persistence layer is reliable and now reusable, but the notebook model is still too coarse
 
 ### Priority 5: clean up dialogue mode honesty and quality
 The mode honesty cleanup is now done. The remaining work is dialogue quality.

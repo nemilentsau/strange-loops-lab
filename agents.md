@@ -10,17 +10,18 @@
 
 ## Current stage
 
-This repository is still in the specification and scaffolding phase.
+This repository is in a working first-pass state with Module 1 as the active
+implementation focus.
 
 Treat the docs as the source of truth for product direction, and avoid
 hard-coding assumptions from a conventional `frontend/` + `backend/` split
 unless the repo actually grows that structure.
 
 Current implementation focus:
-- project scaffolding
-- Module 1 (`MIU`) interaction design
-- persistence/artifact model
+- Module 1 (`MIU`) refinement
+- persistence/artifact/notebook model
 - verifier vs. LLM boundary
+- graph pedagogy and dialogue quality evaluation
 
 ## Primary references
 
@@ -28,9 +29,9 @@ Read only the files relevant to the task:
 
 - Product vision: `README.md`, `docs/strange-loops-vision.md`
 - Architecture: `docs/product-architecture.md`
-- Agent behavior: `docs/spec.md`, `docs/agents-prompt.md`
-- Module 1 scope: `docs/strange-loops-module-1.md`
-- Build requirements for the first implementation pass: `docs/strange-loops-coding-spec.md`
+- Agent behavior: `docs/agent-behavior.md`
+- Module 1 scope and status: `docs/strange-loops-module-1.md`
+- Supporting Module 1 UX direction: `docs/module-1-ux-vision.md`
 - Guidance on keeping agent instructions lean: `coding-agents-guide.md`
 
 If you change architecture, module scope, or agent responsibilities, update the

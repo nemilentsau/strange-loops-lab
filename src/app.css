@@ -1076,6 +1076,25 @@ select {
 	line-height: 1.55;
 }
 
+.artifact-ledger {
+	gap: var(--space-sm);
+}
+
+.artifact-ledger__item {
+	align-items: center;
+}
+
+.artifact-ledger__meta {
+	display: grid;
+	gap: 6px;
+	min-width: 0;
+}
+
+.artifact-ledger__meta strong,
+.artifact-ledger__meta span {
+	overflow-wrap: anywhere;
+}
+
 /* ── Surface Panel tone variants ── */
 .surface-panel[data-tone='verified'] {
 	border-color: rgba(127, 195, 189, 0.22);
