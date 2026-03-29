@@ -82,7 +82,11 @@
 		return value.charAt(0).toUpperCase() + value.slice(1);
 	}
 
+	const DEFAULT_DIALOGUE_STATUS = 'Submit your explanation above to get coaching feedback.';
 	const hasDialogueRun = $derived(lastDialogue !== null);
+	const showDialogueStatus = $derived(
+		hasDialogueRun || dialogueRunning || dialogueStatus !== DEFAULT_DIALOGUE_STATUS
+	);
 </script>
 
 <div class="phase-reflect">
@@ -132,7 +136,9 @@
 					Try: "I think MU is unreachable because..."
 				</button>
 			</div>
-		{:else}
+		{/if}
+
+		{#if showDialogueStatus}
 			<p class="field-note">{dialogueStatus}</p>
 		{/if}
 
