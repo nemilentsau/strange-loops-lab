@@ -1,6 +1,8 @@
 <script lang="ts">
 	import LabDesk from '$lib/components/LabDesk.svelte';
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
+	import TaskList, { type TaskListItem } from '$lib/components/TaskList.svelte';
+	import WorkingQuestion from '$lib/components/WorkingQuestion.svelte';
 	import { GRAPH_DEPTH_OPTIONS, GRAPH_NODE_LIMIT_OPTIONS, PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
 	import {
 		graphNodeExists,
@@ -10,13 +12,6 @@
 		type ReachabilityNode,
 		type ProvenanceStep
 	} from '$lib/miu/graph';
-
-	interface MapGuideTask {
-		title: string;
-		body: string;
-		question: string;
-		nodeId?: string | null;
-	}
 
 	let {
 		reachabilityGraph,
@@ -71,32 +66,37 @@
 				: 'No bound hit — this region is fully enumerated.'
 	);
 
-	const guideTasks = $derived<MapGuideTask[]>([
+	// "Find repetition" can only focus once a node has actually been reached twice;
+	// until then its action is disabled as a data field (not a label string-match).
+	const guideTasks = $derived<TaskListItem[]>([
 		{
 			title: 'Find repetition',
 			body: 'Inspect a node with more than one incoming edge and decide what repeated discovery really means.',
-			question: 'What does it mean when two different legal paths converge on the same node?',
-			nodeId: repeatedGraphNodeId
+			actionLabel: repeatedGraphNodeId ? 'Focus' : 'Use',
+			disabled: !repeatedGraphNodeId,
+			onUse: () =>
+				onUseGuideTask(
+					'What does it mean when two different legal paths converge on the same node?',
+					repeatedGraphNodeId ?? undefined
+				)
 		},
 		{
 			title: 'Push the boundary',
 			body: 'Raise depth or node count and watch how quickly the reachable space grows.',
-			question: 'How fast does the state space grow as I raise the exploration bounds?'
+			actionLabel: 'Use',
+			onUse: () =>
+				onUseGuideTask('How fast does the state space grow as I raise the exploration bounds?')
 		},
 		{
 			title: 'Search is not proof',
 			body: 'Use the graph to feel the limit of exploration, then state what still remains unproven.',
-			question: 'Even if MU never appears in this graph, what would still be missing from a proof?'
+			actionLabel: 'Use',
+			onUse: () =>
+				onUseGuideTask(
+					'Even if MU never appears in this graph, what would still be missing from a proof?'
+				)
 		}
 	]);
-
-	// Compact guided-task rows expand on click to reveal body text. Kept as a
-	// tiny local toggle (presentational only — no draft state), matching Explore.
-	let expandedTask = $state<number | null>(null);
-
-	function toggleTask(index: number) {
-		expandedTask = expandedTask === index ? null : index;
-	}
 </script>
 
 <div class="phase-canvas phase-canvas--{level} phase-map">
@@ -107,49 +107,10 @@
 
 	<LabDesk>
 		{#snippet guide()}
-			<label class="working-question" for="working-question-input">
-				<span class="working-question__label">Your working question</span>
-				<input
-					id="working-question-input"
-					class="text-field working-question__input"
-					type="text"
-					placeholder="What are you trying to find out?"
-					value={workingQuestion}
-					oninput={onUpdateQuestion}
-				/>
-			</label>
+			<WorkingQuestion {workingQuestion} {onUpdateQuestion} />
 
 			<SurfacePanel title="Guided Tasks" eyebrow="Map with intent">
-				<div class="task-list">
-					{#each guideTasks as task, index}
-						<div class="task-row" data-expanded={expandedTask === index}>
-							<div class="task-row__head">
-								<button
-									class="task-row__toggle"
-									type="button"
-									aria-expanded={expandedTask === index}
-									onclick={() => toggleTask(index)}
-								>
-									<span class="task-row__caret" aria-hidden="true">
-										{expandedTask === index ? '▾' : '▸'}
-									</span>
-									<span class="task-row__title">{task.title}</span>
-								</button>
-								<button
-									class="button button--ghost button--sm task-row__use"
-									type="button"
-									onclick={() => onUseGuideTask(task.question, task.nodeId ?? undefined)}
-									disabled={task.title === 'Find repetition' && !task.nodeId}
-								>
-									{task.nodeId ? 'Focus' : 'Use'}
-								</button>
-							</div>
-							{#if expandedTask === index}
-								<p class="task-row__body">{task.body}</p>
-							{/if}
-						</div>
-					{/each}
-				</div>
+				<TaskList tasks={guideTasks} idPrefix="map" />
 			</SurfacePanel>
 
 			<SurfacePanel title="Search Bounds" eyebrow="Tune the exploration">

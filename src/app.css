@@ -1016,6 +1016,27 @@ body.module1-wide .site-shell {
 	gap: var(--space-sm);
 }
 
+/* ── Prove guide rail: the claim ──
+ * The proposition the whole phase is about. A graphite left-rule anchors it as
+ * the fixed claim; no accent (it is orientation, the act is "Use built-in"). */
+.claim-card {
+	margin-bottom: var(--space-sm);
+	padding: var(--space-sm) var(--space-md);
+	border-left: 3px solid var(--ink);
+	border-radius: 0 var(--radius) var(--radius) 0;
+	background: var(--panel);
+}
+
+.claim-card h3 {
+	margin: 0 0 8px;
+	font-family: var(--serif);
+	font-size: 1.05rem;
+}
+
+.claim-card .field-note {
+	margin: 0;
+}
+
 /* Proof steps are verified scaffolding: solid graphite left-rule, no hue. */
 .proof-step {
 	display: grid;

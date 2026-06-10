@@ -1,15 +1,10 @@
 <script lang="ts">
 	import LabDesk from '$lib/components/LabDesk.svelte';
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
+	import TaskList, { type TaskListItem } from '$lib/components/TaskList.svelte';
+	import WorkingQuestion from '$lib/components/WorkingQuestion.svelte';
 	import type { DerivationTrace, MiuMove, MiuProposalAnalysis } from '$lib/miu/core';
 	import { PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
-
-	interface ExploreGuideTask {
-		title: string;
-		body: string;
-		question: string;
-		proposal?: string;
-	}
 
 	let {
 		currentString,
@@ -51,35 +46,33 @@
 		onUseGuideTask: (question: string, proposal?: string) => void;
 	} = $props();
 
-	const guideTasks: ExploreGuideTask[] = [
+	const guideTasks: TaskListItem[] = [
 		{
 			title: 'Test the tempting target',
 			body: 'Try `MU` in the bench and compare “looks promising” with “is a legal next step.”',
-			question: 'What distinguishes a tempting target from a legal next step in the MIU system?',
-			proposal: 'MU'
+			actionLabel: 'Use',
+			onUse: () =>
+				onUseGuideTask(
+					'What distinguishes a tempting target from a legal next step in the MIU system?',
+					'MU'
+				)
 		},
 		{
 			title: 'Force the first subtraction',
 			body: 'Look for the first state where Rule 3 becomes available at all.',
-			question: 'What has to happen before Rule 3 can even fire?'
+			actionLabel: 'Use',
+			onUse: () => onUseGuideTask('What has to happen before Rule 3 can even fire?')
 		},
 		{
 			title: 'Look for convergence',
 			body: 'Branch from an earlier trace step and see whether different derivations can land on the same string.',
-			question: 'Can two different derivations reach the same MIU string?'
+			actionLabel: 'Use',
+			onUse: () => onUseGuideTask('Can two different derivations reach the same MIU string?')
 		}
-	] as const;
+	];
 
 	const level = PHASE_META.explore.level;
 	const levelPresentation = LEVEL_PRESENTATION[level];
-
-	// Compact guided-task rows expand on click to reveal body text. Kept as a
-	// tiny local toggle (presentational only — no draft state).
-	let expandedTask = $state<number | null>(null);
-
-	function toggleTask(index: number) {
-		expandedTask = expandedTask === index ? null : index;
-	}
 </script>
 
 <div class="phase-canvas phase-canvas--{level} phase-explore">
@@ -90,17 +83,7 @@
 
 	<LabDesk>
 		{#snippet guide()}
-			<label class="working-question" for="working-question-input">
-				<span class="working-question__label">Your working question</span>
-				<input
-					id="working-question-input"
-					class="text-field working-question__input"
-					type="text"
-					placeholder="What are you trying to find out?"
-					value={workingQuestion}
-					oninput={onUpdateQuestion}
-				/>
-			</label>
+			<WorkingQuestion {workingQuestion} {onUpdateQuestion} />
 
 			{#if isNewSession && !welcomeDismissed}
 				<div class="hint-card">
@@ -115,35 +98,7 @@
 			{/if}
 
 			<SurfacePanel title="Guided Tasks" eyebrow="Explore with intent">
-				<div class="task-list">
-					{#each guideTasks as task, index}
-						<div class="task-row" data-expanded={expandedTask === index}>
-							<div class="task-row__head">
-								<button
-									class="task-row__toggle"
-									type="button"
-									aria-expanded={expandedTask === index}
-									onclick={() => toggleTask(index)}
-								>
-									<span class="task-row__caret" aria-hidden="true">
-										{expandedTask === index ? '▾' : '▸'}
-									</span>
-									<span class="task-row__title">{task.title}</span>
-								</button>
-								<button
-									class="button button--ghost button--sm task-row__use"
-									type="button"
-									onclick={() => onUseGuideTask(task.question, task.proposal)}
-								>
-									Use
-								</button>
-							</div>
-							{#if expandedTask === index}
-								<p class="task-row__body">{task.body}</p>
-							{/if}
-						</div>
-					{/each}
-				</div>
+				<TaskList tasks={guideTasks} idPrefix="explore" />
 			</SurfacePanel>
 		{/snippet}
 
