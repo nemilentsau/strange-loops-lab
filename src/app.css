@@ -1,20 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap');
-
 @import 'tailwindcss';
 
+/*
+ * Graphite & parchment. One material everywhere: warm paper, graphite ink,
+ * hairline rules. A single accent — oxblood — and it means exactly one thing:
+ * "you can act here." It never carries epistemic status.
+ *
+ * The three epistemic registers are carried by FORM, never by hue, so they
+ * survive grayscale and colorblindness:
+ *   verified  → solid graphite rule/frame + ✓/✗ stamps, upright text
+ *   computed  → dashed pencil-gray rules
+ *   coaching  → dotted rules + italic serif (a margin note); never a stamp
+ */
+
 :root {
-	--bg: #0f1418;
-	--panel: rgba(22, 29, 35, 0.84);
-	--paper: #efe7d4;
-	--ink: #10161a;
-	--muted: #b7b09b;
-	--muted-strong: #d8cfb7;
-	--line: rgba(239, 231, 212, 0.12);
-	--accent: #d0a95f;
-	--accent-strong: #f5d28a;
-	--teal: #7fc3bd;
-	--rose: #d2826b;
-	--shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+	/* ground & surfaces */
+	--page: #f1efea;
+	--page-meta: #f5f1e6;
+	--panel: #faf9f6;
+	--panel-meta: #fbf8f0;
+	--line: #dedbd3;
+	--line-strong: #b9b4a6;
+	/* ink */
+	--ink: #2b2a27;
+	--muted: #5f5b4e;
+	--faint: #85816f;
+	/* the one accent: actionable only */
+	--act: #8a3b2e;
+	--act-ink: #faf9f6; /* text on filled accent */
+	/* type */
+	--serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+	--sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--mono: ui-monospace, 'SF Mono', Menlo, monospace;
+	--radius: 8px;
+
+	/* spacing scale (geometry only, unchanged) */
 	--space-2xs: 4px;
 	--space-xs: 8px;
 	--space-sm: 12px;
@@ -22,55 +41,17 @@
 	--space-lg: 24px;
 	--space-xl: 32px;
 	--space-2xl: 48px;
-	--radius-lg: 24px;
-	--radius-md: 16px;
-	--radius-sm: 12px;
-	--radius-pill: 999px;
-	--panel-raised: rgba(26, 34, 42, 0.92);
-	--panel-inset: rgba(8, 11, 14, 0.64);
-	--panel-card: rgba(22, 29, 35, 0.72);
-	--glow-teal: 0 0 24px rgba(127, 195, 189, 0.12), 0 0 4px rgba(127, 195, 189, 0.06);
-	--glow-gold: 0 0 24px rgba(208, 169, 95, 0.12), 0 0 4px rgba(208, 169, 95, 0.06);
-	--glow-rose: 0 0 24px rgba(210, 130, 107, 0.12), 0 0 4px rgba(210, 130, 107, 0.06);
-	--shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.18);
-	--shadow-card: 0 4px 16px rgba(0, 0, 0, 0.22);
-	--line-strong: rgba(239, 231, 212, 0.18);
-	--grid-ink: rgba(239, 231, 212, 0.045);
-	--grid-paper:
-		linear-gradient(var(--grid-ink) 1px, transparent 1px),
-		linear-gradient(90deg, var(--grid-ink) 1px, transparent 1px);
-	--void: rgba(7, 10, 13, 0.6);
-	--grid-ground: rgba(13, 18, 22, 0.4);
-	--rim-bg: #131a20;
 }
 
 html {
-	background-color: var(--bg);
-	background-image:
-		radial-gradient(circle at top, rgba(208, 169, 95, 0.2), transparent 34%),
-		linear-gradient(180deg, #141b20 0%, #0f1418 100%);
-	color: var(--paper);
-	font-family: 'Manrope', sans-serif;
+	background-color: var(--page);
+	color: var(--ink);
+	font-family: var(--sans);
 }
 
 body {
 	margin: 0;
 	min-height: 100vh;
-	background:
-		radial-gradient(circle at 18% 20%, rgba(127, 195, 189, 0.08), transparent 24%),
-		radial-gradient(circle at 82% 12%, rgba(210, 130, 107, 0.08), transparent 20%);
-}
-
-body::before {
-	content: '';
-	position: fixed;
-	inset: 0;
-	pointer-events: none;
-	background-image:
-		linear-gradient(rgba(239, 231, 212, 0.025) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(239, 231, 212, 0.025) 1px, transparent 1px);
-	background-size: 44px 44px;
-	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 92%);
 }
 
 a {
@@ -85,6 +66,13 @@ select {
 	font: inherit;
 }
 
+/* A single, consistent focus ring in the action accent. Never removed without
+ * a visible replacement. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+	outline: 2px solid var(--act);
+	outline-offset: 2px;
+}
+
 .site-shell {
 	position: relative;
 	max-width: 1280px;
@@ -92,6 +80,7 @@ select {
 	padding: 28px 24px 56px;
 }
 
+/* ── Shared panel surfaces ── */
 .site-topbar,
 .hero__copy,
 .hero__frame,
@@ -102,7 +91,6 @@ select {
 .module-hero__meta {
 	border: 1px solid var(--line);
 	background: var(--panel);
-	box-shadow: var(--shadow);
 }
 
 .site-topbar {
@@ -112,11 +100,7 @@ select {
 	gap: 20px;
 	margin-bottom: var(--space-lg);
 	padding: 16px 20px;
-	border-radius: var(--radius-lg);
-	background: var(--panel-raised);
-	border-color: rgba(208, 169, 95, 0.15);
-	backdrop-filter: blur(14px);
-	box-shadow: var(--shadow-card), var(--glow-gold);
+	border-radius: var(--radius);
 }
 
 .site-mark {
@@ -128,16 +112,14 @@ select {
 .site-mark__glyph {
 	display: inline-grid;
 	place-items: center;
-	width: 44px;
-	height: 44px;
-	border: 2px solid rgba(208, 169, 95, 0.4);
+	width: 40px;
+	height: 40px;
+	border: 1px solid var(--line-strong);
 	border-radius: 50%;
-	background: radial-gradient(circle, rgba(208, 169, 95, 0.28), rgba(208, 169, 95, 0.02));
-	color: var(--accent-strong);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--ink);
+	font-family: var(--mono);
 	font-size: 0.9rem;
 	letter-spacing: 0.12em;
-	box-shadow: 0 0 20px rgba(208, 169, 95, 0.15), 0 0 4px rgba(208, 169, 95, 0.08);
 }
 
 .site-mark__text {
@@ -146,10 +128,10 @@ select {
 }
 
 .site-mark__text strong {
-	font-size: 0.95rem;
-	font-weight: 700;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
+	font-family: var(--serif);
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
 }
 
 .site-mark__text small {
@@ -172,23 +154,22 @@ select {
 .surface-pill,
 .dialogue-chip {
 	transition:
-		transform 160ms ease,
 		border-color 160ms ease,
+		color 160ms ease,
 		background 160ms ease;
 }
 
 .site-nav a {
-	padding: 10px 14px;
+	padding: 8px 14px;
 	border: 1px solid transparent;
-	border-radius: var(--radius-pill);
-	color: var(--muted-strong);
+	border-radius: var(--radius);
+	color: var(--muted);
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-	transform: translateY(-1px);
-	border-color: rgba(208, 169, 95, 0.28);
-	background: rgba(208, 169, 95, 0.08);
+	border-color: var(--line-strong);
+	color: var(--act);
 }
 
 .site-main,
@@ -234,7 +215,7 @@ select {
 
 .module-hero__edited {
 	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.72rem;
 	white-space: nowrap;
 }
@@ -252,58 +233,20 @@ select {
 .module-card,
 .surface-panel {
 	padding: var(--space-lg);
-	border-radius: var(--radius-lg);
-}
-
-.surface-panel {
-	position: relative;
-	overflow: hidden;
-	background: var(--panel-raised);
-	box-shadow: var(--shadow-card);
-}
-
-.surface-panel::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
-	background: var(--accent);
-	opacity: 0.5;
-}
-
-.hero__copy {
-	position: relative;
-	overflow: hidden;
-	background: var(--panel-raised);
-	box-shadow: var(--shadow-card);
-}
-
-.hero__copy::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
-	background: var(--accent);
-	opacity: 0.6;
+	border-radius: var(--radius);
 }
 
 .hero__frame {
-	background: var(--panel-inset);
-	border-color: rgba(208, 169, 95, 0.18);
-	box-shadow: var(--shadow-card);
+	background: var(--page-meta);
 }
 
 .hero__copy h1,
 .module-hero__copy h1 {
 	margin: 0 0 16px;
-	font-family: 'Instrument Serif', serif;
-	font-size: clamp(3rem, 5vw, 5rem);
-	line-height: 0.95;
-	letter-spacing: -0.04em;
+	font-family: var(--serif);
+	font-size: clamp(2.6rem, 5vw, 4.2rem);
+	line-height: 1;
+	letter-spacing: -0.01em;
 }
 
 .hero__lede,
@@ -313,72 +256,86 @@ select {
 .field-note,
 .section-header__copy,
 .placeholder-copy {
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.65;
 }
 
+/* ── Buttons ──
+ * Rest: ink on panel with a structural border. Hover / focus / active /
+ * primary: the action accent. Filled primary uses the accent ground. */
 .button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 12px 18px;
-	border: 1px solid rgba(208, 169, 95, 0.24);
-	border-radius: var(--radius-pill);
+	padding: 10px 18px;
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
+	cursor: pointer;
+}
+
+.button:hover,
+.button:focus-visible {
+	border-color: var(--act);
+	color: var(--act);
+}
+
+.button:active {
+	background: rgba(138, 59, 46, 0.06);
 }
 
 .button--primary {
-	background: linear-gradient(135deg, var(--accent), #b58439);
-	color: var(--ink);
-	font-weight: 700;
-	box-shadow: var(--shadow-card);
-	transition: transform 160ms ease, box-shadow 200ms ease, background 200ms ease;
+	background: var(--act);
+	border-color: var(--act);
+	color: var(--act-ink);
+	font-weight: 600;
 }
 
-.button--primary:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 8px 24px rgba(208, 169, 95, 0.3), 0 0 12px rgba(208, 169, 95, 0.15);
-	background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+.button--primary:hover,
+.button--primary:focus-visible {
+	background: #76301f;
+	border-color: #76301f;
+	color: var(--act-ink);
 }
 
 .button--ghost {
-	color: var(--muted-strong);
-	background: rgba(239, 231, 212, 0.04);
-	border-color: rgba(239, 231, 212, 0.15);
+	color: var(--ink);
+	background: transparent;
+	border-color: var(--line-strong);
 }
 
-.button--ghost:hover {
-	color: var(--paper);
-	background: rgba(239, 231, 212, 0.08);
-	border-color: rgba(208, 169, 95, 0.35);
-	box-shadow: var(--shadow-card);
+.button--ghost:hover,
+.button--ghost:focus-visible {
+	color: var(--act);
+	border-color: var(--act);
+	background: transparent;
 }
 
 .button--ghost:active {
-	transform: translateY(0);
-	background: rgba(239, 231, 212, 0.06);
+	background: rgba(138, 59, 46, 0.06);
 }
 
 .button:disabled {
-	opacity: 0.4;
+	opacity: 0.45;
 	pointer-events: none;
 }
 
 .hero__label,
 .eyebrow {
 	margin: 0 0 var(--space-2xs);
-	color: var(--accent);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--faint);
+	font-family: var(--mono);
 	font-size: 0.68rem;
 	font-weight: 600;
 	letter-spacing: 0.16em;
 	text-transform: uppercase;
-	opacity: 0.8;
 }
 
 .hero__label {
 	margin-bottom: var(--space-md);
 	padding-bottom: var(--space-sm);
-	border-bottom: 1px solid rgba(208, 169, 95, 0.15);
+	border-bottom: 1px solid var(--line);
 }
 
 .metric-list,
@@ -398,16 +355,16 @@ select {
 	justify-content: space-between;
 	gap: 18px;
 	padding-bottom: 14px;
-	border-bottom: 1px solid rgba(239, 231, 212, 0.08);
+	border-bottom: 1px solid var(--line);
 }
 
 .metric-list li strong,
 .module-card__surface strong {
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.82rem;
 	font-weight: 600;
-	letter-spacing: 0.04em;
-	color: var(--accent-strong);
+	letter-spacing: 0.02em;
+	color: var(--ink);
 }
 
 .metric-list span {
@@ -429,67 +386,19 @@ select {
 }
 
 .panel--soft {
-	position: relative;
-	overflow: hidden;
-	background: var(--panel-raised);
-	box-shadow: var(--shadow-card);
-	transition: transform 200ms ease, box-shadow 200ms ease;
-}
-
-.panel--soft::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
-	background: var(--accent);
-	opacity: 0.4;
+	background: var(--panel);
+	transition: border-color 200ms ease;
 }
 
 .panel--soft:hover {
-	transform: translateY(-2px);
-	box-shadow: var(--shadow-hover);
+	border-color: var(--line-strong);
 }
 
 .panel--soft h2 {
-	font-family: 'Instrument Serif', serif;
-	font-size: 1.25rem;
+	font-family: var(--serif);
+	font-size: 1.3rem;
 	letter-spacing: -0.01em;
 	margin: 0 0 var(--space-xs);
-}
-
-.panel--soft:nth-child(1) {
-	border-color: rgba(127, 195, 189, 0.18);
-}
-.panel--soft:nth-child(1)::before {
-	background: var(--teal);
-	opacity: 0.6;
-}
-.panel--soft:nth-child(1):hover {
-	box-shadow: var(--shadow-hover), var(--glow-teal);
-}
-
-.panel--soft:nth-child(2) {
-	border-color: rgba(208, 169, 95, 0.18);
-}
-.panel--soft:nth-child(2)::before {
-	background: var(--accent);
-	opacity: 0.6;
-}
-.panel--soft:nth-child(2):hover {
-	box-shadow: var(--shadow-hover), var(--glow-gold);
-}
-
-.panel--soft:nth-child(3) {
-	border-color: rgba(210, 130, 107, 0.18);
-}
-.panel--soft:nth-child(3)::before {
-	background: var(--rose);
-	opacity: 0.6;
-}
-.panel--soft:nth-child(3):hover {
-	box-shadow: var(--shadow-hover), var(--glow-rose);
 }
 
 .section-header,
@@ -505,12 +414,12 @@ select {
 .section-header {
 	padding-bottom: var(--space-md);
 	margin-bottom: var(--space-xs);
-	border-bottom: 1px solid rgba(239, 231, 212, 0.06);
+	border-bottom: 1px solid var(--line);
 }
 
 .section-header h2 {
-	font-family: 'Instrument Serif', serif;
-	font-size: 1.6rem;
+	font-family: var(--serif);
+	font-size: 1.7rem;
 	letter-spacing: -0.01em;
 	margin: 0;
 }
@@ -518,11 +427,12 @@ select {
 .surface-panel__header {
 	padding-bottom: var(--space-md);
 	margin-bottom: var(--space-md);
-	border-bottom: 1px solid rgba(239, 231, 212, 0.06);
+	border-bottom: 1px solid var(--line);
 }
 
-.surface-panel__header h2 {
-	font-family: 'Instrument Serif', serif;
+.surface-panel__header h2,
+.surface-panel__header h3 {
+	font-family: var(--serif);
 	font-size: 1.4rem;
 	letter-spacing: -0.01em;
 	margin: 0;
@@ -537,91 +447,79 @@ select {
 .module-card {
 	display: grid;
 	gap: 14px;
-	position: relative;
-	overflow: hidden;
-	background: var(--panel-raised);
-	box-shadow: var(--shadow-card);
-	transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
-}
-
-.module-card::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
-	background: var(--accent);
-	opacity: 0.4;
+	transition: border-color 200ms ease;
 }
 
 .module-card:hover {
-	transform: translateY(-3px);
-	border-color: rgba(208, 169, 95, 0.3);
-	box-shadow: var(--shadow-hover), var(--glow-gold);
+	border-color: var(--line-strong);
 }
 
 .module-card h2 {
-	font-family: 'Instrument Serif', serif;
+	font-family: var(--serif);
 	font-size: 1.35rem;
 	letter-spacing: -0.01em;
 	margin: 0;
 }
 
+/* ── Chips / badges ──
+ * The base chip is neutral bookkeeping. Status pills (site registry) and the
+ * register badges below qualify it; none of them carry a hue. */
 .status-pill,
 .badge,
 .legend-chip {
 	display: inline-flex;
 	align-items: center;
-	padding: 6px 12px;
-	border: 1px solid rgba(208, 169, 95, 0.22);
-	border-radius: var(--radius-pill);
-	font-family: 'IBM Plex Mono', monospace;
+	padding: 5px 11px;
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	font-family: var(--mono);
 	font-size: 0.68rem;
 	font-weight: 500;
-	letter-spacing: 0.08em;
+	letter-spacing: 0.06em;
 	text-transform: uppercase;
-	background: rgba(208, 169, 95, 0.06);
+	background: var(--panel);
+	color: var(--muted);
 }
 
-.status-pill[data-status='live'],
-.badge[data-tone='verified'] {
-	color: var(--teal);
-	border-color: rgba(127, 195, 189, 0.3);
-	background: rgba(127, 195, 189, 0.08);
+/* Module registry status: neutral, distinguished by border weight only. */
+.status-pill[data-status='live'] {
+	color: var(--ink);
+	border-color: var(--ink);
 }
 
-.status-pill[data-status='scaffolding'],
-.badge[data-tone='computed'] {
-	color: var(--accent-strong);
-	border-color: rgba(208, 169, 95, 0.3);
-	background: rgba(208, 169, 95, 0.08);
+.status-pill[data-status='scaffolding'] {
+	color: var(--muted);
+	border-style: dashed;
 }
 
-.status-pill[data-status='planned'],
-.badge[data-tone='coaching'] {
-	color: var(--rose);
-	border-color: rgba(210, 130, 107, 0.3);
-	background: rgba(210, 130, 107, 0.08);
+.status-pill[data-status='planned'] {
+	color: var(--faint);
+	border-style: dotted;
 }
 
 /*
- * Badge register grammar: mechanical results are square-cornered chips
- * (solid = verified, dashed = computed) with ✓/✗ verdict glyphs;
- * coaching stays a soft dotted pill. Shape and glyph carry the
- * distinction even without color.
+ * Register badge grammar (form, never hue):
+ *   verified → solid graphite frame + ✓/✗ stamp, upright
+ *   computed → dashed frame
+ *   coaching → dotted frame, italic serif
  */
-.badge[data-tone='verified'],
-.badge[data-tone='computed'] {
-	border-radius: 6px;
+.badge[data-tone='verified'] {
+	color: var(--ink);
+	border-color: var(--ink);
 }
 
 .badge[data-tone='computed'] {
+	color: var(--muted);
 	border-style: dashed;
 }
 
 .badge[data-tone='coaching'] {
+	color: var(--muted);
 	border-style: dotted;
+	font-family: var(--serif);
+	font-style: italic;
+	text-transform: none;
+	letter-spacing: 0;
 }
 
 .badge[data-verdict]::before {
@@ -638,9 +536,8 @@ select {
 }
 
 .badge[data-verdict='fail'] {
-	color: var(--muted-strong);
-	border-color: rgba(239, 231, 212, 0.3);
-	background: rgba(239, 231, 212, 0.05);
+	color: var(--muted);
+	border-color: var(--line-strong);
 }
 
 .module-card__status {
@@ -654,12 +551,12 @@ select {
 }
 
 .module-card__surface strong {
-	color: var(--paper);
+	color: var(--ink);
 }
 
 .module-card__surface span {
-	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--faint);
+	font-family: var(--mono);
 	font-size: 0.68rem;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
@@ -680,11 +577,9 @@ select {
 	gap: var(--space-md);
 	margin-top: var(--space-md);
 	padding: var(--space-sm) var(--space-lg);
-	border: 1px solid rgba(208, 169, 95, 0.15);
-	border-radius: var(--radius-lg);
-	background: var(--panel-raised);
-	backdrop-filter: blur(14px);
-	box-shadow: 0 12px 48px rgba(0, 0, 0, 0.24), var(--glow-gold);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
 	position: sticky;
 	top: 0;
 	z-index: 10;
@@ -697,14 +592,13 @@ select {
 }
 
 .context-strip__string {
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: clamp(1.4rem, 2.5vw, 2rem);
 	font-weight: 600;
 	letter-spacing: 0.08em;
-	color: var(--accent-strong);
+	color: var(--ink);
 	line-height: 1;
 	flex-shrink: 0;
-	text-shadow: 0 0 20px rgba(245, 210, 138, 0.2);
 }
 
 .context-strip__metrics {
@@ -720,22 +614,22 @@ select {
 	gap: 6px;
 	padding: 5px 10px;
 	border: 1px solid var(--line-strong);
-	border-radius: var(--radius-pill);
-	font-family: 'IBM Plex Mono', monospace;
+	border-radius: var(--radius);
+	font-family: var(--mono);
 	font-size: 0.72rem;
 	letter-spacing: 0.06em;
-	background: var(--panel-inset);
+	background: var(--panel);
+	color: var(--ink);
 }
 
+/* Metrics are verified readouts: solid graphite left-rule, no hue. */
 .context-metric[data-tone='verified'] {
-	border-color: rgba(127, 195, 189, 0.3);
-	color: var(--teal);
-	background: rgba(127, 195, 189, 0.06);
+	border-left: 3px solid var(--ink);
 }
 
 .context-metric__label {
 	text-transform: uppercase;
-	opacity: 0.7;
+	color: var(--faint);
 }
 
 .context-metric__value {
@@ -752,36 +646,35 @@ select {
 	gap: 8px;
 	min-width: min(320px, 100%);
 	padding: 12px 14px;
-	border: 1px solid rgba(239, 231, 212, 0.12);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
 }
 
+/* Lens register, by line style only. */
 .context-strip__lens[data-tone='verified'] {
-	border-color: rgba(127, 195, 189, 0.22);
-	box-shadow: inset 0 0 0 1px rgba(127, 195, 189, 0.04);
+	border-left: 3px solid var(--ink);
 }
 
 .context-strip__lens[data-tone='computed'] {
-	border-color: rgba(208, 169, 95, 0.22);
-	box-shadow: inset 0 0 0 1px rgba(208, 169, 95, 0.04);
+	border-left: 3px dashed var(--faint);
 }
 
 .context-strip__lens[data-tone='coaching'] {
-	border-color: rgba(210, 130, 107, 0.22);
-	box-shadow: inset 0 0 0 1px rgba(210, 130, 107, 0.04);
+	border-left: 3px dotted var(--faint);
 }
 
+/* Object level: faint ruled paper. Meta level: a frame around the frame. */
 .context-strip__lens[data-level='object'] {
-	background-color: var(--panel-inset);
-	background-image: var(--grid-paper);
-	background-size: 18px 18px;
+	background-color: var(--page);
+	background-image: linear-gradient(var(--line) 1px, transparent 1px);
+	background-size: 100% 1.4rem;
 }
 
 .context-strip__lens[data-level='meta'] {
-	outline: 1px solid rgba(239, 231, 212, 0.14);
+	outline: 1px solid var(--line);
 	outline-offset: 3px;
-	background: var(--void);
+	background: var(--page-meta);
 }
 
 .context-strip__lens-glyph {
@@ -798,7 +691,7 @@ select {
 
 .context-strip__lens-top small {
 	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.68rem;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
@@ -806,7 +699,7 @@ select {
 
 .context-strip__lens p {
 	margin: 0;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.55;
 	font-size: 0.86rem;
 }
@@ -819,41 +712,38 @@ select {
 
 .context-field__label {
 	flex-shrink: 0;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.72rem;
 	font-weight: 500;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	color: var(--muted);
+	color: var(--faint);
 }
 
 .context-field__input {
 	flex: 1;
 	min-width: 0;
 	padding: 8px 14px;
-	border: 1px solid rgba(239, 231, 212, 0.12);
-	border-radius: var(--radius-pill);
-	background: var(--panel-inset);
-	color: var(--paper);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
 	font-size: 0.82rem;
 	box-sizing: border-box;
-	transition: border-color 200ms ease, box-shadow 200ms ease;
+	transition: border-color 200ms ease;
 }
 
 .context-field__input:focus {
 	outline: none;
-	border-color: rgba(208, 169, 95, 0.45);
-	box-shadow: 0 0 12px rgba(208, 169, 95, 0.1);
+	border-color: var(--act);
 }
 
-
-/* ── Phase Navigation ── */
-/*
+/* ── Phase Navigation ──
  * The four phases live in two territories: object level (Explore, Map —
- * working IN the system, on grid paper) and meta level (Prove, Reflect —
- * reasoning ABOUT the system, inside a double frame, off the grid).
- * The territories differ by structure and texture, never by epistemic hue.
- */
+ * working IN the system, on ruled paper) and meta level (Prove, Reflect —
+ * reasoning ABOUT the system, inside a double frame, off the ruling). The
+ * territories differ by structure and texture, never by epistemic hue. The
+ * active step is the one place the action accent appears. */
 .phase-nav {
 	display: flex;
 	align-items: stretch;
@@ -869,25 +759,25 @@ select {
 	flex: 1;
 	min-width: 0;
 	padding: 14px 12px 10px;
-	border-radius: var(--radius-md);
+	border-radius: var(--radius);
 }
 
 .phase-nav__realm[data-level='object'] {
-	border: 1px solid rgba(239, 231, 212, 0.12);
-	background-color: var(--grid-ground);
-	background-image: var(--grid-paper);
-	background-size: 22px 22px;
+	border: 1px solid var(--line);
+	background-color: var(--page);
+	background-image: linear-gradient(var(--line) 1px, transparent 1px);
+	background-size: 100% 1.4rem;
 }
 
 .phase-nav__realm[data-level='meta'] {
-	border: 1px solid rgba(239, 231, 212, 0.18);
-	outline: 1px solid rgba(239, 231, 212, 0.1);
+	border: 1px solid var(--line-strong);
+	outline: 1px solid var(--line);
 	outline-offset: 3px;
-	background: var(--void);
+	background: var(--page-meta);
 }
 
 .phase-nav__realm[data-active='true'] {
-	border-color: rgba(239, 231, 212, 0.28);
+	border-color: var(--line-strong);
 }
 
 .phase-nav__realm-label {
@@ -896,11 +786,11 @@ select {
 	left: 14px;
 	z-index: 1;
 	padding: 2px 10px;
-	border: 1px solid rgba(239, 231, 212, 0.18);
-	border-radius: var(--radius-pill);
-	background: var(--rim-bg);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
 	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.6rem;
 	font-weight: 600;
 	letter-spacing: 0.16em;
@@ -909,16 +799,15 @@ select {
 }
 
 .phase-nav__realm[data-active='true'] .phase-nav__realm-label {
-	color: var(--muted-strong);
-	border-color: rgba(239, 231, 212, 0.3);
+	color: var(--ink);
 }
 
 .phase-nav__boundary {
 	flex: 0 0 auto;
 	width: 12px;
 	margin: 8px 10px;
-	border-left: 1px solid rgba(239, 231, 212, 0.24);
-	border-right: 1px solid rgba(239, 231, 212, 0.24);
+	border-left: 1px solid var(--line-strong);
+	border-right: 1px solid var(--line-strong);
 }
 
 .phase-nav__step {
@@ -929,56 +818,40 @@ select {
 	border: none;
 	background: none;
 	padding: var(--space-xs);
-	border-radius: var(--radius-md);
-	color: var(--paper);
-	transition: transform 160ms ease, background 200ms ease;
+	border-radius: var(--radius);
+	color: var(--ink);
+	transition: background 200ms ease;
 }
 
 .phase-nav__step:hover {
-	transform: translateY(-1px);
-	background: rgba(239, 231, 212, 0.03);
+	background: rgba(43, 42, 39, 0.04);
 }
 
 .phase-nav__circle {
 	display: grid;
 	place-items: center;
-	width: 44px;
-	height: 44px;
+	width: 42px;
+	height: 42px;
 	flex-shrink: 0;
-	border: 2px solid rgba(239, 231, 212, 0.15);
+	border: 1px solid var(--line-strong);
 	border-radius: 50%;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-weight: 600;
 	font-size: 1rem;
 	color: var(--muted);
-	transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, color 200ms ease;
+	background: var(--panel);
+	transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
 }
 
+/* Active step is actionable-here → accent. Tone no longer alters hue. */
 .phase-nav__step[data-active='true'] .phase-nav__circle {
-	border-color: var(--accent);
-	background: rgba(208, 169, 95, 0.22);
-	color: var(--accent-strong);
-	box-shadow: 0 0 28px rgba(208, 169, 95, 0.25), 0 0 6px rgba(208, 169, 95, 0.12);
-}
-
-.phase-nav__step[data-active='true'][data-tone='verified'] .phase-nav__circle {
-	border-color: var(--teal);
-	background: rgba(127, 195, 189, 0.22);
-	color: var(--teal);
-	box-shadow: 0 0 28px rgba(127, 195, 189, 0.25), 0 0 6px rgba(127, 195, 189, 0.12);
-}
-
-.phase-nav__step[data-active='true'][data-tone='coaching'] .phase-nav__circle {
-	border-color: var(--rose);
-	background: rgba(210, 130, 107, 0.22);
-	color: var(--rose);
-	box-shadow: 0 0 28px rgba(210, 130, 107, 0.25), 0 0 6px rgba(210, 130, 107, 0.12);
+	border-color: var(--act);
+	color: var(--act);
 }
 
 .phase-nav__step[data-visited='true']:not([data-active='true']) .phase-nav__circle {
-	border-color: rgba(127, 195, 189, 0.4);
-	color: var(--teal);
-	background: rgba(127, 195, 189, 0.06);
+	border-color: var(--line-strong);
+	color: var(--ink);
 }
 
 .phase-nav__label {
@@ -989,13 +862,13 @@ select {
 .phase-nav__label strong {
 	display: block;
 	font-size: 0.88rem;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.01em;
 }
 
 .phase-nav__label small {
 	display: block;
-	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--faint);
+	font-family: var(--mono);
 	font-size: 0.72rem;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
@@ -1018,7 +891,7 @@ select {
 	height: 0;
 	min-width: 16px;
 	margin: 0 4px;
-	border-top: 1px dashed rgba(239, 231, 212, 0.28);
+	border-top: 1px dashed var(--line-strong);
 }
 
 /* ── Phase Content ── */
@@ -1027,55 +900,20 @@ select {
 }
 
 .phase-content {
-	border-radius: var(--radius-lg);
+	border-radius: var(--radius);
 	padding: 4px;
 }
 
-.phase-content[data-phase='explore'] {
-	background: radial-gradient(
-		ellipse at 50% 0%,
-		rgba(127, 195, 189, 0.05),
-		transparent 55%
-	);
-}
-
-.phase-content[data-phase='map'] {
-	background: radial-gradient(
-		ellipse at 50% 0%,
-		rgba(208, 169, 95, 0.06),
-		transparent 55%
-	);
-}
-
-.phase-content[data-phase='prove'] {
-	background: radial-gradient(
-		ellipse at 50% 0%,
-		rgba(127, 195, 189, 0.06),
-		transparent 55%
-	);
-}
-
-.phase-content[data-phase='reflect'] {
-	background: radial-gradient(
-		ellipse at 50% 0%,
-		rgba(210, 130, 107, 0.06),
-		transparent 55%
-	);
-}
-
-/* ── Phase Canvas: object level vs meta level ── */
-/*
- * Object canvases (Explore, Map) sit ON the system: graph-paper texture,
- * single hairline frame. Meta canvases (Prove, Reflect) step OUTSIDE it:
- * the grid disappears, a second ring frames the frame, headings turn to
- * italic annotation, and object-level data reappears only as gridded
- * specimen chips. Same epistemic hues everywhere; the level is structural.
- */
+/* ── Phase Canvas: object level vs meta level ──
+ * Object canvases (Explore, Map) sit ON the system: a faint ruled-paper tint,
+ * single hairline frame. Meta canvases (Prove, Reflect) step OUTSIDE it: the
+ * ruling disappears, a second ring frames the frame, and panel headings turn
+ * to serif italic. Same ink everywhere; the level is structural. */
 .phase-canvas {
 	position: relative;
 	margin-top: 10px;
 	padding: var(--space-lg) var(--space-md) var(--space-md);
-	border-radius: var(--radius-lg);
+	border-radius: var(--radius);
 }
 
 .phase-canvas__rim {
@@ -1087,11 +925,11 @@ select {
 	align-items: center;
 	gap: 7px;
 	padding: 3px 12px;
-	border: 1px solid rgba(239, 231, 212, 0.22);
-	border-radius: var(--radius-pill);
-	background: var(--rim-bg);
-	color: var(--muted-strong);
-	font-family: 'IBM Plex Mono', monospace;
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--muted);
+	font-family: var(--mono);
 	font-size: 0.62rem;
 	font-weight: 600;
 	letter-spacing: 0.18em;
@@ -1105,46 +943,23 @@ select {
 }
 
 .phase-canvas--object {
-	border: 1px solid rgba(239, 231, 212, 0.14);
-	background: var(--grid-ground);
-}
-
-.phase-canvas--object::before {
-	content: '';
-	position: absolute;
-	inset: 0;
-	border-radius: inherit;
-	pointer-events: none;
-	background-image: var(--grid-paper);
-	background-size: 26px 26px;
-	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.45));
+	border: 1px solid var(--line);
+	background-color: var(--page);
+	background-image: linear-gradient(var(--line) 1px, transparent 1px);
+	background-size: 100% 1.4rem;
 }
 
 .phase-canvas--meta {
 	padding: var(--space-xl) var(--space-lg) var(--space-lg);
-	border: 1px solid rgba(239, 231, 212, 0.22);
-	outline: 1px solid rgba(239, 231, 212, 0.13);
+	border: 1px solid var(--line-strong);
+	outline: 1px solid var(--line);
 	outline-offset: 5px;
-	background:
-		radial-gradient(ellipse at 50% -8%, rgba(239, 231, 212, 0.05), transparent 52%),
-		var(--void);
-	box-shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+	background: var(--page-meta);
 }
 
-.phase-canvas--meta .surface-panel {
-	border-radius: 14px;
-}
-
-.phase-canvas--meta .surface-panel__header h2 {
+.phase-canvas--meta .surface-panel__header h2,
+.phase-canvas--meta .surface-panel__header h3 {
 	font-style: italic;
-}
-
-/* Object-system data viewed from the meta level: specimens on grid paper */
-.phase-canvas--meta .graph-metric {
-	border-color: rgba(127, 195, 189, 0.18);
-	background-color: var(--panel-inset);
-	background-image: var(--grid-paper);
-	background-size: 14px 14px;
 }
 
 .phase-explore {
@@ -1185,26 +1000,21 @@ select {
 	gap: 14px;
 	align-content: space-between;
 	padding: var(--space-md);
-	border: 1px solid rgba(239, 231, 212, 0.08);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
-	box-shadow: var(--shadow-card);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
 }
 
 .guide-card strong {
 	display: block;
 	margin-bottom: 8px;
-	color: var(--accent-strong);
+	color: var(--ink);
 }
 
 .guide-card p {
 	margin: 0;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.55;
-}
-
-.guide-card--map strong {
-	color: var(--accent);
 }
 
 .proof-rail,
@@ -1214,37 +1024,36 @@ select {
 	gap: var(--space-sm);
 }
 
+/* Proof steps are verified scaffolding: solid graphite left-rule, no hue. */
 .proof-step {
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr);
 	gap: 16px;
 	padding: var(--space-md);
-	border: 1px solid rgba(127, 195, 189, 0.12);
-	border-radius: var(--radius-lg);
-	background: var(--panel-card);
+	border: 1px solid var(--line);
+	border-left: 3px solid var(--ink);
+	border-radius: 0 var(--radius) var(--radius) 0;
+	background: var(--panel);
 }
 
 .proof-step--conclusion {
-	border-color: rgba(127, 195, 189, 0.25);
-	background:
-		linear-gradient(180deg, rgba(127, 195, 189, 0.08), transparent 60%),
-		var(--panel-card);
-	box-shadow: var(--shadow-card), var(--glow-teal);
+	border-color: var(--ink);
+	border-left-width: 4px;
+	background: var(--panel-meta);
 }
 
 .proof-step__index {
 	display: grid;
 	place-items: center;
-	width: 38px;
-	height: 38px;
-	border: 2px solid rgba(127, 195, 189, 0.35);
+	width: 36px;
+	height: 36px;
+	border: 1px solid var(--line-strong);
 	border-radius: 50%;
-	color: var(--teal);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--ink);
+	font-family: var(--mono);
 	font-size: 0.9rem;
 	font-weight: 600;
-	background: rgba(127, 195, 189, 0.06);
-	box-shadow: 0 0 12px rgba(127, 195, 189, 0.08);
+	background: var(--panel);
 }
 
 .proof-step__body {
@@ -1254,7 +1063,7 @@ select {
 
 .proof-step h3 {
 	margin: 0;
-	font-family: 'Instrument Serif', serif;
+	font-family: var(--serif);
 	font-size: 1.05rem;
 }
 
@@ -1266,21 +1075,23 @@ select {
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Reflection prompts seed the notes editor — they are actionable, so their
+ * hover is the accent. The colour-modifier classes (--rose/--teal/--gold) are
+ * fixed in markup; here they collapse to one neutral ink treatment so the
+ * screen keeps a single hue. */
 .reflection-prompt {
 	position: relative;
 	padding: var(--space-md) var(--space-md) var(--space-lg);
 	padding-left: calc(var(--space-md) + 16px);
-	border: 1px solid rgba(210, 130, 107, 0.15);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
-	color: var(--paper);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
 	cursor: pointer;
 	text-align: left;
 	transition:
-		transform 160ms ease,
 		border-color 200ms ease,
-		background 200ms ease,
-		box-shadow 200ms ease;
+		background 200ms ease;
 }
 
 .reflection-prompt::before {
@@ -1291,19 +1102,17 @@ select {
 	width: 6px;
 	height: 6px;
 	border-radius: 50%;
-	background: var(--rose);
+	background: var(--faint);
 }
 
 .reflection-prompt:hover,
 .reflection-prompt:focus-visible {
-	transform: translateY(-2px);
-	border-color: rgba(210, 130, 107, 0.4);
-	background: rgba(210, 130, 107, 0.09);
-	box-shadow: var(--shadow-card), var(--glow-rose);
+	border-color: var(--act);
+	background: rgba(138, 59, 46, 0.04);
 }
 
 .reflection-prompt strong {
-	color: var(--rose);
+	color: var(--ink);
 }
 
 .reflection-prompt__subtitle {
@@ -1316,46 +1125,8 @@ select {
 
 .reflection-prompt p {
 	margin: 8px 0 0;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.55;
-}
-
-.reflection-prompt--teal {
-	border-color: rgba(127, 195, 189, 0.15);
-}
-
-.reflection-prompt--teal::before {
-	background: var(--teal);
-}
-
-.reflection-prompt--teal strong {
-	color: var(--teal);
-}
-
-.reflection-prompt--teal:hover,
-.reflection-prompt--teal:focus-visible {
-	border-color: rgba(127, 195, 189, 0.4);
-	background: rgba(127, 195, 189, 0.09);
-	box-shadow: var(--shadow-card), var(--glow-teal);
-}
-
-.reflection-prompt--gold {
-	border-color: rgba(208, 169, 95, 0.15);
-}
-
-.reflection-prompt--gold::before {
-	background: var(--accent);
-}
-
-.reflection-prompt--gold strong {
-	color: var(--accent-strong);
-}
-
-.reflection-prompt--gold:hover,
-.reflection-prompt--gold:focus-visible {
-	border-color: rgba(208, 169, 95, 0.4);
-	background: rgba(208, 169, 95, 0.09);
-	box-shadow: var(--shadow-card), var(--glow-gold);
 }
 
 .artifact-notebook {
@@ -1365,8 +1136,8 @@ select {
 
 /*
  * The notebook is the learner's own store — deliberately UNTONED. Filters and
- * metadata are neutral bookkeeping (gold/parchment, no teal ✓, no coaching
- * dotted register). They make no epistemic claim about the saved work.
+ * metadata are neutral bookkeeping (ink on paper, no register marks). They
+ * make no epistemic claim about the saved work.
  */
 .artifact-filters {
 	display: flex;
@@ -1380,10 +1151,10 @@ select {
 	gap: 6px;
 	padding: 5px 12px;
 	border: 1px solid var(--line);
-	border-radius: var(--radius-pill);
+	border-radius: var(--radius);
 	background: transparent;
 	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.68rem;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -1395,14 +1166,14 @@ select {
 }
 
 .artifact-filter:hover:not(:disabled) {
-	color: var(--muted-strong);
-	border-color: var(--line-strong);
+	color: var(--act);
+	border-color: var(--act);
 }
 
 .artifact-filter[data-active='true'] {
-	color: var(--accent-strong);
-	border-color: rgba(208, 169, 95, 0.4);
-	background: rgba(208, 169, 95, 0.08);
+	color: var(--act);
+	border-color: var(--act);
+	background: rgba(138, 59, 46, 0.05);
 }
 
 .artifact-filter:disabled {
@@ -1445,7 +1216,7 @@ select {
 	padding: 3px 9px;
 	font-size: 0.62rem;
 	letter-spacing: 0.06em;
-	color: var(--muted-strong);
+	color: var(--muted);
 	flex-shrink: 0;
 }
 
@@ -1464,108 +1235,98 @@ select {
 }
 
 .artifact-fact dt {
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 0.64rem;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
-	color: var(--muted);
-	opacity: 0.8;
+	color: var(--faint);
 }
 
 .artifact-fact dd {
 	margin: 0;
 	font-size: 0.78rem;
-	color: var(--muted-strong);
+	color: var(--muted);
 	overflow-wrap: anywhere;
 }
 
-/* ── Surface Panel tone variants ── */
-/*
+/* ── Surface Panel register variants ──
  * Register line grammar (independent of hue, so it survives colorblindness):
- * solid rule = verified, dashed rule = computed, dotted rule = coaching.
- */
-.surface-panel[data-tone='verified'] {
-	border-color: rgba(127, 195, 189, 0.22);
-	box-shadow: var(--shadow-card), var(--glow-teal);
+ * solid graphite rule = verified, dashed gray rule = computed, dotted rule +
+ * serif italic = coaching. A top rule above the panel header carries it. */
+.surface-panel {
+	position: relative;
 }
+
+.surface-panel[data-tone]::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 0;
+	border-top: 2px solid var(--ink);
+	border-top-left-radius: var(--radius);
+	border-top-right-radius: var(--radius);
+}
+
 .surface-panel[data-tone='verified']::before {
-	background: var(--teal);
-	opacity: 0.7;
+	border-top: 2px solid var(--ink);
 }
 
-.surface-panel[data-tone='computed'] {
-	border-color: rgba(208, 169, 95, 0.22);
-	box-shadow: var(--shadow-card), var(--glow-gold);
-}
 .surface-panel[data-tone='computed']::before {
-	height: 3px;
-	background: repeating-linear-gradient(90deg, var(--accent) 0 10px, transparent 10px 17px);
-	opacity: 0.75;
+	border-top: 2px dashed var(--faint);
 }
 
-.surface-panel[data-tone='coaching'] {
-	border-color: rgba(210, 130, 107, 0.22);
-	box-shadow: var(--shadow-card), var(--glow-rose);
-}
 .surface-panel[data-tone='coaching']::before {
-	height: 3px;
-	background: repeating-linear-gradient(90deg, var(--rose) 0 3px, transparent 3px 9px);
-	opacity: 0.8;
+	border-top: 2px dotted var(--faint);
 }
 
 .surface-panel[data-tone='verified'] .legend-chip {
-	color: var(--teal);
-	border-color: rgba(127, 195, 189, 0.3);
-	border-radius: 6px;
-	background: rgba(127, 195, 189, 0.08);
+	color: var(--ink);
+	border-color: var(--ink);
 }
 
 .surface-panel[data-tone='computed'] .legend-chip {
-	color: var(--accent-strong);
-	border-color: rgba(208, 169, 95, 0.4);
+	color: var(--muted);
 	border-style: dashed;
-	border-radius: 6px;
-	background: rgba(208, 169, 95, 0.08);
 }
 
 .surface-panel[data-tone='coaching'] .legend-chip {
-	color: var(--rose);
-	border-color: rgba(210, 130, 107, 0.45);
+	color: var(--muted);
 	border-style: dotted;
-	background: rgba(210, 130, 107, 0.08);
+	font-family: var(--serif);
+	font-style: italic;
+	text-transform: none;
+	letter-spacing: 0;
 }
 
 .surface-pill,
 .dialogue-chip {
 	padding: 14px 16px;
-	border: 1px solid rgba(239, 231, 212, 0.1);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
-	color: var(--paper);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
 	cursor: pointer;
 	text-align: left;
 	transition:
-		transform 160ms ease,
 		border-color 200ms ease,
-		background 200ms ease,
-		box-shadow 200ms ease;
+		background 200ms ease;
 }
 
 .surface-pill:hover,
 .dialogue-chip:hover,
 .surface-pill:focus-visible,
 .dialogue-chip:focus-visible {
-	transform: translateY(-2px);
-	border-color: rgba(208, 169, 95, 0.35);
-	background: rgba(208, 169, 95, 0.08);
-	box-shadow: var(--shadow-card);
+	border-color: var(--act);
+	color: var(--act);
 }
 
 .surface-pill[data-active='true'],
 .dialogue-chip[data-active='true'] {
-	border-color: rgba(208, 169, 95, 0.5);
-	background: rgba(208, 169, 95, 0.14);
-	box-shadow: var(--shadow-card), var(--glow-gold);
+	border-color: var(--act);
+	color: var(--act);
+	background: rgba(138, 59, 46, 0.05);
 }
 
 .surface-pill small,
@@ -1581,47 +1342,51 @@ select {
 	gap: 8px;
 	font-size: 0.88rem;
 	font-weight: 600;
-	color: var(--muted-strong);
+	color: var(--ink);
 }
 
 .text-field,
 .text-area,
 .select-field {
 	width: 100%;
-	padding: 14px 16px;
-	border: 1px solid rgba(239, 231, 212, 0.15);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
-	color: var(--paper);
+	padding: 12px 14px;
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
 	box-sizing: border-box;
 	font-size: 0.88rem;
-	transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+	transition: border-color 200ms ease;
 }
 
 .text-field:hover,
 .text-area:hover,
 .select-field:hover {
-	border-color: rgba(239, 231, 212, 0.22);
-	background: rgba(8, 11, 14, 0.72);
+	border-color: var(--faint);
 }
 
 .text-field:focus,
 .text-area:focus,
 .select-field:focus {
 	outline: none;
-	border-color: rgba(208, 169, 95, 0.5);
-	box-shadow: 0 0 16px rgba(208, 169, 95, 0.1), 0 0 4px rgba(208, 169, 95, 0.06);
-	background: rgba(8, 11, 14, 0.8);
+	border-color: var(--act);
 }
 
 .text-field::placeholder,
 .text-area::placeholder {
-	color: rgba(183, 176, 155, 0.5);
+	color: var(--faint);
+}
+
+/* MIU strings are typed in monospace. */
+.text-field,
+.context-field__input {
+	font-family: var(--mono);
 }
 
 .text-area {
 	min-height: 170px;
 	resize: vertical;
+	font-family: var(--sans);
 }
 
 .control-grid,
@@ -1642,25 +1407,25 @@ select {
 .graph-metric,
 .graph-inspector__section {
 	padding: var(--space-md);
-	border: 1px solid rgba(239, 231, 212, 0.1);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
 }
 
 .graph-metric strong,
 .graph-inspector h3 {
 	display: block;
 	margin-bottom: 4px;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: var(--accent-strong);
-	letter-spacing: 0.04em;
+	color: var(--ink);
+	letter-spacing: 0.02em;
 }
 
 .graph-metric span {
-	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--faint);
+	font-family: var(--mono);
 	font-size: 0.72rem;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
@@ -1672,7 +1437,7 @@ select {
 }
 
 /* Map observations are COMPUTED facts about the explored region: they wear the
- * computed register (gold, dashed left rule), never a verified verdict tone.
+ * computed register (dashed pencil-gray left rule), never a verified verdict.
  * Each line states a count, bound, or absence — not a conclusion about MU. */
 .observations__eyebrow {
 	margin-bottom: calc(var(--space-sm) * -1 + 2px);
@@ -1688,24 +1453,24 @@ select {
 
 .observations[data-tone='computed'] .observation {
 	padding: var(--space-sm) var(--space-md);
-	border: 1px solid rgba(208, 169, 95, 0.16);
-	border-left: 3px dashed rgba(208, 169, 95, 0.5);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
+	border: 1px solid var(--line);
+	border-left: 3px dashed var(--faint);
+	border-radius: var(--radius);
+	background: var(--panel);
 }
 
 .observations[data-tone='computed'] .observation strong {
 	display: block;
 	margin-bottom: 4px;
-	color: var(--accent-strong);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--ink);
+	font-family: var(--mono);
 	font-size: 0.92rem;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.01em;
 }
 
 .observations[data-tone='computed'] .observation span {
 	display: block;
-	color: var(--muted-strong);
+	color: var(--muted);
 	font-size: 0.86rem;
 	line-height: 1.55;
 }
@@ -1713,13 +1478,14 @@ select {
 /* The "absence here is not absence everywhere" fact carries the pedagogical
  * weight, so it reads as the gap itself — still phrased about the search. */
 .observations[data-tone='computed'] .observation--absence span {
-	color: var(--muted);
+	color: var(--faint);
 }
 
 /* The bridge into Prove is a navigation affordance that crosses into the meta
- * level. It references the meta register (void ground, double-ring outline,
- * ◉ glyph, "about the system") but must NOT look like a verified ✓ verdict:
- * no teal, no checkmark. It only renders once a bound is hit and MU is absent. */
+ * level. It references the meta register (warmer parchment, double-ring frame,
+ * ◉ glyph, "about the system") but must NOT look like a verified ✓ verdict: no
+ * stamp, no solid graphite frame. It only renders once a bound is hit and MU is
+ * absent. The "Go to Prove" button is the single accent inside it. */
 .prove-bridge[data-level='meta'] {
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr);
@@ -1727,14 +1493,11 @@ select {
 	align-items: start;
 	margin-top: var(--space-sm);
 	padding: var(--space-md);
-	border: 1px solid rgba(239, 231, 212, 0.22);
-	outline: 1px solid rgba(239, 231, 212, 0.12);
+	border: 1px solid var(--line-strong);
+	outline: 1px solid var(--line);
 	outline-offset: 4px;
-	border-radius: var(--radius-lg);
-	background:
-		radial-gradient(ellipse at 12% -20%, rgba(239, 231, 212, 0.06), transparent 60%),
-		var(--void);
-	box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+	border-radius: var(--radius);
+	background: var(--page-meta);
 }
 
 .prove-bridge[data-level='meta'] .prove-bridge__glyph {
@@ -1742,9 +1505,9 @@ select {
 	place-items: center;
 	width: 40px;
 	height: 40px;
-	border: 1px solid rgba(239, 231, 212, 0.28);
+	border: 1px solid var(--line-strong);
 	border-radius: 50%;
-	color: var(--paper);
+	color: var(--ink);
 	font-size: 1.05rem;
 	line-height: 1;
 }
@@ -1756,8 +1519,8 @@ select {
 
 .prove-bridge[data-level='meta'] .prove-bridge__eyebrow {
 	margin: 0;
-	color: var(--muted-strong);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--muted);
+	font-family: var(--mono);
 	font-size: 0.62rem;
 	font-weight: 600;
 	letter-spacing: 0.18em;
@@ -1766,13 +1529,13 @@ select {
 
 .prove-bridge[data-level='meta'] .prove-bridge__text {
 	margin: 0;
-	color: var(--paper);
+	color: var(--ink);
 	font-size: 0.92rem;
 	line-height: 1.6;
 }
 
 .prove-bridge[data-level='meta'] .prove-bridge__text em {
-	color: var(--accent-strong);
+	font-family: var(--serif);
 	font-style: italic;
 }
 
@@ -1797,30 +1560,25 @@ select {
 	width: 100%;
 	padding: var(--space-sm);
 	border: 1px solid var(--line);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
-	color: var(--paper);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
 	cursor: pointer;
 	text-align: left;
 	transition:
-		transform 160ms ease,
 		border-color 160ms ease,
-		background 160ms ease,
-		box-shadow 200ms ease;
+		background 160ms ease;
 }
 
 .graph-node:hover,
 .graph-node:focus-visible {
-	transform: translateY(-2px);
-	border-color: rgba(208, 169, 95, 0.35);
-	background: rgba(208, 169, 95, 0.08);
-	box-shadow: var(--shadow-hover), var(--glow-gold);
+	border-color: var(--act);
+	background: rgba(138, 59, 46, 0.04);
 }
 
 .graph-node[data-active='true'] {
-	border-color: rgba(208, 169, 95, 0.45);
-	background: rgba(208, 169, 95, 0.12);
-	box-shadow: var(--shadow-card), var(--glow-gold);
+	border-color: var(--act);
+	background: rgba(138, 59, 46, 0.06);
 }
 
 .graph-node__top {
@@ -1829,12 +1587,12 @@ select {
 	justify-content: space-between;
 	gap: 12px;
 	margin-bottom: 8px;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 }
 
 .graph-node__top strong {
-	color: var(--accent-strong);
-	letter-spacing: 0.06em;
+	color: var(--ink);
+	letter-spacing: 0.04em;
 }
 
 .graph-node small {
@@ -1853,31 +1611,28 @@ select {
 	gap: 14px;
 }
 
+/* Rule-preservation results are verified verdicts: solid graphite left-rule,
+ * ✓/✗ stamp lives on the inline badge. */
 .invariant-card,
 .rule-result {
 	padding: var(--space-md);
-	border: 1px solid rgba(239, 231, 212, 0.08);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
 }
 
-.invariant-card {
-	background: var(--panel-card);
+.rule-result {
+	border-left: 3px solid var(--ink);
+	border-radius: 0 var(--radius) var(--radius) 0;
 }
 
 .invariant-card--built-in {
-	border-color: rgba(208, 169, 95, 0.2);
-	background:
-		linear-gradient(180deg, rgba(208, 169, 95, 0.06), transparent 50%),
-		var(--panel-card);
-	box-shadow: var(--shadow-card), var(--glow-gold);
+	border-left: 3px solid var(--ink);
+	border-radius: 0 var(--radius) var(--radius) 0;
 }
 
 .invariant-card--artifact {
-	border-color: rgba(127, 195, 189, 0.18);
-	background:
-		linear-gradient(180deg, rgba(127, 195, 189, 0.06), transparent 55%),
-		var(--panel-card);
+	border-style: dashed;
 }
 
 .rule-result__top {
@@ -1898,15 +1653,14 @@ select {
 	display: grid;
 	gap: 12px;
 	padding: var(--space-md);
-	border: 1px solid rgba(239, 231, 212, 0.1);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
 }
 
+/* A legal proposal is a verified pass: solid graphite left-rule. */
 .proposal-summary[data-valid='true'] {
-	border-color: rgba(127, 195, 189, 0.28);
-	background: rgba(127, 195, 189, 0.06);
-	box-shadow: var(--glow-teal);
+	border-left: 3px solid var(--ink);
 }
 
 .proposal-summary__top {
@@ -1921,31 +1675,31 @@ select {
 	line-height: 1.5;
 }
 
+/* ── Dialogue transcript: coaching register only ──
+ * Dotted rules, italic serif, a slightly warmer paper tint. Speaker roles are
+ * distinguished by edge STYLE (solid vs dashed left edge), never by hue. The
+ * coaching register never gets a stamp and never gets the action accent. */
 .dialogue-turn,
 .dialogue-final {
 	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
+	border: 1px dotted var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel-meta);
+	font-family: var(--serif);
+	font-style: italic;
 }
 
-/* LLM turns stay in the coaching register: rose family only, never the
-   verified teal or computed gold. Agents differ by edge style, not hue. */
 .dialogue-turn[data-agent='examiner'] {
-	border-color: rgba(210, 130, 107, 0.25);
-	border-left: 3px solid var(--rose);
-	background: rgba(210, 130, 107, 0.05);
+	border-left: 3px solid var(--faint);
 }
 
 .dialogue-turn[data-agent='proof_coach'] {
-	border-color: rgba(210, 130, 107, 0.2);
-	border-left: 3px dashed rgba(210, 130, 107, 0.7);
-	background: rgba(210, 130, 107, 0.04);
+	border-left: 3px dashed var(--faint);
 }
 
 .dialogue-final {
-	border: 1px dashed rgba(210, 130, 107, 0.3);
-	background: rgba(210, 130, 107, 0.04);
+	border: 1px dotted var(--line-strong);
+	border-left: 3px dotted var(--faint);
 }
 
 .dialogue-turn__top {
@@ -1959,33 +1713,37 @@ select {
 .dialogue-turn p,
 .dialogue-final p {
 	margin: 0;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.65;
 }
 
 .dialogue-final small {
 	display: block;
 	margin-top: 10px;
-	color: var(--muted);
+	color: var(--faint);
+	font-style: normal;
+	font-family: var(--mono);
 }
 
+/* The dialogue-mode notice is coaching chrome: dotted, serif italic, no hue. */
 .dialogue-mode-card {
 	padding: 14px 16px;
-	border: 1px solid rgba(210, 130, 107, 0.24);
-	border-radius: var(--radius-md);
-	background: rgba(210, 130, 107, 0.08);
-	box-shadow: var(--shadow-card), var(--glow-rose);
+	border: 1px dotted var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel-meta);
+	font-family: var(--serif);
+	font-style: italic;
 }
 
 .dialogue-mode-card strong {
 	display: block;
-	color: var(--rose);
+	color: var(--ink);
 }
 
 .dialogue-mode-card small {
 	display: block;
 	margin-top: 6px;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.5;
 }
 
@@ -2001,35 +1759,26 @@ select {
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	color: var(--muted-strong);
+	color: var(--muted);
 }
 
+/* The current string is the instrument readout: verified register, mono. */
 .current-string-panel {
 	display: grid;
 	gap: 12px;
 	padding: var(--space-lg);
-	border: 1px solid rgba(127, 195, 189, 0.2);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
-	position: relative;
-}
-
-.current-string-panel::before {
-	content: '';
-	position: absolute;
-	inset: 0;
-	border-radius: var(--radius-md);
-	background: radial-gradient(ellipse at 30% 50%, rgba(127, 195, 189, 0.04), transparent 60%);
-	pointer-events: none;
+	border: 1px solid var(--line);
+	border-left: 3px solid var(--ink);
+	border-radius: 0 var(--radius) var(--radius) 0;
+	background: var(--panel);
 }
 
 .current-string {
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: clamp(2rem, 5vw, 3.5rem);
 	font-weight: 600;
 	letter-spacing: 0.08em;
-	color: var(--accent-strong);
-	text-shadow: 0 0 32px rgba(245, 210, 138, 0.2), 0 0 8px rgba(245, 210, 138, 0.08);
+	color: var(--ink);
 }
 
 .move-grid,
@@ -2038,59 +1787,53 @@ select {
 	gap: 12px;
 }
 
+/* Move cards are actionable (applying one mutates the trace) → accent on
+ * interaction, neutral ink at rest. */
 .move-card {
 	width: 100%;
 	padding: var(--space-md);
-	border: 1px solid rgba(127, 195, 189, 0.18);
-	border-radius: var(--radius-md);
-	background: var(--panel-card);
-	color: var(--paper);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
 	cursor: pointer;
 	text-align: left;
-	box-shadow: var(--shadow-card);
 	transition:
-		transform 160ms ease,
 		border-color 160ms ease,
-		background 160ms ease,
-		box-shadow 200ms ease;
+		background 160ms ease;
 }
 
 .move-card:hover,
 .move-card:focus-visible {
-	transform: translateY(-2px);
-	border-color: rgba(127, 195, 189, 0.4);
-	background: rgba(127, 195, 189, 0.08);
-	box-shadow: var(--shadow-hover), var(--glow-teal);
+	border-color: var(--act);
+	background: rgba(138, 59, 46, 0.04);
 }
 
 .move-card:active {
-	transform: translateY(0);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	background: rgba(138, 59, 46, 0.07);
 }
 
+/* Trace steps are verified history: solid graphite left-rule, accent only when
+ * the step is actionable on hover / selected. */
 .trace-step {
 	width: 100%;
 	padding: var(--space-md);
-	border: 1px solid rgba(239, 231, 212, 0.1);
-	border-left: 3px solid rgba(239, 231, 212, 0.15);
-	border-radius: 0 var(--radius-md) var(--radius-md) 0;
-	background: var(--panel-card);
-	color: var(--paper);
+	border: 1px solid var(--line);
+	border-left: 3px solid var(--line-strong);
+	border-radius: 0 var(--radius) var(--radius) 0;
+	background: var(--panel);
+	color: var(--ink);
 	cursor: pointer;
 	text-align: left;
 	transition:
-		transform 160ms ease,
 		border-color 160ms ease,
-		background 160ms ease,
-		box-shadow 200ms ease;
+		background 160ms ease;
 }
 
 .trace-step:hover,
 .trace-step:focus-visible {
-	transform: translateX(2px);
-	border-left-color: var(--accent);
-	background: rgba(208, 169, 95, 0.06);
-	box-shadow: var(--shadow-card);
+	border-left-color: var(--act);
+	background: rgba(138, 59, 46, 0.04);
 }
 
 .move-card__top,
@@ -2100,23 +1843,23 @@ select {
 	justify-content: space-between;
 	gap: 12px;
 	margin-bottom: 8px;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 }
 
 .move-card__top strong {
-	color: var(--teal);
+	color: var(--ink);
 }
 
 .move-card__top span {
-	color: var(--accent-strong);
+	color: var(--ink);
 	font-size: 0.88rem;
-	letter-spacing: 0.06em;
+	letter-spacing: 0.04em;
 }
 
 .move-card p,
 .trace-step small {
 	margin: 0;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.55;
 	font-size: 0.88rem;
 }
@@ -2124,33 +1867,32 @@ select {
 .move-card small {
 	display: block;
 	margin-top: 10px;
-	color: var(--muted);
-	font-family: 'IBM Plex Mono', monospace;
+	color: var(--faint);
+	font-family: var(--mono);
 	font-size: 0.72rem;
 }
 
 .trace-step[data-active='true'] {
-	border-left-color: var(--teal);
-	border-color: rgba(127, 195, 189, 0.25);
-	background: rgba(127, 195, 189, 0.08);
-	box-shadow: var(--glow-teal);
+	border-left-color: var(--ink);
+	border-left-width: 3px;
+	background: var(--panel-meta);
 }
 
 .trace-step__value {
 	margin-bottom: 8px;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--mono);
 	font-size: 1.15rem;
 	letter-spacing: 0.08em;
-	color: var(--accent-strong);
+	color: var(--ink);
 }
 
 .placeholder-copy {
 	margin: 0;
 	padding: var(--space-md);
-	border: 1px dashed rgba(239, 231, 212, 0.12);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
-	color: var(--muted-strong);
+	border: 1px dashed var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--muted);
 }
 
 /* ── Welcome Banner ── */
@@ -2160,71 +1902,78 @@ select {
 	gap: var(--space-md);
 	margin-top: var(--space-sm);
 	padding: var(--space-md) var(--space-lg);
-	border: 1px solid rgba(208, 169, 95, 0.2);
-	border-radius: var(--radius-lg);
-	background: linear-gradient(135deg, rgba(208, 169, 95, 0.08), rgba(127, 195, 189, 0.05));
-	backdrop-filter: blur(8px);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel-meta);
 }
 
 .welcome-banner__text {
 	flex: 1;
-	color: var(--muted-strong);
+	color: var(--muted);
 	font-size: 0.9rem;
 	line-height: 1.55;
 }
 
 .welcome-banner__text strong {
-	color: var(--accent-strong);
+	color: var(--ink);
 }
 
 .welcome-banner__dismiss {
 	flex-shrink: 0;
 	padding: 6px 14px;
-	border: 1px solid rgba(239, 231, 212, 0.12);
-	border-radius: var(--radius-pill);
-	background: var(--panel-inset);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
 	color: var(--muted);
 	font-size: 0.78rem;
 	cursor: pointer;
 	transition: border-color 160ms ease, color 160ms ease;
 }
 
-.welcome-banner__dismiss:hover {
-	border-color: rgba(239, 231, 212, 0.25);
-	color: var(--paper);
+.welcome-banner__dismiss:hover,
+.welcome-banner__dismiss:focus-visible {
+	border-color: var(--act);
+	color: var(--act);
 }
 
-/* ── Dialogue Empty State ── */
+/* ── Dialogue Empty State ── (coaching chrome: dotted, serif italic) */
 .dialogue-empty-state {
 	padding: var(--space-md);
-	border: 1px dashed rgba(210, 130, 107, 0.18);
-	border-radius: var(--radius-md);
-	background: var(--panel-inset);
+	border: 1px dotted var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel-meta);
+	font-family: var(--serif);
+	font-style: italic;
 }
 
 .dialogue-empty-state p {
 	margin: 0;
-	color: var(--muted-strong);
+	color: var(--muted);
 	line-height: 1.55;
-	font-size: 0.88rem;
+	font-size: 0.92rem;
 }
 
+/* The "try this" affordance IS actionable → accent, and steps out of the
+ * italic coaching voice into an upright sans button. */
 .dialogue-empty-state__suggestion {
 	display: inline-block;
 	margin-top: var(--space-sm);
 	padding: 6px 14px;
-	border: 1px solid rgba(210, 130, 107, 0.22);
-	border-radius: var(--radius-pill);
-	background: rgba(210, 130, 107, 0.06);
-	color: var(--rose);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--ink);
+	font-family: var(--sans);
+	font-style: normal;
 	font-size: 0.8rem;
 	cursor: pointer;
-	transition: border-color 160ms ease, background 160ms ease;
+	transition: border-color 160ms ease, color 160ms ease;
 }
 
-.dialogue-empty-state__suggestion:hover {
-	border-color: rgba(210, 130, 107, 0.4);
-	background: rgba(210, 130, 107, 0.12);
+.dialogue-empty-state__suggestion:hover,
+.dialogue-empty-state__suggestion:focus-visible {
+	border-color: var(--act);
+	color: var(--act);
 }
 
 /* ── Save Actions ── */
@@ -2256,20 +2005,9 @@ select {
 	cursor: help;
 }
 
-/* ── Micro-interactions ── */
-@keyframes pulse-glow {
-	0%, 100% {
-		box-shadow: var(--shadow-card), var(--glow-teal);
-	}
-	50% {
-		box-shadow: var(--shadow-card), 0 0 32px rgba(127, 195, 189, 0.2), 0 0 8px rgba(127, 195, 189, 0.1);
-	}
-}
-
-.proof-step--conclusion {
-	animation: pulse-glow 3s ease-in-out infinite;
-}
-
+/* ── Motion ──
+ * The dark-era glow pulse and meta pull-back camera move are gone. A single
+ * quiet fade on phase entry remains, guarded for reduced-motion. */
 @keyframes phase-enter {
 	from {
 		opacity: 0;
@@ -2281,30 +2019,12 @@ select {
 	}
 }
 
-/* Meta phases pull the camera back instead of rising in: stepping outside. */
-@keyframes phase-enter-meta {
-	from {
-		opacity: 0;
-		transform: scale(1.012);
-	}
-	to {
-		opacity: 1;
-		transform: scale(1);
-	}
-}
-
 .phase-content {
 	animation: phase-enter 250ms ease-out;
 }
 
-.phase-content[data-phase='prove'],
-.phase-content[data-phase='reflect'] {
-	animation: phase-enter-meta 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
 @media (prefers-reduced-motion: reduce) {
-	.phase-content,
-	.proof-step--conclusion {
+	.phase-content {
 		animation: none;
 	}
 }
@@ -2353,8 +2073,8 @@ select {
 		margin: 0 18px;
 		border-left: none;
 		border-right: none;
-		border-top: 1px solid rgba(239, 231, 212, 0.24);
-		border-bottom: 1px solid rgba(239, 231, 212, 0.24);
+		border-top: 1px solid var(--line-strong);
+		border-bottom: 1px solid var(--line-strong);
 	}
 
 	.phase-nav__connector {
