@@ -831,8 +831,9 @@ body.module1-wide .site-shell {
 }
 
 /* The instrument is the only thing on the desk that carries the action accent's
- * frame — it marks where the work happens. */
-.lab-desk__instrument > .surface-panel {
+ * frame — it marks where the work happens. Opt-in via SurfacePanel's `instrument`
+ * prop rather than DOM position, so the frame is an explicit declaration. */
+.surface-panel--instrument {
 	border: 1px solid var(--act);
 }
 
@@ -1006,34 +1007,6 @@ body.module1-wide .site-shell {
 	.phase-reflect {
 		grid-template-columns: 1fr 1fr;
 	}
-}
-
-.guide-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: var(--space-sm);
-}
-
-.guide-card {
-	display: grid;
-	gap: 14px;
-	align-content: space-between;
-	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-.guide-card strong {
-	display: block;
-	margin-bottom: 8px;
-	color: var(--ink);
-}
-
-.guide-card p {
-	margin: 0;
-	color: var(--muted);
-	line-height: 1.55;
 }
 
 .proof-rail,
@@ -1457,10 +1430,6 @@ body.module1-wide .site-shell {
 /* Map observations are COMPUTED facts about the explored region: they wear the
  * computed register (dashed pencil-gray left rule), never a verified verdict.
  * Each line states a count, bound, or absence — not a conclusion about MU. */
-.observations__eyebrow {
-	margin-bottom: calc(var(--space-sm) * -1 + 2px);
-}
-
 .observations[data-tone='computed'] {
 	display: grid;
 	gap: var(--space-sm);
@@ -2011,7 +1980,6 @@ body.module1-wide .site-shell {
 	.module-hero,
 	.module-layout,
 	.panel-grid--three,
-	.guide-grid,
 	.graph-layout,
 	.control-grid,
 	.graph-summary,

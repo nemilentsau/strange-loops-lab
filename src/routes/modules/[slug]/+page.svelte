@@ -629,9 +629,11 @@
 						{repeatedGraphNodeId}
 						graphDepth={draft.graphDepth}
 						graphNodeLimit={draft.graphNodeLimit}
+						workingQuestion={draft.workingQuestion}
 						onUpdateGraphDepth={updateGraphDepth}
 						onUpdateGraphNodeLimit={updateGraphNodeLimit}
 						onSelectGraphNode={selectGraphNode}
+						onUpdateQuestion={updateQuestion}
 						onUseGuideTask={useMapGuideTask}
 						onBridgeToProve={() => selectPhase('prove')}
 					/>

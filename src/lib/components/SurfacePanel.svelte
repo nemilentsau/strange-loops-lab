@@ -7,6 +7,7 @@
 		badge,
 		badgeTooltip,
 		tone,
+		instrument = false,
 		children
 	}: {
 		title: string;
@@ -14,11 +15,14 @@
 		badge?: string;
 		badgeTooltip?: string;
 		tone?: 'verified' | 'computed' | 'coaching';
+		/** Marks this panel as the lab desk's instrument: opts into the oxblood
+		 * action frame. The frame means "the work happens here", not a register. */
+		instrument?: boolean;
 		children: Snippet;
 	} = $props();
 </script>
 
-<section class="surface-panel" data-tone={tone}>
+<section class="surface-panel" class:surface-panel--instrument={instrument} data-tone={tone}>
 	<div class="surface-panel__header">
 		<div>
 			<p class="eyebrow">{eyebrow}</p>

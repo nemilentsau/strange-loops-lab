@@ -148,7 +148,7 @@
 		{/snippet}
 
 		{#snippet instrument()}
-			<SurfacePanel title="Bench" eyebrow="Inside the system" badge="verified rules" tone="verified">
+			<SurfacePanel title="Bench" eyebrow="Inside the system" badge="verified rules" tone="verified" instrument>
 				<div class="current-string-panel">
 					<div class="current-string">{currentString}</div>
 					<p class="field-note">
