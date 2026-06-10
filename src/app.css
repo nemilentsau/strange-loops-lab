@@ -1576,7 +1576,7 @@ select {
 	margin-bottom: calc(var(--space-sm) * -1 + 2px);
 }
 
-.observations {
+.observations[data-tone='computed'] {
 	display: grid;
 	gap: var(--space-sm);
 	margin: 0;
@@ -1584,7 +1584,7 @@ select {
 	list-style: none;
 }
 
-.observation {
+.observations[data-tone='computed'] .observation {
 	padding: var(--space-sm) var(--space-md);
 	border: 1px solid rgba(208, 169, 95, 0.16);
 	border-left: 3px dashed rgba(208, 169, 95, 0.5);
@@ -1592,7 +1592,7 @@ select {
 	background: var(--panel-inset);
 }
 
-.observation strong {
+.observations[data-tone='computed'] .observation strong {
 	display: block;
 	margin-bottom: 4px;
 	color: var(--accent-strong);
@@ -1601,7 +1601,7 @@ select {
 	letter-spacing: 0.02em;
 }
 
-.observation span {
+.observations[data-tone='computed'] .observation span {
 	display: block;
 	color: var(--muted-strong);
 	font-size: 0.86rem;
@@ -1610,7 +1610,7 @@ select {
 
 /* The "absence here is not absence everywhere" fact carries the pedagogical
  * weight, so it reads as the gap itself — still phrased about the search. */
-.observation--absence span {
+.observations[data-tone='computed'] .observation--absence span {
 	color: var(--muted);
 }
 
@@ -1618,7 +1618,7 @@ select {
  * level. It references the meta register (void ground, double-ring outline,
  * ◉ glyph, "about the system") but must NOT look like a verified ✓ verdict:
  * no teal, no checkmark. It only renders once a bound is hit and MU is absent. */
-.prove-bridge {
+.prove-bridge[data-level='meta'] {
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr);
 	gap: var(--space-md);
@@ -1635,7 +1635,7 @@ select {
 	box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
 }
 
-.prove-bridge__glyph {
+.prove-bridge[data-level='meta'] .prove-bridge__glyph {
 	display: grid;
 	place-items: center;
 	width: 40px;
@@ -1647,12 +1647,12 @@ select {
 	line-height: 1;
 }
 
-.prove-bridge__body {
+.prove-bridge[data-level='meta'] .prove-bridge__body {
 	display: grid;
 	gap: 10px;
 }
 
-.prove-bridge__eyebrow {
+.prove-bridge[data-level='meta'] .prove-bridge__eyebrow {
 	margin: 0;
 	color: var(--muted-strong);
 	font-family: 'IBM Plex Mono', monospace;
@@ -1662,19 +1662,19 @@ select {
 	text-transform: uppercase;
 }
 
-.prove-bridge__text {
+.prove-bridge[data-level='meta'] .prove-bridge__text {
 	margin: 0;
 	color: var(--paper);
 	font-size: 0.92rem;
 	line-height: 1.6;
 }
 
-.prove-bridge__text em {
+.prove-bridge[data-level='meta'] .prove-bridge__text em {
 	color: var(--accent-strong);
 	font-style: italic;
 }
 
-.prove-bridge__action {
+.prove-bridge[data-level='meta'] .prove-bridge__action {
 	justify-self: start;
 }
 

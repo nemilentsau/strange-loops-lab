@@ -73,6 +73,14 @@ describe('summarizeReachabilityGraph', () => {
 		expect(summary.frontierGrowth).toBe(9);
 	});
 
+	it('reports negative frontier growth when the node limit cuts the deepest layer short', () => {
+		// maxNodes: 8 fills depths [1, 2, 3, 2] — the search hits the limit partway
+		// through depth 3, leaving only 2 nodes there vs 3 at depth 2 → growth is -1.
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 3, maxNodes: 8 }));
+
+		expect(summary.frontierGrowth).toBe(-1);
+	});
+
 	it('has no frontier growth when only the root has been reached', () => {
 		// maxDepth 0 keeps just MI: there is no previous depth to compare against.
 		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 0, maxNodes: 16 }));

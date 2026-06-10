@@ -147,7 +147,7 @@
 			<strong>{summary.nodeCount} strings reached</strong>
 			<span>
 				within depth {summary.maxDepth}{#if summary.frontierGrowth !== null}, depth {summary.deepestDepth}
-					adds {summary.frontierGrowth} more than depth {summary.deepestDepth - 1}{/if}.
+					{#if summary.frontierGrowth > 0}adds {summary.frontierGrowth} more than depth {summary.deepestDepth - 1}{:else if summary.frontierGrowth === 0}matched the count at depth {summary.deepestDepth - 1}{:else}was cut off by the bound before completing — it is smaller than depth {summary.deepestDepth - 1}{/if}{/if}.
 			</span>
 		</li>
 		<li class="observation">

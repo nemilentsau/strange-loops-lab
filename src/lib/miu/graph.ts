@@ -54,6 +54,9 @@ export interface ReachabilitySummary {
 	 * Rule applications that landed on a string already reached. Edges to strings
 	 * that were never added (the edge that tripped the node limit) are excluded,
 	 * so this only counts rediscoveries within the explored region.
+	 * Note: self-edges (a rule rewriting a string to itself, e.g. M→M from a
+	 * degenerate start) count as rediscoveries — the field means "edges landing
+	 * on an already-reached string," not strictly "two distinct paths met."
 	 */
 	repeatedDiscoveryCount: number;
 	/** Why the search stopped, mirrored from the graph; `null` means it ran to exhaustion. */
@@ -67,6 +70,9 @@ export interface ReachabilitySummary {
  * reports: how far the search reached, how fast it grew, how often it circled
  * back, and which bound stopped it. Every field is a count, bound, or absence
  * about the explored region — never a claim about the full reachable set.
+ *
+ * The graph always contains at least the root (maxNodes clamps to ≥1), so
+ * nodeCount ≥ 1 and deepestDepth ≥ 0 are invariants callers may rely on.
  */
 export function summarizeReachabilityGraph(graph: ReachabilityGraph): ReachabilitySummary {
 	const nodeIds = new Set(graph.nodes.map((node) => node.id));
@@ -75,6 +81,7 @@ export function summarizeReachabilityGraph(graph: ReachabilityGraph): Reachabili
 	for (const node of graph.nodes) {
 		nodesByDepth[node.depth] = (nodesByDepth[node.depth] ?? 0) + 1;
 	}
+	// BFS yields contiguous depths so the fill is defensive hardening only.
 	for (let depth = 0; depth < nodesByDepth.length; depth += 1) {
 		nodesByDepth[depth] ??= 0;
 	}
