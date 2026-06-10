@@ -400,8 +400,8 @@ body.module1-wide .site-shell {
 }
 
 .surface-panel__header {
-	padding-bottom: var(--space-md);
-	margin-bottom: var(--space-md);
+	padding-bottom: 10px;
+	margin-bottom: 8px;
 	border-bottom: 1px solid var(--line);
 }
 
@@ -739,7 +739,7 @@ body.module1-wide .site-shell {
 
 /* ── Phase Content ── */
 .module-phases {
-	margin-top: var(--space-xs);
+	margin-top: 4px;
 }
 
 .phase-content {
@@ -754,7 +754,7 @@ body.module1-wide .site-shell {
  * to serif italic. Same ink everywhere; the level is structural. */
 .phase-canvas {
 	position: relative;
-	margin-top: 10px;
+	margin-top: 4px;
 	padding: var(--space-lg) var(--space-md) var(--space-md);
 	border-radius: var(--radius);
 }
@@ -1784,7 +1784,7 @@ body.module1-wide .site-shell {
 .current-string-panel {
 	display: grid;
 	gap: 12px;
-	padding: var(--space-lg);
+	padding: 0 var(--space-lg) var(--space-lg);
 	border: 1px solid var(--line);
 	border-left: 3px solid var(--ink);
 	border-radius: 0 var(--radius) var(--radius) 0;
@@ -1793,7 +1793,7 @@ body.module1-wide .site-shell {
 
 .current-string {
 	font-family: var(--mono);
-	font-size: clamp(2rem, 5vw, 3.5rem);
+	font-size: clamp(1.8rem, 3.44vw, 2.75rem);
 	font-weight: 600;
 	letter-spacing: 0.08em;
 	color: var(--ink);
@@ -1802,14 +1802,14 @@ body.module1-wide .site-shell {
 .move-grid,
 .trace-list {
 	display: grid;
-	gap: 12px;
+	gap: 10px;
 }
 
 /* Move cards are actionable (applying one mutates the trace) → accent on
  * interaction, neutral ink at rest. */
 .move-card {
 	width: 100%;
-	padding: var(--space-md);
+	padding: var(--space-sm);
 	border: 1px solid var(--line-strong);
 	border-radius: var(--radius);
 	background: var(--panel);

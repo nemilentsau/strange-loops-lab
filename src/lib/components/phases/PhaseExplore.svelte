@@ -150,7 +150,6 @@
 		{#snippet instrument()}
 			<SurfacePanel title="Bench" eyebrow="Inside the system" badge="verified rules" tone="verified">
 				<div class="current-string-panel">
-					<p class="eyebrow">Current string</p>
 					<div class="current-string">{currentString}</div>
 					<p class="field-note">
 						Only legal next moves are shown. Applying one appends to the derivation trace and

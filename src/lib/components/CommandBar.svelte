@@ -68,7 +68,7 @@
 	</div>
 
 	<div class="command-bar__readout">
-		<span class="command-bar__string" title="Current MIU string">{currentString}</span>
+		<span class="command-bar__string" title={currentString}>{currentString}</span>
 
 		<span class="command-bar__facts">
 			<span class="command-bar__fact" data-tone="verified" title="Number of derivation steps from MI">
