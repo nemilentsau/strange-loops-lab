@@ -46,7 +46,7 @@
 			<WorkingQuestion {workingQuestion} {onUpdateQuestion} />
 
 			<SurfacePanel title="The claim" eyebrow="Meta-level proof move">
-				<div class="claim-card">
+				<div class="ink-rule-card ink-rule-card--bare claim-card">
 					<h3>MU is unreachable from MI.</h3>
 					<p class="field-note">
 						This is not a claim about one derivation path. It is a claim about the entire space
@@ -71,7 +71,7 @@
 				instrument
 			>
 				<div class="proof-rail">
-					<div class="proof-step">
+					<div class="ink-rule-card proof-step">
 						<div class="proof-step__index">1</div>
 						<div>
 							<p class="eyebrow">Claim</p>
@@ -83,7 +83,7 @@
 						</div>
 					</div>
 
-					<div class="proof-step">
+					<div class="ink-rule-card proof-step">
 						<div class="proof-step__index">2</div>
 						<div class="proof-step__body">
 							<p class="eyebrow">Candidate invariant</p>
@@ -106,7 +106,7 @@
 						</div>
 					</div>
 
-					<div class="proof-step">
+					<div class="ink-rule-card proof-step">
 						<div class="proof-step__index">3</div>
 						<div class="proof-step__body">
 							<p class="eyebrow">Current state check</p>
@@ -128,7 +128,7 @@
 						</div>
 					</div>
 
-					<div class="proof-step">
+					<div class="ink-rule-card proof-step">
 						<div class="proof-step__index">4</div>
 						<div class="proof-step__body">
 							<p class="eyebrow">Rule preservation</p>
@@ -144,7 +144,7 @@
 						</div>
 					</div>
 
-					<div class="proof-step proof-step--conclusion">
+					<div class="ink-rule-card proof-step proof-step--conclusion">
 						<div class="proof-step__index">5</div>
 						<div class="proof-step__body">
 							<p class="eyebrow">Conclusion</p>
@@ -176,7 +176,7 @@
 				{#if candidateInvariant.kind === 'supported'}
 					<div class="rule-result-list">
 						{#each candidateInvariant.ruleResults as result}
-							<div class="rule-result">
+							<div class="ink-rule-card rule-result">
 								<div class="rule-result__top">
 									<strong>{result.ruleLabel}</strong>
 									<span
@@ -204,7 +204,7 @@
 			</SurfacePanel>
 
 			<SurfacePanel title="Reference route" eyebrow="Verified verdict" tone="verified">
-				<div class="invariant-card invariant-card--built-in">
+				<div class="ink-rule-card">
 					<div class="rule-result__top">
 						<strong>count(I) mod 3 != 0</strong>
 						<span

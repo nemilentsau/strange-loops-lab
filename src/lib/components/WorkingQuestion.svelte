@@ -11,6 +11,8 @@
 	} = $props();
 </script>
 
+<!-- The literal input id is safe because exactly one phase mounts at a time, so
+     only one WorkingQuestion is ever in the DOM — no duplicate-id collision. -->
 <label class="working-question" for="working-question-input">
 	<span class="working-question__label">Your working question</span>
 	<input

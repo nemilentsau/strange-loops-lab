@@ -62,20 +62,17 @@
 		{
 			title: 'Why search fails',
 			subtitle: 'Even infinite patience wouldn\'t help. Why?',
-			text: 'Explain why exploring more derivations cannot by itself prove that MU is unreachable.',
-			colorClass: 'reflection-prompt--rose'
+			text: 'Explain why exploring more derivations cannot by itself prove that MU is unreachable.'
 		},
 		{
 			title: 'Weak step in the proof',
 			subtitle: 'Which rule was hardest to check?',
-			text: 'State the single rule you had to justify most carefully, and explain why it preserves the invariant.',
-			colorClass: 'reflection-prompt--teal'
+			text: 'State the single rule you had to justify most carefully, and explain why it preserves the invariant.'
 		},
 		{
 			title: 'Object vs meta',
 			subtitle: 'Two different kinds of reasoning.',
-			text: 'Describe the difference between applying an MIU rule and proving a fact about all MIU derivations.',
-			colorClass: 'reflection-prompt--gold'
+			text: 'Describe the difference between applying an MIU rule and proving a fact about all MIU derivations.'
 		}
 	] as const;
 
@@ -667,6 +664,7 @@
 					{artifactStatus}
 					{savedArtifacts}
 					{reflectionPrompts}
+					workingQuestion={draft.workingQuestion}
 					onUpdateDialogueInput={updateDialogueInput}
 					onRunDialogue={runDialogue}
 					onUpdateNotes={updateNotes}
@@ -676,6 +674,7 @@
 					onSaveTrace={saveTraceArtifact}
 					onRestoreArtifact={restoreArtifact}
 					onPopulateSuggestion={populateDialogueSuggestion}
+					onUpdateQuestion={updateQuestion}
 					{formatTimestamp}
 				/>
 			</div>

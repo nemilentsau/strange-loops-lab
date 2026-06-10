@@ -1,5 +1,7 @@
 <script lang="ts">
+	import LabDesk from '$lib/components/LabDesk.svelte';
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
+	import WorkingQuestion from '$lib/components/WorkingQuestion.svelte';
 	import type { DialogueResult } from '$lib/dialogue/types';
 	import {
 		restoreTargetForModule1Artifact,
@@ -21,7 +23,6 @@
 		title: string;
 		subtitle: string;
 		text: string;
-		colorClass: string;
 	}
 
 	let {
@@ -35,6 +36,7 @@
 		artifactStatus,
 		savedArtifacts,
 		reflectionPrompts,
+		workingQuestion,
 		onUpdateDialogueInput,
 		onRunDialogue,
 		onUpdateNotes,
@@ -44,6 +46,7 @@
 		onSaveTrace,
 		onRestoreArtifact,
 		onPopulateSuggestion,
+		onUpdateQuestion,
 		formatTimestamp
 	}: {
 		dialogueInput: string;
@@ -56,6 +59,7 @@
 		artifactStatus: string;
 		savedArtifacts: Module1Artifact[];
 		reflectionPrompts: readonly ReflectionPrompt[];
+		workingQuestion: string;
 		onUpdateDialogueInput: (event: Event) => void;
 		onRunDialogue: () => void;
 		onUpdateNotes: (event: Event) => void;
@@ -65,6 +69,7 @@
 		onSaveTrace: () => void;
 		onRestoreArtifact: (artifact: Module1Artifact) => void;
 		onPopulateSuggestion: (text: string) => void;
+		onUpdateQuestion: (event: Event) => void;
 		formatTimestamp: (value: string | null) => string;
 	} = $props();
 
@@ -127,192 +132,211 @@
 		<span class="phase-canvas__rim-glyph" aria-hidden="true">{levelPresentation.glyph}</span>
 		{levelPresentation.label}
 	</span>
-	<SurfacePanel
-		title="Dialogue Mode"
-		eyebrow="Coaching"
-		badge="Coaching, not proof"
-		badgeTooltip="The examiner probes your understanding — it does not verify or certify proof correctness."
-		tone="coaching"
-	>
-		<div class="dialogue-mode-card">
-			<strong>{dialogueMode}</strong>
-			<small>
-				One honest coaching mode for now: probe the user explanation until the weak step becomes
-				explicit, without pretending to certify proof.
-			</small>
-		</div>
 
-		<label class="field-label" for="dialogue-input">
-			Your explanation or question
-			<textarea
-				id="dialogue-input"
-				class="text-area"
-				placeholder="Describe your understanding or ask a question..."
-				oninput={onUpdateDialogueInput}
-			>{dialogueInput}</textarea>
-		</label>
-		<div class="status-row">
-			<button
-				class="button button--ghost"
-				type="button"
-				onclick={onRunDialogue}
-				disabled={dialogueRunning}
-			>
-				{dialogueRunning ? 'Getting feedback...' : 'Get feedback'}
-			</button>
-		</div>
+	<LabDesk>
+		{#snippet guide()}
+			<WorkingQuestion {workingQuestion} {onUpdateQuestion} />
 
-		{#if !hasDialogueRun && !dialogueRunning}
-			<div class="dialogue-empty-state">
-				<p>Describe what you understood about the proof. The examiner will probe your explanation to help you find gaps.</p>
-				<button
-					class="dialogue-empty-state__suggestion"
-					type="button"
-					onclick={() => onPopulateSuggestion('I think MU is unreachable because...')}
-				>
-					Try: "I think MU is unreachable because..."
-				</button>
-			</div>
-		{/if}
-
-		{#if showDialogueStatus}
-			<p class="field-note">{dialogueStatus}</p>
-		{/if}
-
-		{#if lastDialogue}
-			<div class="dialogue-transcript">
-				{#each lastDialogue.messages as message}
-					<div class="dialogue-turn" data-agent={message.agent}>
-						<div class="dialogue-turn__top">
-							<strong>{message.agent === 'examiner' ? 'Examiner' : 'Proof Coach'}</strong>
-							<span class="badge" data-tone="coaching">coaching</span>
-						</div>
-						<p>{message.content}</p>
-					</div>
-				{/each}
-
-				<div class="dialogue-final">
-					<p class="eyebrow">Final response</p>
-					<p>{lastDialogue.finalResponse}</p>
-					{#if lastDialogue.sessionId}
-						<small>Session {lastDialogue.sessionId}</small>
-					{/if}
-				</div>
-			</div>
-		{/if}
-	</SurfacePanel>
-
-	<SurfacePanel title="Artifact Notebook" eyebrow="Your notebook">
-		<div class="reflection-prompt-stack">
-			<div class="surface-panel__header">
-				<div>
-					<p class="eyebrow">Guided reflection</p>
-					<h3>Use a prompt if the blank page is too open.</h3>
-				</div>
-			</div>
-			<div class="reflection-prompt-grid">
-				{#each reflectionPrompts as prompt}
-					<button
-						class="reflection-prompt {prompt.colorClass}"
-						type="button"
-						onclick={() => onUseReflectionPrompt(prompt.text)}
-					>
-						<strong>{prompt.title}</strong>
-						<span class="reflection-prompt__subtitle">{prompt.subtitle}</span>
-						<p>{prompt.text}</p>
-					</button>
-				{/each}
-			</div>
-		</div>
-
-		<label class="field-label" for="module-notes">
-			Notes and reflections
-			<textarea
-				id="module-notes"
-				class="text-area"
-				placeholder="Jot down observations, conjectures, or things you want to remember..."
-				value={notes}
-				oninput={onUpdateNotes}
-			></textarea>
-		</label>
-
-		<div class="save-actions">
-			<div class="save-action">
-				<button class="button button--ghost" type="button" onclick={onSaveSnapshot}>
-					Save progress
-				</button>
-				<span class="save-action__hint">Saves your entire session so you can resume later.</span>
-			</div>
-			<p class="field-note">{snapshotStatus}</p>
-
-			<div class="save-actions__group">
-				<div class="save-action">
-					<button class="button button--ghost" type="button" onclick={onSaveNote}>
-						Save notes
-					</button>
-					<span class="save-action__hint">Captures your current notes as a named artifact.</span>
-				</div>
-				<div class="save-action">
-					<button class="button button--ghost" type="button" onclick={onSaveTrace}>
-						Save derivation
-					</button>
-					<span class="save-action__hint">Captures the derivation trace you built in Explore.</span>
-				</div>
-			</div>
-			<p class="field-note">{artifactStatus}</p>
-		</div>
-
-		{#if savedArtifacts.length > 0}
-			<div class="artifact-notebook">
-				<div class="artifact-filters" role="group" aria-label="Filter notebook by artifact type">
-					{#each filterOptions as option}
+			<SurfacePanel title="Reflection Prompts" eyebrow="If the blank page is too open">
+				<div class="reflection-prompt-list">
+					{#each reflectionPrompts as prompt}
 						<button
-							class="artifact-filter"
+							class="reflection-prompt"
 							type="button"
-							data-active={artifactFilter === option.value}
-							disabled={option.value !== 'all' && option.count === 0}
-							aria-pressed={artifactFilter === option.value}
-							onclick={() => (artifactFilter = option.value)}
+							onclick={() => onUseReflectionPrompt(prompt.text)}
 						>
-							{option.label}
-							<span class="artifact-filter__count">{option.count}</span>
+							<strong>{prompt.title}</strong>
+							<span class="reflection-prompt__subtitle">{prompt.subtitle}</span>
+							<p>{prompt.text}</p>
 						</button>
 					{/each}
 				</div>
+			</SurfacePanel>
 
-				<ul class="ledger artifact-ledger">
-					{#each visibleArtifacts as artifact (artifact.id)}
-						<li class="artifact-ledger__item">
-							<div class="artifact-ledger__meta">
-								<div class="artifact-ledger__title-row">
-									<span class="badge artifact-type-badge">{artifactTypeLabel(artifact.artifactType)}</span>
-									<strong>{artifact.title}</strong>
-								</div>
-								<dl class="artifact-ledger__facts">
-									{#each reviewFactsFor(artifact) as field}
-										<div class="artifact-fact">
-											<dt>{field.label}</dt>
-											<dd>{field.value}</dd>
-										</div>
-									{/each}
-									<div class="artifact-fact">
-										<dt>Saved</dt>
-										<dd>{formatTimestamp(artifact.createdAt)}</dd>
-									</div>
-								</dl>
-							</div>
-							<button
-								class="button button--ghost button--sm"
-								type="button"
-								onclick={() => onRestoreArtifact(artifact)}
-								disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
-							>
-								{restoreLabelFor(artifact.artifactType)}
+			<SurfacePanel title="Save your work" eyebrow="Capture this session">
+				<div class="save-actions">
+					<div class="save-action">
+						<button class="button button--ghost" type="button" onclick={onSaveSnapshot}>
+							Save progress
+						</button>
+						<span class="save-action__hint">Saves your entire session so you can resume later.</span>
+					</div>
+					<p class="field-note">{snapshotStatus}</p>
+
+					<div class="save-actions__group">
+						<div class="save-action">
+							<button class="button button--ghost" type="button" onclick={onSaveNote}>
+								Save notes
 							</button>
-						</li>
-					{/each}
-				</ul>
-			</div>
-		{/if}
-	</SurfacePanel>
+							<span class="save-action__hint">Captures your current notes as a named artifact.</span>
+						</div>
+						<div class="save-action">
+							<button class="button button--ghost" type="button" onclick={onSaveTrace}>
+								Save derivation
+							</button>
+							<span class="save-action__hint">Captures the derivation trace you built in Explore.</span>
+						</div>
+					</div>
+				</div>
+			</SurfacePanel>
+		{/snippet}
+
+		{#snippet instrument()}
+			<SurfacePanel title="Synthesis" eyebrow="Your own words" instrument>
+				<label class="field-label" for="module-notes">
+					Notes and reflections
+					<textarea
+						id="module-notes"
+						class="text-area"
+						placeholder="Jot down observations, conjectures, or things you want to remember..."
+						value={notes}
+						oninput={onUpdateNotes}
+					></textarea>
+				</label>
+
+				<div class="synthesis-examiner">
+					<div class="surface-panel__header">
+						<div>
+							<p class="eyebrow">Explain-back examiner</p>
+							<h3>Talk your reasoning through; the examiner probes for the weak step.</h3>
+						</div>
+						<span
+							class="legend-chip"
+							title="The examiner probes your understanding — it does not verify or certify proof correctness."
+						>Coaching, not proof</span>
+					</div>
+
+					<div class="dialogue-mode-card">
+						<strong>{dialogueMode}</strong>
+						<small>
+							One honest coaching mode for now: probe the user explanation until the weak step
+							becomes explicit, without pretending to certify proof.
+						</small>
+					</div>
+
+					<label class="field-label" for="dialogue-input">
+						Your explanation or question
+						<textarea
+							id="dialogue-input"
+							class="text-area"
+							placeholder="Describe your understanding or ask a question..."
+							oninput={onUpdateDialogueInput}
+						>{dialogueInput}</textarea>
+					</label>
+					<div class="status-row">
+						<button
+							class="button button--ghost"
+							type="button"
+							onclick={onRunDialogue}
+							disabled={dialogueRunning}
+						>
+							{dialogueRunning ? 'Getting feedback...' : 'Get feedback'}
+						</button>
+					</div>
+
+					{#if !hasDialogueRun && !dialogueRunning}
+						<div class="dialogue-empty-state">
+							<p>Describe what you understood about the proof. The examiner will probe your explanation to help you find gaps.</p>
+							<button
+								class="dialogue-empty-state__suggestion"
+								type="button"
+								onclick={() => onPopulateSuggestion('I think MU is unreachable because...')}
+							>
+								Try: "I think MU is unreachable because..."
+							</button>
+						</div>
+					{/if}
+
+					{#if showDialogueStatus}
+						<p class="field-note">{dialogueStatus}</p>
+					{/if}
+
+					{#if lastDialogue}
+						<div class="dialogue-transcript">
+							{#each lastDialogue.messages as message}
+								<div class="dialogue-turn" data-agent={message.agent}>
+									<div class="dialogue-turn__top">
+										<strong>{message.agent === 'examiner' ? 'Examiner' : 'Proof Coach'}</strong>
+										<span class="badge" data-tone="coaching">coaching</span>
+									</div>
+									<p>{message.content}</p>
+								</div>
+							{/each}
+
+							<div class="dialogue-final">
+								<p class="eyebrow">Final response</p>
+								<p>{lastDialogue.finalResponse}</p>
+								{#if lastDialogue.sessionId}
+									<small>Session {lastDialogue.sessionId}</small>
+								{/if}
+							</div>
+						</div>
+					{/if}
+				</div>
+			</SurfacePanel>
+		{/snippet}
+
+		{#snippet evidence()}
+			<SurfacePanel title="Artifact Notebook" eyebrow="Your saved work">
+				{#if savedArtifacts.length > 0}
+					<div class="artifact-notebook">
+						<div class="artifact-filters" role="group" aria-label="Filter notebook by artifact type">
+							{#each filterOptions as option}
+								<button
+									class="artifact-filter"
+									type="button"
+									data-active={artifactFilter === option.value}
+									disabled={option.value !== 'all' && option.count === 0}
+									aria-pressed={artifactFilter === option.value}
+									onclick={() => (artifactFilter = option.value)}
+								>
+									{option.label}
+									<span class="artifact-filter__count">{option.count}</span>
+								</button>
+							{/each}
+						</div>
+
+						<ul class="ledger artifact-ledger">
+							{#each visibleArtifacts as artifact (artifact.id)}
+								<li class="artifact-ledger__item">
+									<div class="artifact-ledger__meta">
+										<div class="artifact-ledger__title-row">
+											<span class="badge artifact-type-badge">{artifactTypeLabel(artifact.artifactType)}</span>
+											<strong>{artifact.title}</strong>
+										</div>
+										<dl class="artifact-ledger__facts">
+											{#each reviewFactsFor(artifact) as field}
+												<div class="artifact-fact">
+													<dt>{field.label}</dt>
+													<dd>{field.value}</dd>
+												</div>
+											{/each}
+											<div class="artifact-fact">
+												<dt>Saved</dt>
+												<dd>{formatTimestamp(artifact.createdAt)}</dd>
+											</div>
+										</dl>
+									</div>
+									<button
+										class="button button--ghost button--sm"
+										type="button"
+										onclick={() => onRestoreArtifact(artifact)}
+										disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
+									>
+										{restoreLabelFor(artifact.artifactType)}
+									</button>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{:else}
+					<p class="placeholder-copy">
+						Nothing saved yet. Save your notes, derivation, or proof work and it lands here.
+					</p>
+				{/if}
+
+				<p class="field-note">{artifactStatus}</p>
+			</SurfacePanel>
+		{/snippet}
+	</LabDesk>
 </div>

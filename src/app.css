@@ -998,33 +998,61 @@ body.module1-wide .site-shell {
 	border-top: 1px solid var(--line);
 }
 
-.phase-reflect {
-	display: grid;
-	gap: var(--space-md);
-}
-
-@media (min-width: 981px) {
-	.phase-reflect {
-		grid-template-columns: 1fr 1fr;
-	}
-}
-
-.proof-rail,
-.reflection-prompt-stack,
-.reflection-prompt-grid {
+.proof-rail {
 	display: grid;
 	gap: var(--space-sm);
 }
 
-/* ── Prove guide rail: the claim ──
- * The proposition the whole phase is about. A graphite left-rule anchors it as
- * the fixed claim; no accent (it is orientation, the act is "Use built-in"). */
-.claim-card {
-	margin-bottom: var(--space-sm);
-	padding: var(--space-sm) var(--space-md);
+/* Reflect's guide-rail prompt list: one compact, full-width column so each
+ * prompt is a single tap-to-seed row in the narrow rail. */
+.reflection-prompt-list {
+	display: grid;
+	gap: var(--space-sm);
+}
+
+/* Synthesis instrument: the explain-back examiner sits below the notes editor,
+ * separated by a hairline (same divider idiom as .bench-section). */
+.synthesis-examiner {
+	display: grid;
+	gap: var(--space-sm);
+	margin-top: var(--space-md);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--line);
+}
+
+/* ── The graphite-left-rule card ──
+ * One shared idiom for "a parchment card anchored by a solid graphite left
+ * rule": the claim, proof steps, rule-preservation verdicts, the reference
+ * route, and Reflect's synthesis cards. The left rule is the load-bearing
+ * mark; the surrounding hairline is written as longhands so `--bare` can drop
+ * only the three outer sides while keeping the left rule intact.
+ * Register note: a graphite left rule reads as the verified register where it
+ * carries a ✓/✗ stamp; on un-stamped orientation cards (claim, synthesis) it
+ * is structural anchoring only, never a verification claim. */
+.ink-rule-card {
+	padding: var(--space-md);
+	border-top: 1px solid var(--line);
+	border-right: 1px solid var(--line);
+	border-bottom: 1px solid var(--line);
 	border-left: 3px solid var(--ink);
 	border-radius: 0 var(--radius) var(--radius) 0;
 	background: var(--panel);
+}
+
+/* Bare variant: keep the graphite left rule, drop the surrounding hairline. */
+.ink-rule-card--bare {
+	border-top: none;
+	border-right: none;
+	border-bottom: none;
+}
+
+/* ── Prove guide rail: the claim ──
+ * The proposition the whole phase is about. A graphite left-rule anchors it as
+ * the fixed claim; no accent (it is orientation, the act is "Use built-in").
+ * Composes .ink-rule-card.ink-rule-card--bare; only its own padding/margin. */
+.claim-card {
+	margin-bottom: var(--space-sm);
+	padding: var(--space-sm) var(--space-md);
 }
 
 .claim-card h3 {
@@ -1037,16 +1065,12 @@ body.module1-wide .site-shell {
 	margin: 0;
 }
 
-/* Proof steps are verified scaffolding: solid graphite left-rule, no hue. */
+/* Proof steps are verified scaffolding: solid graphite left-rule, no hue.
+ * Composes .ink-rule-card; only the numbered two-column grid is local. */
 .proof-step {
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr);
 	gap: 16px;
-	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-left: 3px solid var(--ink);
-	border-radius: 0 var(--radius) var(--radius) 0;
-	background: var(--panel);
 }
 
 .proof-step--conclusion {
@@ -1080,18 +1104,9 @@ body.module1-wide .site-shell {
 	font-size: 1.05rem;
 }
 
-.reflection-prompt strong {
-	margin: 0;
-}
-
-.reflection-prompt-grid {
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 /* Reflection prompts seed the notes editor — they are actionable, so their
- * hover is the accent. The colour-modifier classes (--rose/--teal/--gold) are
- * fixed in markup; here they collapse to one neutral ink treatment so the
- * screen keeps a single hue. */
+ * hover is the accent. One neutral ink treatment, single hue (the old
+ * per-prompt --rose/--teal/--gold modifiers are gone). */
 .reflection-prompt {
 	position: relative;
 	padding: var(--space-md) var(--space-md) var(--space-lg);
@@ -1619,29 +1634,9 @@ body.module1-wide .site-shell {
 	gap: 14px;
 }
 
-/* Rule-preservation results are verified verdicts: solid graphite left-rule,
- * ✓/✗ stamp lives on the inline badge. */
-.invariant-card,
-.rule-result {
-	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-.rule-result {
-	border-left: 3px solid var(--ink);
-	border-radius: 0 var(--radius) var(--radius) 0;
-}
-
-.invariant-card--built-in {
-	border-left: 3px solid var(--ink);
-	border-radius: 0 var(--radius) var(--radius) 0;
-}
-
-.invariant-card--artifact {
-	border-style: dashed;
-}
+/* Rule-preservation results are verified verdicts: the graphite left-rule comes
+ * from .ink-rule-card (composed in markup); the ✓/✗ stamp lives on the inline
+ * badge. No card-specific declarations remain. */
 
 .rule-result__top {
 	display: flex;
@@ -2003,8 +1998,7 @@ body.module1-wide .site-shell {
 	.panel-grid--three,
 	.graph-layout,
 	.control-grid,
-	.graph-summary,
-	.reflection-prompt-grid {
+	.graph-summary {
 		grid-template-columns: 1fr;
 	}
 
