@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildReachabilityGraph, graphNodeExists, nodeIdFor, tracePathToNode } from './graph';
+import {
+	buildReachabilityGraph,
+	graphNodeExists,
+	nodeIdFor,
+	summarizeReachabilityGraph,
+	tracePathToNode
+} from './graph';
 
 describe('MIU reachability graph', () => {
 	it('uses unique node identities for identical strings', () => {
@@ -41,5 +47,87 @@ describe('MIU reachability graph', () => {
 		expect(graphNodeExists(graph, nodeIdFor('MIU'))).toBe(true);
 		expect(graphNodeExists(graph, nodeIdFor('MU'))).toBe(false);
 		expect(graphNodeExists(graph, null)).toBe(false);
+	});
+});
+
+describe('summarizeReachabilityGraph', () => {
+	it('counts nodes and edges across the explored region', () => {
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 }));
+
+		expect(summary.nodeCount).toBe(11);
+		expect(summary.edgeCount).toBe(11);
+	});
+
+	it('reports per-depth counts and the deepest reached frontier', () => {
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 4, maxNodes: 64 }));
+
+		expect(summary.nodesByDepth).toEqual([1, 2, 3, 5, 14]);
+		expect(summary.deepestDepth).toBe(4);
+		expect(summary.frontierCount).toBe(14);
+	});
+
+	it('reports frontier growth relative to the previous depth', () => {
+		// depth 4 holds 14 strings, depth 3 holds 5: the frontier grew by 9.
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 4, maxNodes: 64 }));
+
+		expect(summary.frontierGrowth).toBe(9);
+	});
+
+	it('has no frontier growth when only the root has been reached', () => {
+		// maxDepth 0 keeps just MI: there is no previous depth to compare against.
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 0, maxNodes: 16 }));
+
+		expect(summary.nodesByDepth).toEqual([1]);
+		expect(summary.deepestDepth).toBe(0);
+		expect(summary.frontierCount).toBe(1);
+		expect(summary.frontierGrowth).toBeNull();
+	});
+
+	it('counts rule applications that rediscover an already-found string', () => {
+		// At depth 3 one edge lands on a string reached earlier by another path.
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 }));
+
+		expect(summary.repeatedDiscoveryCount).toBe(1);
+	});
+
+	it('reports zero rediscovery before any paths converge', () => {
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 2, maxNodes: 16 }));
+
+		expect(summary.repeatedDiscoveryCount).toBe(0);
+	});
+
+	it('excludes the bound-tripping edge from rediscovery when truncated by node limit', () => {
+		// The edge that hits the node limit points at a string that was never added,
+		// so it is neither a discovery nor a rediscovery of an explored node.
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 6, maxNodes: 4 }));
+
+		expect(summary.nodeCount).toBe(4);
+		expect(summary.repeatedDiscoveryCount).toBe(0);
+	});
+
+	it('passes through the depth bound as the truncation cause', () => {
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 2, maxNodes: 64 }));
+
+		expect(summary.truncatedBy).toBe('depth');
+		expect(summary.maxDepth).toBe(2);
+		expect(summary.maxNodes).toBe(64);
+	});
+
+	it('passes through the node bound as the truncation cause', () => {
+		const summary = summarizeReachabilityGraph(buildReachabilityGraph({ maxDepth: 6, maxNodes: 4 }));
+
+		expect(summary.truncatedBy).toBe('node-limit');
+		expect(summary.maxNodes).toBe(4);
+	});
+
+	it('reports no truncation when the explored region is exhausted within bounds', () => {
+		// 'M' only rewrites to itself, so its reachable set is fully enumerated
+		// long before either bound is reached.
+		const summary = summarizeReachabilityGraph(
+			buildReachabilityGraph({ start: 'M', maxDepth: 8, maxNodes: 64 })
+		);
+
+		expect(summary.truncatedBy).toBeNull();
+		expect(summary.nodeCount).toBe(1);
 	});
 });

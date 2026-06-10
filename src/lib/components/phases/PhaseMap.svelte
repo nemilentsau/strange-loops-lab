@@ -1,7 +1,14 @@
 <script lang="ts">
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import { GRAPH_DEPTH_OPTIONS, GRAPH_NODE_LIMIT_OPTIONS, PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
-	import type { ReachabilityGraph, ReachabilityNode, ProvenanceStep } from '$lib/miu/graph';
+	import {
+		graphNodeExists,
+		nodeIdFor,
+		summarizeReachabilityGraph,
+		type ReachabilityGraph,
+		type ReachabilityNode,
+		type ProvenanceStep
+	} from '$lib/miu/graph';
 
 	interface MapGuideTask {
 		title: string;
@@ -21,7 +28,8 @@
 		onUpdateGraphDepth,
 		onUpdateGraphNodeLimit,
 		onSelectGraphNode,
-		onUseGuideTask
+		onUseGuideTask,
+		onBridgeToProve
 	}: {
 		reachabilityGraph: ReachabilityGraph;
 		selectedGraphNodeId: string;
@@ -34,10 +42,29 @@
 		onUpdateGraphNodeLimit: (event: Event) => void;
 		onSelectGraphNode: (nodeId: string) => void;
 		onUseGuideTask: (question: string, nodeId?: string) => void;
+		onBridgeToProve: () => void;
 	} = $props();
 
 	const level = PHASE_META.map.level;
 	const levelPresentation = LEVEL_PRESENTATION[level];
+	const metaPresentation = LEVEL_PRESENTATION.meta;
+
+	const summary = $derived(summarizeReachabilityGraph(reachabilityGraph));
+	const muReached = $derived(graphNodeExists(reachabilityGraph, nodeIdFor('MU')));
+
+	// The bridge is a computed affordance: it appears only once the learner has hit
+	// a search bound and MU is still absent from the explored region. It is never
+	// gated on any LLM judgment, and it stays hidden while the search is unbounded
+	// so the invariant still feels discovered rather than announced.
+	const showProveBridge = $derived(reachabilityGraph.truncatedBy !== null && !muReached);
+
+	const boundFact = $derived(
+		reachabilityGraph.truncatedBy === 'depth'
+			? `Bound hit: depth ${summary.maxDepth}.`
+			: reachabilityGraph.truncatedBy === 'node-limit'
+				? `Bound hit: node limit (${summary.maxNodes}).`
+				: 'No bound hit — this region is fully enumerated.'
+	);
 
 	const guideTasks = $derived<MapGuideTask[]>([
 		{
@@ -114,24 +141,63 @@
 		</label>
 	</div>
 
-	<div class="graph-summary">
-		<div class="graph-metric">
-			<strong>{reachabilityGraph.nodes.length}</strong>
-			<span>nodes</span>
-		</div>
-		<div class="graph-metric">
-			<strong>{reachabilityGraph.edges.length}</strong>
-			<span>edges</span>
-		</div>
-		<div class="graph-metric">
-			{#if reachabilityGraph.truncatedBy}
-				<strong>{reachabilityGraph.truncatedBy}</strong>
-				<span>truncated by</span>
+	<p class="eyebrow observations__eyebrow">What the search shows so far</p>
+	<ul class="observations" data-tone="computed">
+		<li class="observation">
+			<strong>{summary.nodeCount} strings reached</strong>
+			<span>
+				within depth {summary.maxDepth}{#if summary.frontierGrowth !== null}, depth {summary.deepestDepth}
+					adds {summary.frontierGrowth} more than depth {summary.deepestDepth - 1}{/if}.
+			</span>
+		</li>
+		<li class="observation">
+			{#if summary.repeatedDiscoveryCount > 0}
+				<strong>{summary.repeatedDiscoveryCount} rule application{summary.repeatedDiscoveryCount === 1 ? '' : 's'} circled back</strong>
+				<span>onto a string already reached — paths converge, the set grows slower than the moves.</span>
 			{:else}
-				<span class="graph-metric__none">no truncation</span>
+				<strong>No path has circled back yet</strong>
+				<span>every legal move so far reached a string not seen before.</span>
 			{/if}
+		</li>
+		<li class="observation">
+			<strong>{boundFact}</strong>
+			<span>
+				{#if reachabilityGraph.truncatedBy !== null}
+					The search stopped at a bound, not at the edge of the reachable set.
+				{:else}
+					No further strings are reachable from here.
+				{/if}
+			</span>
+		</li>
+		<li class="observation observation--absence">
+			<strong>{muReached ? 'MU is present in this region.' : `MU is not among the ${summary.nodeCount} strings reached.`}</strong>
+			<span>
+				{#if muReached}
+					MU appears in the explored region.
+				{:else}
+					Absence in a bounded region is a fact about this search, not a verdict on MU —
+					a finite map cannot show that no path anywhere reaches it.
+				{/if}
+			</span>
+		</li>
+	</ul>
+
+	{#if showProveBridge}
+		<div class="prove-bridge" data-level="meta">
+			<span class="prove-bridge__glyph" aria-hidden="true">{metaPresentation.glyph}</span>
+			<div class="prove-bridge__body">
+				<p class="prove-bridge__eyebrow">{metaPresentation.label}</p>
+				<p class="prove-bridge__text">
+					You hit a search bound and MU never appeared. Whether MU is reachable
+					<em>at all</em> is a question this map cannot settle. To answer it you have to
+					step outside the system and reason about every string at once.
+				</p>
+				<button class="button button--ghost button--sm prove-bridge__action" type="button" onclick={onBridgeToProve}>
+					Go to Prove
+				</button>
+			</div>
 		</div>
-	</div>
+	{/if}
 
 	<div class="graph-layout">
 		<div class="graph-node-list">

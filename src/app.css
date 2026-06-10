@@ -1569,6 +1569,115 @@ select {
 	font-size: 0.82rem;
 }
 
+/* Map observations are COMPUTED facts about the explored region: they wear the
+ * computed register (gold, dashed left rule), never a verified verdict tone.
+ * Each line states a count, bound, or absence — not a conclusion about MU. */
+.observations__eyebrow {
+	margin-bottom: calc(var(--space-sm) * -1 + 2px);
+}
+
+.observations {
+	display: grid;
+	gap: var(--space-sm);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.observation {
+	padding: var(--space-sm) var(--space-md);
+	border: 1px solid rgba(208, 169, 95, 0.16);
+	border-left: 3px dashed rgba(208, 169, 95, 0.5);
+	border-radius: var(--radius-md);
+	background: var(--panel-inset);
+}
+
+.observation strong {
+	display: block;
+	margin-bottom: 4px;
+	color: var(--accent-strong);
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.92rem;
+	letter-spacing: 0.02em;
+}
+
+.observation span {
+	display: block;
+	color: var(--muted-strong);
+	font-size: 0.86rem;
+	line-height: 1.55;
+}
+
+/* The "absence here is not absence everywhere" fact carries the pedagogical
+ * weight, so it reads as the gap itself — still phrased about the search. */
+.observation--absence span {
+	color: var(--muted);
+}
+
+/* The bridge into Prove is a navigation affordance that crosses into the meta
+ * level. It references the meta register (void ground, double-ring outline,
+ * ◉ glyph, "about the system") but must NOT look like a verified ✓ verdict:
+ * no teal, no checkmark. It only renders once a bound is hit and MU is absent. */
+.prove-bridge {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: var(--space-md);
+	align-items: start;
+	margin-top: var(--space-sm);
+	padding: var(--space-md);
+	border: 1px solid rgba(239, 231, 212, 0.22);
+	outline: 1px solid rgba(239, 231, 212, 0.12);
+	outline-offset: 4px;
+	border-radius: var(--radius-lg);
+	background:
+		radial-gradient(ellipse at 12% -20%, rgba(239, 231, 212, 0.06), transparent 60%),
+		var(--void);
+	box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+.prove-bridge__glyph {
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border: 1px solid rgba(239, 231, 212, 0.28);
+	border-radius: 50%;
+	color: var(--paper);
+	font-size: 1.05rem;
+	line-height: 1;
+}
+
+.prove-bridge__body {
+	display: grid;
+	gap: 10px;
+}
+
+.prove-bridge__eyebrow {
+	margin: 0;
+	color: var(--muted-strong);
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.62rem;
+	font-weight: 600;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+.prove-bridge__text {
+	margin: 0;
+	color: var(--paper);
+	font-size: 0.92rem;
+	line-height: 1.6;
+}
+
+.prove-bridge__text em {
+	color: var(--accent-strong);
+	font-style: italic;
+}
+
+.prove-bridge__action {
+	justify-self: start;
+}
+
 .graph-layout {
 	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
 	align-items: start;

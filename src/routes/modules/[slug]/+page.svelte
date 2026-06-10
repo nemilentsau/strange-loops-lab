@@ -666,6 +666,7 @@
 						onUpdateGraphNodeLimit={updateGraphNodeLimit}
 						onSelectGraphNode={selectGraphNode}
 						onUseGuideTask={useMapGuideTask}
+						onBridgeToProve={() => selectPhase('prove')}
 					/>
 				</div>
 			{:else if draft.activePhase === 'prove'}
