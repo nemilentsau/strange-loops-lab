@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import ContextStrip from '$lib/components/ContextStrip.svelte';
-	import PhaseNav from '$lib/components/PhaseNav.svelte';
+	import CommandBar from '$lib/components/CommandBar.svelte';
 	import PhaseExplore from '$lib/components/phases/PhaseExplore.svelte';
 	import PhaseMap from '$lib/components/phases/PhaseMap.svelte';
 	import PhaseProve from '$lib/components/phases/PhaseProve.svelte';
@@ -27,8 +26,6 @@
 		type ReachabilityGraph
 	} from '$lib/miu/graph';
 	import {
-		LAB_PHASES,
-		PHASE_META,
 		PHASE_SURFACES,
 		createModule1Draft,
 		pickNewestDraft,
@@ -107,8 +104,6 @@
 	const currentString = $derived(currentTraceStep.value);
 	const iCount = $derived((currentString.match(/I/g) || []).length);
 	const mod3Class = $derived(iCount % 3);
-	const activePhaseMeta = $derived(PHASE_META[draft.activePhase]);
-	const activePhaseCue = $derived(phaseCueFor(draft.activePhase));
 	const legalMoves = $derived(enumerateMiuMoves(currentString));
 	const proposalAnalysis = $derived(
 		draft.proposalInput.trim() ? analyzeMiuProposal(currentString, draft.proposalInput) : null
@@ -229,19 +224,6 @@
 			visitedPhases: ensureVisitedPhases('reflect')
 		});
 	}
-
-		function phaseCueFor(phase: LabPhase): string {
-			switch (phase) {
-			case 'explore':
-				return 'Work inside the system first. Follow legal rules and feel the local mechanics.';
-			case 'map':
-				return 'Zoom out. The graph shows the reachable boundary, not just one derivation.';
-			case 'prove':
-				return 'Step outside the system. Build an argument about all reachable strings.';
-			case 'reflect':
-				return 'Turn the proof into understanding, then preserve what you learned.';
-			}
-		}
 
 		function applyMove(move: MiuMove) {
 		patchDraft({
@@ -588,38 +570,16 @@
 </svelte:head>
 
 {#if module.slug === 'module-1'}
-	<section class="module-hero module-hero--compact">
-		<div class="module-hero__copy">
-			<p class="eyebrow">Module {module.index}</p>
-			<h1>{module.title}</h1>
-		</div>
-
-		<div class="module-hero__actions">
-			<span class="module-hero__edited">{lastEditedLabel}</span>
-			<button class="button button--ghost button--sm" type="button" onclick={resetSession}>
-				Reset session
-			</button>
-		</div>
-	</section>
-
-		<ContextStrip
-			{currentString}
-			stepCount={draft.trace.currentIndex}
-			{iCount}
-			{mod3Class}
-			phaseLabel={activePhaseMeta.label}
-			phaseEpistemicLabel={activePhaseMeta.epistemicLabel}
-			phaseCue={activePhaseCue}
-			phaseTone={activePhaseMeta.tone}
-			phaseLevel={activePhaseMeta.level}
-			workingQuestion={draft.workingQuestion}
-			onUpdateQuestion={updateQuestion}
-		/>
-
-	<PhaseNav
+	<CommandBar
+		{currentString}
+		stepCount={draft.trace.currentIndex}
+		{iCount}
+		{mod3Class}
 		activePhase={draft.activePhase}
 		visitedPhases={draft.visitedPhases}
+		{lastEditedLabel}
 		onSelectPhase={selectPhase}
+		onReset={resetSession}
 	/>
 
 	{#if isNewSession && !welcomeDismissed}

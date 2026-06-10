@@ -189,37 +189,6 @@ select {
 	gap: 24px;
 }
 
-.module-hero--compact {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-md);
-}
-
-.module-hero--compact .module-hero__copy {
-	padding: var(--space-md) var(--space-lg);
-}
-
-.module-hero--compact .module-hero__copy h1 {
-	margin-bottom: 0;
-	font-size: clamp(1.8rem, 3vw, 2.8rem);
-}
-
-.module-hero__actions {
-	display: flex;
-	align-items: center;
-	gap: var(--space-sm);
-	padding: 0;
-	flex-shrink: 0;
-}
-
-.module-hero__edited {
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.72rem;
-	white-space: nowrap;
-}
-
 .button--sm {
 	font-size: 0.76rem;
 	padding: 6px 14px;
@@ -569,15 +538,22 @@ select {
 	gap: 20px;
 }
 
-/* ── Context Strip ── */
-.context-strip {
+/* ── Command Bar ──
+ * One slim row replaces the old hero + context strip + phase nav stack. It is
+ * the module-1 masthead: a serif wordmark and free phase navigation on the
+ * left; the live instrument readout (current string + deterministic facts),
+ * the object/meta level tag, and Reset on the right. The single accent —
+ * oxblood — marks only the active tab and interactive hover/focus. The
+ * deterministic facts are verified-register readouts: a solid graphite
+ * left-rule, never hue. */
+.command-bar {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	flex-wrap: wrap;
 	gap: var(--space-md);
-	margin-top: var(--space-md);
-	padding: var(--space-sm) var(--space-lg);
-	border: 1px solid var(--line);
+	padding: var(--space-xs) var(--space-md);
+	border: 1px solid var(--line-strong);
 	border-radius: var(--radius);
 	background: var(--panel);
 	position: sticky;
@@ -585,313 +561,169 @@ select {
 	z-index: 10;
 }
 
-.context-strip__state {
+.command-bar__brand {
 	display: flex;
 	align-items: center;
-	gap: 20px;
+	gap: var(--space-md);
+	min-width: 0;
 }
 
-.context-strip__string {
+.command-bar__wordmark {
+	flex-shrink: 0;
+	font-family: var(--serif);
+	font-size: 1.05rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	color: var(--ink);
+}
+
+.command-bar__tabs {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	flex-wrap: wrap;
+}
+
+.command-bar__cluster {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.command-bar__cluster-glyph {
+	margin-right: 4px;
+	font-size: 0.82rem;
+	color: var(--faint);
+}
+
+.command-bar__divider {
+	width: 1px;
+	align-self: stretch;
+	margin: 4px 6px;
+	background: var(--line-strong);
+}
+
+/* Tabs are quiet sans buttons; rest is ink-on-panel. The active tab is the one
+ * place the action accent lives — it is where you are acting. Visited but
+ * inactive tabs get a subtle underline, never hue. */
+.command-bar__tab {
+	position: relative;
+	padding: 6px 10px 7px;
+	border: 1px solid transparent;
+	border-radius: var(--radius);
+	background: none;
+	color: var(--muted);
+	font-family: var(--sans);
+	font-size: 0.86rem;
+	font-weight: 500;
+	letter-spacing: 0.01em;
+	cursor: pointer;
+	transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.command-bar__tab:hover {
+	color: var(--act);
+}
+
+.command-bar__tab[data-active='true'] {
+	color: var(--act);
+	font-weight: 600;
+	box-shadow: inset 0 -2px 0 var(--act);
+}
+
+.command-bar__tab[data-visited='true']:not([data-active='true']) {
+	color: var(--ink);
+}
+
+.command-bar__tab[data-visited='true']:not([data-active='true'])::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: 2px;
+	width: 3px;
+	height: 3px;
+	margin-left: -1.5px;
+	border-radius: 50%;
+	background: var(--line-strong);
+}
+
+.command-bar__readout {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.command-bar__string {
 	font-family: var(--mono);
-	font-size: clamp(1.4rem, 2.5vw, 2rem);
+	font-size: 1.05rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
 	color: var(--ink);
 	line-height: 1;
-	flex-shrink: 0;
+	white-space: nowrap;
 }
 
-.context-strip__metrics {
+.command-bar__facts {
 	display: flex;
+	align-items: center;
 	gap: var(--space-xs);
 	flex-wrap: wrap;
-	flex-shrink: 0;
 }
 
-.context-metric {
+/* Deterministic readouts: verified register, solid graphite left-rule, no hue. */
+.command-bar__fact {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	padding: 5px 10px;
+	padding: 4px 9px;
 	border: 1px solid var(--line-strong);
 	border-radius: var(--radius);
 	font-family: var(--mono);
-	font-size: 0.72rem;
+	font-size: 0.7rem;
 	letter-spacing: 0.06em;
 	background: var(--panel);
 	color: var(--ink);
 }
 
-/* Metrics are verified readouts: solid graphite left-rule, no hue. */
-.context-metric[data-tone='verified'] {
+.command-bar__fact[data-tone='verified'] {
 	border-left: 3px solid var(--ink);
 }
 
-.context-metric__label {
+.command-bar__fact-label {
 	text-transform: uppercase;
 	color: var(--faint);
 }
 
-.context-metric__value {
+.command-bar__fact-value {
 	font-weight: 600;
 }
 
-.context-strip__fields {
-	flex: 1;
-	min-width: 0;
-}
-
-.context-strip__lens {
-	display: grid;
-	gap: 8px;
-	min-width: min(320px, 100%);
-	padding: 12px 14px;
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-/* Lens register, by line style only. */
-.context-strip__lens[data-tone='verified'] {
-	border-left: 3px solid var(--ink);
-}
-
-.context-strip__lens[data-tone='computed'] {
-	border-left: 3px dashed var(--faint);
-}
-
-.context-strip__lens[data-tone='coaching'] {
-	border-left: 3px dotted var(--faint);
-}
-
-/* Object level: faint ruled paper. Meta level: a frame around the frame. */
-.context-strip__lens[data-level='object'] {
-	background-color: var(--page);
-	background-image: linear-gradient(var(--line) 1px, transparent 1px);
-	background-size: 100% 1.4rem;
-}
-
-.context-strip__lens[data-level='meta'] {
-	outline: 1px solid var(--line);
-	outline-offset: 3px;
-	background: var(--page-meta);
-}
-
-.context-strip__lens-glyph {
-	margin-right: 2px;
-	font-size: 0.8rem;
-}
-
-.context-strip__lens-top {
-	display: flex;
+/* Object/meta level tag: glyph + label, faint small caps. Carries no accent —
+ * it states where you are, it is not an action. */
+.command-bar__level {
+	display: inline-flex;
 	align-items: center;
-	gap: 10px;
-	flex-wrap: wrap;
-}
-
-.context-strip__lens-top small {
-	color: var(--muted);
+	gap: 5px;
 	font-family: var(--mono);
-	font-size: 0.68rem;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-}
-
-.context-strip__lens p {
-	margin: 0;
-	color: var(--muted);
-	line-height: 1.55;
-	font-size: 0.86rem;
-}
-
-.context-field {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.context-field__label {
-	flex-shrink: 0;
-	font-family: var(--mono);
-	font-size: 0.72rem;
-	font-weight: 500;
-	letter-spacing: 0.1em;
+	font-size: 0.66rem;
+	font-weight: 600;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--faint);
-}
-
-.context-field__input {
-	flex: 1;
-	min-width: 0;
-	padding: 8px 14px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	font-size: 0.82rem;
-	box-sizing: border-box;
-	transition: border-color 200ms ease;
-}
-
-.context-field__input:focus {
-	outline: none;
-	border-color: var(--act);
-}
-
-/* ── Phase Navigation ──
- * The four phases live in two territories: object level (Explore, Map —
- * working IN the system, on ruled paper) and meta level (Prove, Reflect —
- * reasoning ABOUT the system, inside a double frame, off the ruling). The
- * territories differ by structure and texture, never by epistemic hue. The
- * active step is the one place the action accent appears. */
-.phase-nav {
-	display: flex;
-	align-items: stretch;
-	gap: 0;
-	margin-top: var(--space-sm);
-	padding: var(--space-md) 0 var(--space-xs);
-}
-
-.phase-nav__realm {
-	position: relative;
-	display: flex;
-	align-items: center;
-	flex: 1;
-	min-width: 0;
-	padding: 14px 12px 10px;
-	border-radius: var(--radius);
-}
-
-.phase-nav__realm[data-level='object'] {
-	border: 1px solid var(--line);
-	background-color: var(--page);
-	background-image: linear-gradient(var(--line) 1px, transparent 1px);
-	background-size: 100% 1.4rem;
-}
-
-.phase-nav__realm[data-level='meta'] {
-	border: 1px solid var(--line-strong);
-	outline: 1px solid var(--line);
-	outline-offset: 3px;
-	background: var(--page-meta);
-}
-
-.phase-nav__realm[data-active='true'] {
-	border-color: var(--line-strong);
-}
-
-.phase-nav__realm-label {
-	position: absolute;
-	top: -9px;
-	left: 14px;
-	z-index: 1;
-	padding: 2px 10px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.6rem;
-	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
 	white-space: nowrap;
 }
 
-.phase-nav__realm[data-active='true'] .phase-nav__realm-label {
-	color: var(--ink);
+.command-bar__level-glyph {
+	font-size: 0.8rem;
 }
 
-.phase-nav__boundary {
-	flex: 0 0 auto;
-	width: 12px;
-	margin: 8px 10px;
-	border-left: 1px solid var(--line-strong);
-	border-right: 1px solid var(--line-strong);
-}
-
-.phase-nav__step {
-	display: flex;
-	align-items: center;
-	gap: 0;
-	cursor: pointer;
-	border: none;
-	background: none;
-	padding: var(--space-xs);
-	border-radius: var(--radius);
-	color: var(--ink);
-	transition: background 200ms ease;
-}
-
-.phase-nav__step:hover {
-	background: rgba(43, 42, 39, 0.04);
-}
-
-.phase-nav__circle {
-	display: grid;
-	place-items: center;
-	width: 42px;
-	height: 42px;
-	flex-shrink: 0;
-	border: 1px solid var(--line-strong);
-	border-radius: 50%;
-	font-family: var(--mono);
-	font-weight: 600;
-	font-size: 1rem;
-	color: var(--muted);
-	background: var(--panel);
-	transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
-}
-
-/* Active step is actionable-here → accent. Tone no longer alters hue. */
-.phase-nav__step[data-active='true'] .phase-nav__circle {
-	border-color: var(--act);
-	color: var(--act);
-}
-
-.phase-nav__step[data-visited='true']:not([data-active='true']) .phase-nav__circle {
-	border-color: var(--line-strong);
-	color: var(--ink);
-}
-
-.phase-nav__label {
-	margin-left: var(--space-xs);
-	text-align: left;
-}
-
-.phase-nav__label strong {
-	display: block;
-	font-size: 0.88rem;
-	letter-spacing: 0.01em;
-}
-
-.phase-nav__label small {
-	display: block;
+.command-bar__edited {
 	color: var(--faint);
 	font-family: var(--mono);
-	font-size: 0.72rem;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-	margin-top: 2px;
-}
-
-.phase-nav__cue {
-	display: block;
-	margin-top: 4px;
-	font-size: 0.74rem;
-	color: var(--muted);
-	max-width: 200px;
-	line-height: 1.4;
-	text-transform: none;
-	letter-spacing: normal;
-}
-
-.phase-nav__connector {
-	flex: 1;
-	height: 0;
-	min-width: 16px;
-	margin: 0 4px;
-	border-top: 1px dashed var(--line-strong);
+	font-size: 0.68rem;
+	white-space: nowrap;
 }
 
 /* ── Phase Content ── */
@@ -1378,8 +1210,7 @@ select {
 }
 
 /* MIU strings are typed in monospace. */
-.text-field,
-.context-field__input {
+.text-field {
 	font-family: var(--mono);
 }
 
@@ -2048,42 +1879,14 @@ select {
 		align-items: stretch;
 	}
 
-	.context-strip {
+	.command-bar {
+		flex-direction: column;
+		align-items: flex-start;
 		gap: var(--space-sm);
 	}
 
 	.proof-step {
 		grid-template-columns: 1fr;
-	}
-
-	.phase-nav {
-		flex-direction: column;
-		gap: 18px;
-	}
-
-	.phase-nav__realm {
-		flex-wrap: wrap;
-		gap: 10px;
-		padding: 18px 12px 12px;
-	}
-
-	.phase-nav__boundary {
-		width: auto;
-		height: 8px;
-		margin: 0 18px;
-		border-left: none;
-		border-right: none;
-		border-top: 1px solid var(--line-strong);
-		border-bottom: 1px solid var(--line-strong);
-	}
-
-	.phase-nav__connector {
-		display: none;
-	}
-
-	.phase-nav__step {
-		flex: 1;
-		min-width: 120px;
 	}
 
 	.phase-explore__main {
