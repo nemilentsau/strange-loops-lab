@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import type { DialogueResult } from '$lib/dialogue/types';
 	import ContextStrip from '$lib/components/ContextStrip.svelte';
 	import PhaseNav from '$lib/components/PhaseNav.svelte';
 	import PhaseExplore from '$lib/components/phases/PhaseExplore.svelte';
@@ -32,9 +31,7 @@
 		PHASE_META,
 		PHASE_SURFACES,
 		createModule1Draft,
-		normalizeModule1Artifact,
-		normalizeModule1Artifacts,
-		normalizeModule1Draft,
+		pickNewestDraft,
 		readModule1Draft,
 		restoreModule1Artifact,
 		writeModule1Draft,
@@ -43,6 +40,19 @@
 		type Module1Draft,
 		type SurfaceId
 	} from '$lib/state/module1';
+	import {
+		buildInvariantArtifact,
+		buildNoteArtifact,
+		buildProofArtifact,
+		buildTraceArtifact
+	} from '$lib/state/module1Artifacts';
+	import {
+		createArtifact,
+		listArtifacts,
+		loadSnapshot,
+		runDialogue as runDialogueApi,
+		saveSnapshot
+	} from '$lib/client/module1Api';
 	import { onMount } from 'svelte';
 
 	import type { PageData } from './$types';
@@ -349,68 +359,48 @@
 	}
 
 	async function hydrateFromPersistence(localDraft: Module1Draft) {
-		try {
-			const [snapshotResponse, artifactsResponse] = await Promise.all([
-				fetch(`/api/modules/${module.slug}/snapshot`),
-				fetch(`/api/modules/${module.slug}/artifacts`)
-			]);
+		const [snapshotResult, artifactsResult] = await Promise.all([
+			loadSnapshot(fetch, module.slug),
+			listArtifacts(fetch, module.slug)
+		]);
 
-			if (snapshotResponse.ok) {
-				const snapshotPayload = (await snapshotResponse.json()) as {
-					snapshot: { payload: unknown; updatedAt: string } | null;
-				};
-				const remoteDraft = snapshotPayload.snapshot?.payload
-					? normalizeModule1Draft(snapshotPayload.snapshot.payload)
-					: null;
+		if (snapshotResult.ok) {
+			const remoteDraft = snapshotResult.draft;
 
-				if (remoteDraft) {
-					const chosenDraft = pickNewestDraft(localDraft, remoteDraft);
-					draft = chosenDraft;
-					snapshotStatus =
-						chosenDraft === remoteDraft
-							? `Loaded saved progress from ${formatTimestamp(snapshotPayload.snapshot?.updatedAt ?? null)}.`
-							: 'Kept newer local draft.';
-				} else {
-					snapshotStatus = 'Your saved progress will appear here.';
-				}
+			if (remoteDraft) {
+				const chosenDraft = pickNewestDraft(localDraft, remoteDraft);
+				draft = chosenDraft;
+				snapshotStatus =
+					chosenDraft === remoteDraft
+						? `Loaded saved progress from ${formatTimestamp(snapshotResult.updatedAt)}.`
+						: 'Kept newer local draft.';
 			} else {
-				snapshotStatus = 'Could not load saved progress.';
+				snapshotStatus = 'Your saved progress will appear here.';
 			}
+		} else {
+			snapshotStatus = 'Could not load saved progress.';
+		}
 
-			if (artifactsResponse.ok) {
-				const artifactPayload = (await artifactsResponse.json()) as { artifacts?: unknown };
-				savedArtifacts = normalizeModule1Artifacts(artifactPayload.artifacts);
-				artifactStatus =
-					savedArtifacts.length > 0
-						? `Loaded ${savedArtifacts.length} saved artifact${savedArtifacts.length === 1 ? '' : 's'}.`
-						: 'Your saved work will appear here.';
-			} else {
-				artifactStatus = 'Could not load saved work.';
-			}
-		} catch {
-			snapshotStatus = 'Saving is unavailable in this session.';
-			artifactStatus = 'Saving is unavailable in this session.';
+		if (artifactsResult.ok) {
+			savedArtifacts = artifactsResult.artifacts;
+			artifactStatus =
+				savedArtifacts.length > 0
+					? `Loaded ${savedArtifacts.length} saved artifact${savedArtifacts.length === 1 ? '' : 's'}.`
+					: 'Your saved work will appear here.';
+		} else {
+			artifactStatus = 'Could not load saved work.';
 		}
 	}
 
 	async function saveSnapshotToDatabase() {
-		try {
-			const response = await fetch(`/api/modules/${module.slug}/snapshot`, {
-				method: 'PUT',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ draft })
-			});
+		const result = await saveSnapshot(fetch, module.slug, draft);
 
-			if (!response.ok) {
-				snapshotStatus = 'Failed to save progress.';
-				return;
-			}
-
-			const payload = (await response.json()) as { snapshot: { updatedAt: string } };
-			snapshotStatus = `Progress saved at ${formatTimestamp(payload.snapshot.updatedAt)}.`;
-		} catch {
+		if (!result.ok) {
 			snapshotStatus = 'Failed to save progress.';
+			return;
 		}
+
+		snapshotStatus = `Progress saved at ${formatTimestamp(result.updatedAt)}.`;
 	}
 
 	async function saveNoteArtifact() {
@@ -419,18 +409,13 @@
 			return;
 		}
 
-		await createArtifact('note', noteArtifactTitle(), {
-			notes: draft.notes,
-			currentString,
-			lastEditedAt: draft.lastEditedAt
-		});
+		const blueprint = buildNoteArtifact(draft.notes, currentString, draft.lastEditedAt);
+		await saveArtifactBlueprint(blueprint);
 	}
 
 	async function saveTraceArtifact() {
-		await createArtifact('trace', `Trace to ${currentString}`, {
-			trace: draft.trace,
-			currentString
-		});
+		const blueprint = buildTraceArtifact(draft.trace, currentString);
+		await saveArtifactBlueprint(blueprint);
 	}
 
 	async function saveInvariantArtifact() {
@@ -439,53 +424,45 @@
 			return;
 		}
 
-		await createArtifact('invariant-run', `Invariant run: ${candidateInvariant.label}`, {
+		const blueprint = buildInvariantArtifact(
 			currentString,
-			workingQuestion: draft.workingQuestion,
-			trace: draft.trace,
-			candidate: candidateInvariant,
-			builtIn: builtInInvariant
-		});
+			draft.workingQuestion,
+			draft.trace,
+			candidateInvariant,
+			builtInInvariant
+		);
+		await saveArtifactBlueprint(blueprint);
 	}
 
 	async function saveProofArtifact() {
-		await createArtifact('proof-attempt', proofArtifactTitle(), {
-			claim: 'MU is unreachable from MI.',
+		const blueprint = buildProofArtifact(
 			currentString,
-			workingQuestion: draft.workingQuestion,
-			trace: draft.trace,
-			candidate: candidateInvariant,
-			notes: draft.notes,
-			conclusion: candidateInvariant.consequence
-		});
+			draft.workingQuestion,
+			draft.trace,
+			candidateInvariant,
+			draft.notes,
+			draft.invariantCandidate
+		);
+		await saveArtifactBlueprint(blueprint);
 	}
 
-	async function createArtifact(artifactType: string, title: string, payload: unknown) {
-		try {
-			const response = await fetch(`/api/modules/${module.slug}/artifacts`, {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ artifactType, title, payload })
-			});
+	async function saveArtifactBlueprint(blueprint: { artifactType: string; title: string; payload: unknown }) {
+		const result = await createArtifact(fetch, module.slug, blueprint.artifactType, blueprint.title, blueprint.payload);
 
-			if (!response.ok) {
-				artifactStatus = `Failed to save ${artifactType} artifact.`;
-				return;
-			}
-
-			const result = (await response.json()) as { artifact?: unknown };
-			const artifact = normalizeModule1Artifact(result.artifact);
-
-			if (!artifact) {
-				artifactStatus = `Saved ${artifactType} artifact, but the response payload was malformed.`;
-				return;
-			}
-
-			savedArtifacts = [artifact, ...savedArtifacts];
-			artifactStatus = `Saved ${artifactType} artifact at ${formatTimestamp(artifact.createdAt)}.`;
-		} catch {
-			artifactStatus = `Saving ${artifactType} artifact failed.`;
+		if (!result.ok) {
+			artifactStatus = `Failed to save ${blueprint.artifactType} artifact.`;
+			return;
 		}
+
+		const artifact = result.artifact;
+
+		if (!artifact) {
+			artifactStatus = `Saved ${blueprint.artifactType} artifact, but the response payload was malformed.`;
+			return;
+		}
+
+		savedArtifacts = [artifact, ...savedArtifacts];
+		artifactStatus = `Saved ${blueprint.artifactType} artifact at ${formatTimestamp(artifact.createdAt)}.`;
 	}
 
 	function restoreArtifact(artifact: Module1Artifact) {
@@ -499,26 +476,8 @@
 		draft = restored.draft;
 	}
 
-	function pickNewestDraft(localDraft: Module1Draft, remoteDraft: Module1Draft): Module1Draft {
-		return draftTimestamp(remoteDraft) > draftTimestamp(localDraft) ? remoteDraft : localDraft;
-	}
-
-	function draftTimestamp(candidate: Module1Draft): number {
-		return candidate.lastEditedAt ? Date.parse(candidate.lastEditedAt) || 0 : 0;
-	}
-
 	function formatTimestamp(value: string | null): string {
 		return value ? timestampFormatter.format(new Date(value)) : 'an unknown time';
-	}
-
-	function noteArtifactTitle(): string {
-		const preview = draft.notes.trim().slice(0, 36);
-		return preview ? `Note: ${preview}` : 'Module 1 note';
-	}
-
-	function proofArtifactTitle(): string {
-		const preview = draft.invariantCandidate.trim();
-		return preview ? `Proof attempt: ${preview}` : 'Proof attempt';
 	}
 
 	function resetSession() {
@@ -564,49 +523,35 @@
 		dialogueStatus = 'Getting coaching feedback...';
 
 		try {
-			const response = await fetch(`/api/modules/${module.slug}/dialogue`, {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ userInput, draft })
-			});
+			const result = await runDialogueApi(fetch, module.slug, userInput, draft);
 
-			const payload = (await response.json()) as {
-				error?: string;
-				dialogue?: DialogueResult;
-				artifact?: unknown;
-			};
-
-			if (!response.ok || !payload.dialogue) {
-				dialogueStatus = payload.error ?? 'Dialogue request failed.';
+			if (!result.ok) {
+				dialogueStatus = result.error;
 				return;
 			}
 
 			patchDraft({
 				activePhase: 'reflect',
 				activeSurface: 'dialogue',
-				lastDialogue: payload.dialogue,
+				lastDialogue: result.dialogue,
 				visitedSurfaces: ensureVisited('dialogue', 'artifacts'),
 				visitedPhases: ensureVisitedPhases('reflect')
 			});
 
-			const artifact = normalizeModule1Artifact(payload.artifact);
-
-			if (artifact) {
-				savedArtifacts = [artifact, ...savedArtifacts];
+			if (result.artifact) {
+				savedArtifacts = [result.artifact, ...savedArtifacts];
 			}
 
-			dialogueStatus = payload.dialogue.costUsd
-				? `Feedback received. Cost: $${payload.dialogue.costUsd.toFixed(4)}.`
+			dialogueStatus = result.dialogue.costUsd
+				? `Feedback received. Cost: $${result.dialogue.costUsd.toFixed(4)}.`
 				: 'Feedback received.';
-			artifactStatus = artifact
-				? `Saved dialogue artifact at ${formatTimestamp(artifact.createdAt)}.`
+			artifactStatus = result.artifact
+				? `Saved dialogue artifact at ${formatTimestamp(result.artifact.createdAt)}.`
 				: artifactStatus;
-		} catch {
-			dialogueStatus = 'Feedback request failed.';
 		} finally {
 			dialogueRunning = false;
-			}
 		}
+	}
 
 		function findRepeatedGraphNodeId(graph: ReachabilityGraph): string | null {
 			const incomingCounts = new Map<string, number>();

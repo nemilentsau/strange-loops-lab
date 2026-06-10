@@ -57,7 +57,18 @@ This layer is the current verifier boundary. If the UI says something is a
 legal MIU move or a preserved supported invariant, this layer should be the
 reason that claim is trustworthy.
 
-### 2.3 Persistence layer
+### 2.3 Client API layer
+Owned by TypeScript modules under `src/lib/client`.
+
+Responsibilities:
+
+- wrapping each server API call (snapshot GET/PUT, artifacts GET/POST, dialogue POST) in a small typed helper that takes `fetch` as a parameter,
+- normalizing API responses into domain types via the existing `normalizeModule1Draft` / `normalizeModule1Artifact(s)` functions,
+- and signalling success or failure with typed discriminated-union results so the page can map them to status strings without embedding fetch logic inline.
+
+This layer does not set UI status strings or contain reactive state.
+
+### 2.5 Persistence layer
 Owned by server-side TypeScript under `src/lib/server` and API routes.
 
 Responsibilities:
@@ -70,7 +81,7 @@ Responsibilities:
 The persistence model is intentionally artifact-first rather than event-log
 heavy. The goal is continuity of thinking, not exhaustive telemetry.
 
-### 2.4 Dialogue layer
+### 2.6 Dialogue layer
 Owned by server-side orchestration around local Claude Code.
 
 Responsibilities:

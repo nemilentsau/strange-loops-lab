@@ -232,6 +232,14 @@ export function normalizeModule1Artifacts(input: unknown): Module1Artifact[] {
 		.filter((artifact): artifact is Module1Artifact => artifact !== null);
 }
 
+export function draftTimestamp(candidate: Module1Draft): number {
+	return candidate.lastEditedAt ? Date.parse(candidate.lastEditedAt) || 0 : 0;
+}
+
+export function pickNewestDraft(localDraft: Module1Draft, remoteDraft: Module1Draft): Module1Draft {
+	return draftTimestamp(remoteDraft) > draftTimestamp(localDraft) ? remoteDraft : localDraft;
+}
+
 export function restoreTargetForModule1Artifact(
 	artifactType: string
 ): { phase: LabPhase; surface: SurfaceId } | null {

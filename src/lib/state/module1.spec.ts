@@ -5,6 +5,7 @@ import {
 	createModule1Draft,
 	normalizeModule1Artifacts,
 	normalizeModule1Draft,
+	pickNewestDraft,
 	readModule1Draft,
 	restoreModule1Artifact,
 	writeModule1Draft
@@ -266,6 +267,49 @@ describe('module1 draft state', () => {
 
 		expect(result.ok).toBe(false);
 		expect(result.status).toContain('not implemented');
+	});
+
+	it('picks the remote draft when remote is newer', () => {
+		const local = { ...createModule1Draft(), lastEditedAt: '2026-03-01T10:00:00.000Z' };
+		const remote = { ...createModule1Draft(), lastEditedAt: '2026-03-01T12:00:00.000Z' };
+
+		expect(pickNewestDraft(local, remote)).toBe(remote);
+	});
+
+	it('keeps local draft when local is newer than remote', () => {
+		const local = { ...createModule1Draft(), lastEditedAt: '2026-03-01T12:00:00.000Z' };
+		const remote = { ...createModule1Draft(), lastEditedAt: '2026-03-01T10:00:00.000Z' };
+
+		expect(pickNewestDraft(local, remote)).toBe(local);
+	});
+
+	it('keeps local draft when both have equal timestamps', () => {
+		const ts = '2026-03-01T10:00:00.000Z';
+		const local = { ...createModule1Draft(), lastEditedAt: ts };
+		const remote = { ...createModule1Draft(), lastEditedAt: ts };
+
+		expect(pickNewestDraft(local, remote)).toBe(local);
+	});
+
+	it('keeps local draft when remote lastEditedAt is null', () => {
+		const local = { ...createModule1Draft(), lastEditedAt: '2026-03-01T10:00:00.000Z' };
+		const remote = { ...createModule1Draft(), lastEditedAt: null };
+
+		expect(pickNewestDraft(local, remote)).toBe(local);
+	});
+
+	it('picks remote draft when local lastEditedAt is null and remote is not', () => {
+		const local = { ...createModule1Draft(), lastEditedAt: null };
+		const remote = { ...createModule1Draft(), lastEditedAt: '2026-03-01T10:00:00.000Z' };
+
+		expect(pickNewestDraft(local, remote)).toBe(remote);
+	});
+
+	it('keeps local draft when both lastEditedAt are null', () => {
+		const local = { ...createModule1Draft(), lastEditedAt: null };
+		const remote = { ...createModule1Draft(), lastEditedAt: null };
+
+		expect(pickNewestDraft(local, remote)).toBe(local);
 	});
 
 	it('rejects malformed dialogue artifacts', () => {
