@@ -117,7 +117,7 @@ Refactor target:
 - Create: `src/lib/state/module1Artifacts.spec.ts`
 - Modify: `src/lib/state/module1.ts`
 - Modify: `docs/product-architecture.md` (it records ownership of `src/lib/miu` and `src/lib/server`; record the new `src/lib/client` layer the same way)
-- Test: `npm run test -- src/lib/client/module1Api.spec.ts src/lib/state/module1Artifacts.spec.ts src/lib/state/module1.spec.ts --run`
+- Test: `npm run test -- src/lib/client/module1Api.spec.ts src/lib/state/module1Artifacts.spec.ts src/lib/state/module1.spec.ts`
 - Test: `npm run check`
 
 Naming note: the client helper is deliberately `module1Api.ts`, not
@@ -210,7 +210,7 @@ Acceptance criteria:
 - Modify: `src/lib/components/phases/PhaseMap.svelte`
 - Modify: `src/routes/modules/[slug]/+page.svelte`
 - Modify: `src/app.css`
-- Test: `npm run test -- src/lib/miu/graph.spec.ts --run`
+- Test: `npm run test -- src/lib/miu/graph.spec.ts`
 - Test: `npm run check`
 
 - [ ] Add graph summary helpers if needed, such as branching counts, repeated-discovery counts, or frontier/truncation summaries. `ReachabilityGraph` already exposes `truncatedBy: 'depth' | 'node-limit' | null`, `maxDepth`, and `maxNodes`; build on those rather than re-deriving truncation.
@@ -243,7 +243,7 @@ Acceptance criteria:
 - Modify: `src/lib/components/phases/PhaseReflect.svelte`
 - Modify: `src/routes/modules/[slug]/+page.svelte`
 - Modify only if a storage-level change proves necessary (default expectation: no change): `src/lib/server/persistence.ts`, `src/lib/server/persistence.spec.ts`, `src/routes/api/modules/[slug]/artifacts/+server.ts`
-- Test: `npm run test -- src/lib/state/module1.spec.ts src/lib/state/module1Artifacts.spec.ts src/lib/server/persistence.spec.ts --run`
+- Test: `npm run test -- src/lib/state/module1.spec.ts src/lib/state/module1Artifacts.spec.ts src/lib/server/persistence.spec.ts`
 - Test: `npm run smoke:persistence -- http://127.0.0.1:4175` (see Verification Checklist for server and temp-database setup)
 
 - [ ] Define a clearer artifact taxonomy for `note`, `trace`, `invariant-run`, `proof-attempt`, and `dialogue`, extending the `module1Artifacts.ts` module created in Task 1. (Title and payload construction already moved out of `+page.svelte` in Task 1 — do not redo it.)
@@ -272,7 +272,7 @@ Acceptance criteria:
 - Modify: `scripts/smoke_dialogue.mjs`
 - Create: `docs/dialogue-evaluation.md`
 - Modify if behavior changes: `docs/agent-behavior.md`
-- Test: `npm run test -- src/lib/server/dialogue/team.spec.ts --run`
+- Test: `npm run test -- src/lib/server/dialogue/team.spec.ts`
 - Test: `npm run smoke:dialogue -- http://127.0.0.1:4175`
 
 Cost note: every dialogue run shells out to local Claude Code and incurs real
