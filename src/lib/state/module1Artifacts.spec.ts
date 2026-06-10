@@ -1,18 +1,58 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDerivationTrace } from '$lib/miu/core';
+import { createDerivationTrace, type DerivationTrace } from '$lib/miu/core';
 import { analyzeInvariantCandidate, builtInInvariantAnalysis } from '$lib/miu/invariants';
+import { restoreTargetForModule1Artifact, type Module1Artifact } from './module1';
 import {
+	ARTIFACT_TYPE_ORDER,
+	ARTIFACT_TAXONOMY,
+	artifactReviewMetadata,
+	artifactTypeCounts,
+	artifactTypeLabel,
 	buildInvariantArtifact,
 	buildNoteArtifact,
 	buildProofArtifact,
 	buildTraceArtifact,
+	filterArtifactsByType,
 	noteArtifactTitle,
-	proofArtifactTitle
+	proofArtifactTitle,
+	type KnownArtifactType
 } from './module1Artifacts';
 
 const trace = createDerivationTrace();
 const currentString = 'MI';
+
+function artifact(overrides: Partial<Module1Artifact> & Pick<Module1Artifact, 'artifactType'>): Module1Artifact {
+	return {
+		id: 1,
+		title: 'Untitled',
+		payload: null,
+		createdAt: '2026-03-28T12:00:00.000Z',
+		...overrides
+	};
+}
+
+function twoStepTrace(target: string): DerivationTrace {
+	return {
+		steps: [
+			{ value: 'MI', via: null },
+			{
+				value: target,
+				via: {
+					key: 'append-u:0:2',
+					ruleId: 'append-u',
+					ruleLabel: 'Rule 1',
+					source: 'MI',
+					result: target,
+					start: 1,
+					end: 1,
+					detail: 'Append U.'
+				}
+			}
+		],
+		currentIndex: 1
+	};
+}
 
 describe('noteArtifactTitle', () => {
 	it('prefixes a note preview when notes is non-empty', () => {
@@ -126,5 +166,174 @@ describe('buildProofArtifact', () => {
 		const candidate = analyzeInvariantCandidate('', currentString);
 		const blueprint = buildProofArtifact(currentString, '', trace, candidate, '', '');
 		expect(blueprint.title).toBe('Proof attempt');
+	});
+});
+
+describe('artifact taxonomy', () => {
+	it('describes every restorable artifact type the builders and dialogue route produce', () => {
+		// The five concrete types the app can write; each needs a learner-facing label.
+		const concreteTypes: KnownArtifactType[] = ['note', 'trace', 'invariant-run', 'proof-attempt', 'dialogue'];
+		for (const type of concreteTypes) {
+			expect(ARTIFACT_TAXONOMY[type]).toBeDefined();
+			expect(ARTIFACT_TAXONOMY[type].label.length).toBeGreaterThan(0);
+			expect(ARTIFACT_TAXONOMY[type].summary.length).toBeGreaterThan(0);
+		}
+	});
+
+	it('orders types and includes no entries the taxonomy cannot describe', () => {
+		expect(ARTIFACT_TYPE_ORDER).toEqual(['note', 'trace', 'invariant-run', 'proof-attempt', 'dialogue']);
+		for (const type of ARTIFACT_TYPE_ORDER) {
+			expect(ARTIFACT_TAXONOMY[type]).toBeDefined();
+		}
+	});
+
+	it('keeps the taxonomy restore target consistent with the restore flow source of truth', () => {
+		for (const type of ARTIFACT_TYPE_ORDER) {
+			expect(ARTIFACT_TAXONOMY[type].restoreTarget).toEqual(restoreTargetForModule1Artifact(type));
+		}
+	});
+
+	it('labels a known type with its taxonomy label and an unknown type with its raw key', () => {
+		expect(artifactTypeLabel('invariant-run')).toBe(ARTIFACT_TAXONOMY['invariant-run'].label);
+		expect(artifactTypeLabel('mystery')).toBe('mystery');
+	});
+});
+
+describe('filterArtifactsByType', () => {
+	const items = [
+		artifact({ id: 1, artifactType: 'note' }),
+		artifact({ id: 2, artifactType: 'trace' }),
+		artifact({ id: 3, artifactType: 'note' })
+	];
+
+	it('returns every artifact when the filter is "all"', () => {
+		expect(filterArtifactsByType(items, 'all').map((a) => a.id)).toEqual([1, 2, 3]);
+	});
+
+	it('returns only artifacts of the selected type, preserving order', () => {
+		expect(filterArtifactsByType(items, 'note').map((a) => a.id)).toEqual([1, 3]);
+	});
+
+	it('returns an empty list when no artifact matches the selected type', () => {
+		expect(filterArtifactsByType(items, 'dialogue')).toEqual([]);
+	});
+});
+
+describe('artifactTypeCounts', () => {
+	it('counts each present type and totals them under "all"', () => {
+		const counts = artifactTypeCounts([
+			artifact({ id: 1, artifactType: 'note' }),
+			artifact({ id: 2, artifactType: 'note' }),
+			artifact({ id: 3, artifactType: 'dialogue' })
+		]);
+
+		expect(counts.all).toBe(3);
+		expect(counts.note).toBe(2);
+		expect(counts.dialogue).toBe(1);
+	});
+
+	it('reports zero for every taxonomy type when the list is empty', () => {
+		const counts = artifactTypeCounts([]);
+		expect(counts.all).toBe(0);
+		for (const type of ARTIFACT_TYPE_ORDER) {
+			expect(counts[type]).toBe(0);
+		}
+	});
+});
+
+describe('artifactReviewMetadata', () => {
+	it('derives restore target plus current string for a note artifact', () => {
+		const fields = artifactReviewMetadata(
+			artifact({ artifactType: 'note', payload: { notes: 'x', currentString: 'MIU', lastEditedAt: null } })
+		);
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Reopens in']).toBe('Reflect');
+		expect(map['String']).toBe('MIU');
+	});
+
+	it('reports the derivation target with a singular step count for a one-step trace', () => {
+		const fields = artifactReviewMetadata(
+			artifact({ artifactType: 'trace', payload: { trace: twoStepTrace('MIUIU'), currentString: 'MIUIU' } })
+		);
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Reopens in']).toBe('Explore');
+		expect(map['Derivation']).toBe('MI → MIUIU (1 step)');
+	});
+
+	it('pluralizes the step count for a multi-step trace', () => {
+		const trace: DerivationTrace = {
+			steps: [
+				{ value: 'MI', via: null },
+				{ value: 'MII', via: twoStepTrace('MII').steps[1].via },
+				{ value: 'MIIII', via: twoStepTrace('MIIII').steps[1].via }
+			],
+			currentIndex: 2
+		};
+		const fields = artifactReviewMetadata(
+			artifact({ artifactType: 'trace', payload: { trace, currentString: 'MIIII' } })
+		);
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Derivation']).toBe('MI → MIIII (2 steps)');
+	});
+
+	it('surfaces the candidate invariant for an invariant-run artifact', () => {
+		const fields = artifactReviewMetadata(
+			artifact({
+				artifactType: 'invariant-run',
+				payload: {
+					currentString: 'MI',
+					workingQuestion: 'Why mod 3?',
+					candidate: { label: 'count(I) mod 3 != 0' }
+				}
+			})
+		);
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Reopens in']).toBe('Prove');
+		expect(map['Candidate']).toBe('count(I) mod 3 != 0');
+	});
+
+	it('describes a dialogue artifact from the server-side payload shape', () => {
+		const fields = artifactReviewMetadata(
+			artifact({
+				artifactType: 'dialogue',
+				payload: {
+					userInput: 'I think search is enough.',
+					mode: 'Explain-Back Examiner',
+					dialogue: {
+						messages: [
+							{ agent: 'examiner', content: 'Why?' },
+							{ agent: 'proof_coach', content: 'Missing premise.' }
+						],
+						finalResponse: 'Search motivates, it does not certify.',
+						sessionId: 'sess_1',
+						costUsd: 0.02
+					}
+				}
+			})
+		);
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Reopens in']).toBe('Reflect');
+		expect(map['Mode']).toBe('Explain-Back Examiner');
+		expect(map['Exchanges']).toBe('2 turns');
+	});
+
+	it('omits payload-derived fields when the payload is missing but still reports the restore target', () => {
+		const fields = artifactReviewMetadata(artifact({ artifactType: 'note', payload: null }));
+		const labels = fields.map((f) => f.label);
+
+		expect(labels).toContain('Reopens in');
+		expect(labels).not.toContain('String');
+	});
+
+	it('reports the saved-only state for an unrestorable artifact type', () => {
+		const fields = artifactReviewMetadata(artifact({ artifactType: 'snapshot', payload: {} }));
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Reopens in']).toBe('Saved only');
 	});
 });

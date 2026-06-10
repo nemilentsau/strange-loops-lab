@@ -8,6 +8,14 @@
 		PHASE_META,
 		LEVEL_PRESENTATION
 	} from '$lib/state/module1';
+	import {
+		ARTIFACT_TYPE_ORDER,
+		artifactReviewMetadata,
+		artifactTypeCounts,
+		artifactTypeLabel,
+		filterArtifactsByType,
+		type ArtifactTypeFilter
+	} from '$lib/state/module1Artifacts';
 
 	interface ReflectionPrompt {
 		title: string;
@@ -70,19 +78,39 @@
 		return `Restore to ${capitalize(target.phase)}`;
 	}
 
-	function restoreHintFor(artifactType: string): string {
-		const target = restoreTargetForModule1Artifact(artifactType);
-
-		if (!target) {
-			return 'saved only';
-		}
-
-		return `reopens in ${capitalize(target.phase)}`;
-	}
-
 	function capitalize(value: string): string {
 		return value.charAt(0).toUpperCase() + value.slice(1);
 	}
+
+	// The restore button already states the destination ("Restore to Prove"),
+	// so drop the redundant "Reopens in" field from the inline review facts.
+	function reviewFactsFor(artifact: Module1Artifact) {
+		return artifactReviewMetadata(artifact).filter((field) => field.label !== 'Reopens in');
+	}
+
+	// Filters are ephemeral notebook UI state — not persisted into the draft.
+	let artifactFilter = $state<ArtifactTypeFilter>('all');
+
+	const typeCounts = $derived(artifactTypeCounts(savedArtifacts));
+	const filterOptions = $derived([
+		{ value: 'all' as ArtifactTypeFilter, label: 'All', count: typeCounts.all },
+		...ARTIFACT_TYPE_ORDER.map((type) => ({
+			value: type as ArtifactTypeFilter,
+			label: artifactTypeLabel(type),
+			count: typeCounts[type]
+		}))
+	]);
+	const visibleArtifacts = $derived(
+		filterArtifactsByType(savedArtifacts, artifactFilter)
+	);
+
+	// If the active filter empties out (e.g. after a reset), fall back to All so
+	// the learner is never staring at a blank notebook with hidden entries.
+	$effect(() => {
+		if (artifactFilter !== 'all' && typeCounts[artifactFilter] === 0) {
+			artifactFilter = 'all';
+		}
+	});
 
 	const DEFAULT_DIALOGUE_STATUS = 'Submit your explanation above to get coaching feedback.';
 	const hasDialogueRun = $derived(lastDialogue !== null);
@@ -235,27 +263,56 @@
 		</div>
 
 		{#if savedArtifacts.length > 0}
-			<ul class="ledger artifact-ledger">
-				{#each savedArtifacts as artifact}
-					<li class="artifact-ledger__item">
-						<div class="artifact-ledger__meta">
-							<strong>{artifact.title}</strong>
-							<span>
-								{artifact.artifactType} · {restoreHintFor(artifact.artifactType)} ·
-								{formatTimestamp(artifact.createdAt)}
-							</span>
-						</div>
+			<div class="artifact-notebook">
+				<div class="artifact-filters" role="group" aria-label="Filter notebook by artifact type">
+					{#each filterOptions as option}
 						<button
-							class="button button--ghost button--sm"
+							class="artifact-filter"
 							type="button"
-							onclick={() => onRestoreArtifact(artifact)}
-							disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
+							data-active={artifactFilter === option.value}
+							disabled={option.value !== 'all' && option.count === 0}
+							aria-pressed={artifactFilter === option.value}
+							onclick={() => (artifactFilter = option.value)}
 						>
-							{restoreLabelFor(artifact.artifactType)}
+							{option.label}
+							<span class="artifact-filter__count">{option.count}</span>
 						</button>
-					</li>
-				{/each}
-			</ul>
+					{/each}
+				</div>
+
+				<ul class="ledger artifact-ledger">
+					{#each visibleArtifacts as artifact (artifact.id)}
+						<li class="artifact-ledger__item">
+							<div class="artifact-ledger__meta">
+								<div class="artifact-ledger__title-row">
+									<span class="badge artifact-type-badge">{artifactTypeLabel(artifact.artifactType)}</span>
+									<strong>{artifact.title}</strong>
+								</div>
+								<dl class="artifact-ledger__facts">
+									{#each reviewFactsFor(artifact) as field}
+										<div class="artifact-fact">
+											<dt>{field.label}</dt>
+											<dd>{field.value}</dd>
+										</div>
+									{/each}
+									<div class="artifact-fact">
+										<dt>Saved</dt>
+										<dd>{formatTimestamp(artifact.createdAt)}</dd>
+									</div>
+								</dl>
+							</div>
+							<button
+								class="button button--ghost button--sm"
+								type="button"
+								onclick={() => onRestoreArtifact(artifact)}
+								disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
+							>
+								{restoreLabelFor(artifact.artifactType)}
+							</button>
+						</li>
+					{/each}
+				</ul>
+			</div>
 		{/if}
 	</SurfacePanel>
 </div>
