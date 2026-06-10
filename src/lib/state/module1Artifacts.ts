@@ -1,6 +1,6 @@
 import type { InvariantAnalysis } from '$lib/miu/invariants';
 import type { DerivationTrace } from '$lib/miu/core';
-import { restoreTargetForModule1Artifact, type LabPhase, type Module1Artifact } from './module1';
+import { restoreTargetForModule1Artifact, type LabPhase, type Module1Artifact, type SurfaceId } from './module1';
 
 export interface ArtifactBlueprint {
 	artifactType: string;
@@ -103,7 +103,7 @@ export interface ArtifactTypeDescriptor {
 	/** One-line description of what this artifact captures. */
 	summary: string;
 	/** Where restoring sends the learner; null when the type is saved-only. */
-	restoreTarget: { phase: LabPhase; surface: string } | null;
+	restoreTarget: { phase: LabPhase; surface: SurfaceId } | null;
 }
 
 export const ARTIFACT_TYPE_ORDER = [
@@ -230,7 +230,7 @@ export function artifactReviewMetadata(artifact: Module1Artifact): ArtifactRevie
 			break;
 		case 'dialogue':
 			pushString(fields, 'Mode', payload.mode);
-			pushString(fields, 'Exchanges', dialogueTurns(payload.dialogue));
+			pushString(fields, 'Turns', dialogueTurns(payload.dialogue));
 			break;
 		default:
 			break;
@@ -272,7 +272,7 @@ function describeTrace(input: unknown): string | null {
 	const start = values[0];
 	const end = values[values.length - 1];
 	const stepCount = values.length - 1;
-	const path = start === end ? start : `${start} → ${end}`;
+	const path = stepCount === 0 ? start : `${start} → ${end}`;
 	return `${path} (${stepCount} ${stepCount === 1 ? 'step' : 'steps'})`;
 }
 
@@ -286,8 +286,7 @@ function dialogueTurns(input: unknown): string | null {
 	if (!dialogue || !Array.isArray(dialogue.messages)) {
 		return null;
 	}
-	const turns = dialogue.messages.length;
-	return `${turns} ${turns === 1 ? 'turn' : 'turns'}`;
+	return String(dialogue.messages.length);
 }
 
 function asRecord(input: unknown): Record<string, unknown> | null {

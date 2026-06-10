@@ -279,6 +279,24 @@ describe('artifactReviewMetadata', () => {
 		expect(map['Derivation']).toBe('MI → MIIII (2 steps)');
 	});
 
+	it('shows the full path for a loop-back trace where start equals end', () => {
+		// Synthetic trace: MI → MIU → MI (start === end but stepCount > 0)
+		const loopTrace: DerivationTrace = {
+			steps: [
+				{ value: 'MI', via: null },
+				{ value: 'MIU', via: twoStepTrace('MIU').steps[1].via },
+				{ value: 'MI', via: twoStepTrace('MI').steps[1].via }
+			],
+			currentIndex: 2
+		};
+		const fields = artifactReviewMetadata(
+			artifact({ artifactType: 'trace', payload: { trace: loopTrace, currentString: 'MI' } })
+		);
+		const map = Object.fromEntries(fields.map((f) => [f.label, f.value]));
+
+		expect(map['Derivation']).toBe('MI → MI (2 steps)');
+	});
+
 	it('surfaces the candidate invariant for an invariant-run artifact', () => {
 		const fields = artifactReviewMetadata(
 			artifact({
@@ -319,7 +337,7 @@ describe('artifactReviewMetadata', () => {
 
 		expect(map['Reopens in']).toBe('Reflect');
 		expect(map['Mode']).toBe('Explain-Back Examiner');
-		expect(map['Exchanges']).toBe('2 turns');
+		expect(map['Turns']).toBe('2');
 	});
 
 	it('omits payload-derived fields when the payload is missing but still reports the restore target', () => {
