@@ -364,6 +364,12 @@
 			listArtifacts(fetch, module.slug)
 		]);
 
+		if (!snapshotResult.ok && snapshotResult.reason === 'network') {
+			snapshotStatus = 'Saving is unavailable in this session.';
+			artifactStatus = 'Saving is unavailable in this session.';
+			return;
+		}
+
 		if (snapshotResult.ok) {
 			const remoteDraft = snapshotResult.draft;
 
@@ -379,6 +385,12 @@
 			}
 		} else {
 			snapshotStatus = 'Could not load saved progress.';
+		}
+
+		if (!artifactsResult.ok && artifactsResult.reason === 'network') {
+			snapshotStatus = 'Saving is unavailable in this session.';
+			artifactStatus = 'Saving is unavailable in this session.';
+			return;
 		}
 
 		if (artifactsResult.ok) {
@@ -450,7 +462,10 @@
 		const result = await createArtifact(fetch, module.slug, blueprint.artifactType, blueprint.title, blueprint.payload);
 
 		if (!result.ok) {
-			artifactStatus = `Failed to save ${blueprint.artifactType} artifact.`;
+			artifactStatus =
+				result.reason === 'network'
+					? `Saving ${blueprint.artifactType} artifact failed.`
+					: `Failed to save ${blueprint.artifactType} artifact.`;
 			return;
 		}
 

@@ -48,14 +48,18 @@ describe('loadSnapshot', () => {
 		expect(result.updatedAt).toBe('2026-03-01T10:00:00.000Z');
 	});
 
-	it('returns ok:false when the server responds with an error status', async () => {
+	it('returns ok:false with reason http when the server responds with an error status', async () => {
 		const result = await loadSnapshot(makeErrorFetch(), 'module-1');
 		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.reason).toBe('http');
 	});
 
-	it('returns ok:false when fetch throws', async () => {
+	it('returns ok:false with reason network when fetch throws', async () => {
 		const result = await loadSnapshot(makeThrowingFetch(), 'module-1');
 		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.reason).toBe('network');
 	});
 });
 
@@ -96,9 +100,18 @@ describe('listArtifacts', () => {
 		expect(result.artifacts[0]?.artifactType).toBe('trace');
 	});
 
-	it('returns ok:false when the server responds with an error status', async () => {
+	it('returns ok:false with reason http when the server responds with an error status', async () => {
 		const result = await listArtifacts(makeErrorFetch(), 'module-1');
 		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.reason).toBe('http');
+	});
+
+	it('returns ok:false with reason network when fetch throws', async () => {
+		const result = await listArtifacts(makeThrowingFetch(), 'module-1');
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.reason).toBe('network');
 	});
 });
 
@@ -120,9 +133,18 @@ describe('createArtifact', () => {
 		expect(result.artifact?.artifactType).toBe('note');
 	});
 
-	it('returns ok:false when the server responds with an error status', async () => {
+	it('returns ok:false with reason http when the server responds with an error status', async () => {
 		const result = await createArtifact(makeErrorFetch(), 'module-1', 'note', 'Note: test', {});
 		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.reason).toBe('http');
+	});
+
+	it('returns ok:false with reason network when fetch throws', async () => {
+		const result = await createArtifact(makeThrowingFetch(), 'module-1', 'note', 'Note: test', {});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.reason).toBe('network');
 	});
 });
 

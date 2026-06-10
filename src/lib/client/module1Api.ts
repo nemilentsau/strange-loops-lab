@@ -9,7 +9,7 @@ import {
 
 export type LoadSnapshotResult =
 	| { ok: true; draft: Module1Draft | null; updatedAt: string | null }
-	| { ok: false };
+	| { ok: false; reason: 'http' | 'network' };
 
 export type SaveSnapshotResult =
 	| { ok: true; updatedAt: string }
@@ -17,11 +17,11 @@ export type SaveSnapshotResult =
 
 export type ListArtifactsResult =
 	| { ok: true; artifacts: Module1Artifact[] }
-	| { ok: false };
+	| { ok: false; reason: 'http' | 'network' };
 
 export type CreateArtifactResult =
 	| { ok: true; artifact: Module1Artifact | null }
-	| { ok: false };
+	| { ok: false; reason: 'http' | 'network' };
 
 export type RunDialogueResult =
 	| { ok: true; dialogue: DialogueResult; artifact: Module1Artifact | null }
@@ -35,7 +35,7 @@ export async function loadSnapshot(
 		const response = await fetch(`/api/modules/${slug}/snapshot`);
 
 		if (!response.ok) {
-			return { ok: false };
+			return { ok: false, reason: 'http' };
 		}
 
 		const payload = (await response.json()) as {
@@ -52,7 +52,7 @@ export async function loadSnapshot(
 			updatedAt: payload.snapshot?.updatedAt ?? null
 		};
 	} catch {
-		return { ok: false };
+		return { ok: false, reason: 'network' };
 	}
 }
 
@@ -88,14 +88,14 @@ export async function listArtifacts(
 		const response = await fetch(`/api/modules/${slug}/artifacts`);
 
 		if (!response.ok) {
-			return { ok: false };
+			return { ok: false, reason: 'http' };
 		}
 
 		const payload = (await response.json()) as { artifacts?: unknown };
 
 		return { ok: true, artifacts: normalizeModule1Artifacts(payload.artifacts) };
 	} catch {
-		return { ok: false };
+		return { ok: false, reason: 'network' };
 	}
 }
 
@@ -114,14 +114,14 @@ export async function createArtifact(
 		});
 
 		if (!response.ok) {
-			return { ok: false };
+			return { ok: false, reason: 'http' };
 		}
 
 		const result = (await response.json()) as { artifact?: unknown };
 
 		return { ok: true, artifact: normalizeModule1Artifact(result.artifact) };
 	} catch {
-		return { ok: false };
+		return { ok: false, reason: 'network' };
 	}
 }
 
