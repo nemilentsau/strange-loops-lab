@@ -204,7 +204,7 @@ Current refinement work:
 
 Module 1 status and next-work priorities are tracked in:
 - `docs/strange-loops-module-1.md`
-- `docs/module-1-ux-vision.md`
+- `docs/module-1-document-model-plan.md`
 
 ## Current docs
 
@@ -212,7 +212,8 @@ The active docs set is intentionally small:
 
 - `README.md` for project overview and current build posture
 - `docs/strange-loops-module-1.md` for canonical Module 1 scope, status, and improvement priorities
-- `docs/module-1-ux-vision.md` for supporting Module 1 UX direction
+- `docs/module-1-documents-not-dashboards.md` for the Module 1 interaction-design direction and the postmortem behind it
+- `docs/module-1-document-model-plan.md` for the active Module 1 rework plan
 - `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
 - `docs/agent-behavior.md` for the current dialogue/agent contract
 - `docs/strange-loops-vision.md` for the long-term conceptual roadmap

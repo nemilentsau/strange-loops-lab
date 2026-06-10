@@ -31,7 +31,8 @@ Read only the files relevant to the task:
 - Architecture: `docs/product-architecture.md`
 - Agent behavior: `docs/agent-behavior.md`
 - Module 1 scope and status: `docs/strange-loops-module-1.md`
-- Supporting Module 1 UX direction: `docs/module-1-ux-vision.md`
+- Module 1 interaction-design direction and postmortem: `docs/module-1-documents-not-dashboards.md`
+- Active Module 1 rework plan: `docs/module-1-document-model-plan.md`
 - Guidance on keeping agent instructions lean: `coding-agents-guide.md`
 
 If you change architecture, module scope, or agent responsibilities, update the

@@ -6,13 +6,14 @@ Design postmortem and replacement interaction model, written June 10, 2026,
 after hands-on use of the rebooted Module 1 exposed it as unusable in
 practice despite passing every planned review.
 
-This document supersedes the *interaction structure* described in
-`docs/module-1-ux-vision.md` (the lab-desk three-zone layout) and the layout
-sections of `docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md`.
-The visual language defined in that spec (graphite & parchment, single
-oxblood action accent, registers by form) is user-approved and survives
-unchanged. `docs/strange-loops-module-1.md` remains the canonical scope
-document.
+This document defines the current interaction-design direction for Module 1.
+The documents behind the failed passes (the lab-desk UX vision and the June
+2026 reboot spec and plan) have been deleted rather than kept as superseded
+layers; their one surviving decision — the user-approved visual language
+(graphite & parchment, single oxblood action accent, registers by form) — is
+recorded in section 4 and lives in the implementation (`src/app.css`). The
+execution plan for this direction is `docs/module-1-document-model-plan.md`.
+`docs/strange-loops-module-1.md` remains the canonical scope document.
 
 ---
 

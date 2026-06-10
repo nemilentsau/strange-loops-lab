@@ -2,14 +2,14 @@
 
 ## Document status
 
-**Awaiting user approval.** This document is the deliverable for the first gate
-of improvement-plan.md Task 5: "review and approve the prompt set and rubric
-before any tuning runs." No dialogue runs have been performed for this
-document, and none may be performed until that approval. The results sections
-below are deliberately empty templates.
+**Awaiting user approval.** The user must review and approve this prompt set
+and rubric before any tuning runs. No dialogue runs have been performed for
+this document, and none may be performed until that approval. The results
+sections below are deliberately empty templates.
 
 All learner explanations in this document are **synthetic**. No real learner
-transcripts exist until the Task 6 evaluation loop runs. After Task 6 produces
+transcripts exist until the hands-on pedagogical evaluation loop runs
+(`docs/strange-loops-module-1.md`, sections 12–13). After that loop produces
 real usage notes, this prompt set should be revisited and corrected against
 actual learner language and actual observed confusions.
 
@@ -18,7 +18,7 @@ Grounding references:
 - `docs/agent-behavior.md` — the dialogue contract and epistemic boundary
 - `docs/strange-loops-module-1.md` — sections 1 (learning goals), 6.6
   (dialogue mode), 7.1–7.4 (pedagogical requirements)
-- `docs/module-1-ux-vision.md` — the Reflect phase intent
+- `docs/strange-loops-module-1.md` section 5.5 — the Reflect phase intent
 - `src/lib/server/dialogue/team.ts` — `buildDialoguePrompt`, the surface under
   evaluation
 
@@ -417,9 +417,9 @@ named in `docs/strange-loops-module-1.md` 7.1, plus the later-module rhetoric
 
 ### 5.1 Gate
 
-No runs before the user approves this rubric and prompt set
-(improvement-plan.md Task 5). After approval, the prompt texts and pinned
-drafts above are frozen for the pass; fixes to them count as a new pass.
+No runs before the user approves this rubric and prompt set. After approval,
+the prompt texts and pinned drafts above are frozen for the pass; fixes to
+them count as a new pass.
 
 ### 5.2 Run construction
 

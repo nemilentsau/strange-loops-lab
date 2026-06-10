@@ -9,9 +9,10 @@ It serves three purposes:
 - the implementation status tracker for the current build,
 - the prioritized improvement plan for the next passes.
 
-Supporting docs such as `README.md` and `docs/module-1-ux-vision.md` should
-stay consistent with this document rather than carrying competing status
-snapshots.
+Supporting docs such as `README.md`,
+`docs/module-1-documents-not-dashboards.md`, and
+`docs/module-1-document-model-plan.md` should stay consistent with this
+document rather than carrying competing status snapshots.
 
 Last updated: June 10, 2026.
 
@@ -454,13 +455,12 @@ Alternative layouts are fine, but the user must be able to move fluidly between:
 - reflective explanation.
 
 Current build notes:
-- the June 10, 2026 UX reboot realizes this suggested layout as the "lab desk":
-  a quiet guide rail (working question, exposition, guided tasks), a central
-  instrument (the main interactive surface, wearing the single oxblood accent),
-  and an evidence rail (trace, verdicts/diagnostics, observations, or the
-  notebook), applied consistently across all four phases
-- the detailed UX record is `docs/module-1-ux-vision.md` and
-  `docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md`
+- the June 10, 2026 UX reboot implemented this suggestion as a three-zone
+  "lab desk"; hands-on use then showed that dashboard-style interaction layer
+  fails in practice, and a rework to the document model (one canonical
+  mathematical document per phase) is the active plan
+- the interaction-design record is `docs/module-1-documents-not-dashboards.md`;
+  the rework plan is `docs/module-1-document-model-plan.md`
 
 ---
 

@@ -55,10 +55,12 @@ Shared Module 1 UI components (under `src/lib/components`) carry the composition
 - `WorkingQuestion` — the editable working question, rendered at the top of every
   phase's guide rail (it remains global draft state).
 
-The June 10, 2026 UX reboot is a presentational/compositional change only — no
-state-shape, persistence, dialogue, or MIU-logic boundaries moved. See
-`docs/module-1-ux-vision.md` and
-`docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md`.
+The June 10, 2026 UX reboot was presentational/compositional only — no
+state-shape, persistence, dialogue, or MIU-logic boundaries moved. A rework of
+the phase interaction layer (the document model) is the active plan; see
+`docs/module-1-documents-not-dashboards.md` and
+`docs/module-1-document-model-plan.md`. The component names above describe the
+current build and will change with that rework.
 
 ### 2.2 Deterministic formal layer
 Owned by TypeScript library modules under `src/lib/miu`.
@@ -264,7 +266,8 @@ Use the docs as follows:
 
 - `README.md`: high-level project overview and current build posture
 - `docs/strange-loops-module-1.md`: canonical Module 1 specification, status, and improvement plan
-- `docs/module-1-ux-vision.md`: supporting UX direction for Module 1
+- `docs/module-1-documents-not-dashboards.md`: Module 1 interaction-design direction and postmortem
+- `docs/module-1-document-model-plan.md`: active Module 1 rework plan
 - `docs/agent-behavior.md`: current agent role, boundaries, and prompt contract
 - `docs/strange-loops-vision.md`: long-term conceptual roadmap beyond Module 1
 
