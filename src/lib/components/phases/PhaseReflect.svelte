@@ -89,7 +89,11 @@
 	);
 </script>
 
-<div class="phase-reflect">
+<div class="phase-canvas phase-canvas--meta phase-reflect">
+	<span class="phase-canvas__rim">
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">◉</span>
+		about the system
+	</span>
 	<SurfacePanel
 		title="Dialogue Mode"
 		eyebrow="Coaching"
@@ -165,7 +169,7 @@
 		{/if}
 	</SurfacePanel>
 
-	<SurfacePanel title="Artifact Notebook" eyebrow="Your notebook" tone="coaching">
+	<SurfacePanel title="Artifact Notebook" eyebrow="Your notebook">
 		<div class="reflection-prompt-stack">
 			<div class="surface-panel__header">
 				<div>

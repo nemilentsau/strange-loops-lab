@@ -59,10 +59,14 @@
 	] as const;
 </script>
 
-<div class="phase-explore">
+<div class="phase-canvas phase-canvas--object phase-explore">
+	<span class="phase-canvas__rim">
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">▦</span>
+		in the system
+	</span>
 	<div class="phase-explore__main">
 		<div class="phase-explore__left">
-			<SurfacePanel title="Guided Tasks" eyebrow="Explore with intent" tone="computed">
+			<SurfacePanel title="Guided Tasks" eyebrow="Explore with intent">
 				<div class="guide-grid">
 					{#each guideTasks as task}
 						<div class="guide-card">
@@ -141,7 +145,8 @@
 							<strong>{proposalAnalysis.summary}</strong>
 							<span
 								class="badge"
-								data-tone={proposalAnalysis.exactMatches.length > 0 ? 'verified' : 'coaching'}
+								data-tone="verified"
+								data-verdict={proposalAnalysis.exactMatches.length > 0 ? 'pass' : 'fail'}
 							>
 								{proposalAnalysis.exactMatches.length > 0 ? 'legal' : 'rejected'}
 							</span>
@@ -166,7 +171,8 @@
 										<strong>{check.ruleLabel}</strong>
 										<span
 											class="badge"
-											data-tone={check.status === 'matches' ? 'verified' : 'coaching'}
+											data-tone="verified"
+											data-verdict={check.status === 'matches' ? 'pass' : 'fail'}
 										>
 											{check.status === 'matches'
 												? 'matches'
@@ -194,7 +200,7 @@
 				{/if}
 			</SurfacePanel>
 
-			<SurfacePanel title="Immediate Reachability" eyebrow="Computed preview" tone="verified">
+			<SurfacePanel title="Immediate Reachability" eyebrow="Computed preview" tone="computed">
 				<ul class="ledger">
 					{#each uniqueReachableStates as move}
 						<li>

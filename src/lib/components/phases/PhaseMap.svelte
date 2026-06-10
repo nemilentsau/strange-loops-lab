@@ -56,7 +56,12 @@
 	]);
 </script>
 
-<SurfacePanel title="Reachability Explorer" eyebrow="The boundary" badge="computed graph" tone="computed">
+<div class="phase-canvas phase-canvas--object phase-map">
+	<span class="phase-canvas__rim">
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">▦</span>
+		in the system
+	</span>
+	<SurfacePanel title="Reachability Explorer" eyebrow="The boundary" badge="computed graph" tone="computed">
 	<div class="guide-grid">
 		{#each guideTasks as task}
 			<div class="guide-card guide-card--map">
@@ -178,4 +183,5 @@
 			</div>
 		</div>
 	</div>
-</SurfacePanel>
+	</SurfacePanel>
+</div>

@@ -25,7 +25,12 @@
 		} = $props();
 </script>
 
-<SurfacePanel title="Invariant Explorer" eyebrow="Meta-level proof move" badge="verified arithmetic" tone="verified">
+<div class="phase-canvas phase-canvas--meta phase-prove">
+	<span class="phase-canvas__rim">
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">◉</span>
+		about the system
+	</span>
+	<SurfacePanel title="Invariant Explorer" eyebrow="Meta-level proof move" badge="verified arithmetic" tone="verified">
 	<div class="proof-rail">
 		<div class="proof-step">
 			<div class="proof-step__index">1</div>
@@ -103,7 +108,11 @@
 							<div class="rule-result">
 								<div class="rule-result__top">
 									<strong>{result.ruleLabel}</strong>
-									<span class="badge" data-tone={result.preserved ? 'verified' : 'coaching'}>
+									<span
+										class="badge"
+										data-tone="verified"
+										data-verdict={result.preserved ? 'pass' : 'fail'}
+									>
 										{result.preserved ? 'preserved' : 'fails'}
 									</span>
 								</div>
@@ -147,7 +156,11 @@
 					<p class="eyebrow">Reference route</p>
 					<h3>count(I) mod 3 != 0</h3>
 				</div>
-				<span class="badge" data-tone={builtInInvariant.preserved ? 'verified' : 'coaching'}>
+				<span
+					class="badge"
+					data-tone="verified"
+					data-verdict={builtInInvariant.preserved ? 'pass' : 'fail'}
+				>
 					{builtInInvariant.preserved ? 'preserved' : 'fails'}
 				</span>
 			</div>
@@ -180,3 +193,4 @@
 			</div>
 		</div>
 	</SurfacePanel>
+</div>

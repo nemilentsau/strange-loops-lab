@@ -35,6 +35,12 @@
 	--shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.18);
 	--shadow-card: 0 4px 16px rgba(0, 0, 0, 0.22);
 	--line-strong: rgba(239, 231, 212, 0.18);
+	--grid-ink: rgba(239, 231, 212, 0.045);
+	--grid-paper:
+		linear-gradient(var(--grid-ink) 1px, transparent 1px),
+		linear-gradient(90deg, var(--grid-ink) 1px, transparent 1px);
+	--void: rgba(7, 10, 13, 0.6);
+	--rim-bg: #131a20;
 }
 
 html {
@@ -598,6 +604,44 @@ select {
 	background: rgba(210, 130, 107, 0.08);
 }
 
+/*
+ * Badge register grammar: mechanical results are square-cornered chips
+ * (solid = verified, dashed = computed) with ✓/✗ verdict glyphs;
+ * coaching stays a soft dotted pill. Shape and glyph carry the
+ * distinction even without color.
+ */
+.badge[data-tone='verified'],
+.badge[data-tone='computed'] {
+	border-radius: 6px;
+}
+
+.badge[data-tone='computed'] {
+	border-style: dashed;
+}
+
+.badge[data-tone='coaching'] {
+	border-style: dotted;
+}
+
+.badge[data-verdict]::before {
+	margin-right: 6px;
+	font-weight: 700;
+}
+
+.badge[data-verdict='pass']::before {
+	content: '✓';
+}
+
+.badge[data-verdict='fail']::before {
+	content: '✗';
+}
+
+.badge[data-verdict='fail'] {
+	color: var(--muted-strong);
+	border-color: rgba(239, 231, 212, 0.3);
+	background: rgba(239, 231, 212, 0.05);
+}
+
 .module-card__status {
 	color: var(--muted);
 	font-size: 0.88rem;
@@ -733,6 +777,23 @@ select {
 	box-shadow: inset 0 0 0 1px rgba(210, 130, 107, 0.04);
 }
 
+.context-strip__lens[data-level='object'] {
+	background-color: var(--panel-inset);
+	background-image: var(--grid-paper);
+	background-size: 18px 18px;
+}
+
+.context-strip__lens[data-level='meta'] {
+	outline: 1px solid rgba(239, 231, 212, 0.14);
+	outline-offset: 3px;
+	background: rgba(7, 10, 13, 0.66);
+}
+
+.context-strip__lens-glyph {
+	margin-right: 2px;
+	font-size: 0.8rem;
+}
+
 .context-strip__lens-top {
 	display: flex;
 	align-items: center;
@@ -792,11 +853,77 @@ select {
 
 
 /* ── Phase Navigation ── */
+/*
+ * The four phases live in two territories: object level (Explore, Map —
+ * working IN the system, on grid paper) and meta level (Prove, Reflect —
+ * reasoning ABOUT the system, inside a double frame, off the grid).
+ * The territories differ by structure and texture, never by epistemic hue.
+ */
 .phase-nav {
 	display: flex;
-	align-items: center;
+	align-items: stretch;
 	gap: 0;
-	padding: var(--space-md) 0;
+	margin-top: var(--space-sm);
+	padding: var(--space-md) 0 var(--space-xs);
+}
+
+.phase-nav__realm {
+	position: relative;
+	display: flex;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	padding: 14px 12px 10px;
+	border-radius: var(--radius-md);
+}
+
+.phase-nav__realm[data-level='object'] {
+	border: 1px solid rgba(239, 231, 212, 0.12);
+	background-color: rgba(13, 18, 22, 0.35);
+	background-image: var(--grid-paper);
+	background-size: 22px 22px;
+}
+
+.phase-nav__realm[data-level='meta'] {
+	border: 1px solid rgba(239, 231, 212, 0.18);
+	outline: 1px solid rgba(239, 231, 212, 0.1);
+	outline-offset: 3px;
+	background: var(--void);
+}
+
+.phase-nav__realm[data-active='true'] {
+	border-color: rgba(239, 231, 212, 0.28);
+}
+
+.phase-nav__realm-label {
+	position: absolute;
+	top: -9px;
+	left: 14px;
+	z-index: 1;
+	padding: 2px 10px;
+	border: 1px solid rgba(239, 231, 212, 0.18);
+	border-radius: var(--radius-pill);
+	background: var(--rim-bg);
+	color: var(--muted);
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.6rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.phase-nav__realm[data-active='true'] .phase-nav__realm-label {
+	color: var(--muted-strong);
+	border-color: rgba(239, 231, 212, 0.3);
+}
+
+.phase-nav__boundary {
+	flex: 0 0 auto;
+	width: 12px;
+	margin: 8px 10px;
+	border-left: 1px solid rgba(239, 231, 212, 0.24);
+	border-right: 1px solid rgba(239, 231, 212, 0.24);
 }
 
 .phase-nav__step {
@@ -939,6 +1066,90 @@ select {
 		rgba(210, 130, 107, 0.06),
 		transparent 55%
 	);
+}
+
+/* ── Phase Canvas: object level vs meta level ── */
+/*
+ * Object canvases (Explore, Map) sit ON the system: graph-paper texture,
+ * single hairline frame. Meta canvases (Prove, Reflect) step OUTSIDE it:
+ * the grid disappears, a second ring frames the frame, headings turn to
+ * italic annotation, and object-level data reappears only as gridded
+ * specimen chips. Same epistemic hues everywhere; the level is structural.
+ */
+.phase-canvas {
+	position: relative;
+	margin-top: 10px;
+	padding: var(--space-lg) var(--space-md) var(--space-md);
+	border-radius: var(--radius-lg);
+}
+
+.phase-canvas__rim {
+	position: absolute;
+	top: -10px;
+	left: 22px;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 3px 12px;
+	border: 1px solid rgba(239, 231, 212, 0.22);
+	border-radius: var(--radius-pill);
+	background: var(--rim-bg);
+	color: var(--muted-strong);
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.62rem;
+	font-weight: 600;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.phase-canvas__rim-glyph {
+	font-size: 0.78rem;
+	line-height: 1;
+}
+
+.phase-canvas--object {
+	border: 1px solid rgba(239, 231, 212, 0.14);
+	background: rgba(13, 18, 22, 0.4);
+}
+
+.phase-canvas--object::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	background-image: var(--grid-paper);
+	background-size: 26px 26px;
+	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.45));
+}
+
+.phase-canvas--meta {
+	padding: var(--space-xl) var(--space-lg) var(--space-lg);
+	border: 1px solid rgba(239, 231, 212, 0.22);
+	outline: 1px solid rgba(239, 231, 212, 0.13);
+	outline-offset: 5px;
+	background:
+		radial-gradient(ellipse at 50% -8%, rgba(239, 231, 212, 0.05), transparent 52%),
+		var(--void);
+	box-shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+}
+
+.phase-canvas--meta .surface-panel {
+	border-radius: 14px;
+}
+
+.phase-canvas--meta .surface-panel__header h2 {
+	font-style: italic;
+}
+
+/* Object-system data viewed from the meta level: specimens on grid paper */
+.phase-canvas--meta .graph-metric {
+	border-color: rgba(127, 195, 189, 0.18);
+	background-color: var(--panel-inset);
+	background-image: var(--grid-paper);
+	background-size: 14px 14px;
 }
 
 .phase-explore {
@@ -1172,6 +1383,10 @@ select {
 }
 
 /* ── Surface Panel tone variants ── */
+/*
+ * Register line grammar (independent of hue, so it survives colorblindness):
+ * solid rule = verified, dashed rule = computed, dotted rule = coaching.
+ */
 .surface-panel[data-tone='verified'] {
 	border-color: rgba(127, 195, 189, 0.22);
 	box-shadow: var(--shadow-card), var(--glow-teal);
@@ -1186,8 +1401,9 @@ select {
 	box-shadow: var(--shadow-card), var(--glow-gold);
 }
 .surface-panel[data-tone='computed']::before {
-	background: var(--accent);
-	opacity: 0.7;
+	height: 3px;
+	background: repeating-linear-gradient(90deg, var(--accent) 0 10px, transparent 10px 17px);
+	opacity: 0.75;
 }
 
 .surface-panel[data-tone='coaching'] {
@@ -1195,8 +1411,31 @@ select {
 	box-shadow: var(--shadow-card), var(--glow-rose);
 }
 .surface-panel[data-tone='coaching']::before {
-	background: var(--rose);
-	opacity: 0.7;
+	height: 3px;
+	background: repeating-linear-gradient(90deg, var(--rose) 0 3px, transparent 3px 9px);
+	opacity: 0.8;
+}
+
+.surface-panel[data-tone='verified'] .legend-chip {
+	color: var(--teal);
+	border-color: rgba(127, 195, 189, 0.3);
+	border-radius: 6px;
+	background: rgba(127, 195, 189, 0.08);
+}
+
+.surface-panel[data-tone='computed'] .legend-chip {
+	color: var(--accent-strong);
+	border-color: rgba(208, 169, 95, 0.4);
+	border-style: dashed;
+	border-radius: 6px;
+	background: rgba(208, 169, 95, 0.08);
+}
+
+.surface-panel[data-tone='coaching'] .legend-chip {
+	color: var(--rose);
+	border-color: rgba(210, 130, 107, 0.45);
+	border-style: dotted;
+	background: rgba(210, 130, 107, 0.08);
 }
 
 .surface-pill,
@@ -1484,16 +1723,18 @@ select {
 	background: var(--panel-card);
 }
 
+/* LLM turns stay in the coaching register: rose family only, never the
+   verified teal or computed gold. Agents differ by edge style, not hue. */
 .dialogue-turn[data-agent='examiner'] {
-	border-color: rgba(127, 195, 189, 0.25);
-	border-left: 3px solid var(--teal);
-	background: rgba(127, 195, 189, 0.05);
+	border-color: rgba(210, 130, 107, 0.25);
+	border-left: 3px solid var(--rose);
+	background: rgba(210, 130, 107, 0.05);
 }
 
 .dialogue-turn[data-agent='proof_coach'] {
-	border-color: rgba(208, 169, 95, 0.25);
-	border-left: 3px solid var(--accent);
-	background: rgba(208, 169, 95, 0.05);
+	border-color: rgba(210, 130, 107, 0.2);
+	border-left: 3px dashed rgba(210, 130, 107, 0.7);
+	background: rgba(210, 130, 107, 0.04);
 }
 
 .dialogue-final {
@@ -1834,8 +2075,32 @@ select {
 	}
 }
 
+/* Meta phases pull the camera back instead of rising in: stepping outside. */
+@keyframes phase-enter-meta {
+	from {
+		opacity: 0;
+		transform: scale(1.012);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
 .phase-content {
 	animation: phase-enter 250ms ease-out;
+}
+
+.phase-content[data-phase='prove'],
+.phase-content[data-phase='reflect'] {
+	animation: phase-enter-meta 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.phase-content,
+	.proof-step--conclusion {
+		animation: none;
+	}
 }
 
 @media (max-width: 980px) {
@@ -1866,8 +2131,24 @@ select {
 	}
 
 	.phase-nav {
+		flex-direction: column;
+		gap: 18px;
+	}
+
+	.phase-nav__realm {
 		flex-wrap: wrap;
-		gap: 12px;
+		gap: 10px;
+		padding: 18px 12px 12px;
+	}
+
+	.phase-nav__boundary {
+		width: auto;
+		height: 8px;
+		margin: 0 18px;
+		border-left: none;
+		border-right: none;
+		border-top: 1px solid rgba(239, 231, 212, 0.24);
+		border-bottom: 1px solid rgba(239, 231, 212, 0.24);
 	}
 
 	.phase-nav__connector {
@@ -1902,5 +2183,19 @@ select {
 	.hero__copy h1,
 	.module-hero__copy h1 {
 		font-size: 2.7rem;
+	}
+
+	.phase-canvas {
+		padding: var(--space-md) var(--space-xs) var(--space-xs);
+	}
+
+	.phase-canvas--meta {
+		padding: var(--space-lg) var(--space-sm) var(--space-sm);
+		outline-offset: 3px;
+	}
+
+	.phase-canvas__rim {
+		left: 12px;
+		letter-spacing: 0.12em;
 	}
 }

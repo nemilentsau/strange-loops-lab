@@ -8,6 +8,7 @@
 		phaseEpistemicLabel,
 		phaseCue,
 		phaseTone,
+		phaseLevel,
 		workingQuestion,
 		onUpdateQuestion,
 	}: {
@@ -19,6 +20,7 @@
 		phaseEpistemicLabel: string;
 		phaseCue: string;
 		phaseTone: 'verified' | 'computed' | 'coaching';
+		phaseLevel: 'object' | 'meta';
 		workingQuestion: string;
 		onUpdateQuestion: (event: Event) => void;
 	} = $props();
@@ -36,17 +38,20 @@
 				<span class="context-metric__label">I-count</span>
 				<span class="context-metric__value">{iCount}</span>
 			</span>
-			<span class="context-metric" data-tone={mod3Class === 0 ? 'coaching' : 'verified'} title="I-count modulo 3 — key to the unreachability proof">
+			<span class="context-metric" data-tone="verified" title="I-count modulo 3 — key to the unreachability proof">
 				<span class="context-metric__label">mod 3</span>
 				<span class="context-metric__value">{mod3Class}</span>
 			</span>
 		</div>
 	</div>
 
-	<div class="context-strip__lens" data-tone={phaseTone}>
+	<div class="context-strip__lens" data-tone={phaseTone} data-level={phaseLevel}>
 		<div class="context-strip__lens-top">
 			<span class="badge" data-tone={phaseTone}>{phaseLabel}</span>
-			<small>{phaseEpistemicLabel}</small>
+			<small>
+				<span class="context-strip__lens-glyph" aria-hidden="true">{phaseLevel === 'meta' ? '◉' : '▦'}</span>
+				{phaseEpistemicLabel}
+			</small>
 		</div>
 		<p>{phaseCue}</p>
 	</div>

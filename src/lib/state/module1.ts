@@ -31,14 +31,40 @@ export const PHASE_SURFACES: Record<LabPhase, SurfaceId[]> = {
 	reflect: ['dialogue', 'artifacts']
 };
 
+export type PhaseLevel = 'object' | 'meta';
+
 export const PHASE_META: Record<
 	LabPhase,
-	{ index: number; label: string; epistemicLabel: string; tone: 'verified' | 'computed' | 'coaching' }
+	{
+		index: number;
+		label: string;
+		epistemicLabel: string;
+		tone: 'verified' | 'computed' | 'coaching';
+		level: PhaseLevel;
+	}
 > = {
-	explore: { index: 1, label: 'Explore', epistemicLabel: 'inside the system', tone: 'verified' },
-	map: { index: 2, label: 'Map', epistemicLabel: 'the boundary', tone: 'computed' },
-	prove: { index: 3, label: 'Prove', epistemicLabel: 'outside the system', tone: 'verified' },
-	reflect: { index: 4, label: 'Reflect', epistemicLabel: 'synthesis', tone: 'coaching' }
+	explore: {
+		index: 1,
+		label: 'Explore',
+		epistemicLabel: 'inside the system',
+		tone: 'verified',
+		level: 'object'
+	},
+	map: { index: 2, label: 'Map', epistemicLabel: 'the boundary', tone: 'computed', level: 'object' },
+	prove: {
+		index: 3,
+		label: 'Prove',
+		epistemicLabel: 'outside the system',
+		tone: 'verified',
+		level: 'meta'
+	},
+	reflect: {
+		index: 4,
+		label: 'Reflect',
+		epistemicLabel: 'synthesis',
+		tone: 'coaching',
+		level: 'meta'
+	}
 };
 
 export function phaseForSurface(surface: SurfaceId): LabPhase {

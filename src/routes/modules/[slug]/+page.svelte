@@ -611,6 +611,7 @@
 			phaseEpistemicLabel={activePhaseMeta.epistemicLabel}
 			phaseCue={activePhaseCue}
 			phaseTone={activePhaseMeta.tone}
+			phaseLevel={activePhaseMeta.level}
 			workingQuestion={draft.workingQuestion}
 			onUpdateQuestion={updateQuestion}
 		/>
