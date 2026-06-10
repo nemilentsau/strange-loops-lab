@@ -173,6 +173,21 @@ Acceptance criteria:
 
 **Purpose:** Make the central learning distinction visible in the interface, not only in prose.
 
+> **Completion note (superseded by the UX reboot).** Task 2's *visual* outcome —
+> the dark grid/void object/meta treatment and the ~375px narrow-viewport gate —
+> was superseded by the Module 1 UX reboot. The reboot's design and plan are
+> `docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md` and
+> `docs/superpowers/plans/2026-06-10-module1-ux-reboot.md`. Task 2's **User:**
+> sign-off gate is closed by the reboot's final visual-sign-off gate instead of
+> being run here. What *survived* is Task 2's SEMANTICS: the object/meta level
+> distinction (`PHASE_META.level`, `LEVEL_PRESENTATION`) and the
+> verified/computed/coaching register system are carried forward by the reboot —
+> now expressed by form (graphite/parchment, ruled vs double-framed paper, the
+> command bar's level tag) rather than by the old dark hues. `ContextStrip` and
+> `PhaseNav` no longer exist (folded into `CommandBar`). Checkboxes below: the
+> semantic items are done; the dark-visual / small-viewport items are marked done
+> as *superseded*, not as separately delivered.
+
 **Files:**
 - Modify: `src/lib/components/ContextStrip.svelte`
 - Modify: `src/lib/components/PhaseNav.svelte`
@@ -184,14 +199,14 @@ Acceptance criteria:
 - Test: `npm run check`
 - Test: `npm run build`
 
-- [ ] Add a stronger visual distinction between `Explore` / `Map` and `Prove` / `Reflect`.
-- [ ] Make verified, computed, and coaching surfaces visually distinct without adding noisy explanation text.
-- [ ] Ensure the `Prove` phase reads as a deliberate shift outside the MIU system.
-- [ ] Keep the current phase flow free-navigation, not a locked wizard.
-- [ ] Verify layout with browser screenshots of all four phases at a narrow (~375px) and a desktop (~1280px) viewport, using the available Playwright tooling against a dev or preview server; check for text overlap and broken wrapping. If no browser tooling is available in the executing environment, stop and ask the user to review manually instead of skipping this step.
-- [ ] Run `npm run check`.
-- [ ] Run `npm run build`.
-- [ ] **User:** review the four phases (live or via the screenshots) and confirm the framing acceptance criteria below before this task is marked complete.
+- [x] Add a stronger visual distinction between `Explore` / `Map` and `Prove` / `Reflect`. *(delivered by the reboot: object/meta level tag + ruled vs double-framed parchment.)*
+- [x] Make verified, computed, and coaching surfaces visually distinct without adding noisy explanation text. *(semantics survived; registers now carried by form, not hue.)*
+- [x] Ensure the `Prove` phase reads as a deliberate shift outside the MIU system. *(delivered by the reboot's meta canvas treatment.)*
+- [x] Keep the current phase flow free-navigation, not a locked wizard. *(preserved through the reboot.)*
+- [x] ~~Verify layout with browser screenshots of all four phases at a narrow (~375px) and a desktop (~1280px) viewport~~ — *superseded: the reboot is desktop-first and retired the 375px gate; verification is at 1280px and 1536px instead.*
+- [x] Run `npm run check`.
+- [x] Run `npm run build`.
+- [x] **User:** ~~review the four phases and confirm the framing acceptance criteria~~ — *closed by the reboot's final visual-sign-off gate (`docs/superpowers/plans/2026-06-10-module1-ux-reboot.md`, Task 7), not run here.*
 
 Acceptance criteria:
 - A first-time user can tell when they are applying MIU rules versus proving facts about all derivations. (Human judgment — verified by the **User:** gate, not self-certified.)

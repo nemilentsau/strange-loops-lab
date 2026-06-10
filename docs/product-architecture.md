@@ -8,7 +8,7 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: March 28, 2026.
+Last updated: June 10, 2026.
 
 ---
 
@@ -40,6 +40,25 @@ Responsibilities:
 - local draft/session state,
 - wiring deterministic outputs, persistence, and dialogue into one module flow,
 - and preserving the visual distinction between verified, computed, and coaching surfaces.
+
+Shared Module 1 UI components (under `src/lib/components`) carry the composition:
+
+- `CommandBar` — the single slim masthead (wordmark, free phase-tab navigation,
+  the deterministic readout, and the object/meta level tag). It replaced the old
+  hero + context strip + phase-nav stack; it holds no state of its own.
+- `LabDesk` — the three-zone phase layout (`guide` / `instrument` / `evidence`
+  snippets), used by every phase. The instrument column is the main event.
+- `SurfacePanel` — the standard panel; its `instrument` boolean opts a panel into
+  the single oxblood action frame ("the work happens here", not an epistemic
+  register), keeping the accent off verified/computed/coaching styling.
+- `TaskList` — compact, expand-on-click guided-task rows for the guide rail.
+- `WorkingQuestion` — the editable working question, rendered at the top of every
+  phase's guide rail (it remains global draft state).
+
+The June 10, 2026 UX reboot is a presentational/compositional change only — no
+state-shape, persistence, dialogue, or MIU-logic boundaries moved. See
+`docs/module-1-ux-vision.md` and
+`docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md`.
 
 ### 2.2 Deterministic formal layer
 Owned by TypeScript library modules under `src/lib/miu`.

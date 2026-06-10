@@ -113,13 +113,17 @@ Dialogue mode should remain clearly labeled as coaching, not proof.
 
 ## Concrete UX decisions
 
-### Global context strip
-- keep the current string and compact metrics visible
-- keep the working question editable
-- replace the global invariant input with a phase/lens cue
+### Command bar (replaces the old context strip + phase nav)
+- collapse the hero, context strip, and two-realm phase nav into one slim command bar
+- keep the current string and compact deterministic facts visible on the right
+- carry free phase navigation as four tabs on the left, clustered ▦ (Explore, Map) / ◉ (Prove, Reflect)
+- show the object/meta level tag (▦ "in the system" / ◉ "about the system") in the bar
+- move the editable working question into the guide rail of every phase
+- never expose the invariant input globally; it lives in `Prove`
 
 Reason:
-- preserve orientation
+- the previous stacked chrome pushed the actual instrument below the fold
+- preserve orientation with one quiet bar instead of four competing blocks
 - avoid prematurely telling the user what the proof idea is
 
 ### Prove phase
@@ -139,28 +143,99 @@ Reason:
 
 ---
 
+## Shipped visual direction (June 10, 2026 reboot)
+
+The earlier build was visually noisy, and worse, its hierarchy was inverted:
+stacked chrome pushed the actual instrument below the fold. A full visual reboot
+replaced it. The detailed record lives in
+`docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md`; the summary:
+
+### Graphite & parchment
+- warm parchment grounds and panels, graphite ink; no drop shadows, gradients,
+  or texture ornament
+- serif (Georgia stack) for headings and meta-level annotations, system sans for
+  UI copy, monospace strictly for MIU strings
+- exactly one accent — oxblood `#8a3b2e` — whose single meaning is "you can act
+  here" (buttons, links, the active phase tab, the instrument frame, focused
+  inputs). One hue per screen. It never marks epistemic status.
+
+### Registers by form, never by hue
+The three epistemic registers used to compete as three hues (teal/gold/rose),
+which read as rainbow noise. They are now carried by form:
+- verified (deterministic MIU/invariant results): solid graphite left-rule or
+  frame with ✓/✗ stamps, upright text
+- computed (graph/search summaries): dashed pencil-gray rules
+- coaching (LLM dialogue): dotted rules + italic serif, a margin note; never a
+  stamp, never the accent
+
+The `data-tone` / `data-verdict` attribute contract is retained; only the CSS
+expression changed. The split survives a grayscale screenshot.
+
+### One command bar
+The hero, context strip, phase nav, and welcome banner collapse into a single
+slim command bar (see the Command bar decision above). The welcome banner became
+a dismissible first-run hint card at the top of the Explore guide rail.
+
+### Lab-desk grammar (all phases)
+Every phase recomposes into a three-zone "lab desk" (~0.9 / 2 / 0.9 columns at
+≥1200px):
+- guide rail (left, quiet): the editable working question plus phase guidance
+- instrument (center, the main event, wearing the oxblood frame)
+- evidence rail (right): history, verdicts, observations, or the notebook
+
+Per phase: Explore's instrument is the bench (current string, legal moves,
+propose-a-string with verifier verdicts inline); Map's is the reachability graph
+with node inspector; Prove's is the invariant workbench and proof scaffold;
+Reflect's is the notes editor and explain-back examiner. Nothing was dropped —
+every capability relocated into one of the three zones.
+
+### Object vs meta in light language
+- object phases (Explore, Map): faint ruled-paper tint on the ground, ▦ tag
+- meta phases (Prove, Reflect): warmer parchment ground, a double-rule frame
+  around the desk, serif-italic panel titles, ◉ tag
+- reuses `PHASE_META.level` and `LEVEL_PRESENTATION` unchanged
+
+### Desktop-first stance
+The design target is ≥1200px. Between ~900–1200px the rails stack (instrument
+first, evidence, guide) as a cheap fallback. A real mobile pass is deferred until
+the desktop experience proves itself; there are no small-viewport gates.
+
+---
+
 ## What is implemented now
 
-- the context strip no longer asks for an invariant up front
-- the phase-based flow now exists as `Explore -> Map -> Prove -> Reflect`
-- the context strip now shows the current phase lens
-- the `Explore` phase now includes a verifier workbench for invalid proposals
-- the `Explore` and `Map` phases now include guided tasks
-- the Prove phase now includes a proof scaffold and custom-candidate input
-- the Prove phase can now save invariant runs and proof attempts as distinct artifacts
-- the Reflect phase now includes guided reflection prompts
+- the graphite & parchment reboot has shipped across all four phases, with the
+  lab-desk three-zone layout and the single oxblood action accent
+- the command bar replaces the old hero + context strip + phase nav stack; it
+  carries free navigation, the deterministic readout, and the object/meta level
+  tag, and never exposes an invariant input up front
+- the editable working question lives in the guide rail of every phase
+- the phase-based flow exists as `Explore -> Map -> Prove -> Reflect`
+- object-level vs meta-level is now carried by the interface: the bar's level
+  tag, ruled-paper vs double-framed-parchment grounds, and the register grammar
+- the three registers (verified / computed / coaching) are distinguished by form,
+  not hue, and stay distinguishable in grayscale
+- the `Explore` phase includes a verifier workbench, with verdicts inline under
+  the propose-a-string input on the bench
+- the `Explore` and `Map` phases include guided tasks (compact, expand-on-click)
+- the `Prove` phase includes a proof scaffold and custom-candidate input
+- the `Prove` phase can save invariant runs and proof attempts as distinct
+  artifacts
+- the `Reflect` phase includes guided reflection prompts and the artifact
+  notebook with type filters, payload-derived metadata, and restore actions
 - persistence and artifact controls are integrated into `Reflect`
-- saved artifacts can now reopen into the corresponding live phase surfaces
+- saved artifacts can reopen into the corresponding live phase surfaces
 - dialogue mode has been simplified to one honest coaching mode
 
 ---
 
 ## What still remains
 
-- stronger spatial separation between object-level and meta-level work
+- a real mobile / small-viewport pass (deferred during the desktop-first reboot)
 - better tuning of which guided tasks genuinely help
 - better artifact review and curation once multiple saved sessions accumulate
 - evaluation of whether the dialogue mode materially improves understanding
+- the broader Module 1 evaluation loop that decides the next refinement pass
 
 ---
 

@@ -13,7 +13,7 @@ Supporting docs such as `README.md` and `docs/module-1-ux-vision.md` should
 stay consistent with this document rather than carrying competing status
 snapshots.
 
-Last updated: March 28, 2026.
+Last updated: June 10, 2026.
 
 ## Module title
 **Module 1: Formal Systems & Their Walls**
@@ -36,7 +36,7 @@ The MIU system is the concrete vehicle for this.
 ### Implemented in the current build
 - root SvelteKit application shell with a Module 1 route
 - phase-based module flow: `Explore -> Map -> Prove -> Reflect`
-- visible phase/lens cue in the context strip
+- visible phase/level cue in the command bar (object/meta tag)
 - deterministic MIU rule engine
 - MIU sandbox with legal-next-move enumeration
 - invalid-move workbench with verifier-backed rejection feedback
@@ -294,9 +294,14 @@ and
 This distinction should not be hidden in prose alone. It should be reinforced by layout or mode.
 
 Current build notes:
-- this distinction is present conceptually, but not yet forceful enough in the interface
-- the phase-based structure and context-strip lens now make the shift more visible
-- a stronger proof-mode treatment or clearer side-by-side object/meta framing is still needed
+- after the June 10, 2026 UX reboot the split is now carried by the interface
+  itself, not by prose alone: the command bar's object/meta level tag, the
+  ruled-paper (object) vs double-rule-framed parchment (meta) grounds, and the
+  per-phase register grammar (verified / computed / coaching by form, never hue)
+- the phase-based structure and the lab-desk layout make the shift visible on
+  entry; `Prove` and `Reflect` read as a deliberate step outside the system
+- whether this framing is forceful enough is now a question for the pedagogical
+  evaluation loop rather than an obvious interface gap
 
 ## 6.6 Dialogue mode
 Only one LLM mode is required initially.
@@ -447,6 +452,15 @@ Alternative layouts are fine, but the user must be able to move fluidly between:
 - local rule application,
 - global structure,
 - reflective explanation.
+
+Current build notes:
+- the June 10, 2026 UX reboot realizes this suggested layout as the "lab desk":
+  a quiet guide rail (working question, exposition, guided tasks), a central
+  instrument (the main interactive surface, wearing the single oxblood accent),
+  and an evidence rail (trace, verdicts/diagnostics, observations, or the
+  notebook), applied consistently across all four phases
+- the detailed UX record is `docs/module-1-ux-vision.md` and
+  `docs/superpowers/specs/2026-06-10-module1-ux-reboot-design.md`
 
 ---
 

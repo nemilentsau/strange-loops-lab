@@ -147,18 +147,14 @@ body.module1-wide .site-shell {
 
 .site-nav,
 .hero__actions,
-.status-row,
-.surface-pill-row,
-.dialogue-row {
+.status-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 12px;
 }
 
 .site-nav a,
-.button,
-.surface-pill,
-.dialogue-chip {
+.button {
 	transition:
 		border-color 160ms ease,
 		color 160ms ease,
@@ -179,11 +175,7 @@ body.module1-wide .site-shell {
 }
 
 .site-main,
-.module-column,
-.module-sidebar,
-.surface-panel__body,
-.field-grid,
-.sidebar-stack {
+.surface-panel__body {
 	display: grid;
 	gap: var(--space-md);
 }
@@ -378,7 +370,6 @@ body.module1-wide .site-shell {
 
 .section-header,
 .module-card__top,
-.meta-row,
 .surface-panel__header {
 	display: flex;
 	align-items: start;
@@ -535,13 +526,6 @@ body.module1-wide .site-shell {
 	font-size: 0.68rem;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-}
-
-/* Legacy: keep .module-layout for potential non-module-1 routes */
-.module-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.75fr);
-	gap: 20px;
 }
 
 /* ── Command Bar ──
@@ -805,11 +789,6 @@ body.module1-wide .site-shell {
 	font-style: italic;
 }
 
-.phase-explore {
-	display: grid;
-	gap: var(--space-md);
-}
-
 /* ── The lab desk ──
  * Three zones: a quiet guide rail, the instrument (center, the main event,
  * wearing the oxblood frame), and an evidence rail. The instrument column is
@@ -1022,13 +1001,13 @@ body.module1-wide .site-shell {
 
 /* ── The graphite-left-rule card ──
  * One shared idiom for "a parchment card anchored by a solid graphite left
- * rule": the claim, proof steps, rule-preservation verdicts, the reference
- * route, and Reflect's synthesis cards. The left rule is the load-bearing
- * mark; the surrounding hairline is written as longhands so `--bare` can drop
- * only the three outer sides while keeping the left rule intact.
+ * rule", used across Prove: the claim, proof steps, rule-preservation verdicts,
+ * and the reference route. The left rule is the load-bearing mark; the
+ * surrounding hairline is written as longhands so `--bare` can drop only the
+ * three outer sides while keeping the left rule intact.
  * Register note: a graphite left rule reads as the verified register where it
- * carries a ✓/✗ stamp; on un-stamped orientation cards (claim, synthesis) it
- * is structural anchoring only, never a verification claim. */
+ * carries a ✓/✗ stamp; on the un-stamped claim card it is structural anchoring
+ * only, never a verification claim. */
 .ink-rule-card {
 	padding: var(--space-md);
 	border-top: 1px solid var(--line);
@@ -1328,43 +1307,6 @@ body.module1-wide .site-shell {
 	letter-spacing: 0;
 }
 
-.surface-pill,
-.dialogue-chip {
-	padding: 14px 16px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-	transition:
-		border-color 200ms ease,
-		background 200ms ease;
-}
-
-.surface-pill:hover,
-.dialogue-chip:hover,
-.surface-pill:focus-visible,
-.dialogue-chip:focus-visible {
-	border-color: var(--act);
-	color: var(--act);
-}
-
-.surface-pill[data-active='true'],
-.dialogue-chip[data-active='true'] {
-	border-color: var(--act);
-	color: var(--act);
-	background: rgba(138, 59, 46, 0.05);
-}
-
-.surface-pill small,
-.dialogue-chip small {
-	display: block;
-	margin-top: 6px;
-	color: var(--muted);
-	line-height: 1.45;
-}
-
 .field-label {
 	display: grid;
 	gap: 8px;
@@ -1456,11 +1398,6 @@ body.module1-wide .site-shell {
 	font-size: 0.72rem;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
-}
-
-.graph-metric__none {
-	color: var(--muted);
-	font-size: 0.82rem;
 }
 
 /* Map observations are COMPUTED facts about the explored region: they wear the
@@ -1627,7 +1564,6 @@ body.module1-wide .site-shell {
 	gap: 12px;
 }
 
-.invariant-stack,
 .rule-result-list,
 .dialogue-transcript {
 	display: grid;
@@ -1994,7 +1930,6 @@ body.module1-wide .site-shell {
 @media (max-width: 980px) {
 	.hero,
 	.module-hero,
-	.module-layout,
 	.panel-grid--three,
 	.graph-layout,
 	.control-grid,
