@@ -179,6 +179,8 @@
 		});
 	}
 
+		// Unwired since the ContextStrip removal; the guide rail (UX reboot Task 3)
+		// reconnects it to the working-question input.
 		function updateQuestion(event: Event) {
 			const target = event.currentTarget as HTMLInputElement;
 			patchDraft({ workingQuestion: target.value });
