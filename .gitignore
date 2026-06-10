@@ -29,3 +29,6 @@ data/*.db-wal
 
 # Visual brainstorming sessions
 .superpowers/
+
+# Playwright MCP screenshot/snapshot scratch output
+.playwright-mcp/

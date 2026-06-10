@@ -80,6 +80,12 @@ select {
 	padding: 28px 24px 56px;
 }
 
+/* The Module 1 lab desk gets a wider shell so its three rails breathe on large
+ * displays. No effect at ≤1440px (the 1280 acceptance viewport is unchanged). */
+body.module1-wide .site-shell {
+	max-width: 1440px;
+}
+
 /* ── Shared panel surfaces ── */
 .site-topbar,
 .hero__copy,
@@ -663,6 +669,11 @@ select {
 	color: var(--ink);
 	line-height: 1;
 	white-space: nowrap;
+	/* Long derivations can grow the string without end; clip with an ellipsis.
+	 * The full value stays available via the element's title attribute. */
+	max-width: 22ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .command-bar__facts {
@@ -799,15 +810,191 @@ select {
 	gap: var(--space-md);
 }
 
-.phase-explore__main {
+/* ── The lab desk ──
+ * Three zones: a quiet guide rail, the instrument (center, the main event,
+ * wearing the oxblood frame), and an evidence rail. The instrument column is
+ * widest so the bench reads as primary on load. */
+.lab-desk {
 	display: grid;
-	grid-template-columns: 1.3fr 0.7fr;
+	grid-template-columns: 0.9fr 2fr 0.9fr;
 	gap: var(--space-md);
+	align-items: start;
 }
 
-.phase-explore__left {
+.lab-desk__guide,
+.lab-desk__instrument,
+.lab-desk__evidence {
 	display: grid;
 	gap: var(--space-md);
+	align-content: start;
+	min-width: 0;
+}
+
+/* The instrument is the only thing on the desk that carries the action accent's
+ * frame — it marks where the work happens. */
+.lab-desk__instrument > .surface-panel {
+	border: 1px solid var(--act);
+}
+
+/* Stacked fallback (not a designed mobile layout): instrument first, then
+ * evidence, guide last. */
+@media (max-width: 1200px) {
+	.lab-desk {
+		grid-template-columns: 1fr;
+	}
+
+	.lab-desk__instrument {
+		order: 1;
+	}
+
+	.lab-desk__evidence {
+		order: 2;
+	}
+
+	.lab-desk__guide {
+		order: 3;
+	}
+}
+
+/* ── Guide rail: working question ── */
+.working-question {
+	display: grid;
+	gap: 8px;
+}
+
+.working-question__label {
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.working-question__input {
+	font-family: var(--sans);
+}
+
+/* ── Guide rail: first-run hint card ──
+ * The old full-width welcome banner, demoted into the guide rail. Calm paper,
+ * no accent — orientation, not an action (the dismiss is a quiet ghost). */
+.hint-card {
+	display: grid;
+	gap: var(--space-sm);
+	padding: var(--space-md);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel-meta);
+}
+
+.hint-card__text {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.88rem;
+	line-height: 1.55;
+}
+
+.hint-card__text strong {
+	color: var(--ink);
+}
+
+.hint-card__dismiss {
+	justify-self: start;
+	padding: 6px 14px;
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	color: var(--muted);
+	font-size: 0.78rem;
+	cursor: pointer;
+	transition:
+		border-color 160ms ease,
+		color 160ms ease;
+}
+
+.hint-card__dismiss:hover,
+.hint-card__dismiss:focus-visible {
+	border-color: var(--act);
+	color: var(--act);
+}
+
+/* ── Guide rail: compact guided-task rows ──
+ * One line each (caret + title + a quiet "Use" affordance); body text reveals
+ * on click. Untoned — these are prompts, not verified results. */
+.task-list {
+	display: grid;
+	gap: var(--space-xs);
+}
+
+.task-row {
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
+}
+
+.task-row[data-expanded='true'] {
+	border-color: var(--line-strong);
+}
+
+.task-row__head {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	padding: 6px 8px 6px 4px;
+}
+
+.task-row__toggle {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 6px;
+	border: none;
+	background: transparent;
+	color: var(--ink);
+	cursor: pointer;
+	text-align: left;
+	border-radius: var(--radius);
+}
+
+.task-row__toggle:hover,
+.task-row__toggle:focus-visible {
+	color: var(--act);
+}
+
+.task-row__caret {
+	flex-shrink: 0;
+	color: var(--faint);
+	font-size: 0.7rem;
+}
+
+.task-row__title {
+	font-size: 0.9rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.task-row__use {
+	flex-shrink: 0;
+}
+
+.task-row__body {
+	margin: 0;
+	padding: 0 12px 12px 22px;
+	color: var(--muted);
+	font-size: 0.85rem;
+	line-height: 1.55;
+}
+
+/* ── Instrument: bench sections ──
+ * The bench stacks current string · legal moves · self-propose workbench in one
+ * panel. Thin hairline separators keep the sections legible without new chrome. */
+.bench-section {
+	display: grid;
+	gap: var(--space-sm);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--line);
 }
 
 .phase-reflect {
@@ -1726,47 +1913,6 @@ select {
 	color: var(--muted);
 }
 
-/* ── Welcome Banner ── */
-.welcome-banner {
-	display: flex;
-	align-items: center;
-	gap: var(--space-md);
-	margin-top: var(--space-sm);
-	padding: var(--space-md) var(--space-lg);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel-meta);
-}
-
-.welcome-banner__text {
-	flex: 1;
-	color: var(--muted);
-	font-size: 0.9rem;
-	line-height: 1.55;
-}
-
-.welcome-banner__text strong {
-	color: var(--ink);
-}
-
-.welcome-banner__dismiss {
-	flex-shrink: 0;
-	padding: 6px 14px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--muted);
-	font-size: 0.78rem;
-	cursor: pointer;
-	transition: border-color 160ms ease, color 160ms ease;
-}
-
-.welcome-banner__dismiss:hover,
-.welcome-banner__dismiss:focus-visible {
-	border-color: var(--act);
-	color: var(--act);
-}
-
 /* ── Dialogue Empty State ── (coaching chrome: dotted, serif italic) */
 .dialogue-empty-state {
 	padding: var(--space-md);
@@ -1886,10 +2032,6 @@ select {
 	}
 
 	.proof-step {
-		grid-template-columns: 1fr;
-	}
-
-	.phase-explore__main {
 		grid-template-columns: 1fr;
 	}
 }

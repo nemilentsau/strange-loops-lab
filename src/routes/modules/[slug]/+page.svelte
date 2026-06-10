@@ -157,6 +157,19 @@
 				: timestampFormatter.format(new Date(draft.lastEditedAt));
 	});
 
+	// The lab desk wants more room than the default 1280px shell. Widen the shell
+	// for the Module 1 route only so the three rails breathe on large displays
+	// (no effect at ≤1440px viewports, including the 1280 acceptance shot). The
+	// class is removed on navigation away (effect cleanup).
+	$effect(() => {
+		if (!browser || module.slug !== 'module-1') {
+			return;
+		}
+
+		document.body.classList.add('module1-wide');
+		return () => document.body.classList.remove('module1-wide');
+	});
+
 	function patchDraft(next: Partial<Module1Draft>) {
 		draft = {
 			...draft,
@@ -179,8 +192,6 @@
 		});
 	}
 
-		// Unwired since the ContextStrip removal; the guide rail (UX reboot Task 3)
-		// reconnects it to the working-question input.
 		function updateQuestion(event: Event) {
 			const target = event.currentTarget as HTMLInputElement;
 			patchDraft({ workingQuestion: target.value });
@@ -584,17 +595,6 @@
 		onReset={resetSession}
 	/>
 
-	{#if isNewSession && !welcomeDismissed}
-		<div class="welcome-banner">
-			<p class="welcome-banner__text">
-				<strong>Welcome to the MIU lab.</strong> You'll explore the MIU system, feel the limits of search, then build a proof. Start by trying the rules below.
-			</p>
-			<button class="welcome-banner__dismiss" type="button" onclick={() => { welcomeDismissed = true; }}>
-				Got it
-			</button>
-		</div>
-	{/if}
-
 	<section class="module-phases">
 		{#if draft.activePhase === 'explore'}
 			<div class="phase-content" data-phase="explore">
@@ -605,12 +605,17 @@
 						{proposalAnalysis}
 						{uniqueReachableStates}
 						trace={draft.trace}
+						workingQuestion={draft.workingQuestion}
+						{isNewSession}
+						{welcomeDismissed}
 						onApplyMove={applyMove}
 						onApplyProposalMatch={applyProposalMatch}
 						onJumpToStep={jumpToStep}
 						onUndo={undoMove}
 						onRestart={restartFromInitial}
 						onUpdateProposal={updateProposalInput}
+						onUpdateQuestion={updateQuestion}
+						onDismissWelcome={() => { welcomeDismissed = true; }}
 						onUseGuideTask={useExploreGuideTask}
 					/>
 				</div>
