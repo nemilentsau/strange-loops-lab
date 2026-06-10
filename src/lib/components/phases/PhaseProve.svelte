@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import type { InvariantAnalysis } from '$lib/miu/invariants';
+	import { PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
 
 		let {
 			currentString,
@@ -23,12 +24,15 @@
 			onSaveProofArtifact: () => void;
 			onUpdateInvariant: (event: Event) => void;
 		} = $props();
+
+	const level = PHASE_META.prove.level;
+	const levelPresentation = LEVEL_PRESENTATION[level];
 </script>
 
-<div class="phase-canvas phase-canvas--meta phase-prove">
+<div class="phase-canvas phase-canvas--{level} phase-prove">
 	<span class="phase-canvas__rim">
-		<span class="phase-canvas__rim-glyph" aria-hidden="true">◉</span>
-		about the system
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">{levelPresentation.glyph}</span>
+		{levelPresentation.label}
 	</span>
 	<SurfacePanel title="Invariant Explorer" eyebrow="Meta-level proof move" badge="verified arithmetic" tone="verified">
 	<div class="proof-rail">

@@ -4,7 +4,9 @@
 	import {
 		restoreTargetForModule1Artifact,
 		type DialogueMode,
-		type Module1Artifact
+		type Module1Artifact,
+		PHASE_META,
+		LEVEL_PRESENTATION
 	} from '$lib/state/module1';
 
 	interface ReflectionPrompt {
@@ -87,12 +89,15 @@
 	const showDialogueStatus = $derived(
 		hasDialogueRun || dialogueRunning || dialogueStatus !== DEFAULT_DIALOGUE_STATUS
 	);
+
+	const level = PHASE_META.reflect.level;
+	const levelPresentation = LEVEL_PRESENTATION[level];
 </script>
 
-<div class="phase-canvas phase-canvas--meta phase-reflect">
+<div class="phase-canvas phase-canvas--{level} phase-reflect">
 	<span class="phase-canvas__rim">
-		<span class="phase-canvas__rim-glyph" aria-hidden="true">◉</span>
-		about the system
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">{levelPresentation.glyph}</span>
+		{levelPresentation.label}
 	</span>
 	<SurfacePanel
 		title="Dialogue Mode"

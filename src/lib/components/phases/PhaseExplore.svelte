@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
 	import type { DerivationTrace, MiuMove, MiuProposalAnalysis } from '$lib/miu/core';
+	import { PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
 
 	interface ExploreGuideTask {
 		title: string;
@@ -57,12 +58,15 @@
 			question: 'Can two different derivations reach the same MIU string?'
 		}
 	] as const;
+
+	const level = PHASE_META.explore.level;
+	const levelPresentation = LEVEL_PRESENTATION[level];
 </script>
 
-<div class="phase-canvas phase-canvas--object phase-explore">
+<div class="phase-canvas phase-canvas--{level} phase-explore">
 	<span class="phase-canvas__rim">
-		<span class="phase-canvas__rim-glyph" aria-hidden="true">▦</span>
-		in the system
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">{levelPresentation.glyph}</span>
+		{levelPresentation.label}
 	</span>
 	<div class="phase-explore__main">
 		<div class="phase-explore__left">

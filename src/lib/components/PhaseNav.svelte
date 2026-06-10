@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LAB_PHASES, PHASE_META, type LabPhase, type PhaseLevel } from '$lib/state/module1';
+	import { LAB_PHASES, PHASE_META, LEVEL_PRESENTATION, type LabPhase } from '$lib/state/module1';
 
 	let {
 		activePhase,
@@ -11,14 +11,9 @@
 		onSelectPhase: (phase: LabPhase) => void;
 	} = $props();
 
-	const REALM_LABELS: Record<PhaseLevel, string> = {
-		object: 'in the system',
-		meta: 'about the system'
-	};
-
 	const realms = (['object', 'meta'] as const).map((level) => ({
 		level,
-		label: REALM_LABELS[level],
+		label: LEVEL_PRESENTATION[level].label,
 		phases: LAB_PHASES.filter((phase) => PHASE_META[phase].level === level)
 	}));
 

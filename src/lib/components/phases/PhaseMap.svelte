@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
-	import { GRAPH_DEPTH_OPTIONS, GRAPH_NODE_LIMIT_OPTIONS } from '$lib/state/module1';
+	import { GRAPH_DEPTH_OPTIONS, GRAPH_NODE_LIMIT_OPTIONS, PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
 	import type { ReachabilityGraph, ReachabilityNode, ProvenanceStep } from '$lib/miu/graph';
 
 	interface MapGuideTask {
@@ -36,6 +36,9 @@
 		onUseGuideTask: (question: string, nodeId?: string) => void;
 	} = $props();
 
+	const level = PHASE_META.map.level;
+	const levelPresentation = LEVEL_PRESENTATION[level];
+
 	const guideTasks = $derived<MapGuideTask[]>([
 		{
 			title: 'Find repetition',
@@ -56,10 +59,10 @@
 	]);
 </script>
 
-<div class="phase-canvas phase-canvas--object phase-map">
+<div class="phase-canvas phase-canvas--{level} phase-map">
 	<span class="phase-canvas__rim">
-		<span class="phase-canvas__rim-glyph" aria-hidden="true">▦</span>
-		in the system
+		<span class="phase-canvas__rim-glyph" aria-hidden="true">{levelPresentation.glyph}</span>
+		{levelPresentation.label}
 	</span>
 	<SurfacePanel title="Reachability Explorer" eyebrow="The boundary" badge="computed graph" tone="computed">
 	<div class="guide-grid">

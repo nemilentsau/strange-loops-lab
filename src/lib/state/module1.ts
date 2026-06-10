@@ -33,6 +33,11 @@ export const PHASE_SURFACES: Record<LabPhase, SurfaceId[]> = {
 
 export type PhaseLevel = 'object' | 'meta';
 
+export const LEVEL_PRESENTATION: Record<PhaseLevel, { glyph: string; label: string }> = {
+	object: { glyph: '▦', label: 'in the system' },
+	meta: { glyph: '◉', label: 'about the system' }
+};
+
 export const PHASE_META: Record<
 	LabPhase,
 	{

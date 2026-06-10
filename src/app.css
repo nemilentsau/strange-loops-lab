@@ -40,6 +40,7 @@
 		linear-gradient(var(--grid-ink) 1px, transparent 1px),
 		linear-gradient(90deg, var(--grid-ink) 1px, transparent 1px);
 	--void: rgba(7, 10, 13, 0.6);
+	--grid-ground: rgba(13, 18, 22, 0.4);
 	--rim-bg: #131a20;
 }
 
@@ -732,12 +733,6 @@ select {
 	background: rgba(127, 195, 189, 0.06);
 }
 
-.context-metric[data-tone='coaching'] {
-	border-color: rgba(210, 130, 107, 0.3);
-	color: var(--rose);
-	background: rgba(210, 130, 107, 0.06);
-}
-
 .context-metric__label {
 	text-transform: uppercase;
 	opacity: 0.7;
@@ -786,7 +781,7 @@ select {
 .context-strip__lens[data-level='meta'] {
 	outline: 1px solid rgba(239, 231, 212, 0.14);
 	outline-offset: 3px;
-	background: rgba(7, 10, 13, 0.66);
+	background: var(--void);
 }
 
 .context-strip__lens-glyph {
@@ -879,7 +874,7 @@ select {
 
 .phase-nav__realm[data-level='object'] {
 	border: 1px solid rgba(239, 231, 212, 0.12);
-	background-color: rgba(13, 18, 22, 0.35);
+	background-color: var(--grid-ground);
 	background-image: var(--grid-paper);
 	background-size: 22px 22px;
 }
@@ -1111,7 +1106,7 @@ select {
 
 .phase-canvas--object {
 	border: 1px solid rgba(239, 231, 212, 0.14);
-	background: rgba(13, 18, 22, 0.4);
+	background: var(--grid-ground);
 }
 
 .phase-canvas--object::before {

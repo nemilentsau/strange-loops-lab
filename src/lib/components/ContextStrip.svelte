@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { LEVEL_PRESENTATION } from '$lib/state/module1';
+
 	let {
 		currentString,
 		stepCount,
@@ -49,7 +51,7 @@
 		<div class="context-strip__lens-top">
 			<span class="badge" data-tone={phaseTone}>{phaseLabel}</span>
 			<small>
-				<span class="context-strip__lens-glyph" aria-hidden="true">{phaseLevel === 'meta' ? '◉' : '▦'}</span>
+				<span class="context-strip__lens-glyph" aria-hidden="true">{LEVEL_PRESENTATION[phaseLevel].glyph}</span>
 				{phaseEpistemicLabel}
 			</small>
 		</div>
