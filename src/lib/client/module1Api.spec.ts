@@ -194,4 +194,18 @@ describe('runDialogue', () => {
 		if (result.ok) return;
 		expect(result.error).toBe('Feedback request failed.');
 	});
+
+	it('returns the failure variant when the response is ok but has no dialogue field', async () => {
+		const fetchOkNoDialogue: typeof globalThis.fetch = async () =>
+			({
+				ok: true,
+				json: async () => ({ error: 'No dialogue' })
+			}) as Response;
+
+		const result = await runDialogue(fetchOkNoDialogue, 'module-1', 'input', createModule1Draft());
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.error).toBe('No dialogue');
+	});
 });

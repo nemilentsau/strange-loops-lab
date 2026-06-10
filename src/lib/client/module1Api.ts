@@ -13,7 +13,7 @@ export type LoadSnapshotResult =
 
 export type SaveSnapshotResult =
 	| { ok: true; updatedAt: string }
-	| { ok: false };
+	| { ok: false }; // no `reason` discriminant — the page maps all save failures to one message
 
 export type ListArtifactsResult =
 	| { ok: true; artifacts: Module1Artifact[] }

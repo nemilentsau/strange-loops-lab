@@ -44,7 +44,8 @@
 		buildInvariantArtifact,
 		buildNoteArtifact,
 		buildProofArtifact,
-		buildTraceArtifact
+		buildTraceArtifact,
+		type ArtifactBlueprint
 	} from '$lib/state/module1Artifacts';
 	import {
 		createArtifact,
@@ -458,7 +459,7 @@
 		await saveArtifactBlueprint(blueprint);
 	}
 
-	async function saveArtifactBlueprint(blueprint: { artifactType: string; title: string; payload: unknown }) {
+	async function saveArtifactBlueprint(blueprint: ArtifactBlueprint) {
 		const result = await createArtifact(fetch, module.slug, blueprint.artifactType, blueprint.title, blueprint.payload);
 
 		if (!result.ok) {
