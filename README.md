@@ -30,6 +30,10 @@ npm run test
 npm run build
 ```
 
+`npm run check` includes a dead-CSS gate (any class defined in `src/app.css`
+but referenced nowhere in `src/` fails the check; standalone:
+`npm run check:dead-css`).
+
 SQLite persistence is created automatically at `data/strange-loops.db`.
 
 Dialogue smoke test against a running app server:

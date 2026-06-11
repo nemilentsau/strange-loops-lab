@@ -72,7 +72,7 @@ The current scaffold is a root SvelteKit app managed with `npm`.
 
 - Install dependencies: `npm install`
 - Run the app: `npm run dev`
-- Run frontend checks: `npm run check`
+- Run frontend checks: `npm run check` (includes the dead-CSS gate; standalone: `npm run check:dead-css`)
 - Run unit tests: `npm run test`
 - Build production output: `npm run build`
 - Run the full smoke suite against a running server: `npm run smoke:all -- http://127.0.0.1:4175`

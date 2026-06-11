@@ -11,7 +11,8 @@
 		"smoke:persistence": "node scripts/smoke_persistence.mjs",
 		"smoke:all": "node scripts/smoke_all.mjs",
 		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && node scripts/check_dead_css.mjs",
+		"check:dead-css": "node scripts/check_dead_css.mjs",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run"
