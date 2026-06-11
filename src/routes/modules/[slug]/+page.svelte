@@ -8,13 +8,12 @@
 	import type { ModuleSummary } from '$lib/content/modules';
 	import {
 		analyzeMiuProposal,
+		analyzeMiuRuleAvailability,
 		applyMoveToTrace,
-		enumerateMiuMoves,
 		jumpToTraceStep,
-		restartTrace,
-		stepBackTrace,
 		type MiuMove
 	} from '$lib/miu/core';
+	import { challengeStatuses } from '$lib/state/module1Challenges';
 	import {
 		analyzeInvariantCandidate,
 		builtInInvariantAnalysis
@@ -89,24 +88,16 @@
 	let savedArtifacts = $state<Module1Artifact[]>([]);
 	let dialogueStatus = $state('Submit your explanation above to get coaching feedback.');
 	let dialogueRunning = $state(false);
-	let welcomeDismissed = $state(false);
-	const isNewSession = $derived(
-		draft.trace.steps.length <= 1 &&
-		draft.visitedPhases.length <= 1 &&
-		draft.visitedPhases[0] === 'explore'
-	);
 	const currentTraceStep = $derived(
 		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
 	);
 	const currentString = $derived(currentTraceStep.value);
 	const iCount = $derived((currentString.match(/I/g) || []).length);
 	const mod3Class = $derived(iCount % 3);
-	const legalMoves = $derived(enumerateMiuMoves(currentString));
+	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
+	const challenges = $derived(challengeStatuses(draft.trace, draft.muTested));
 	const proposalAnalysis = $derived(
 		draft.proposalInput.trim() ? analyzeMiuProposal(currentString, draft.proposalInput) : null
-	);
-	const uniqueReachableStates = $derived(
-		Array.from(new Map(legalMoves.map((move) => [move.result, move])).values())
 	);
 	const reachabilityGraph = $derived(
 		buildReachabilityGraph({
@@ -200,6 +191,9 @@
 				activePhase: 'explore',
 				activeSurface: 'sandbox',
 				proposalInput: target.value,
+				// The MU test challenge latches the moment the tester actually
+				// analyzes MU; it stays latched (detected, never un-clicked by edits).
+				muTested: draft.muTested || target.value.trim() === 'MU',
 				visitedSurfaces: ensureVisited('sandbox'),
 				visitedPhases: ensureVisitedPhases('explore')
 			});
@@ -249,17 +243,6 @@
 			applyMove(move);
 		}
 
-		function useExploreGuideTask(question: string, proposal?: string) {
-			patchDraft({
-				activePhase: 'explore',
-				activeSurface: 'sandbox',
-				workingQuestion: question,
-				proposalInput: proposal ?? draft.proposalInput,
-				visitedSurfaces: ensureVisited('sandbox', 'trace'),
-				visitedPhases: ensureVisitedPhases('explore')
-			});
-		}
-
 		function useMapGuideTask(question: string, nodeId?: string) {
 			patchDraft({
 				activePhase: 'map',
@@ -277,26 +260,6 @@
 			activeSurface: 'trace',
 			trace: jumpToTraceStep(draft.trace, index),
 			visitedSurfaces: ensureVisited('trace'),
-			visitedPhases: ensureVisitedPhases('explore')
-		});
-	}
-
-	function undoMove() {
-		patchDraft({
-			activePhase: 'explore',
-			activeSurface: 'trace',
-			trace: stepBackTrace(draft.trace),
-			visitedSurfaces: ensureVisited('trace'),
-			visitedPhases: ensureVisitedPhases('explore')
-		});
-	}
-
-	function restartFromInitial() {
-		patchDraft({
-			activePhase: 'explore',
-			activeSurface: 'sandbox',
-			trace: restartTrace(draft.trace),
-			visitedSurfaces: ensureVisited('sandbox', 'trace'),
 			visitedPhases: ensureVisitedPhases('explore')
 		});
 	}
@@ -596,24 +559,16 @@
 		{#if draft.activePhase === 'explore'}
 			<div class="phase-content" data-phase="explore">
 					<PhaseExplore
+						trace={draft.trace}
 						{currentString}
-						{legalMoves}
+						{ruleAvailability}
+						{challenges}
 						proposalInput={draft.proposalInput}
 						{proposalAnalysis}
-						{uniqueReachableStates}
-						trace={draft.trace}
-						workingQuestion={draft.workingQuestion}
-						{isNewSession}
-						{welcomeDismissed}
 						onApplyMove={applyMove}
 						onApplyProposalMatch={applyProposalMatch}
 						onJumpToStep={jumpToStep}
-						onUndo={undoMove}
-						onRestart={restartFromInitial}
 						onUpdateProposal={updateProposalInput}
-						onUpdateQuestion={updateQuestion}
-						onDismissWelcome={() => { welcomeDismissed = true; }}
-						onUseGuideTask={useExploreGuideTask}
 					/>
 				</div>
 			{:else if draft.activePhase === 'map'}

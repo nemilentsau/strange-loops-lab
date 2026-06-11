@@ -98,6 +98,8 @@ export interface Module1Draft {
 	lastDialogue: DialogueResult | null;
 	workingQuestion: string;
 	proposalInput: string;
+	/** Latched true once the tester has actually analyzed MU (the MU test). */
+	muTested: boolean;
 	invariantCandidate: string;
 	notes: string;
 	trace: DerivationTrace;
@@ -138,7 +140,8 @@ export function createModule1Draft(): Module1Draft {
 		dialogueInput: '',
 		lastDialogue: null,
 		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
-		proposalInput: 'MU',
+		proposalInput: '',
+		muTested: false,
 		invariantCandidate: 'count(I) mod 3 != 0',
 		notes: '',
 		trace: createDerivationTrace(),
@@ -180,6 +183,7 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 				: fallback.workingQuestion,
 		proposalInput:
 			typeof candidate.proposalInput === 'string' ? candidate.proposalInput : fallback.proposalInput,
+		muTested: candidate.muTested === true,
 		invariantCandidate:
 			typeof candidate.invariantCandidate === 'string'
 				? candidate.invariantCandidate

@@ -19,7 +19,8 @@ describe('module1 draft state', () => {
 		expect(draft.dialogueMode).toBe('Explain-Back Examiner');
 		expect(draft.dialogueInput).toBe('');
 		expect(draft.lastDialogue).toBeNull();
-		expect(draft.proposalInput).toBe('MU');
+		expect(draft.proposalInput).toBe('');
+		expect(draft.muTested).toBe(false);
 		expect(draft.trace.steps.map((step) => step.value)).toEqual(['MI']);
 		expect(draft.graphDepth).toBe(3);
 		expect(draft.graphNodeLimit).toBe(16);
@@ -35,6 +36,7 @@ describe('module1 draft state', () => {
 			lastDialogue: { messages: [{ agent: 'bad', content: 'x' }], finalResponse: 1 },
 			workingQuestion: 7,
 			proposalInput: 19,
+			muTested: 'yes',
 			trace: { steps: [{ value: 'MU', via: null }], currentIndex: 12 },
 			graphDepth: 999,
 			graphNodeLimit: 2,
@@ -48,7 +50,8 @@ describe('module1 draft state', () => {
 		expect(draft.dialogueInput).toBe('');
 		expect(draft.lastDialogue).toBeNull();
 		expect(draft.workingQuestion).toContain('Can MI become MU');
-		expect(draft.proposalInput).toBe('MU');
+		expect(draft.proposalInput).toBe('');
+		expect(draft.muTested).toBe(false);
 		expect(draft.trace.steps.map((step) => step.value)).toEqual(['MI']);
 		expect(draft.graphDepth).toBe(3);
 		expect(draft.graphNodeLimit).toBe(16);
@@ -74,6 +77,12 @@ describe('module1 draft state', () => {
 
 		expect(storage.has(MODULE1_STORAGE_KEY)).toBe(true);
 		expect(readModule1Draft(mockStorage)).toEqual(draft);
+	});
+
+	it('keeps a latched MU-test flag through normalization', () => {
+		const draft = normalizeModule1Draft({ ...createModule1Draft(), muTested: true });
+
+		expect(draft.muTested).toBe(true);
 	});
 
 	it('normalizes an older Socratic draft back to the single supported dialogue mode', () => {

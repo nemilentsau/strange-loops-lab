@@ -43,6 +43,17 @@ export interface MiuProposalAnalysis {
 	summary: string;
 }
 
+export interface MiuRuleAvailability {
+	ruleId: MiuRuleId;
+	ruleLabel: string;
+	pattern: string;
+	status: 'available' | 'unavailable';
+	/** Concrete legal moves (sites) for this rule; empty when unavailable. */
+	moves: MiuMove[];
+	/** Learner-facing reason the rule cannot fire; null when available. */
+	reason: string | null;
+}
+
 export function enumerateMiuMoves(source: string): MiuMove[] {
 	assertValidMiuString(source);
 
@@ -97,6 +108,29 @@ export function analyzeMiuProposal(source: string, proposedInput: string): MiuPr
 				? summarizeExactMatches(exactMatches)
 				: `No legal MIU rule produces ${proposed} from ${source}.`
 	};
+}
+
+/**
+ * Per-rule availability for the rules ledger: every rule, in fixed order,
+ * with either its concrete sites (built on `enumerateMiuMoves`, never
+ * re-derived) or the exact learner-facing reason it cannot fire.
+ */
+export function analyzeMiuRuleAvailability(current: string): MiuRuleAvailability[] {
+	const legalMoves = enumerateMiuMoves(current);
+
+	return MIU_RULES.map((ruleId) => {
+		const moves = legalMoves.filter((move) => move.ruleId === ruleId);
+		const available = moves.length > 0;
+
+		return {
+			ruleId,
+			ruleLabel: labelForRule(ruleId),
+			pattern: patternForRule(ruleId),
+			status: available ? 'available' : 'unavailable',
+			moves,
+			reason: available ? null : availabilityReason(ruleId)
+		};
+	});
 }
 
 export function createDerivationTrace(initialValue = MIU_INITIAL_STRING): DerivationTrace {
@@ -409,6 +443,37 @@ function unavailableRuleExplanation(source: string, ruleId: MiuRuleId): string {
 			return 'Rule 3 is unavailable because the current string has no III span.';
 		case 'delete-uu':
 			return 'Rule 4 is unavailable because the current string has no UU span.';
+	}
+}
+
+function patternForRule(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return 'xI → xIU';
+		case 'double-tail':
+			return 'Mx → Mxx';
+		case 'replace-iii':
+			return 'III → U';
+		case 'delete-uu':
+			return 'UU → ∅';
+	}
+}
+
+/**
+ * Why a rule has no site right now, phrased for the learner. Rule 2 always
+ * applies to a valid MIU state (every state starts with M), so it never needs
+ * a reason; the fallback is unreachable in practice.
+ */
+function availabilityReason(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return "the string doesn't end in I";
+		case 'double-tail':
+			return 'the string does not start with M';
+		case 'replace-iii':
+			return 'no III in this string';
+		case 'delete-uu':
+			return 'no UU in this string';
 	}
 }
 

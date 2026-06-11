@@ -39,11 +39,20 @@ The MIU system is the concrete vehicle for this.
 - phase-based module flow: `Explore -> Map -> Prove -> Reflect`
 - visible phase/level cue in the command bar (object/meta tag)
 - deterministic MIU rule engine
-- MIU sandbox with legal-next-move enumeration
-- invalid-move workbench with verifier-backed rejection feedback
-- derivation trace with jump, restart, undo, and branching from prior states
+- `Explore` as a single-column derivation worksheet: the trace is the page
+  (thin numbered spine lines, current string written large), with jump-back
+  and branching from any prior line
+- always-visible four-rule ledger with per-rule availability — site counts
+  when a rule applies, the exact reason when it does not
+- rule application through the string itself: matching spans highlight,
+  hover previews the result, click applies (single-site rules apply from
+  their ledger row)
+- collapsed target tester (empty by default) with verifier-backed rejection
+  feedback per rule
+- verifier-detected challenges in `Explore` (completion comes from the trace
+  and tester state, never from clicking "done")
 - bounded derivation graph explorer with provenance display
-- guided tasks in `Explore` and `Map`
+- guided tasks in `Map`
 - invariant explorer with:
   - built-in MU non-reachability argument,
   - custom modular candidates of the form `count(I) mod k = r` and `!= r`,
@@ -229,9 +238,13 @@ Useful extras if cheap:
 - show all applicable next moves.
 
 Current build notes:
-- all applicable next moves are shown
-- history branching, undo, and restart are implemented
-- invalid moves can now be proposed explicitly in the verifier workbench and rejected with rule-level explanations
+- the affected substring is highlighted and click-to-apply on matching
+  regions is implemented; all four rules stay on screen with live
+  availability (site counts or the exact reason a rule cannot fire)
+- history branching is implemented through the derivation spine (click an
+  earlier line to continue from it); session restart lives in the command bar
+- invalid moves can be proposed explicitly in the collapsed target tester and
+  rejected with rule-level explanations
 
 ## 6.2 Derivation trace viewer
 Required behaviors:
