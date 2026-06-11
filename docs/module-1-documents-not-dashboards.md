@@ -142,11 +142,15 @@ Single column. The page is the derivation:
 - "Test a target string" collapsed to one quiet line, empty by default. The
   MU experiment is something the learner chooses to run, not a standing
   error wall.
-- Guided tasks return only as **verifier-checked challenges**: each task is
-  a predicate the engine detects against the live derivation ("make Rule 3
+- Guided tasks return only as **verifier-detected exercises**: each is a
+  predicate the engine detects against the live derivation ("make Rule 3
   possible" completes when the string contains III; "reach the same string
   two ways" completes when the history shows it). Completion is detected,
-  never self-declared. No task whose only effect is setting a label.
+  never self-declared, and the page prints the observation each exercise
+  exists to produce — both open and once detected (with its step stamp). No
+  element whose only effect is setting a label. (Phase A first shipped these
+  as a "challenges" checkbox strip; the June 11, 2026 played review rejected
+  that form as gamified chrome — see rule 8 and the rework list in the plan.)
 
 ### 3.2 Map: the derivation tree
 
@@ -222,6 +226,35 @@ and stay:
    last.
 7. **Mockup before code.** Interaction changes are approved on sight by the
    user before implementation (standing instruction).
+8. **Written for a mathematician.** The audience (vision §2.3) reads
+   graduate-level math. Every sentence on a surface must be one a serious
+   textbook would print: precise, plain, never cute. Gamification vocabulary
+   and chrome are banned — "challenge", "task", "achievement", checkbox-quest
+   framing, congratulation copy. Exercises in the textbook sense are welcome,
+   and each must print the mathematical observation it exists to produce.
+9. **Every element names the fact it teaches.** Each interactive element and
+   status surface must answer "what mathematical fact does this teach?" in
+   one sentence (the ledger: availability is a property of the current
+   string; the faded frontier: bounded search is not the reachable set). No
+   answer — delete the element, don't restyle it. Real structure beats
+   invented content: e.g. the rules' anatomy (R1/R2 rewrite globally —
+   suffix / whole tail, at most one site; R3/R4 rewrite local subwords —
+   variable sites) is worth a quiet disclosure; a decorative card never is.
+10. **Mock every state.** A mockup that shows only the fresh page designs
+    nothing. Approval requires the played states: mid-session with long
+    strings, detected/completed conditions, expanded panels, rejection
+    output. Whatever is not mocked ships as leftover dashboard furniture —
+    that is how cards come back.
+11. **Copy is written, not templated.** Reader-facing text is drafted per
+    surface and per case. A phrase generated from engine data must vary
+    informatively across the cases that render it; a constant phrase
+    ("applies — one way") says nothing and is deleted. Engine vocabulary
+    (node, draft, snapshot) never leaks into learner copy.
+12. **Name the real mathematics when it is earned.** Where a surface touches
+    a structurally real connection (vision §5) — MIU as a string-rewriting
+    system, derivability as graph reachability, the invariant as
+    preservation under every rule — say it in those terms instead of hiding
+    it. The product flattens nothing; it makes hard ideas tangible.
 
 ## 6. Sequencing
 

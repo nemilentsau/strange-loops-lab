@@ -32,3 +32,6 @@ data/*.db-wal
 
 # Playwright MCP screenshot/snapshot scratch output
 .playwright-mcp/
+
+# Phase mockups are ephemeral: local-only, deleted once their phase ships
+docs/mockups/

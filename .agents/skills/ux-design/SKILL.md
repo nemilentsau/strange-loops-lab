@@ -4,6 +4,30 @@ description: Create distinctive, production-grade frontend interfaces with high 
 license: Complete terms in LICENSE.txt
 ---
 
+## Project override — Strange Loops Lab (binding, read first)
+
+This repo is a mathematical laboratory for graduate-level readers of GEB,
+not a consumer app. The design law in
+`docs/module-1-documents-not-dashboards.md` §5 overrides everything below
+where they conflict:
+
+- The page is the canonical mathematical document for its altitude
+  (worksheet / derivation tree / proof / notebook) — never a dashboard of
+  cards. A box must earn its border; cards are the documented failure mode.
+- Epistemic registers are carried by form, never hue: verified = solid
+  graphite + stamps, computed = dashed pencil, coaching = dotted + italic
+  serif. One oxblood accent means exactly "you can act here."
+- Banned outright: gamified chrome (badges, checkbox quests, congratulation
+  copy), cute or condescending text, engine vocabulary in learner copy.
+- Required before code: a mockup covering the played states (mid-session
+  with long strings, detected/completed conditions, expanded panels,
+  rejection output), approved by the user on sight.
+- Every element must name the mathematical fact it teaches in one sentence,
+  or be cut. Prefer surfacing real structure (rule anatomy, reachability,
+  invariants) over inventing decorative content.
+
+---
+
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.

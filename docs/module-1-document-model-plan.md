@@ -2,9 +2,14 @@
 
 ## Document status
 
-**Awaiting user approval. Nothing happens until then — no mockups, no code.**
+**Approved and in execution.** Phase A shipped (commit `ca6bf4c`) and was
+played by the user on June 11, 2026. The played review produced the Phase A
+rework list below; it must land — mockup-first — before Phase B proceeds.
+(A Phase B mockup draft is parked locally under `docs/mockups/`; mockups are
+ephemeral working artifacts — gitignored, never committed, deleted once
+their phase ships.)
 
-Once the plan is approved, each phase follows the same loop:
+Each phase follows the same loop:
 visual mockup → user approves on sight → implement → user plays it → next
 phase. The "user plays it" gate is the acceptance test (design rule 6 in
 `docs/module-1-documents-not-dashboards.md`); structural checks alone never
@@ -78,6 +83,36 @@ Played acceptance: 8+ moves including long-string states, an MU attempt via
 the tester, a jump-back continuation, a saved trace — performed by the user.
 Structural gates: `npm run check` 0 errors, full test suite green (current
 count plus new helper tests), `npm run build`.
+
+### Phase A rework (from the June 11, 2026 played review)
+
+The user's played session rejected four surfaces. Binding scope for the next
+pass; the mockup must show the played states (design rule 10), not the fresh
+sheet:
+
+1. **Per-rule status copy.** R1/R2 are global rewrites (suffix / whole tail
+   — structurally at most one site); never print a site count for them:
+   preview + Apply only. R3/R4 match local subwords, so counts are
+   information: "applies at n places — click a site." Ledger previews
+   middle-ellipsize past ~24 characters.
+2. **Rule anatomy disclosure.** A quiet typographic disclosure under the
+   RULES label — not a card — stating the real structure: R1/R2 match the
+   string globally, R3/R4 match local subwords; this is why site counts
+   vary, why R2 drives growth, and what "string rewriting system" means
+   here. Exact form (disclosure line, dropdown, footnote) decided at mockup.
+3. **Challenges re-set as textbook exercises.** Open state prints the
+   observation each exists to produce; the detected state becomes a written
+   line with its step stamp ("noticed at step 2 — III appeared and Rule 3
+   opened"). Verifier-detected, never clicked, honest regression kept. If
+   they still read as chrome after the rework, delete them.
+4. **Revisit notes in the spine.** When a move lands on a string already in
+   the trace, the line says so ("— same as step 6"). The system's degeneracy
+   becomes a written observation that sets up Map's reconvergence instead of
+   silent frustration.
+5. **Tester re-set as a margin query.** Visibly bound to the focal string
+   ("from MUIIUUIIU, can one move reach …?"); verdict is one stamped line
+   plus four compact mono clauses in the ledger's register. No paragraphs,
+   no badge chips, no legacy dashboard components.
 
 ## Phase B — Map: the derivation tree
 

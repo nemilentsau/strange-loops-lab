@@ -12,6 +12,15 @@ It is a set of interactive instruments for:
 - testing understanding through dialogue and construction,
 - and connecting GEB's core ideas to other parts of mathematics and computer science **only when the connection is structurally real**.
 
+Beyond the book itself, the project carries a longer-term hypothesis under
+test: that the GEB arc — formal systems, invariants, diagonalization,
+encoding, self-reference, fixed points, incompleteness, compression — can be
+**extended into a working lens on applied mathematics and modern
+computation, especially ML / AI / LLMs**. GEB is the spine, not the
+boundary. The same structural gate (section 5) governs every extension:
+theorem-level and construction-level connections enter the main flow;
+analogies stay labeled sidebars; hype stays out.
+
 The project starts as a personal reading companion and experimental laboratory:
 - build scaffolding,
 - build Module 1,
@@ -494,8 +503,26 @@ Potentially interesting, but:
 
 Good for a debate module or misconception debugger, not for the central teaching path.
 
-### 9.3 AI / LLM claims derived from incompleteness
-Use only in “what this does **not** imply” contexts unless an argument is very carefully scoped.
+### 9.3 AI / LLM connections
+ML / AI / LLMs are a primary extension target of this project (section 1),
+not merely a hazard zone — but they are the easiest place to ship hype, so
+the connection gate applies at full strength.
+
+Theorem-level and construction-level candidates (belong in the backlog and
+may enter the main flow when prerequisites exist):
+- compression = prediction: Solomonoff induction, MDL, Kolmogorov complexity
+  as the formal backbone of "LLMs as compressors" (Module 7 territory),
+- undecidability and hardness of program/model properties: Rice's theorem,
+  verification hardness for neural networks, limits of static analysis,
+- Löbian obstacles to self-trust in agents that reason about themselves
+  (provability logic applied to AI safety — formal, not vibes),
+- fixed-point and self-reference dynamics: quines, models trained on their
+  own outputs, self-referential prompting, code-as-data ↔ tokens-as-data,
+- diagonalization under resource bounds where it genuinely transfers.
+
+Banned regardless: "Gödel proves AI can't X" hot takes. Incompleteness-to-
+minds rhetoric stays in section 9.2's debate-module quarantine. Anything
+that cannot state its mapping crisply (section 5.3) stays out.
 
 ---
 

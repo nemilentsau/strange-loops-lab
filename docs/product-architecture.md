@@ -8,7 +8,7 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: June 10, 2026.
+Last updated: June 11, 2026.
 
 ---
 
@@ -47,20 +47,27 @@ Shared Module 1 UI components (under `src/lib/components`) carry the composition
   the deterministic readout, and the object/meta level tag). It replaced the old
   hero + context strip + phase-nav stack; it holds no state of its own.
 - `LabDesk` — the three-zone phase layout (`guide` / `instrument` / `evidence`
-  snippets), used by every phase. The instrument column is the main event.
+  snippets), used by `Map`, `Prove`, and `Reflect`. `Explore` left the lab
+  desk in Phase A of the document-model rework and is now a single-column
+  derivation worksheet (`PhaseExplore` composes the page directly).
 - `SurfacePanel` — the standard panel; its `instrument` boolean opts a panel into
   the single oxblood action frame ("the work happens here", not an epistemic
   register), keeping the accent off verified/computed/coaching styling.
-- `TaskList` — compact, expand-on-click guided-task rows for the guide rail.
-- `WorkingQuestion` — the editable working question, rendered at the top of every
-  phase's guide rail (it remains global draft state).
+- `TaskList` — compact, expand-on-click guided-task rows for the remaining
+  lab-desk guide rails; `Explore`'s guided tasks were replaced by
+  verifier-detected exercises on the worksheet itself.
+- `WorkingQuestion` — the editable working question, rendered at the top of
+  the lab-desk phases' guide rails; removed from `Explore` in Phase A (it
+  remains global draft state).
 
 The June 10, 2026 UX reboot was presentational/compositional only — no
-state-shape, persistence, dialogue, or MIU-logic boundaries moved. A rework of
-the phase interaction layer (the document model) is the active plan; see
-`docs/module-1-documents-not-dashboards.md` and
-`docs/module-1-document-model-plan.md`. The component names above describe the
-current build and will change with that rework.
+state-shape, persistence, dialogue, or MIU-logic boundaries moved. The
+document-model rework of the phase interaction layer is in execution: Phase A
+(Explore as the derivation worksheet) shipped on June 11, 2026; a Phase A
+rework pass and then Map/Prove/Reflect follow per
+`docs/module-1-document-model-plan.md`. The design law is
+`docs/module-1-documents-not-dashboards.md` §5. The remaining lab-desk
+component names above will change as later phases land.
 
 ### 2.2 Deterministic formal layer
 Owned by TypeScript library modules under `src/lib/miu`.

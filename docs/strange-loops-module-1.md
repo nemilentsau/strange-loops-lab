@@ -14,7 +14,7 @@ Supporting docs such as `README.md`,
 `docs/module-1-document-model-plan.md` should stay consistent with this
 document rather than carrying competing status snapshots.
 
-Last updated: June 10, 2026.
+Last updated: June 11, 2026.
 
 ## Module title
 **Module 1: Formal Systems & Their Walls**
@@ -65,6 +65,23 @@ The MIU system is the concrete vehicle for this.
 - one honest Claude Code dialogue mode
 - local smoke scripts for persistence and dialogue flows
 
+### June 11, 2026 played review (Phase A)
+
+The user played the new Explore worksheet end to end. The mechanics held
+(spine, jump-back branching, in-string rule application, detection); four
+surfaces were rejected on register and communication grounds:
+
+- the "challenges" strip read as gamified chrome with its rationale missing,
+- the templated rule status copy ("applies — one way") carries no information,
+- the expanded tester is the old dashboard panel pasted into the worksheet,
+- revisits to already-seen strings pass silently, wasting the system's
+  degeneracy as a teaching moment.
+
+The binding rework list lives in `docs/module-1-document-model-plan.md`
+("Phase A rework"). Phase B (Map) is parked behind it. This review also
+produced the binding design-law extension in
+`docs/module-1-documents-not-dashboards.md` §5 (rules 8–12).
+
 ### Present but still shallow
 - object-level vs meta-level framing exists in phase labels, copy, and panel structure, but it is still not forceful enough in the interface
 - dialogue mode is usable, but still needs quality evaluation and refinement against real learner transcripts
@@ -72,6 +89,8 @@ The MIU system is the concrete vehicle for this.
 - the graph explorer is accurate and inspectable, but still needs stronger teaching structure so it does more than expose state growth
 
 ### Highest-priority remaining work
+- land the Phase A rework (see the plan doc), then resume the document-model
+  phases: Map, Prove, Reflect
 - stronger UI treatment of the object-level / meta-level split
 - better review and reuse flow for saved artifacts
 - dialogue quality evaluation against real learner transcripts
@@ -596,8 +615,11 @@ Why this comes first:
 - the current build gestures at it, but still relies too much on prose and panel titles
 
 ### Priority 2: add an invalid-move workbench
-This work now exists in first-pass form. The next issue is refinement rather
-than raw availability.
+This work now exists in first-pass form (the collapsed target tester). The
+June 11 played review rejected its expanded form — legacy dashboard
+typography, no visible binding to the current string. The active expression
+of this priority is rework item 5 in the plan doc: re-set the tester as a
+margin query in the worksheet's own register.
 
 Target changes:
 - improve the explanation wording so it teaches the rule boundary even more clearly
@@ -609,12 +631,16 @@ Why this matters:
 - understanding why a move fails is part of understanding the system boundary
 
 ### Priority 3: make `Explore` and `Map` teach more actively
-This now exists in first-pass form. The next pass should tune which tasks
-actually help.
+In `Explore`, guided tasks were replaced by verifier-detected exercises in
+Phase A; the played review rejected their checkbox presentation, and the
+rework re-sets them as textbook exercises that print the observation each
+exists to produce (plan doc, rework item 3). `Map`'s guided tasks are slated
+for removal when Phase B recomposes that page as the derivation tree.
 
 Target changes:
-- keep only the guided tasks that create real search pressure
-- refine task wording based on actual use
+- keep only the exercises that create real search pressure, with their
+  rationale printed on the page
+- refine exercise wording based on actual use
 - add stronger links from `Map` observations into the `Prove` phase when warranted
 
 Why this matters:
