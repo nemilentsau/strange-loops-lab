@@ -42,15 +42,25 @@ The MIU system is the concrete vehicle for this.
 - `Explore` as a single-column derivation worksheet: the trace is the page
   (thin numbered spine lines, current string written large), with jump-back
   and branching from any prior line
-- always-visible four-rule ledger with per-rule availability — site counts
-  when a rule applies, the exact reason when it does not
+- always-visible four-rule ledger with per-rule availability — local rules
+  (R3/R4) show site counts, global rules (R1/R2) show only their result
+  preview (their site count is structurally constant), unavailable rules the
+  exact reason — plus a quiet rule-anatomy disclosure naming the
+  global/local matching split and the string-rewriting framing
+- previews of derived strings middle-ellipsize past ~24 characters; the
+  derivation itself always renders strings in full, wrapping
 - rule application through the string itself: matching spans highlight,
   hover previews the result, click applies (single-site rules apply from
   their ledger row)
-- collapsed target tester (empty by default) with verifier-backed rejection
-  feedback per rule
-- verifier-detected challenges in `Explore` (completion comes from the trace
-  and tester state, never from clicking "done")
+- the target query in the worksheet margin (empty by default), visibly bound
+  to the current string, answering with a stamped verdict and one compact
+  verifier clause per rule
+- verifier-detected exercises in the worksheet margin (detection comes from
+  the trace and tester state, never from clicking "done"); each prints the
+  observation it exists to produce and, once detected, the step stamp where
+  it was noticed
+- revisit notes in the derivation spine ("↩ same as step 5") whenever a move
+  lands on a string already in the trace
 - bounded derivation graph explorer with provenance display
 - guided tasks in `Map`
 - invariant explorer with:
@@ -78,7 +88,8 @@ surfaces were rejected on register and communication grounds:
   degeneracy as a teaching moment.
 
 The binding rework list lives in `docs/module-1-document-model-plan.md`
-("Phase A rework"). Phase B (Map) is parked behind it. This review also
+("Phase A rework"); it is implemented and awaits the user's played
+acceptance. Phase B (Map) is parked behind that gate. This review also
 produced the binding design-law extension in
 `docs/module-1-documents-not-dashboards.md` §5 (rules 8–12).
 

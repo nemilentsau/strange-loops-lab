@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	MODULE1_STORAGE_KEY,
 	createModule1Draft,
+	ellipsizeMiddle,
 	normalizeModule1Artifacts,
 	normalizeModule1Draft,
 	pickNewestDraft,
@@ -10,6 +11,21 @@ import {
 	restoreModule1Artifact,
 	writeModule1Draft
 } from './module1';
+
+describe('ellipsizeMiddle', () => {
+	it('returns a string at exactly the limit unchanged', () => {
+		const value = 'M' + 'I'.repeat(24);
+
+		expect(ellipsizeMiddle(value)).toBe(value);
+	});
+
+	it('shortens past the limit to the limit, keeping both ends', () => {
+		const value = 'MUIIUUIIUUII' + 'XY' + 'UIIUUIIUUIIU';
+
+		expect(ellipsizeMiddle(value)).toBe('MUIIUUIIUUII…UIIUUIIUUIIU');
+		expect(ellipsizeMiddle(value)).toHaveLength(25);
+	});
+});
 
 describe('module1 draft state', () => {
 	it('creates a conservative default draft', () => {

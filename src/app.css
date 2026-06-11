@@ -837,14 +837,18 @@ body.module1-wide .site-shell {
 }
 
 /* ── Explore: the derivation worksheet ──
- * One sheet of paper, one column. The page IS the derivation: thin numbered
- * spine lines, the current string written large (and interactive — sites of
- * the selected rule are click targets in the string itself), the four-rule
- * ledger that never leaves the screen, and one quiet bottom line for the
- * tester and the detected challenges. Statuses and verdicts are verified
- * register (form, not hue); oxblood appears only where you can act. */
+ * One sheet of paper. The page IS the derivation: thin numbered spine lines
+ * down the main column, the current string written large (and interactive —
+ * sites of the selected rule are click targets in the string itself), the
+ * four-rule ledger with its anatomy footnote, and a true right margin
+ * holding the target query and the verifier-detected exercises as
+ * marginalia. Statuses and verdicts are verified register (form, not hue);
+ * oxblood appears only where you can act. */
 .worksheet {
-	max-width: 880px;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 280px;
+	gap: 0 32px;
+	max-width: 1100px;
 	margin: var(--space-md) auto var(--space-lg);
 	padding: var(--space-lg) var(--space-xl);
 	border: 1px solid var(--line);
@@ -852,6 +856,17 @@ body.module1-wide .site-shell {
 	background-color: var(--panel);
 	background-image: linear-gradient(rgba(222, 219, 211, 0.45) 1px, transparent 1px);
 	background-size: 100% 1.6rem;
+	min-width: 0;
+}
+
+.worksheet__main {
+	min-width: 0;
+}
+
+/* The worksheet margin: a document margin behind a hairline rule. */
+.worksheet__margin {
+	border-left: 1px solid var(--line-strong);
+	padding-left: 22px;
 	min-width: 0;
 }
 
@@ -1135,71 +1150,148 @@ body.module1-wide .site-shell {
 	color: var(--muted);
 }
 
-/* The quiet bottom line: tester toggle on the left, detected challenges on
- * the right. Challenge completion is verified-register: ✓ in ink, by form. */
-.worksheet-foot {
-	display: flex;
-	justify-content: space-between;
-	align-items: baseline;
-	gap: var(--space-md);
-	flex-wrap: wrap;
-	margin-top: var(--space-md);
-}
-
-.tester-toggle {
-	padding: 2px 4px;
-	border: none;
-	background: transparent;
-	color: var(--faint);
-	font-family: var(--sans);
-	font-size: 0.8rem;
-	cursor: pointer;
-}
-
-.tester-toggle:hover,
-.tester-toggle:focus-visible {
-	color: var(--act);
-}
-
-.challenge-line {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 8px;
-	margin: 0;
-	font-size: 0.8rem;
+/* A revisited string is written on its line, not passed silently: the
+ * system's degeneracy becomes a recorded observation. */
+.spine-line__again {
 	color: var(--muted);
 }
 
-.challenge-line__label {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.6rem;
-	font-weight: 600;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
+/* ── Rule anatomy: a typographic footnote under the RULES label, not a card.
+ * Names the real structure — global rewrites (R1/R2) vs local subword
+ * matches (R3/R4) — i.e. what kind of rewriting system this is. */
+.anatomy {
+	margin: 2px 0 10px;
 }
 
-.challenge[data-complete='true'] {
+.anatomy__toggle {
+	padding: 2px 4px 2px 0;
+	border: none;
+	background: transparent;
+	color: var(--muted);
+	font-family: var(--sans);
+	font-size: 0.78rem;
+	cursor: pointer;
+}
+
+.anatomy__toggle:hover,
+.anatomy__toggle:focus-visible {
+	color: var(--act);
+}
+
+.anatomy__body {
+	margin: 6px 0 0 14px;
+	padding-left: 12px;
+	border-left: 1px solid var(--line);
+}
+
+.anatomy__body p {
+	margin: 0 0 6px;
+	color: var(--muted);
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+
+.anatomy__rule {
+	font-family: var(--mono);
+	font-size: 0.76rem;
+	color: var(--ink);
+}
+
+/* ── Margin: the target query — "from <current>, can one move reach …?" ──
+ * Verified register throughout: stamped verdict, compact mono clauses. */
+.query__ask {
+	margin: 6px 0 0;
+	color: var(--ink);
+	font-size: 0.82rem;
+	line-height: 1.6;
+}
+
+.query__from {
+	font-family: var(--mono);
+	font-size: 0.78rem;
+	overflow-wrap: anywhere;
+}
+
+.query__input {
+	width: 8ch;
+	padding: 0 2px 1px;
+	border: none;
+	border-bottom: 1px solid var(--line-strong);
+	border-radius: 0;
+	background: transparent;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.82rem;
+}
+
+.query__verdict {
+	margin: 12px 0 0;
+	color: var(--ink);
+	font-size: 0.84rem;
+	font-weight: 600;
+}
+
+.query__stamp {
+	font-family: var(--mono);
+}
+
+.query__apply {
+	margin-top: 10px;
+}
+
+.query__clauses {
+	margin-top: 8px;
+	font-family: var(--mono);
+	font-size: 0.74rem;
+	line-height: 1.5;
+}
+
+.query__clause {
+	padding: 5px 0;
+	border-bottom: 1px solid var(--line);
+	color: var(--muted);
+	overflow-wrap: anywhere;
+}
+
+.query__clause-id {
 	color: var(--ink);
 	font-weight: 600;
 }
 
-.challenge__context {
+/* ── Margin: exercises — verifier-detected, never clicked. The open state
+ * prints the observation to produce; the detected state is a written note
+ * carrying the verifier's step stamp. */
+.exercises {
+	margin-top: 30px;
+}
+
+.exercises__hint {
+	margin: 0 0 10px;
 	color: var(--faint);
-	font-weight: 400;
+	font-size: 0.72rem;
 }
 
-.challenge-line__sep {
-	color: var(--line-strong);
+.exercise {
+	margin: 0 0 16px;
+	font-size: 0.8rem;
+	line-height: 1.55;
 }
 
-.tester-body {
-	display: grid;
-	gap: var(--space-sm);
-	margin-top: var(--space-sm);
-	padding-top: var(--space-md);
-	border-top: 1px solid var(--line);
+.exercise__head {
+	margin: 0;
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.exercise__body {
+	margin: 2px 0 0;
+	color: var(--muted);
+}
+
+.exercise__stamp {
+	font-family: var(--mono);
+	font-size: 0.74rem;
+	color: var(--ink);
 }
 
 /* ── Guide rail: working question ── */
@@ -1899,32 +1991,6 @@ body.module1-wide .site-shell {
 	display: block;
 	margin-top: 10px;
 	color: var(--muted);
-}
-
-.proposal-summary {
-	display: grid;
-	gap: 12px;
-	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-/* A legal proposal is a verified pass: solid graphite left-rule. */
-.proposal-summary[data-valid='true'] {
-	border-left: 3px solid var(--ink);
-}
-
-.proposal-summary__top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-}
-
-.proposal-summary__top strong {
-	font-size: 0.95rem;
-	line-height: 1.5;
 }
 
 /* ── Dialogue transcript: coaching register only ──

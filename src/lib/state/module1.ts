@@ -38,6 +38,23 @@ export const LEVEL_PRESENTATION: Record<PhaseLevel, { glyph: string; label: stri
 	meta: { glyph: '◉', label: 'about the system' }
 };
 
+/**
+ * Middle-ellipsis for derived string previews (ledger previews, query
+ * clauses) that would otherwise double every move. Only previews are ever
+ * shortened — the derivation itself always renders strings in full,
+ * wrapping (design rule: design for step 10, not step 1).
+ */
+export function ellipsizeMiddle(value: string, maxChars = 25): string {
+	if (value.length <= maxChars) {
+		return value;
+	}
+
+	const head = Math.ceil((maxChars - 1) / 2);
+	const tail = maxChars - 1 - head;
+
+	return `${value.slice(0, head)}…${value.slice(value.length - tail)}`;
+}
+
 export const PHASE_META: Record<
 	LabPhase,
 	{

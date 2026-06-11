@@ -3,20 +3,20 @@
 		DerivationStep,
 		DerivationTrace,
 		MiuMove,
-		MiuProposalAnalysis,
 		MiuRuleAvailability,
 		MiuRuleId
 	} from '$lib/miu/core';
-	import type { ChallengeStatus } from '$lib/state/module1Challenges';
-	import { PHASE_META, LEVEL_PRESENTATION } from '$lib/state/module1';
+	import { traceRevisitIndices, type ExerciseStatus } from '$lib/state/module1Exercises';
+	import type { TargetQuery } from '$lib/state/module1Query';
+	import { PHASE_META, LEVEL_PRESENTATION, ellipsizeMiddle } from '$lib/state/module1';
 
 	let {
 		trace,
 		currentString,
 		ruleAvailability,
-		challenges,
+		exercises,
 		proposalInput,
-		proposalAnalysis,
+		targetQuery,
 		onApplyMove,
 		onApplyProposalMatch,
 		onJumpToStep,
@@ -25,9 +25,9 @@
 		trace: DerivationTrace;
 		currentString: string;
 		ruleAvailability: MiuRuleAvailability[];
-		challenges: ChallengeStatus[];
+		exercises: ExerciseStatus[];
 		proposalInput: string;
-		proposalAnalysis: MiuProposalAnalysis | null;
+		targetQuery: TargetQuery | null;
 		onApplyMove: (move: MiuMove) => void;
 		onApplyProposalMatch: (move: MiuMove) => void;
 		onJumpToStep: (index: number) => void;
@@ -43,27 +43,16 @@
 	let pinnedRuleId = $state<MiuRuleId | null>(null);
 	let hoverRuleId = $state<MiuRuleId | null>(null);
 	let hoverMoveKey = $state<string | null>(null);
-	let testerOpen = $state(false);
-	let testerAutoOpened = false;
+	let anatomyOpen = $state(false);
 	let lastTrace: DerivationTrace | null = null;
 
-	// Sync the tester with externally-driven draft changes: a restored draft
-	// arriving with tester text opens it once; a session reset (fresh one-step
-	// trace, empty input) closes it and drops the rule selection. Manual
-	// toggling stays with the learner.
+	// A session reset (fresh one-step trace) drops the rule selection.
 	$effect(() => {
-		if (!testerAutoOpened && proposalInput.trim()) {
-			testerOpen = true;
-			testerAutoOpened = true;
-		}
-
 		if (trace !== lastTrace) {
 			const isFreshTrace = trace.steps.length === 1;
 			lastTrace = trace;
 
-			if (isFreshTrace && !proposalInput.trim()) {
-				testerOpen = false;
-				testerAutoOpened = false;
+			if (isFreshTrace) {
 				pinnedRuleId = null;
 			}
 		}
@@ -88,6 +77,10 @@
 	});
 	const activeMoves = $derived(activeRule?.moves ?? []);
 	const hoverMove = $derived(activeMoves.find((move) => move.key === hoverMoveKey) ?? null);
+
+	/* For each step, the index of the first earlier step with the same string
+	 * — the spine writes the system's revisits instead of passing them by. */
+	const revisits = $derived(traceRevisitIndices(trace));
 
 	interface StringSegment {
 		move: MiuMove | null;
@@ -168,6 +161,7 @@
 	}
 
 	const currentStep = $derived(trace.steps[trace.currentIndex] ?? trace.steps[0]!);
+	const focalRevisit = $derived(revisits[trace.currentIndex] ?? null);
 	const aheadSteps = $derived(trace.steps.length - 1 - trace.currentIndex);
 </script>
 
@@ -180,7 +174,11 @@
 	>
 		<span class="spine-line__num">{index}</span>
 		<span class="spine-line__value">{step.value}</span>
-		<span class="spine-line__note">{ruleNote(step.via)}</span>
+		<span class="spine-line__note">
+			{ruleNote(step.via)}{#if revisits[index] !== null}{' · '}<span class="spine-line__again"
+					>↩ same as step {revisits[index]}</span
+				>{/if}
+		</span>
 		<span class="spine-line__jump" aria-hidden="true">
 			{ahead ? '↪ jump forward' : '↩ continue from here'}
 		</span>
@@ -194,224 +192,220 @@
 	</span>
 
 	<div class="worksheet">
-		<p class="worksheet__label">Derivation</p>
+		<div class="worksheet__main">
+			<p class="worksheet__label">Derivation</p>
 
-		<div class="spine">
-			{#each trace.steps as step, index}
-				{#if index < trace.currentIndex}
-					{@render spineLine(step, index, false)}
-				{:else if index === trace.currentIndex}
-					<div class="focal">
-						<span class="focal__num">{index}</span>
-						<div class="focal__body">
-							<div class="focal__string">
-								{#each segments as segment (segment.start)}{#if segment.move}<span
-											class="string-site"
-											role="button"
-											tabindex="0"
-											aria-label={`Apply ${activeRule?.ruleLabel} at characters ${segment.move.start + 1}–${segment.move.end}, producing ${segment.move.result}`}
-											onmouseenter={() => (hoverMoveKey = segment.move!.key)}
-											onmouseleave={() => (hoverMoveKey = null)}
-											onfocus={() => (hoverMoveKey = segment.move!.key)}
-											onblur={() => (hoverMoveKey = null)}
-											onclick={() => applySite(segment.move!)}
-											onkeydown={(event) => siteKeydown(event, segment.move!)}
-											>{#each segment.chars as char, offset}<span
-													class="string-char"
-													data-mark={markFor(segment.start + offset, true)}
-													>{char}</span
-												>{/each}</span
-										>{:else}{#each segment.chars as char, offset}<span
-											class="string-char"
-											data-mark={markFor(segment.start + offset, false)}>{char}</span
-										>{/each}{/if}{/each}
+			<div class="spine">
+				{#each trace.steps as step, index}
+					{#if index < trace.currentIndex}
+						{@render spineLine(step, index, false)}
+					{:else if index === trace.currentIndex}
+						<div class="focal">
+							<span class="focal__num">{index}</span>
+							<div class="focal__body">
+								<div class="focal__string">
+									{#each segments as segment (segment.start)}{#if segment.move}<span
+												class="string-site"
+												role="button"
+												tabindex="0"
+												aria-label={`Apply ${activeRule?.ruleLabel} at characters ${segment.move.start + 1}–${segment.move.end}, producing ${segment.move.result}`}
+												onmouseenter={() => (hoverMoveKey = segment.move!.key)}
+												onmouseleave={() => (hoverMoveKey = null)}
+												onfocus={() => (hoverMoveKey = segment.move!.key)}
+												onblur={() => (hoverMoveKey = null)}
+												onclick={() => applySite(segment.move!)}
+												onkeydown={(event) => siteKeydown(event, segment.move!)}
+												>{#each segment.chars as char, offset}<span
+														class="string-char"
+														data-mark={markFor(segment.start + offset, true)}
+														>{char}</span
+													>{/each}</span
+											>{:else}{#each segment.chars as char, offset}<span
+												class="string-char"
+												data-mark={markFor(segment.start + offset, false)}>{char}</span
+											>{/each}{/if}{/each}
+								</div>
+
+								{#if hoverMove && activeRule}
+									<p class="site-preview">
+										<span class="site-preview__chip">
+											apply {shortRuleId(activeRule.ruleLabel)} here → {ellipsizeMiddle(
+												hoverMove.result
+											)}
+										</span>
+									</p>
+								{:else if activeRule && activeRule.moves.length > 1}
+									<p class="focal__hint">
+										{activeRule.ruleLabel} applies at {activeRule.moves.length} places — hover a
+										highlighted site to preview it, click to apply.
+									</p>
+								{:else}
+									<p class="focal__note">
+										{ruleNote(currentStep.via)}{#if focalRevisit !== null}{' · '}<span
+												class="spine-line__again">↩ same as step {focalRevisit}</span
+											>{/if}
+									</p>
+								{/if}
 							</div>
-
-							{#if hoverMove && activeRule}
-								<p class="site-preview">
-									<span class="site-preview__chip">
-										apply {shortRuleId(activeRule.ruleLabel)} here → {hoverMove.result}
-									</span>
-								</p>
-							{:else if activeRule && activeRule.moves.length > 1}
-								<p class="focal__hint">
-									{activeRule.ruleLabel} applies in {activeRule.moves.length} places — hover a
-									highlighted site to preview it, click to apply.
-								</p>
-							{:else}
-								<p class="focal__note">{ruleNote(currentStep.via)}</p>
-							{/if}
 						</div>
-					</div>
-				{:else}
-					{@render spineLine(step, index, true)}
-				{/if}
-			{/each}
-
-			{#if aheadSteps > 0}
-				<p class="spine-ahead-note">
-					{aheadSteps === 1
-						? `step ${trace.steps.length - 1} stays`
-						: `steps ${trace.currentIndex + 1}–${trace.steps.length - 1} stay`} until you apply a
-					move from step {trace.currentIndex} — branching discards {aheadSteps === 1
-						? 'it'
-						: 'them'}.
-				</p>
-			{/if}
-		</div>
-
-		<p class="worksheet__label worksheet__label--rules">Rules</p>
-
-		<div class="rules-ledger">
-			{#each ruleAvailability as row (row.ruleId)}
-				<div
-					class="ledger-row"
-					role="group"
-					aria-label={row.ruleLabel}
-					data-state={row.status}
-					data-pinned={pinnedRuleId === row.ruleId}
-					onpointerenter={() => {
-						if (row.status === 'available') hoverRuleId = row.ruleId;
-					}}
-					onpointerleave={() => (hoverRuleId = null)}
-				>
-					<span class="ledger-row__id">{shortRuleId(row.ruleLabel)}</span>
-					<span class="ledger-row__pattern">{row.pattern}</span>
-
-					{#if row.status === 'unavailable'}
-						<span class="ledger-row__status">— {row.reason}</span>
-					{:else if row.moves.length === 1}
-						<span class="ledger-row__status">applies — one way</span>
-						<span class="ledger-row__preview">→ {row.moves[0]!.result}</span>
-						<button
-							class="ledger-apply"
-							type="button"
-							onfocus={() => (hoverRuleId = row.ruleId)}
-							onblur={() => (hoverRuleId = null)}
-							onclick={() => applySite(row.moves[0]!)}
-						>
-							Apply
-						</button>
 					{:else}
-						<button
-							class="ledger-sites"
-							type="button"
-							aria-pressed={pinnedRuleId === row.ruleId}
-							onfocus={() => (hoverRuleId = row.ruleId)}
-							onblur={() => (hoverRuleId = null)}
-							onclick={() => toggleRulePin(row.ruleId)}
-						>
-							<strong>applies — {row.moves.length} places</strong>
-							<span class="ledger-sites__hint">· click a highlighted site in the string</span>
-						</button>
-					{/if}
-				</div>
-			{/each}
-		</div>
-
-		<div class="worksheet-foot">
-			<button
-				class="tester-toggle"
-				type="button"
-				aria-expanded={testerOpen}
-				aria-controls="target-tester"
-				onclick={() => (testerOpen = !testerOpen)}
-			>
-				{testerOpen ? '▾' : '▸'} Test a target string…
-			</button>
-
-			<p class="challenge-line">
-				<span class="challenge-line__label">Challenges</span>
-				{#each challenges as challenge, index (challenge.id)}
-					<span class="challenge" data-complete={challenge.complete}>
-						<span aria-hidden="true">{challenge.complete ? '✓' : '○'}</span>
-						<span class="sr-only">{challenge.complete ? 'complete:' : 'open:'}</span>
-						{challenge.label}
-						{#if challenge.context}
-							<span class="challenge__context">({challenge.context})</span>
-						{/if}
-					</span>
-					{#if index < challenges.length - 1}
-						<span class="challenge-line__sep" aria-hidden="true">·</span>
+						{@render spineLine(step, index, true)}
 					{/if}
 				{/each}
-			</p>
-		</div>
 
-		{#if testerOpen}
-			<div class="tester-body" id="target-tester">
-				<label class="field-label" for="proposal-input">
-					Test a target string against the current state
-					<input
-						id="proposal-input"
-						class="text-field"
-						type="text"
-						placeholder="e.g., MU"
-						value={proposalInput}
-						oninput={onUpdateProposal}
-					/>
-				</label>
+				{#if aheadSteps > 0}
+					<p class="spine-ahead-note">
+						{aheadSteps === 1
+							? `step ${trace.steps.length - 1} stays`
+							: `steps ${trace.currentIndex + 1}–${trace.steps.length - 1} stay`} until you apply a
+						move from step {trace.currentIndex} — branching discards {aheadSteps === 1
+							? 'it'
+							: 'them'}.
+					</p>
+				{/if}
+			</div>
 
-				{#if proposalAnalysis}
-					<div class="proposal-summary" data-valid={proposalAnalysis.exactMatches.length > 0}>
-						<div class="proposal-summary__top">
-							<strong>{proposalAnalysis.summary}</strong>
-							<span
-								class="badge"
-								data-tone="verified"
-								data-verdict={proposalAnalysis.exactMatches.length > 0 ? 'pass' : 'fail'}
-							>
-								{proposalAnalysis.exactMatches.length > 0 ? 'legal' : 'rejected'}
-							</span>
-						</div>
+			<p class="worksheet__label worksheet__label--rules">Rules</p>
 
-						{#if proposalAnalysis.exactMatches.length > 0}
+			<div class="anatomy">
+				<button
+					class="anatomy__toggle"
+					type="button"
+					aria-expanded={anatomyOpen}
+					onclick={() => (anatomyOpen = !anatomyOpen)}
+				>
+					{anatomyOpen ? '▾' : '▸'} how the rules match
+				</button>
+				{#if anatomyOpen}
+					<div class="anatomy__body">
+						<p>
+							<span class="anatomy__rule">R1</span> and <span class="anatomy__rule">R2</span> read
+							the string globally — R1 looks only at its end (…I), R2 takes everything after M.
+							When such a rule applies, it applies in exactly one way.
+						</p>
+						<p>
+							<span class="anatomy__rule">R3</span> and <span class="anatomy__rule">R4</span> match
+							a pattern anywhere inside — III or UU may occur at several places, so one rule can
+							offer several moves.
+						</p>
+						<p>
+							Every rule is pattern → replacement. The MIU system is a string-rewriting system;
+							the four rules differ only in where their pattern may sit.
+						</p>
+					</div>
+				{/if}
+			</div>
+
+			<div class="rules-ledger">
+				{#each ruleAvailability as row (row.ruleId)}
+					<div
+						class="ledger-row"
+						role="group"
+						aria-label={row.ruleLabel}
+						data-state={row.status}
+						data-pinned={pinnedRuleId === row.ruleId}
+						onpointerenter={() => {
+							if (row.status === 'available') hoverRuleId = row.ruleId;
+						}}
+						onpointerleave={() => (hoverRuleId = null)}
+					>
+						<span class="ledger-row__id">{shortRuleId(row.ruleLabel)}</span>
+						<span class="ledger-row__pattern">{row.pattern}</span>
+
+						{#if row.status === 'unavailable'}
+							<span class="ledger-row__status">— {row.reason}</span>
+						{:else if row.moves.length === 1}
+							<span class="ledger-row__preview">→ {ellipsizeMiddle(row.moves[0]!.result)}</span>
 							<button
-								class="button button--ghost button--sm"
+								class="ledger-apply"
 								type="button"
-								onclick={() => onApplyProposalMatch(proposalAnalysis.exactMatches[0]!)}
+								onfocus={() => (hoverRuleId = row.ruleId)}
+								onblur={() => (hoverRuleId = null)}
+								onclick={() => applySite(row.moves[0]!)}
 							>
-								Apply matched move
+								Apply
+							</button>
+						{:else}
+							<button
+								class="ledger-sites"
+								type="button"
+								aria-pressed={pinnedRuleId === row.ruleId}
+								onfocus={() => (hoverRuleId = row.ruleId)}
+								onblur={() => (hoverRuleId = null)}
+								onclick={() => toggleRulePin(row.ruleId)}
+							>
+								<strong>applies at {row.moves.length} places</strong>
+								<span class="ledger-sites__hint">— click a site in the string</span>
 							</button>
 						{/if}
 					</div>
+				{/each}
+			</div>
+		</div>
 
-					{#if proposalAnalysis.syntaxValid}
-						<div class="rule-result-list">
-							{#each proposalAnalysis.ruleChecks as check}
-								<div class="rule-result">
-									<div class="rule-result__top">
-										<strong>{check.ruleLabel}</strong>
-										<span
-											class="badge"
-											data-tone="verified"
-											data-verdict={check.status === 'matches' ? 'pass' : 'fail'}
-										>
-											{check.status === 'matches'
-												? 'matches'
-												: check.status === 'unavailable'
-													? 'unavailable'
-													: 'different result'}
-										</span>
-									</div>
-									<p class="field-note">{check.explanation}</p>
-									{#if check.legalResults.length > 0}
-										<small>
-											Legal result{check.legalResults.length === 1 ? '' : 's'}:
-											{check.legalResults.join(', ')}
-										</small>
-									{/if}
+		<div class="worksheet__margin">
+			<div class="query">
+				<p class="worksheet__label">Target query</p>
+				<p class="query__ask">
+					From <span class="query__from">{currentString}</span> —<br />
+					can one legal move reach
+					<input
+						class="query__input"
+						type="text"
+						aria-label="Target string"
+						value={proposalInput}
+						oninput={onUpdateProposal}
+					/> ?
+				</p>
+
+				{#if targetQuery}
+					<p class="query__verdict" data-ok={targetQuery.ok}>
+						<span class="query__stamp" aria-hidden="true">{targetQuery.ok ? '✓' : '✗'}</span>
+						<span class="sr-only">{targetQuery.ok ? 'verified legal:' : 'verified rejected:'}</span>
+						{targetQuery.verdict}
+					</p>
+
+					{#if targetQuery.match}
+						<button
+							class="ledger-apply query__apply"
+							type="button"
+							onclick={() => onApplyProposalMatch(targetQuery.match!)}
+						>
+							Apply the move
+						</button>
+					{/if}
+
+					{#if targetQuery.clauses.length > 0}
+						<div class="query__clauses">
+							{#each targetQuery.clauses as clause (clause.ruleId)}
+								<div class="query__clause">
+									<span class="query__clause-id">{clause.ruleLabel} {clause.ok ? '✓' : '✗'}</span>
+									{clause.text}
 								</div>
 							{/each}
 						</div>
 					{/if}
-				{:else}
-					<p class="field-note">
-						Type a candidate next string to see the verifier explain whether any MIU rule can
-						produce it from the current state.
-					</p>
 				{/if}
 			</div>
-		{/if}
+
+			<div class="exercises">
+				<p class="worksheet__label">Exercises</p>
+				<p class="exercises__hint">detected by the verifier — never clicked</p>
+
+				{#each exercises as exercise (exercise.id)}
+					<div class="exercise" data-complete={exercise.complete}>
+						<p class="exercise__head">
+							<span aria-hidden="true">{exercise.complete ? '✓' : '○'}</span>
+							<span class="sr-only">{exercise.complete ? 'detected:' : 'open:'}</span>
+							{exercise.title}
+						</p>
+						<p class="exercise__body">
+							{#if exercise.stamp}<span class="exercise__stamp">{exercise.stamp}</span
+								>{' — '}{/if}{exercise.body}
+						</p>
+					</div>
+				{/each}
+			</div>
+		</div>
 	</div>
 </div>

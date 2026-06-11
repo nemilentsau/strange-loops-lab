@@ -86,9 +86,10 @@ count plus new helper tests), `npm run build`.
 
 ### Phase A rework (from the June 11, 2026 played review)
 
-The user's played session rejected four surfaces. Binding scope for the next
-pass; the mockup must show the played states (design rule 10), not the fresh
-sheet:
+The user's played session rejected four surfaces. The rework below is
+**implemented** (mockup approved on sight June 11, then built; structural
+gates green) and awaits the user's played acceptance; Phase B stays parked
+behind that gate. The scope, as approved:
 
 1. **Per-rule status copy.** R1/R2 are global rewrites (suffix / whole tail
    — structurally at most one site); never print a site count for them:

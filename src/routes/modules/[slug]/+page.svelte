@@ -7,13 +7,13 @@
 	import PhaseReflect from '$lib/components/phases/PhaseReflect.svelte';
 	import type { ModuleSummary } from '$lib/content/modules';
 	import {
-		analyzeMiuProposal,
 		analyzeMiuRuleAvailability,
 		applyMoveToTrace,
 		jumpToTraceStep,
 		type MiuMove
 	} from '$lib/miu/core';
-	import { challengeStatuses } from '$lib/state/module1Challenges';
+	import { exerciseStatuses } from '$lib/state/module1Exercises';
+	import { buildTargetQuery } from '$lib/state/module1Query';
 	import {
 		analyzeInvariantCandidate,
 		builtInInvariantAnalysis
@@ -95,9 +95,9 @@
 	const iCount = $derived((currentString.match(/I/g) || []).length);
 	const mod3Class = $derived(iCount % 3);
 	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
-	const challenges = $derived(challengeStatuses(draft.trace, draft.muTested));
-	const proposalAnalysis = $derived(
-		draft.proposalInput.trim() ? analyzeMiuProposal(currentString, draft.proposalInput) : null
+	const exercises = $derived(exerciseStatuses(draft.trace, draft.muTested));
+	const targetQuery = $derived(
+		draft.proposalInput.trim() ? buildTargetQuery(currentString, draft.proposalInput) : null
 	);
 	const reachabilityGraph = $derived(
 		buildReachabilityGraph({
@@ -562,9 +562,9 @@
 						trace={draft.trace}
 						{currentString}
 						{ruleAvailability}
-						{challenges}
+						{exercises}
 						proposalInput={draft.proposalInput}
-						{proposalAnalysis}
+						{targetQuery}
 						onApplyMove={applyMove}
 						onApplyProposalMatch={applyProposalMatch}
 						onJumpToStep={jumpToStep}
