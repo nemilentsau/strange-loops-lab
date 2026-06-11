@@ -1221,49 +1221,6 @@ body.module1-wide .site-shell {
 	font-family: var(--sans);
 }
 
-/* ── Guide rail: first-run hint card ──
- * The old full-width welcome banner, demoted into the guide rail. Calm paper,
- * no accent — orientation, not an action (the dismiss is a quiet ghost). */
-.hint-card {
-	display: grid;
-	gap: var(--space-sm);
-	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel-meta);
-}
-
-.hint-card__text {
-	margin: 0;
-	color: var(--muted);
-	font-size: 0.88rem;
-	line-height: 1.55;
-}
-
-.hint-card__text strong {
-	color: var(--ink);
-}
-
-.hint-card__dismiss {
-	justify-self: start;
-	padding: 6px 14px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--muted);
-	font-size: 0.78rem;
-	cursor: pointer;
-	transition:
-		border-color 160ms ease,
-		color 160ms ease;
-}
-
-.hint-card__dismiss:hover,
-.hint-card__dismiss:focus-visible {
-	border-color: var(--act);
-	color: var(--act);
-}
-
 /* ── Guide rail: compact guided-task rows ──
  * One line each (caret + title + a quiet "Use" affordance); body text reveals
  * on click. Untoned — these are prompts, not verified results. */
@@ -1333,16 +1290,6 @@ body.module1-wide .site-shell {
 	line-height: 1.55;
 }
 
-/* ── Instrument: bench sections ──
- * The bench stacks current string · legal moves · self-propose workbench in one
- * panel. Thin hairline separators keep the sections legible without new chrome. */
-.bench-section {
-	display: grid;
-	gap: var(--space-sm);
-	padding-top: var(--space-md);
-	border-top: 1px solid var(--line);
-}
-
 .proof-rail {
 	display: grid;
 	gap: var(--space-sm);
@@ -1356,7 +1303,7 @@ body.module1-wide .site-shell {
 }
 
 /* Synthesis instrument: the explain-back examiner sits below the notes editor,
- * separated by a hairline (same divider idiom as .bench-section). */
+ * separated by a hairline. */
 .synthesis-examiner {
 	display: grid;
 	gap: var(--space-sm);
@@ -2065,130 +2012,6 @@ body.module1-wide .site-shell {
 	justify-content: space-between;
 	gap: 12px;
 	color: var(--muted);
-}
-
-/* The current string is the instrument readout: verified register, mono. */
-.current-string-panel {
-	display: grid;
-	gap: 12px;
-	padding: 0 var(--space-lg) var(--space-lg);
-	border: 1px solid var(--line);
-	border-left: 3px solid var(--ink);
-	border-radius: 0 var(--radius) var(--radius) 0;
-	background: var(--panel);
-}
-
-.current-string {
-	font-family: var(--mono);
-	font-size: clamp(1.8rem, 3.44vw, 2.75rem);
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	color: var(--ink);
-}
-
-.move-grid,
-.trace-list {
-	display: grid;
-	gap: 10px;
-}
-
-/* Move cards are actionable (applying one mutates the trace) → accent on
- * interaction, neutral ink at rest. */
-.move-card {
-	width: 100%;
-	padding: var(--space-sm);
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-	transition:
-		border-color 160ms ease,
-		background 160ms ease;
-}
-
-.move-card:hover,
-.move-card:focus-visible {
-	border-color: var(--act);
-	background: rgba(138, 59, 46, 0.04);
-}
-
-.move-card:active {
-	background: rgba(138, 59, 46, 0.07);
-}
-
-/* Trace steps are verified history: solid graphite left-rule, accent only when
- * the step is actionable on hover / selected. */
-.trace-step {
-	width: 100%;
-	padding: var(--space-md);
-	border: 1px solid var(--line);
-	border-left: 3px solid var(--line-strong);
-	border-radius: 0 var(--radius) var(--radius) 0;
-	background: var(--panel);
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-	transition:
-		border-color 160ms ease,
-		background 160ms ease;
-}
-
-.trace-step:hover,
-.trace-step:focus-visible {
-	border-left-color: var(--act);
-	background: rgba(138, 59, 46, 0.04);
-}
-
-.move-card__top,
-.trace-step__meta {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 8px;
-	font-family: var(--mono);
-}
-
-.move-card__top strong {
-	color: var(--ink);
-}
-
-.move-card__top span {
-	color: var(--ink);
-	font-size: 0.88rem;
-	letter-spacing: 0.04em;
-}
-
-.move-card p,
-.trace-step small {
-	margin: 0;
-	color: var(--muted);
-	line-height: 1.55;
-	font-size: 0.88rem;
-}
-
-.move-card small {
-	display: block;
-	margin-top: 10px;
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.72rem;
-}
-
-.trace-step[data-active='true'] {
-	border-left-color: var(--ink);
-	border-left-width: 3px;
-	background: var(--panel-meta);
-}
-
-.trace-step__value {
-	margin-bottom: 8px;
-	font-family: var(--mono);
-	font-size: 1.15rem;
-	letter-spacing: 0.08em;
-	color: var(--ink);
 }
 
 .placeholder-copy {
