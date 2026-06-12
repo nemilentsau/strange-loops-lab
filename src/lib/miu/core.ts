@@ -111,6 +111,32 @@ export function analyzeMiuProposal(source: string, proposedInput: string): MiuPr
 }
 
 /**
+ * A dead branch: a state from which no rule other than R2 (doubling) will
+ * EVER apply again, however far you double.
+ *
+ * Proof of the closure. Let S = M·t with t starting in I, ending in U,
+ * containing no III and no UU. Then R1 (needs a final I), R3 (needs III)
+ * and R4 (needs UU) are all closed, and R2 gives M·tt where:
+ *   - tt still starts in I and ends in U;
+ *   - no III: t has none, and every 3-window crossing the seam contains
+ *     t's final U;
+ *   - no UU: t has none, and the seam pair is (U, I).
+ * So the condition is preserved forever. Conversely, if t starts with U,
+ * one doubling creates UU at the seam and R4 reopens — such states are NOT
+ * flagged. The detector claims exactly what the induction proves.
+ */
+export function isDeadBranch(value: string): boolean {
+	const tail = value.slice(1);
+
+	return (
+		tail.startsWith('I') &&
+		tail.endsWith('U') &&
+		!tail.includes('III') &&
+		!tail.includes('UU')
+	);
+}
+
+/**
  * Per-rule availability for the rules ledger: every rule, in fixed order,
  * with either its concrete sites (built on `enumerateMiuMoves`, never
  * re-derived) or the exact learner-facing reason it cannot fire.

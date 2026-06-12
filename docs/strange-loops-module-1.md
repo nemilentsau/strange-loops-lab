@@ -14,7 +14,7 @@ Supporting docs such as `README.md`,
 `docs/module-1-document-model-plan.md` should stay consistent with this
 document rather than carrying competing status snapshots.
 
-Last updated: June 11, 2026.
+Last updated: June 12, 2026.
 
 ## Module title
 **Module 1: Formal Systems & Their Walls**
@@ -52,13 +52,19 @@ The MIU system is the concrete vehicle for this.
 - rule application through the string itself: matching spans highlight,
   hover previews the result, click applies (single-site rules apply from
   their ledger row)
-- the target query in the worksheet margin (empty by default), visibly bound
-  to the current string, answering with a stamped verdict and one compact
-  verifier clause per rule
-- verifier-detected exercises in the worksheet margin (detection comes from
-  the trace and tester state, never from clicking "done"); each prints the
-  observation it exists to produce and, once detected, the step stamp where
-  it was noticed
+- the bounded target query in the worksheet margin (empty by default),
+  visibly bound to the current string: "can ⟨target⟩ be reached within ≤ k
+  moves?" — found targets print their shortest walkable derivation;
+  not-found verdicts print the searched count and the bound's honest
+  limitation; bound 1 keeps one compact verifier clause per rule
+- verifier-detected exercises in the worksheet margin, aimed at the puzzle's
+  structure (open every rule · make the I-count go down · the one-way door ·
+  the MU test); detection comes from the trace and query state, never from
+  clicking "done"; each prints the observation it exists to produce and,
+  once detected, the step stamp where it was noticed
+- a verified dead-branch note when the current string is provably closed
+  (only R2 will ever apply again): the one-sentence proof plus a jump-back
+  action to the last open line
 - revisit notes in the derivation spine ("↩ same as step 5") whenever a move
   lands on a string already in the trace
 - bounded derivation graph explorer with provenance display
@@ -88,10 +94,20 @@ surfaces were rejected on register and communication grounds:
   degeneracy as a teaching moment.
 
 The binding rework list lives in `docs/module-1-document-model-plan.md`
-("Phase A rework"); it is implemented and awaits the user's played
-acceptance. Phase B (Map) is parked behind that gate. This review also
-produced the binding design-law extension in
-`docs/module-1-documents-not-dashboards.md` §5 (rules 8–12).
+("Phase A rework"). This review also produced the binding design-law
+extension in `docs/module-1-documents-not-dashboards.md` §5 (rules 8–12).
+
+### June 12, 2026 played review (Phase A rework)
+
+Playing rework 1 produced a second round: the learner can walk into a
+provable doubling trap (one R1 from MI) with no help from the page; the
+one-move target query is too weak to address the module's actual question;
+"one string, two routes" carries no insight before Map draws reconvergence;
+and "make Rule 3 possible" points at chrome rather than the puzzle's
+quantity (the I-count). The rework-2 list in the plan doc answers all four
+(dead-branch note, bounded query, puzzle-aimed exercises, header ellipsis);
+implemented June 12, awaiting played acceptance. Phase B (Map) stays parked
+behind that gate.
 
 ### Present but still shallow
 - object-level vs meta-level framing exists in phase labels, copy, and panel structure, but it is still not forceful enough in the interface

@@ -7,11 +7,50 @@ import { describe, expect, it } from 'vitest';
 		applyMoveToTrace,
 		createDerivationTrace,
 	enumerateMiuMoves,
+	isDeadBranch,
 	jumpToTraceStep,
 	normalizeTrace,
 	restartTrace,
 	stepBackTrace
 } from './core';
+
+describe('isDeadBranch', () => {
+	it('flags the alternating trap entered by R1 from MI', () => {
+		expect(isDeadBranch('MIU')).toBe(true);
+		expect(isDeadBranch('MIUIU')).toBe(true);
+	});
+
+	it('flags non-alternating only-R2 states like MIIU', () => {
+		expect(isDeadBranch('MIIU')).toBe(true);
+	});
+
+	it('does not flag strings ending in I (R1 is open)', () => {
+		expect(isDeadBranch('MI')).toBe(false);
+	});
+
+	it('does not flag strings containing III (R3 is open)', () => {
+		expect(isDeadBranch('MIIIU')).toBe(false);
+	});
+
+	it('does not flag strings containing UU (R4 is open)', () => {
+		expect(isDeadBranch('MIUUIU')).toBe(false);
+	});
+
+	it('does not flag a tail starting with U — doubling reopens R4 at the seam', () => {
+		expect(isDeadBranch('MUIU')).toBe(false);
+	});
+
+	it('is closed under doubling: every flagged state doubles to a flagged state', () => {
+		for (const value of ['MIU', 'MIIU', 'MIUIU', 'MIIUIIU']) {
+			expect(isDeadBranch(value)).toBe(true);
+
+			const doubled = enumerateMiuMoves(value).find((move) => move.ruleId === 'double-tail')!;
+
+			expect(isDeadBranch(doubled.result)).toBe(true);
+			expect(enumerateMiuMoves(value)).toHaveLength(1);
+		}
+	});
+});
 
 describe('MIU engine', () => {
 	it('starts from MI with an initial trace step', () => {

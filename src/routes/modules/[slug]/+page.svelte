@@ -96,8 +96,13 @@
 	const mod3Class = $derived(iCount % 3);
 	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
 	const exercises = $derived(exerciseStatuses(draft.trace, draft.muTested));
+	// The query's search bound is instrument state, not learner work — it is
+	// deliberately not persisted in the draft (no schema change).
+	let queryBound = $state(4);
 	const targetQuery = $derived(
-		draft.proposalInput.trim() ? buildTargetQuery(currentString, draft.proposalInput) : null
+		draft.proposalInput.trim()
+			? buildTargetQuery(currentString, draft.proposalInput, queryBound)
+			: null
 	);
 	const reachabilityGraph = $derived(
 		buildReachabilityGraph({
@@ -239,8 +244,25 @@
 			});
 		}
 
-		function applyProposalMatch(move: MiuMove) {
-			applyMove(move);
+		function walkQueryPath(moves: MiuMove[]) {
+			let trace = draft.trace;
+
+			for (const move of moves) {
+				trace = applyMoveToTrace(trace, move);
+			}
+
+			patchDraft({
+				activePhase: 'explore',
+				activeSurface: 'sandbox',
+				trace,
+				visitedSurfaces: ensureVisited('sandbox', 'trace'),
+				visitedPhases: ensureVisitedPhases('explore')
+			});
+		}
+
+		function updateQueryBound(event: Event) {
+			const target = event.target as HTMLSelectElement;
+			queryBound = Number(target.value);
 		}
 
 		function useMapGuideTask(question: string, nodeId?: string) {
@@ -565,10 +587,12 @@
 						{exercises}
 						proposalInput={draft.proposalInput}
 						{targetQuery}
+						{queryBound}
 						onApplyMove={applyMove}
-						onApplyProposalMatch={applyProposalMatch}
+						onWalkQueryPath={walkQueryPath}
 						onJumpToStep={jumpToStep}
 						onUpdateProposal={updateProposalInput}
+						onUpdateQueryBound={updateQueryBound}
 					/>
 				</div>
 			{:else if draft.activePhase === 'map'}

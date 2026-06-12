@@ -8,9 +8,11 @@ import {
 } from '$lib/miu/core';
 
 import {
+	currentDeadBranchStart,
 	exerciseStatuses,
-	findRepeatedTraceString,
-	findRule3PossibleStep,
+	findDeadBranchStep,
+	findICountDropStep,
+	ruleUsage,
 	traceRevisitIndices
 } from './module1Exercises';
 
@@ -32,37 +34,63 @@ function deriveTrace(values: string[]): DerivationTrace {
 	return trace;
 }
 
-// MI → MII → MIIII → MIIIIU → MIUU → MI: a legal cycle back to the axiom.
-const CYCLE = ['MII', 'MIIII', 'MIIIIU', 'MIUU', 'MI'];
+// Uses all four rules: R2, R2, R1, R3, R4 — and cycles back to the axiom.
+const ALL_RULES = ['MII', 'MIIII', 'MIIIIU', 'MIUU', 'MI'];
 
-describe('findRule3PossibleStep', () => {
-	it('returns null while no step has ever contained III', () => {
-		expect(findRule3PossibleStep(deriveTrace(['MII', 'MIIU']))).toBeNull();
+describe('ruleUsage', () => {
+	it('reports no rules used on a fresh trace', () => {
+		expect(ruleUsage(createDerivationTrace())).toEqual({ used: [], completedAtStep: null });
 	});
 
-	it('returns the first step whose string contains III', () => {
-		expect(findRule3PossibleStep(deriveTrace(['MII', 'MIIII', 'MIIIIU']))).toBe(2);
+	it('lists used rules in ledger order without a completion step', () => {
+		const usage = ruleUsage(deriveTrace(['MII', 'MIIU']));
+
+		expect(usage.used).toEqual(['append-u', 'double-tail']);
+		expect(usage.completedAtStep).toBeNull();
 	});
 
-	it('counts steps ahead of the current index after a jump back', () => {
-		const trace = deriveTrace(['MII', 'MIIII']);
-		const jumpedBack = { ...trace, currentIndex: 0 };
+	it('records the step at which the fourth distinct rule completed the set', () => {
+		const usage = ruleUsage(deriveTrace(ALL_RULES));
 
-		expect(findRule3PossibleStep(jumpedBack)).toBe(2);
+		expect(usage.used).toEqual(['append-u', 'double-tail', 'replace-iii', 'delete-uu']);
+		expect(usage.completedAtStep).toBe(5);
 	});
 });
 
-describe('findRepeatedTraceString', () => {
-	it('returns null when every step is distinct', () => {
-		expect(findRepeatedTraceString(deriveTrace(['MII', 'MIIII']))).toBeNull();
+describe('findICountDropStep', () => {
+	it('returns null while the I-count has never fallen', () => {
+		expect(findICountDropStep(deriveTrace(['MII', 'MIIU']))).toBeNull();
 	});
 
-	it('detects the first revisited string with both step indices', () => {
-		expect(findRepeatedTraceString(deriveTrace(CYCLE))).toEqual({
-			value: 'MI',
-			firstIndex: 0,
-			secondIndex: 5
-		});
+	it('returns the first step whose I-count is below its parent', () => {
+		// MIIIIU (4 I's) → MIUU (1 I) at step 4.
+		expect(findICountDropStep(deriveTrace(ALL_RULES))).toBe(4);
+	});
+});
+
+describe('findDeadBranchStep', () => {
+	it('returns null when no recorded string is trapped', () => {
+		expect(findDeadBranchStep(deriveTrace(['MII', 'MIIII']))).toBeNull();
+	});
+
+	it('returns the first trapped string with its step index', () => {
+		expect(findDeadBranchStep(deriveTrace(['MIU', 'MIUIU']))).toEqual({ index: 1, value: 'MIU' });
+	});
+});
+
+describe('currentDeadBranchStart', () => {
+	it('returns null when the current string is not trapped', () => {
+		expect(currentDeadBranchStart(deriveTrace(['MII']))).toBeNull();
+	});
+
+	it('returns the first step of the contiguous trapped run', () => {
+		expect(currentDeadBranchStart(deriveTrace(['MIU', 'MIUIU', 'MIUIUIUIU']))).toBe(1);
+	});
+
+	it('returns null after jumping back out of the trap', () => {
+		const trace = deriveTrace(['MIU', 'MIUIU']);
+
+		expect(currentDeadBranchStart({ ...trace, currentIndex: 0 })).toBeNull();
 	});
 });
 
@@ -72,47 +100,74 @@ describe('traceRevisitIndices', () => {
 	});
 
 	it('maps a revisited string to the index of its first appearance', () => {
-		expect(traceRevisitIndices(deriveTrace(CYCLE))).toEqual([null, null, null, null, null, 0]);
+		expect(traceRevisitIndices(deriveTrace(ALL_RULES))).toEqual([
+			null,
+			null,
+			null,
+			null,
+			null,
+			0
+		]);
 	});
 
 	it('maps a third occurrence to the first appearance, not the second', () => {
-		const twoCycles = deriveTrace([...CYCLE, ...CYCLE]);
+		const twoCycles = deriveTrace([...ALL_RULES, ...ALL_RULES]);
 
 		expect(traceRevisitIndices(twoCycles)[10]).toBe(0);
 	});
 });
 
 describe('exerciseStatuses', () => {
-	it('reports all three exercises open on a fresh trace, with their prompts printed', () => {
+	it('reports all four exercises open on a fresh trace, with their prompts printed', () => {
 		const statuses = exerciseStatuses(createDerivationTrace(), false);
 
-		expect(statuses.map((status) => status.id)).toEqual(['rule3-possible', 'two-routes', 'mu-test']);
+		expect(statuses.map((status) => status.id)).toEqual([
+			'open-every-rule',
+			'i-count-down',
+			'one-way-door',
+			'mu-test'
+		]);
 		expect(statuses.every((status) => !status.complete)).toBe(true);
 		expect(statuses.every((status) => status.stamp === null)).toBe(true);
 		expect(statuses.every((status) => status.body.length > 0)).toBe(true);
 	});
 
-	it('stamps rule3-possible with the step III first appeared at', () => {
-		const rule3 = exerciseStatuses(deriveTrace(['MII', 'MIIII']), false)[0]!;
+	it('writes rule progress into the open open-every-rule exercise', () => {
+		const openEveryRule = exerciseStatuses(deriveTrace(['MII', 'MIIU']), false)[0]!;
 
-		expect(rule3.complete).toBe(true);
-		expect(rule3.stamp).toBe('noticed at step 2');
-		expect(rule3.body).toContain('Rule 3 opened');
+		expect(openEveryRule.complete).toBe(false);
+		expect(openEveryRule.progress).toBe('so far: R1, R2');
 	});
 
-	it('stamps two-routes with the revisit step and names the revisited string', () => {
-		const twoRoutes = exerciseStatuses(deriveTrace(CYCLE), false)[1]!;
+	it('stamps open-every-rule when the fourth rule completes the set', () => {
+		const openEveryRule = exerciseStatuses(deriveTrace(ALL_RULES), false)[0]!;
 
-		expect(twoRoutes.complete).toBe(true);
-		expect(twoRoutes.stamp).toBe('noticed at step 5');
-		expect(twoRoutes.body).toContain('MI returned by a different path');
+		expect(openEveryRule.complete).toBe(true);
+		expect(openEveryRule.stamp).toBe('all four by step 5');
+		expect(openEveryRule.progress).toBeNull();
 	});
 
-	it('completes mu-test from the persisted tester flag without a step stamp', () => {
-		const muTest = exerciseStatuses(createDerivationTrace(), true)[2]!;
+	it('stamps i-count-down at the step the count first fell', () => {
+		const iCountDown = exerciseStatuses(deriveTrace(ALL_RULES), false)[1]!;
+
+		expect(iCountDown.complete).toBe(true);
+		expect(iCountDown.stamp).toBe('noticed at step 4');
+		expect(iCountDown.body).toContain('only R3 ever lowers it');
+	});
+
+	it('stamps one-way-door at the first trapped string and names it', () => {
+		const oneWayDoor = exerciseStatuses(deriveTrace(['MIU', 'MIUIU']), false)[2]!;
+
+		expect(oneWayDoor.complete).toBe(true);
+		expect(oneWayDoor.stamp).toBe('noticed at step 1');
+		expect(oneWayDoor.body).toContain('MIU can never reopen R1, R3, or R4');
+	});
+
+	it('completes mu-test from the persisted flag without a step stamp', () => {
+		const muTest = exerciseStatuses(createDerivationTrace(), true)[3]!;
 
 		expect(muTest.complete).toBe(true);
 		expect(muTest.stamp).toBe('MU tested');
-		expect(muTest.body).toContain('does not prove MU unreachable');
+		expect(muTest.body).toContain('"not found" into "never"');
 	});
 });

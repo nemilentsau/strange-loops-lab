@@ -6,9 +6,15 @@
 		MiuRuleAvailability,
 		MiuRuleId
 	} from '$lib/miu/core';
-	import { traceRevisitIndices, type ExerciseStatus } from '$lib/state/module1Exercises';
+	import {
+		currentDeadBranchStart,
+		traceRevisitIndices,
+		type ExerciseStatus
+	} from '$lib/state/module1Exercises';
 	import type { TargetQuery } from '$lib/state/module1Query';
 	import { PHASE_META, LEVEL_PRESENTATION, ellipsizeMiddle } from '$lib/state/module1';
+
+	const QUERY_BOUND_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
 
 	let {
 		trace,
@@ -17,10 +23,12 @@
 		exercises,
 		proposalInput,
 		targetQuery,
+		queryBound,
 		onApplyMove,
-		onApplyProposalMatch,
+		onWalkQueryPath,
 		onJumpToStep,
-		onUpdateProposal
+		onUpdateProposal,
+		onUpdateQueryBound
 	}: {
 		trace: DerivationTrace;
 		currentString: string;
@@ -28,10 +36,12 @@
 		exercises: ExerciseStatus[];
 		proposalInput: string;
 		targetQuery: TargetQuery | null;
+		queryBound: number;
 		onApplyMove: (move: MiuMove) => void;
-		onApplyProposalMatch: (move: MiuMove) => void;
+		onWalkQueryPath: (moves: MiuMove[]) => void;
 		onJumpToStep: (index: number) => void;
 		onUpdateProposal: (event: Event) => void;
+		onUpdateQueryBound: (event: Event) => void;
 	} = $props();
 
 	const level = PHASE_META.explore.level;
@@ -163,6 +173,9 @@
 	const currentStep = $derived(trace.steps[trace.currentIndex] ?? trace.steps[0]!);
 	const focalRevisit = $derived(revisits[trace.currentIndex] ?? null);
 	const aheadSteps = $derived(trace.steps.length - 1 - trace.currentIndex);
+	/* Non-null exactly when the current string is provably stuck with R2
+	 * forever (isDeadBranch); points at the first step of the trapped run. */
+	const deadBranchStart = $derived(currentDeadBranchStart(trace));
 </script>
 
 {#snippet spineLine(step: DerivationStep, index: number, ahead: boolean)}
@@ -341,21 +354,50 @@
 					</div>
 				{/each}
 			</div>
+
+			{#if deadBranchStart !== null}
+				<div class="dead-branch">
+					<strong>This branch is closed.</strong> Only R2 applies, and doubling this tail can
+					never create III, UU, or a final I — the other rules will never reopen from here,
+					however far you double.
+					{#if deadBranchStart > 0}
+						<button
+							class="dead-branch__jump"
+							type="button"
+							onclick={() => onJumpToStep(deadBranchStart - 1)}
+						>
+							↩ leave this branch — back to step {deadBranchStart - 1}
+						</button>
+					{/if}
+				</div>
+			{/if}
 		</div>
 
 		<div class="worksheet__margin">
 			<div class="query">
 				<p class="worksheet__label">Target query</p>
 				<p class="query__ask">
-					From <span class="query__from">{currentString}</span> —<br />
-					can one legal move reach
+					From <span class="query__from">{ellipsizeMiddle(currentString)}</span> —<br />
+					can
 					<input
 						class="query__input"
 						type="text"
 						aria-label="Target string"
 						value={proposalInput}
 						oninput={onUpdateProposal}
-					/> ?
+					/>
+					be reached within
+					<select
+						class="query__bound"
+						aria-label="Search bound in moves"
+						value={queryBound}
+						onchange={onUpdateQueryBound}
+					>
+						{#each QUERY_BOUND_OPTIONS as option (option)}
+							<option value={option}>{option}</option>
+						{/each}
+					</select>
+					move{queryBound === 1 ? '' : 's'}?
 				</p>
 
 				{#if targetQuery}
@@ -365,14 +407,23 @@
 						{targetQuery.verdict}
 					</p>
 
-					{#if targetQuery.match}
+					{#if targetQuery.path && targetQuery.path.length > 0}
+						<p class="query__path">
+							{ellipsizeMiddle(targetQuery.path[0]!.source)}{#each targetQuery.path as move (move.key)}{' '}<span
+									class="query__via">·{shortRuleId(move.ruleLabel)}·</span
+								>{' '}{ellipsizeMiddle(move.result)}{/each}
+						</p>
 						<button
-							class="ledger-apply query__apply"
+							class="query__walk"
 							type="button"
-							onclick={() => onApplyProposalMatch(targetQuery.match!)}
+							onclick={() => onWalkQueryPath(targetQuery.path!)}
 						>
-							Apply the move
+							{targetQuery.path.length === 1 ? 'Apply the move' : 'Walk this path'}
 						</button>
+					{/if}
+
+					{#if targetQuery.detail}
+						<p class="query__detail">{targetQuery.detail}</p>
 					{/if}
 
 					{#if targetQuery.clauses.length > 0}
@@ -401,7 +452,9 @@
 						</p>
 						<p class="exercise__body">
 							{#if exercise.stamp}<span class="exercise__stamp">{exercise.stamp}</span
-								>{' — '}{/if}{exercise.body}
+								>{' — '}{/if}{exercise.body}{#if exercise.progress}{' '}<span
+									class="exercise__progress">{exercise.progress}</span
+								>{/if}
 						</p>
 					</div>
 				{/each}

@@ -1197,8 +1197,40 @@ body.module1-wide .site-shell {
 	color: var(--ink);
 }
 
-/* ── Margin: the target query — "from <current>, can one move reach …?" ──
- * Verified register throughout: stamped verdict, compact mono clauses. */
+/* ── The dead-branch note: a verified meta-fact about the current branch
+ * (isDeadBranch's closure proof), solid graphite left rule. Shown only when
+ * proven; the jump phrase is a real action, earning the accent. */
+.dead-branch {
+	margin-top: 14px;
+	padding: 10px 14px;
+	border-left: 3px solid var(--ink);
+	color: var(--muted);
+	font-size: 0.84rem;
+	line-height: 1.6;
+}
+
+.dead-branch strong {
+	color: var(--ink);
+}
+
+.dead-branch__jump {
+	padding: 0 2px;
+	border: none;
+	background: transparent;
+	color: var(--act);
+	font: inherit;
+	cursor: pointer;
+}
+
+.dead-branch__jump:hover,
+.dead-branch__jump:focus-visible {
+	text-decoration: underline;
+}
+
+/* ── Margin: the target query — "from <current>, can <target> be reached
+ * within ≤ k moves?" Verified register throughout: stamped verdict, found
+ * paths in mono, compact clauses at bound 1, the search's honest limitation
+ * printed when it stays silent. */
 .query__ask {
 	margin: 6px 0 0;
 	color: var(--ink);
@@ -1224,6 +1256,17 @@ body.module1-wide .site-shell {
 	font-size: 0.82rem;
 }
 
+.query__bound {
+	padding: 0 1px 1px;
+	border: none;
+	border-bottom: 1px solid var(--line-strong);
+	border-radius: 0;
+	background: transparent;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.8rem;
+}
+
 .query__verdict {
 	margin: 12px 0 0;
 	color: var(--ink);
@@ -1235,8 +1278,37 @@ body.module1-wide .site-shell {
 	font-family: var(--mono);
 }
 
-.query__apply {
+.query__detail {
+	margin: 6px 0 0;
+	color: var(--muted);
+	font-size: 0.78rem;
+	line-height: 1.55;
+}
+
+.query__path {
+	margin: 8px 0 0;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.74rem;
+	line-height: 1.7;
+	overflow-wrap: anywhere;
+}
+
+.query__via {
+	color: var(--faint);
+	font-size: 0.7rem;
+}
+
+.query__walk {
 	margin-top: 10px;
+	padding: 5px 14px;
+	border: 1px solid var(--act);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--act);
+	font-size: 0.78rem;
+	font-weight: 600;
+	cursor: pointer;
 }
 
 .query__clauses {
@@ -1288,7 +1360,8 @@ body.module1-wide .site-shell {
 	color: var(--muted);
 }
 
-.exercise__stamp {
+.exercise__stamp,
+.exercise__progress {
 	font-family: var(--mono);
 	font-size: 0.74rem;
 	color: var(--ink);

@@ -115,6 +115,32 @@ behind that gate. The scope, as approved:
    plus four compact mono clauses in the ledger's register. No paragraphs,
    no badge chips, no legacy dashboard components.
 
+### Phase A rework 2 (from the June 12, 2026 played review)
+
+Playing rework 1 surfaced a real mathematical fact the page wasted — the
+`M(IU)ᵏ`-style absorbing orbits (one R1 from MI traps the derivation in
+doubling forever) — plus three pedagogy gaps. Implemented same day,
+mockup-first; awaiting played acceptance:
+
+1. **Dead-branch note.** A verified note when the current string is provably
+   closed (`isDeadBranch`: only R2 applies and the tail starts with I — the
+   closure proof lives on the helper): the one-sentence why plus a real
+   jump-back action to the last open line. States whose tail starts with U
+   are not flagged — doubling reopens R4 at the seam.
+2. **Bounded target query.** "Can ⟨target⟩ be reached within ≤ k moves?"
+   over the verifier's reachability graph from the current string. Found →
+   the shortest derivation, printed and walkable. Not found → searched
+   count plus the honest limitation ("beyond the bound, this instrument
+   cannot see"). Bound 1 keeps the per-rule clause anatomy.
+3. **Puzzle-aimed exercises** replacing the rework-1 set: open every rule
+   (with verifier-written progress) · make the I-count go down (the
+   invariant's raw material: only R3 lowers it, only R2 raises it) · the
+   one-way door (irreversibility, wired to the dead-branch detector) · the
+   MU test (re-grounded in the bounded query). "One string, two routes"
+   leaves Explore; reconvergence belongs to Map's drawing.
+4. **Query header middle-ellipsizes** the current string (the focal line is
+   the object; the header is a reference).
+
 ## Phase B — Map: the derivation tree
 
 The reachable space drawn as an actual tree (SVG), not a node list:

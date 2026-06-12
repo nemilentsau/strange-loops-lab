@@ -1,4 +1,4 @@
-import type { DerivationTrace } from '$lib/miu/core';
+import { MIU_RULES, isDeadBranch, type DerivationTrace, type MiuRuleId } from '$lib/miu/core';
 
 /**
  * Explore-phase exercises: each one is a predicate the engine detects against
@@ -7,11 +7,12 @@ import type { DerivationTrace } from '$lib/miu/core';
  * the steps that satisfied a predicate, the record no longer shows it and
  * the exercise reopens.
  *
- * The copy is part of the contract (design rules 8 and 11): the open body
- * prints the observation the exercise exists to produce, and the detected
- * body is a written note carrying the verifier's step stamp.
+ * The set is aimed at the puzzle, not the chrome (June 12 played review):
+ * open every rule → notice availability; move the I-count → notice the only
+ * quantity the puzzle turns on; the one-way door → notice irreversibility;
+ * the MU test → notice what bounded search cannot settle.
  */
-export type ExerciseId = 'rule3-possible' | 'two-routes' | 'mu-test';
+export type ExerciseId = 'open-every-rule' | 'i-count-down' | 'one-way-door' | 'mu-test';
 
 export interface ExerciseStatus {
 	id: ExerciseId;
@@ -21,44 +22,101 @@ export interface ExerciseStatus {
 	stamp: string | null;
 	/** Open: the observation to go produce. Detected: the written note of what happened. */
 	body: string;
+	/** Optional verifier-written progress for the open state, e.g. "so far: R1, R2". */
+	progress: string | null;
+}
+
+const RULE_SHORT: Record<MiuRuleId, string> = {
+	'append-u': 'R1',
+	'double-tail': 'R2',
+	'replace-iii': 'R3',
+	'delete-uu': 'R4'
+};
+
+function iCount(value: string): number {
+	let count = 0;
+
+	for (const char of value) {
+		if (char === 'I') {
+			count += 1;
+		}
+	}
+
+	return count;
 }
 
 /**
- * "Make Rule 3 possible": the first step in the trace whose string contains
- * III, or null. Steps ahead of the current index (kept after a jump back,
- * until a branch discards them) still count — they are part of the record.
+ * Which rules the record has fired, in ledger order, and the step at which
+ * the fourth distinct rule first completed the set.
  */
-export function findRule3PossibleStep(trace: DerivationTrace): number | null {
-	const index = trace.steps.findIndex((step) => step.value.includes('III'));
-
-	return index === -1 ? null : index;
-}
-
-/**
- * "Reach one string by two routes": the trace is linear — applying a move
- * from an earlier step truncates the abandoned branch (`applyMoveToTrace`),
- * so two coexisting branches that reconverge are never recorded in a single
- * trace. The honest, detectable form of this exercise is therefore a
- * revisit: the same string at two different steps, reached once by the short
- * route to its first appearance and again by the longer route back to it
- * (e.g. MI → MII → MIIII → MIIIIU → MIUU → MI).
- */
-export function findRepeatedTraceString(
-	trace: DerivationTrace
-): { value: string; firstIndex: number; secondIndex: number } | null {
-	const firstSeen = new Map<string, number>();
+export function ruleUsage(trace: DerivationTrace): {
+	used: MiuRuleId[];
+	completedAtStep: number | null;
+} {
+	const seen = new Set<MiuRuleId>();
+	let completedAtStep: number | null = null;
 
 	for (const [index, step] of trace.steps.entries()) {
-		const earlier = firstSeen.get(step.value);
+		if (step.via) {
+			seen.add(step.via.ruleId);
 
-		if (earlier !== undefined) {
-			return { value: step.value, firstIndex: earlier, secondIndex: index };
+			if (completedAtStep === null && seen.size === MIU_RULES.length) {
+				completedAtStep = index;
+			}
 		}
+	}
 
-		firstSeen.set(step.value, index);
+	return { used: MIU_RULES.filter((id) => seen.has(id)), completedAtStep };
+}
+
+/**
+ * The first step whose string has strictly fewer I's than its parent —
+ * i.e. the first time the learner saw the I-count fall (only R3 can do it).
+ */
+export function findICountDropStep(trace: DerivationTrace): number | null {
+	for (let index = 1; index < trace.steps.length; index += 1) {
+		if (iCount(trace.steps[index]!.value) < iCount(trace.steps[index - 1]!.value)) {
+			return index;
+		}
 	}
 
 	return null;
+}
+
+/**
+ * The first step in the record holding a dead-branch string (a state from
+ * which only R2 will ever apply — `isDeadBranch`), or null.
+ */
+export function findDeadBranchStep(trace: DerivationTrace): { index: number; value: string } | null {
+	for (const [index, step] of trace.steps.entries()) {
+		if (isDeadBranch(step.value)) {
+			return { index, value: step.value };
+		}
+	}
+
+	return null;
+}
+
+/**
+ * When the CURRENT position sits inside a dead branch, the index of the
+ * first step of that contiguous trapped run — the live note's "this branch
+ * is closed" anchor; `start - 1` is the last open line to jump back to.
+ * Null when the current string is not trapped.
+ */
+export function currentDeadBranchStart(trace: DerivationTrace): number | null {
+	const current = trace.currentIndex;
+
+	if (!isDeadBranch(trace.steps[current]?.value ?? '')) {
+		return null;
+	}
+
+	let start = current;
+
+	while (start > 0 && isDeadBranch(trace.steps[start - 1]!.value)) {
+		start -= 1;
+	}
+
+	return start;
 }
 
 /**
@@ -83,33 +141,50 @@ export function traceRevisitIndices(trace: DerivationTrace): (number | null)[] {
 }
 
 /**
- * The three Explore exercises in display order. `muTested` is the persisted
- * draft flag latched when the tester has actually analyzed MU.
+ * The four Explore exercises in display order. `muTested` is the persisted
+ * draft flag latched when the target query has actually been asked for MU.
  */
 export function exerciseStatuses(trace: DerivationTrace, muTested: boolean): ExerciseStatus[] {
-	const rule3Step = findRule3PossibleStep(trace);
-	const repeat = findRepeatedTraceString(trace);
+	const usage = ruleUsage(trace);
+	const dropStep = findICountDropStep(trace);
+	const deadBranch = findDeadBranchStep(trace);
 
 	return [
 		{
-			id: 'rule3-possible',
-			title: 'Make Rule 3 possible',
-			complete: rule3Step !== null,
-			stamp: rule3Step !== null ? `noticed at step ${rule3Step}` : null,
+			id: 'open-every-rule',
+			title: 'Open every rule',
+			complete: usage.completedAtStep !== null,
+			stamp: usage.completedAtStep !== null ? `all four by step ${usage.completedAtStep}` : null,
 			body:
-				rule3Step !== null
-					? "III appeared and Rule 3 opened. A rule's availability is a fact about the current string."
-					: "A rule's availability is a fact about the current string — change the string until III appears and Rule 3 opens."
+				usage.completedAtStep !== null
+					? 'Every rule has fired. Each one needed the string to be in the right shape first.'
+					: 'Fire all four rules at least once.',
+			progress:
+				usage.completedAtStep === null && usage.used.length > 0
+					? `so far: ${usage.used.map((id) => RULE_SHORT[id]).join(', ')}`
+					: null
 		},
 		{
-			id: 'two-routes',
-			title: 'One string, two routes',
-			complete: repeat !== null,
-			stamp: repeat !== null ? `noticed at step ${repeat.secondIndex}` : null,
+			id: 'i-count-down',
+			title: 'Make the I-count go down',
+			complete: dropStep !== null,
+			stamp: dropStep !== null ? `noticed at step ${dropStep}` : null,
 			body:
-				repeat !== null
-					? `${repeat.value} returned by a different path. Move sequences reconverge; Map draws this.`
-					: 'Reach a string you have already visited by a different route. Move sequences reconverge; Map draws this.'
+				dropStep !== null
+					? 'The I-count fell — only R3 ever lowers it (−3), and only R2 ever raises it (×2). R1 and R4 never touch an I.'
+					: "The command bar counts I's. Find which rules can change that number at all — and which direction each pushes it.",
+			progress: null
+		},
+		{
+			id: 'one-way-door',
+			title: 'The one-way door',
+			complete: deadBranch !== null,
+			stamp: deadBranch !== null ? `noticed at step ${deadBranch.index}` : null,
+			body:
+				deadBranch !== null
+					? `${deadBranch.value} can never reopen R1, R3, or R4 — doubling its tail creates nothing the other rules need. Jumping back is the only way out.`
+					: 'Find a string the system can never take you back out of — some moves here cannot be undone.',
+			progress: null
 		},
 		{
 			id: 'mu-test',
@@ -117,8 +192,9 @@ export function exerciseStatuses(trace: DerivationTrace, muTested: boolean): Exe
 			complete: muTested,
 			stamp: muTested ? 'MU tested' : null,
 			body: muTested
-				? 'All four rules failed at once. That rejects single moves from one string — it does not prove MU unreachable.'
-				: 'Ask the query for MU itself and watch all four rules fail at once. Then: what exactly does that fail to prove?'
+				? 'Not found within the bound — and beyond the bound the search cannot see. What would turn "not found" into "never"?'
+				: 'Ask the query for MU itself and watch bounded search fail. Then: what exactly does that fail to prove?',
+			progress: null
 		}
 	];
 }
