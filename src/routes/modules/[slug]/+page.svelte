@@ -12,7 +12,7 @@
 		jumpToTraceStep,
 		type MiuMove
 	} from '$lib/miu/core';
-	import { exerciseStatuses } from '$lib/state/module1Exercises';
+	import { exerciseStatuses, latchExercises } from '$lib/state/module1Exercises';
 	import { buildTargetQuery } from '$lib/state/module1Query';
 	import {
 		analyzeInvariantCandidate,
@@ -95,7 +95,7 @@
 	const iCount = $derived((currentString.match(/I/g) || []).length);
 	const mod3Class = $derived(iCount % 3);
 	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
-	const exercises = $derived(exerciseStatuses(draft.trace, draft.muTested));
+	const exercises = $derived(exerciseStatuses(draft.trace, draft.muTested, draft.exerciseLatch));
 	// The query's search bound is instrument state, not learner work — it is
 	// deliberately not persisted in the draft (no schema change).
 	let queryBound = $state(4);
@@ -235,16 +235,24 @@
 	}
 
 		function applyMove(move: MiuMove) {
-		patchDraft({
-			activePhase: 'explore',
-			activeSurface: 'sandbox',
-			trace: applyMoveToTrace(draft.trace, move),
-			visitedSurfaces: ensureVisited('sandbox', 'trace'),
-			visitedPhases: ensureVisitedPhases('explore')
+			// Latch detections from the record as it stands BEFORE branching
+			// truncates it, then again after the move lands (notebook entries
+			// must not be unwritten by leaving the branch that produced them).
+			const noticed = latchExercises(draft.exerciseLatch, draft.trace);
+			const trace = applyMoveToTrace(draft.trace, move);
+
+			patchDraft({
+				activePhase: 'explore',
+				activeSurface: 'sandbox',
+				trace,
+				exerciseLatch: latchExercises(noticed, trace),
+				visitedSurfaces: ensureVisited('sandbox', 'trace'),
+				visitedPhases: ensureVisitedPhases('explore')
 			});
 		}
 
 		function walkQueryPath(moves: MiuMove[]) {
+			const noticed = latchExercises(draft.exerciseLatch, draft.trace);
 			let trace = draft.trace;
 
 			for (const move of moves) {
@@ -255,6 +263,7 @@
 				activePhase: 'explore',
 				activeSurface: 'sandbox',
 				trace,
+				exerciseLatch: latchExercises(noticed, trace),
 				visitedSurfaces: ensureVisited('sandbox', 'trace'),
 				visitedPhases: ensureVisitedPhases('explore')
 			});

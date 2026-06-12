@@ -37,6 +37,12 @@ describe('module1 draft state', () => {
 		expect(draft.lastDialogue).toBeNull();
 		expect(draft.proposalInput).toBe('');
 		expect(draft.muTested).toBe(false);
+		expect(draft.exerciseLatch).toEqual({
+			rulesUsed: [],
+			openEveryRuleStep: null,
+			iCountDownStep: null,
+			oneWayDoor: null
+		});
 		expect(draft.trace.steps.map((step) => step.value)).toEqual(['MI']);
 		expect(draft.graphDepth).toBe(3);
 		expect(draft.graphNodeLimit).toBe(16);

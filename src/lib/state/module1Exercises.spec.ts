@@ -8,10 +8,13 @@ import {
 } from '$lib/miu/core';
 
 import {
+	createExerciseLatch,
 	currentDeadBranchStart,
 	exerciseStatuses,
 	findDeadBranchStep,
 	findICountDropStep,
+	latchExercises,
+	normalizeExerciseLatch,
 	ruleUsage,
 	traceRevisitIndices
 } from './module1Exercises';
@@ -117,7 +120,99 @@ describe('traceRevisitIndices', () => {
 	});
 });
 
+describe('latchExercises', () => {
+	it('latches the detections the trace currently demonstrates', () => {
+		const latch = latchExercises(createExerciseLatch(), deriveTrace(['MIU']));
+
+		expect(latch.oneWayDoor).toEqual({ step: 1, value: 'MIU' });
+		expect(latch.rulesUsed).toEqual(['append-u']);
+	});
+
+	it('keeps an existing latch when the trace no longer demonstrates it', () => {
+		const latched = latchExercises(createExerciseLatch(), deriveTrace(['MIU']));
+		const afterBranch = latchExercises(latched, deriveTrace(['MII']));
+
+		expect(afterBranch.oneWayDoor).toEqual({ step: 1, value: 'MIU' });
+	});
+
+	it('unions rule usage across branches in ledger order', () => {
+		const latched = latchExercises(createExerciseLatch(), deriveTrace(['MIU']));
+		const afterBranch = latchExercises(latched, deriveTrace(['MII']));
+
+		expect(afterBranch.rulesUsed).toEqual(['append-u', 'double-tail']);
+	});
+
+	it('does not overwrite an earlier latch with a later detection', () => {
+		const earlier = {
+			rulesUsed: [],
+			openEveryRuleStep: null,
+			iCountDownStep: 2,
+			oneWayDoor: null
+		};
+		const merged = latchExercises(earlier, deriveTrace(ALL_RULES));
+
+		expect(merged.iCountDownStep).toBe(2);
+	});
+});
+
+describe('normalizeExerciseLatch', () => {
+	it('falls back to an empty latch for malformed input', () => {
+		expect(normalizeExerciseLatch(undefined)).toEqual(createExerciseLatch());
+		expect(normalizeExerciseLatch({ oneWayDoor: { step: 'x', value: 3 } })).toEqual(
+			createExerciseLatch()
+		);
+	});
+
+	it('passes a valid latch through and drops unknown rule ids', () => {
+		const latch = {
+			rulesUsed: ['append-u', 'bogus'],
+			openEveryRuleStep: 5,
+			iCountDownStep: 4,
+			oneWayDoor: { step: 1, value: 'MIU' }
+		};
+
+		expect(normalizeExerciseLatch(latch)).toEqual({ ...latch, rulesUsed: ['append-u'] });
+	});
+});
+
 describe('exerciseStatuses', () => {
+	it('keeps a latched one-way door detected after branching discarded the trapped steps', () => {
+		// The reported repro: derive MIU (detected), jump back, branch to MII —
+		// the record no longer contains MIU, but the notebook entry stays.
+		const latch = latchExercises(createExerciseLatch(), deriveTrace(['MIU']));
+		const oneWayDoor = exerciseStatuses(deriveTrace(['MII']), false, latch)[2]!;
+
+		expect(oneWayDoor.complete).toBe(true);
+		expect(oneWayDoor.stamp).toBe('noticed earlier');
+		expect(oneWayDoor.body).toContain('MIU can never reopen R1, R3, or R4');
+	});
+
+	it('prefers the live step stamp when the trace still demonstrates the detection', () => {
+		const latch = latchExercises(createExerciseLatch(), deriveTrace(['MIU']));
+		const oneWayDoor = exerciseStatuses(deriveTrace(['MIU']), false, latch)[2]!;
+
+		expect(oneWayDoor.stamp).toBe('noticed at step 1');
+	});
+
+	it('keeps a latched open-every-rule detected without a step stamp after branching', () => {
+		const latch = latchExercises(createExerciseLatch(), deriveTrace(ALL_RULES));
+		const openEveryRule = exerciseStatuses(deriveTrace(['MII']), false, latch)[0]!;
+
+		expect(openEveryRule.complete).toBe(true);
+		expect(openEveryRule.stamp).toBe('all four fired');
+		expect(openEveryRule.progress).toBeNull();
+	});
+
+	it('writes rule progress as the union of latched and live usage', () => {
+		// The reported repro's second half: R1 fired on a discarded branch,
+		// then R2 on the new one — progress must read R1, R2, not just R2.
+		const latch = latchExercises(createExerciseLatch(), deriveTrace(['MIU']));
+		const openEveryRule = exerciseStatuses(deriveTrace(['MII']), false, latch)[0]!;
+
+		expect(openEveryRule.complete).toBe(false);
+		expect(openEveryRule.progress).toBe('so far: R1, R2');
+	});
+
 	it('reports all four exercises open on a fresh trace, with their prompts printed', () => {
 		const statuses = exerciseStatuses(createDerivationTrace(), false);
 

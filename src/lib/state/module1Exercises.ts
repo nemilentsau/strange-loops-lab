@@ -2,10 +2,15 @@ import { MIU_RULES, isDeadBranch, type DerivationTrace, type MiuRuleId } from '$
 
 /**
  * Explore-phase exercises: each one is a predicate the engine detects against
- * real state (the live trace, or the persisted tester flag), never a label
- * the learner sets. Completion can honestly regress — if a branch discards
- * the steps that satisfied a predicate, the record no longer shows it and
- * the exercise reopens.
+ * real state (the live trace, the persisted latch, or the persisted tester
+ * flag), never a label the learner sets.
+ *
+ * Detections are notebook entries: once an observation is made and written,
+ * it stays — branching away from the steps that demonstrated it must not
+ * unwrite it (the one-way door's own remedy is jumping back and branching,
+ * which truncates the very steps that detected it). The persisted
+ * `ExerciseLatch` carries the detection facts; the live trace, when it still
+ * demonstrates a predicate, supplies the more precise step-stamped copy.
  *
  * The set is aimed at the puzzle, not the chrome (June 12 played review):
  * open every rule → notice availability; move the I-count → notice the only
@@ -13,6 +18,69 @@ import { MIU_RULES, isDeadBranch, type DerivationTrace, type MiuRuleId } from '$
  * the MU test → notice what bounded search cannot settle.
  */
 export type ExerciseId = 'open-every-rule' | 'i-count-down' | 'one-way-door' | 'mu-test';
+
+/**
+ * Persisted detection facts (draft state). Merge-only: a latched detection
+ * is never removed, surviving branch truncation and reload. Copy is always
+ * re-rendered from these facts so wording improvements reach old drafts.
+ */
+export interface ExerciseLatch {
+	/** Every rule the session has ever fired, in ledger order. */
+	rulesUsed: MiuRuleId[];
+	/** Step at which the fourth distinct rule first completed the set. */
+	openEveryRuleStep: number | null;
+	/** Step at which the I-count first fell. */
+	iCountDownStep: number | null;
+	/** First dead-branch string noticed, with its step index at the time. */
+	oneWayDoor: { step: number; value: string } | null;
+}
+
+export function createExerciseLatch(): ExerciseLatch {
+	return { rulesUsed: [], openEveryRuleStep: null, iCountDownStep: null, oneWayDoor: null };
+}
+
+/** Merge the trace's current detections into the latch; never unlatches. */
+export function latchExercises(latch: ExerciseLatch, trace: DerivationTrace): ExerciseLatch {
+	const usage = ruleUsage(trace);
+	const dropStep = findICountDropStep(trace);
+	const deadBranch = findDeadBranchStep(trace);
+	const rulesEverUsed = new Set([...latch.rulesUsed, ...usage.used]);
+
+	return {
+		rulesUsed: MIU_RULES.filter((id) => rulesEverUsed.has(id)),
+		openEveryRuleStep: latch.openEveryRuleStep ?? usage.completedAtStep,
+		iCountDownStep: latch.iCountDownStep ?? dropStep,
+		oneWayDoor:
+			latch.oneWayDoor ??
+			(deadBranch ? { step: deadBranch.index, value: deadBranch.value } : null)
+	};
+}
+
+export function normalizeExerciseLatch(input: unknown): ExerciseLatch {
+	if (!input || typeof input !== 'object') {
+		return createExerciseLatch();
+	}
+
+	const candidate = input as Partial<ExerciseLatch>;
+	const door = candidate.oneWayDoor;
+	const rulesUsed = Array.isArray(candidate.rulesUsed)
+		? MIU_RULES.filter((id) => (candidate.rulesUsed as unknown[]).includes(id))
+		: [];
+
+	return {
+		rulesUsed,
+		openEveryRuleStep:
+			typeof candidate.openEveryRuleStep === 'number' ? candidate.openEveryRuleStep : null,
+		iCountDownStep: typeof candidate.iCountDownStep === 'number' ? candidate.iCountDownStep : null,
+		oneWayDoor:
+			door &&
+			typeof door === 'object' &&
+			typeof door.step === 'number' &&
+			typeof door.value === 'string'
+				? { step: door.step, value: door.value }
+				: null
+	};
+}
 
 export interface ExerciseStatus {
 	id: ExerciseId;
@@ -142,47 +210,73 @@ export function traceRevisitIndices(trace: DerivationTrace): (number | null)[] {
 
 /**
  * The four Explore exercises in display order. `muTested` is the persisted
- * draft flag latched when the target query has actually been asked for MU.
+ * draft flag latched when the target query has actually been asked for MU;
+ * `latch` carries the persisted detection facts. The live trace, when it
+ * still demonstrates a predicate, wins (its step stamps point at lines on
+ * the page); latch-only detections are stamped "noticed earlier" because
+ * their step numbers refer to discarded branches.
  */
-export function exerciseStatuses(trace: DerivationTrace, muTested: boolean): ExerciseStatus[] {
+export function exerciseStatuses(
+	trace: DerivationTrace,
+	muTested: boolean,
+	latch: ExerciseLatch = createExerciseLatch()
+): ExerciseStatus[] {
 	const usage = ruleUsage(trace);
 	const dropStep = findICountDropStep(trace);
 	const deadBranch = findDeadBranchStep(trace);
+
+	const rulesEverUsed = new Set([...latch.rulesUsed, ...usage.used]);
+	const usedUnion = MIU_RULES.filter((id) => rulesEverUsed.has(id));
+	const allRulesComplete =
+		usage.completedAtStep !== null ||
+		latch.openEveryRuleStep !== null ||
+		usedUnion.length === MIU_RULES.length;
+	const dropComplete = dropStep !== null || latch.iCountDownStep !== null;
+	const door = deadBranch ?? (latch.oneWayDoor ? { index: null, value: latch.oneWayDoor.value } : null);
 
 	return [
 		{
 			id: 'open-every-rule',
 			title: 'Open every rule',
-			complete: usage.completedAtStep !== null,
-			stamp: usage.completedAtStep !== null ? `all four by step ${usage.completedAtStep}` : null,
-			body:
+			complete: allRulesComplete,
+			stamp:
 				usage.completedAtStep !== null
-					? 'Every rule has fired. Each one needed the string to be in the right shape first.'
-					: 'Fire all four rules at least once.',
+					? `all four by step ${usage.completedAtStep}`
+					: allRulesComplete
+						? 'all four fired'
+						: null,
+			body: allRulesComplete
+				? 'Every rule has fired. Each one needed the string to be in the right shape first.'
+				: 'Fire all four rules at least once.',
 			progress:
-				usage.completedAtStep === null && usage.used.length > 0
-					? `so far: ${usage.used.map((id) => RULE_SHORT[id]).join(', ')}`
+				!allRulesComplete && usedUnion.length > 0
+					? `so far: ${usedUnion.map((id) => RULE_SHORT[id]).join(', ')}`
 					: null
 		},
 		{
 			id: 'i-count-down',
 			title: 'Make the I-count go down',
-			complete: dropStep !== null,
-			stamp: dropStep !== null ? `noticed at step ${dropStep}` : null,
-			body:
+			complete: dropComplete,
+			stamp:
 				dropStep !== null
-					? 'The I-count fell — only R3 ever lowers it (−3), and only R2 ever raises it (×2). R1 and R4 never touch an I.'
-					: "The command bar counts I's. Find which rules can change that number at all — and which direction each pushes it.",
+					? `noticed at step ${dropStep}`
+					: dropComplete
+						? 'noticed earlier'
+						: null,
+			body: dropComplete
+				? 'The I-count fell — only R3 ever lowers it (−3), and only R2 ever raises it (×2). R1 and R4 never touch an I.'
+				: "The command bar counts I's. Find which rules can change that number at all — and which direction each pushes it.",
 			progress: null
 		},
 		{
 			id: 'one-way-door',
 			title: 'The one-way door',
-			complete: deadBranch !== null,
-			stamp: deadBranch !== null ? `noticed at step ${deadBranch.index}` : null,
+			complete: door !== null,
+			stamp:
+				door === null ? null : door.index !== null ? `noticed at step ${door.index}` : 'noticed earlier',
 			body:
-				deadBranch !== null
-					? `${deadBranch.value} can never reopen R1, R3, or R4 — doubling its tail creates nothing the other rules need. Jumping back is the only way out.`
+				door !== null
+					? `${door.value} can never reopen R1, R3, or R4 — doubling its tail creates nothing the other rules need. Jumping back is the only way out.`
 					: 'Find a string the system can never take you back out of — some moves here cannot be undone.',
 			progress: null
 		},

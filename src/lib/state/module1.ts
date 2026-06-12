@@ -3,6 +3,11 @@ import {
 	normalizeTrace,
 	type DerivationTrace
 } from '$lib/miu/core';
+import {
+	createExerciseLatch,
+	normalizeExerciseLatch,
+	type ExerciseLatch
+} from './module1Exercises';
 import type { DialogueResult } from '$lib/dialogue/types';
 
 export const MODULE1_STORAGE_KEY = 'strange-loops/module-1/v2';
@@ -115,8 +120,13 @@ export interface Module1Draft {
 	lastDialogue: DialogueResult | null;
 	workingQuestion: string;
 	proposalInput: string;
-	/** Latched true once the tester has actually analyzed MU (the MU test). */
+	/** Latched true once the target query has actually been asked for MU (the MU test). */
 	muTested: boolean;
+	/**
+	 * Latched exercise detections (notebook entries): merge-only facts that
+	 * survive branch truncation and reload. See `ExerciseLatch`.
+	 */
+	exerciseLatch: ExerciseLatch;
 	invariantCandidate: string;
 	notes: string;
 	trace: DerivationTrace;
@@ -159,6 +169,7 @@ export function createModule1Draft(): Module1Draft {
 		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
 		proposalInput: '',
 		muTested: false,
+		exerciseLatch: createExerciseLatch(),
 		invariantCandidate: 'count(I) mod 3 != 0',
 		notes: '',
 		trace: createDerivationTrace(),
@@ -201,6 +212,7 @@ export function normalizeModule1Draft(input: unknown): Module1Draft {
 		proposalInput:
 			typeof candidate.proposalInput === 'string' ? candidate.proposalInput : fallback.proposalInput,
 		muTested: candidate.muTested === true,
+		exerciseLatch: normalizeExerciseLatch(candidate.exerciseLatch),
 		invariantCandidate:
 			typeof candidate.invariantCandidate === 'string'
 				? candidate.invariantCandidate

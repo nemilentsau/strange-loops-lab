@@ -140,6 +140,14 @@ mockup-first; awaiting played acceptance:
    leaves Explore; reconvergence belongs to Map's drawing.
 4. **Query header middle-ellipsizes** the current string (the focal line is
    the object; the header is a reference).
+5. **Detections latch** (June 12 bug fix). Exercise detections are notebook
+   entries: facts persisted in the draft (`ExerciseLatch`, merge-only) that
+   survive branch truncation and reload. The one-way door's own remedy —
+   jump back and branch — discards the steps that detected it; without the
+   latch it uncheck itself. Live trace detections win the step-stamped copy;
+   latch-only detections are stamped "noticed earlier" (their step numbers
+   refer to discarded branches). Rule-usage progress is likewise the union
+   across branches.
 
 ## Phase B — Map: the derivation tree
 
