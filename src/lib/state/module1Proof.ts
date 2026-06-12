@@ -80,10 +80,8 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 			head: basePasses ? 'Base — the axiom satisfies it.' : 'Base — the axiom already fails it.',
 			pattern: null,
 			text: basePasses
-				? `MI has count(I) = 1, and 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — allowed.`
-				: `MI has count(I) = 1, but 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — ${
-						parsed.kind === 'mod-equals' ? `not ${parsed.residue}` : 'the forbidden remainder'
-					}. The axiom violates the candidate, so there is nothing to preserve.`,
+				? `MI has count(I) = 1, and 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — which the candidate allows.`
+				: `MI has count(I) = 1, and 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — which the candidate forbids.`,
 			stamp: basePasses ? 'pass' : 'fail',
 			witness: null
 		},
@@ -132,8 +130,8 @@ function buildConclusion(
 ): ProofConclusion {
 	if (allPass && muExcluded) {
 		return {
-			head: `Every derivable string satisfies ${parsed.label}. MU has count(I) = 0, which violates it. No derivation reaches MU. ∎`,
-			text: 'Search samples the space of derivations; the invariant covers all of it. This is the step outside the system.',
+			head: `So every derivable string satisfies ${parsed.label}. MU doesn't — its I-count is 0. No derivation can ever reach it. ∎`,
+			text: 'Searching could only ever check derivations one at a time. The invariant covers them all — that is the step outside the system.',
 			stamp: 'pass'
 		};
 	}
@@ -153,14 +151,14 @@ function buildConclusion(
 	if (!basePasses) {
 		return {
 			head: 'The argument does not go through.',
-			text: 'It fails at the axiom: MI does not satisfy the candidate, so preservation never starts. Pick a property MI has.',
+			text: "It fails at the very first string: MI doesn't satisfy the candidate, so there is nothing to preserve. You need a property MI actually has.",
 			stamp: 'fail'
 		};
 	}
 
 	return {
 		head: 'The argument does not go through.',
-		text: 'One breakable rule is enough: a derivation can pass through the counterexample above and leave the property behind. This candidate proves nothing about MU.',
+		text: 'It only takes one breakable rule: a derivation can run through the counterexample above and come out the other side without the property. So this candidate tells us nothing about MU.',
 		stamp: 'fail'
 	};
 }
@@ -168,21 +166,21 @@ function buildConclusion(
 function preservedText(parsed: ParsedInvariantCandidate, ruleId: string): string {
 	switch (ruleId) {
 		case 'append-u':
-			return 'Appending a U leaves count(I) unchanged.';
+			return 'Appending a U leaves the I-count unchanged.';
 		case 'delete-uu':
-			return 'Deleting UU leaves count(I) unchanged.';
+			return 'Deleting UU leaves the I-count unchanged.';
 		case 'double-tail':
-			return `Doubling sends count(I) from n to 2n. Mod ${parsed.modulus}, the allowed remainders map ${residueStory(
+			return `Doubling takes the I-count from n to 2n. Mod ${parsed.modulus}, that sends ${residueStory(
 				parsed,
 				(n) => 2 * n
-			)} — all of them allowed.`;
+			)} — every result is still allowed.`;
 		case 'replace-iii':
 			return parsed.modulus === 3
-				? 'Removing III subtracts 3 from count(I), which leaves every remainder mod 3 unchanged.'
-				: `Removing III subtracts 3 from count(I). Mod ${parsed.modulus}, the allowed remainders map ${residueStory(
+				? 'Removing III takes 3 away from the I-count — and subtracting 3 changes nothing mod 3.'
+				: `Removing III takes 3 away from the I-count. Mod ${parsed.modulus}, that sends ${residueStory(
 						parsed,
 						(n) => n - 3
-					)} — all of them allowed.`;
+					)} — every result is still allowed.`;
 		default:
 			return 'Preserved.';
 	}
@@ -191,11 +189,11 @@ function preservedText(parsed: ParsedInvariantCandidate, ruleId: string): string
 function brokenText(ruleId: string): string {
 	switch (ruleId) {
 		case 'double-tail':
-			return 'Doubling can produce a forbidden remainder. A concrete case:';
+			return 'Doubling can land on the forbidden remainder. For example:';
 		case 'replace-iii':
-			return 'Removing III can produce a forbidden remainder. A concrete case:';
+			return 'Removing III can land on the forbidden remainder. For example:';
 		default:
-			return 'This rule can break the property. A concrete case:';
+			return 'This rule can break the property. For example:';
 	}
 }
 

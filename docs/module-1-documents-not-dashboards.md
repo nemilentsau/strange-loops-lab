@@ -226,17 +226,21 @@ and stay:
    last.
 7. **Mockup before code.** Interaction changes are approved on sight by the
    user before implementation (standing instruction).
-8. **Written peer-to-peer.** The audience (vision §2.3) reads
-   graduate-level math. The voice is one colleague to another: plain,
-   direct, spoken rhythm, one claim per sentence. Two failure modes are
-   banned by name, and they are opposites:
-   - *logician's compression* — clause-stacked aphorisms nobody says aloud
-     ("a property that every rule preserves, and that MU lacks, settles it
-     all at once");
+8. **Written peer-to-peer, as connected prose.** The audience (vision
+   §2.3) reads graduate-level math. The voice is one colleague talking to
+   another. The test: draft the paragraph whole, read it aloud, and ship
+   only what you would actually say. That means connected discourse — but,
+   suppose, then, so — real verbs, and pronouns that track their referents.
+   Three failure modes are banned by name:
+   - *logician's compression* — clause-stacked aphorisms ("a property that
+     every rule preserves, and that MU lacks, settles it all at once");
    - *narrated hand-holding* — explaining what the reader already owns
      ("every derivation at once — including all the ones nobody will ever
-     write down"). The reader knows what quantifying over an infinite set
-     means. Say "the claim quantifies over all derivations" and move on.
+     write down");
+   - *telegraphic fragments* — written tics nobody speaks ("The claim
+     quantifies over all derivations, so no search settles it. What does:
+     an invariant").
+   Sentences are not optimized in isolation; the paragraph is the unit.
    Gamification vocabulary and chrome are banned — "challenge", "task",
    "achievement", checkbox-quest framing, congratulation copy. Exercises in
    the textbook sense are welcome, and each must print the mathematical

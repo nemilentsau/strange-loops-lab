@@ -41,9 +41,9 @@
 			<span class="proof-claim__word">Claim</span>MU is not derivable in the MIU system.
 		</p>
 		<p class="proof-claim-note">
-			The claim quantifies over all derivations, so no search settles it. What does: an
-			invariant — a property that holds for MI, is preserved by every rule, and fails for MU.
-			If one exists, no derivation reaches MU.
+			Search can't settle this — there are infinitely many derivations to check. But suppose
+			some property holds for MI and no rule can break it. Then every derivable string has it,
+			no matter how it was derived. If MU lacks that property, MU is unreachable.
 		</p>
 
 		<div class="proof-candidate">
