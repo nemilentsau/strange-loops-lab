@@ -1,4 +1,4 @@
-import { MIU_INITIAL_STRING, enumerateMiuMoves, type MiuMove } from './core';
+import { MIU_INITIAL_STRING, enumerateMiuMoves, type DerivationTrace, type MiuMove } from './core';
 
 export interface ReachabilityNode {
 	id: string;
@@ -215,6 +215,47 @@ export function graphNodeExists(graph: ReachabilityGraph, nodeId: string | null 
 	}
 
 	return graph.nodes.some((node) => node.id === nodeId);
+}
+
+export interface TraceGraphPath {
+	/** Unique node ids of the active branch that exist inside the explored region. */
+	nodeIds: string[];
+	/** Edge ids for consecutive active-branch moves recorded in the explored region. */
+	edgeIds: string[];
+}
+
+/**
+ * Map the learner's derivation (the trace's active branch, steps 0..current)
+ * onto the explored graph: which drawn nodes and edges their derivation
+ * walks. Steps whose strings lie outside the bounded region are skipped —
+ * the drawing can only highlight what it shows. Built on the same edge
+ * identity the graph records, never re-derived.
+ */
+export function traceGraphPath(graph: ReachabilityGraph, trace: DerivationTrace): TraceGraphPath {
+	const knownNodes = new Set(graph.nodes.map((node) => node.id));
+	const knownEdges = new Set(graph.edges.map((edge) => edge.id));
+	const active = trace.steps.slice(0, trace.currentIndex + 1);
+
+	const nodeIds = new Set<string>();
+	const edgeIds: string[] = [];
+
+	for (const step of active) {
+		const id = nodeIdFor(step.value);
+
+		if (knownNodes.has(id)) {
+			nodeIds.add(id);
+		}
+
+		if (step.via) {
+			const edgeId = `${nodeIdFor(step.via.source)}->${id}:${step.via.key}`;
+
+			if (knownEdges.has(edgeId)) {
+				edgeIds.push(edgeId);
+			}
+		}
+	}
+
+	return { nodeIds: [...nodeIds], edgeIds };
 }
 
 export function nodeIdFor(value: string): string {

@@ -1,12 +1,78 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+	applyMoveToTrace,
+	createDerivationTrace,
+	enumerateMiuMoves,
+	type DerivationTrace
+} from './core';
+
+import {
 	buildReachabilityGraph,
 	graphNodeExists,
 	nodeIdFor,
 	summarizeReachabilityGraph,
+	traceGraphPath,
 	tracePathToNode
 } from './graph';
+
+function deriveTrace(values: string[]): DerivationTrace {
+	let trace = createDerivationTrace();
+
+	for (const value of values) {
+		const move = enumerateMiuMoves(trace.steps[trace.currentIndex]!.value).find(
+			(candidate) => candidate.result === value
+		);
+
+		if (!move) {
+			throw new Error(`No legal move to ${value} in test setup`);
+		}
+
+		trace = applyMoveToTrace(trace, move);
+	}
+
+	return trace;
+}
+
+describe('traceGraphPath', () => {
+	const graph = buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 });
+
+	it('maps the active branch onto drawn nodes and edges', () => {
+		const path = traceGraphPath(graph, deriveTrace(['MII', 'MIIII']));
+
+		expect(path.nodeIds).toEqual([nodeIdFor('MI'), nodeIdFor('MII'), nodeIdFor('MIIII')]);
+		expect(path.edgeIds).toHaveLength(2);
+	});
+
+	it('includes a rediscovery edge the graph records', () => {
+		// MIIII →R3→ MIU lands on a node first discovered from MI.
+		const path = traceGraphPath(graph, deriveTrace(['MII', 'MIIII', 'MIU']));
+
+		expect(path.nodeIds).toContain(nodeIdFor('MIU'));
+		expect(path.edgeIds).toHaveLength(3);
+	});
+
+	it('ignores steps ahead of the current index', () => {
+		const trace = deriveTrace(['MII', 'MIIII']);
+		const jumpedBack = { ...trace, currentIndex: 1 };
+
+		const path = traceGraphPath(graph, jumpedBack);
+
+		expect(path.nodeIds).toEqual([nodeIdFor('MI'), nodeIdFor('MII')]);
+		expect(path.edgeIds).toHaveLength(1);
+	});
+
+	it('skips strings and moves that lie outside the explored region', () => {
+		// MIUIUIUIU is depth 3; its doubling leaves the bounded region.
+		const path = traceGraphPath(
+			graph,
+			deriveTrace(['MIU', 'MIUIU', 'MIUIUIUIU', 'MIUIUIUIUIUIUIUIU'])
+		);
+
+		expect(path.nodeIds).toHaveLength(4);
+		expect(path.edgeIds).toHaveLength(3);
+	});
+});
 
 describe('MIU reachability graph', () => {
 	it('uses unique node identities for identical strings', () => {

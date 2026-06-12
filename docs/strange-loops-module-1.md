@@ -67,8 +67,12 @@ The MIU system is the concrete vehicle for this.
   action to the last open line
 - revisit notes in the derivation spine ("↩ same as step 5") whenever a move
   lands on a string already in the trace
-- bounded derivation graph explorer with provenance display
-- guided tasks in `Map`
+- `Map` as the drawn derivation tree (SVG): depth columns, edges labeled by
+  rule, the learner's own derivation drawn solid through the dashed
+  computed search, reconvergence curving back into the tree with revisited
+  nodes marked, one-way doors counted in the captions, and the search bound
+  rendered as an erased frontier; node click prints the full string and its
+  shortest route; computed observations are captions under the drawing
 - invariant explorer with:
   - built-in MU non-reachability argument,
   - custom modular candidates of the form `count(I) mod k = r` and `!= r`,
@@ -106,8 +110,10 @@ one-move target query is too weak to address the module's actual question;
 and "make Rule 3 possible" points at chrome rather than the puzzle's
 quantity (the I-count). The rework-2 list in the plan doc answers all four
 (dead-branch note, bounded query, puzzle-aimed exercises, header ellipsis);
-implemented June 12, awaiting played acceptance. Phase B (Map) stays parked
-behind that gate.
+implemented June 12 along with a latch fix from its played review
+(detections are notebook entries — they survive branching and reload).
+Phase B (Map as the drawn derivation tree) is implemented behind it; both
+await played acceptance.
 
 ### Present but still shallow
 - object-level vs meta-level framing exists in phase labels, copy, and panel structure, but it is still not forceful enough in the interface

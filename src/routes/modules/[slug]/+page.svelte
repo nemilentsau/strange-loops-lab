@@ -115,10 +115,6 @@
 			? (draft.selectedGraphNode as string)
 			: reachabilityGraph.rootId
 	);
-	const selectedGraphNode = $derived(
-		reachabilityGraph.nodes.find((node) => node.id === selectedGraphNodeId) ?? reachabilityGraph.nodes[0]!
-	);
-	const repeatedGraphNodeId = $derived(findRepeatedGraphNodeId(reachabilityGraph));
 	const selectedGraphPath = $derived(tracePathToNode(reachabilityGraph, selectedGraphNodeId));
 	const builtInInvariant = $derived(builtInInvariantAnalysis(currentString));
 	const candidateInvariant = $derived(analyzeInvariantCandidate(draft.invariantCandidate, currentString));
@@ -272,17 +268,6 @@
 		function updateQueryBound(event: Event) {
 			const target = event.target as HTMLSelectElement;
 			queryBound = Number(target.value);
-		}
-
-		function useMapGuideTask(question: string, nodeId?: string) {
-			patchDraft({
-				activePhase: 'map',
-				activeSurface: 'graph',
-				workingQuestion: question,
-				selectedGraphNode: nodeId ?? draft.selectedGraphNode,
-				visitedSurfaces: ensureVisited('graph'),
-				visitedPhases: ensureVisitedPhases('map')
-			});
 		}
 
 	function jumpToStep(index: number) {
@@ -555,18 +540,6 @@
 		}
 	}
 
-		function findRepeatedGraphNodeId(graph: ReachabilityGraph): string | null {
-			const incomingCounts = new Map<string, number>();
-			for (const edge of graph.edges) {
-				incomingCounts.set(edge.to, (incomingCounts.get(edge.to) ?? 0) + 1);
-			}
-			for (const node of graph.nodes) {
-				if ((incomingCounts.get(node.id) ?? 0) > 1) {
-					return node.id;
-				}
-			}
-			return null;
-		}
 	</script>
 
 <svelte:head>
@@ -608,18 +581,14 @@
 			<div class="phase-content" data-phase="map">
 				<PhaseMap
 					{reachabilityGraph}
+					trace={draft.trace}
 					{selectedGraphNodeId}
-						{selectedGraphNode}
 						{selectedGraphPath}
-						{repeatedGraphNodeId}
 						graphDepth={draft.graphDepth}
 						graphNodeLimit={draft.graphNodeLimit}
-						workingQuestion={draft.workingQuestion}
 						onUpdateGraphDepth={updateGraphDepth}
 						onUpdateGraphNodeLimit={updateGraphNodeLimit}
 						onSelectGraphNode={selectGraphNode}
-						onUpdateQuestion={updateQuestion}
-						onUseGuideTask={useMapGuideTask}
 						onBridgeToProve={() => selectPhase('prove')}
 					/>
 				</div>

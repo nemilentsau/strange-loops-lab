@@ -4,10 +4,10 @@
 
 **Approved and in execution.** Phase A shipped (commit `ca6bf4c`) and was
 played by the user on June 11, 2026. The played review produced the Phase A
-rework list below; it must land — mockup-first — before Phase B proceeds.
-(A Phase B mockup draft is parked locally under `docs/mockups/`; mockups are
-ephemeral working artifacts — gitignored, never committed, deleted once
-their phase ships.)
+rework list below (landed June 12, including a played-review bug fix on
+exercise latching); Phase B is implemented and awaits played acceptance.
+(Mockups are ephemeral working artifacts — local only, gitignored, deleted
+once their phase ships.)
 
 Each phase follows the same loop:
 visual mockup → user approves on sight → implement → user plays it → next
@@ -151,7 +151,15 @@ mockup-first; awaiting played acceptance:
 
 ## Phase B — Map: the derivation tree
 
-The reachable space drawn as an actual tree (SVG), not a node list:
+**Implemented June 12, 2026** (mockup approved June 11), awaiting played
+acceptance. Beyond the approved scope, the captions gained one line earned
+by the rework-2 mathematics: a count of one-way doors in view
+(`isDeadBranch` over the drawn nodes), tying Explore's trap note to the
+bare chains in the drawing. Node click selects and prints the node's full
+string with its shortest route under the tree (replacing the old
+inspector).
+
+The approved scope:
 
 1. Depth layers top-down or left-right; nodes are strings; edges are rule
    applications (the same four rules, now edge labels).

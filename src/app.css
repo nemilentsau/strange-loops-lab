@@ -1794,8 +1794,7 @@ body.module1-wide .site-shell {
 }
 
 .text-field,
-.text-area,
-.select-field {
+.text-area {
 	width: 100%;
 	padding: 12px 14px;
 	border: 1px solid var(--line-strong);
@@ -1808,14 +1807,12 @@ body.module1-wide .site-shell {
 }
 
 .text-field:hover,
-.text-area:hover,
-.select-field:hover {
+.text-area:hover {
 	border-color: var(--faint);
 }
 
 .text-field:focus,
-.text-area:focus,
-.select-field:focus {
+.text-area:focus {
 	outline: none;
 	border-color: var(--act);
 }
@@ -1836,87 +1833,191 @@ body.module1-wide .site-shell {
 	font-family: var(--sans);
 }
 
-.control-grid,
-.graph-summary,
-.graph-layout {
-	display: grid;
-	gap: var(--space-sm);
-}
-
-.control-grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.graph-summary {
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.graph-metric,
-.graph-inspector__section {
-	padding: var(--space-md);
+/* ── Map: the derivation tree ──
+ * The page is the drawn tree: depth columns left to right, the learner's
+ * derivation solid ink through the dashed computed search, reconvergence
+ * curving back into the tree, and the search bound rendered as an erased
+ * frontier. Captions below the drawing are computed register (dashed rule);
+ * the bridge into Prove keeps its meta framing. */
+.map-sheet {
+	max-width: 1100px;
+	margin: var(--space-md) auto var(--space-lg);
+	padding: var(--space-lg) var(--space-xl);
 	border: 1px solid var(--line);
 	border-radius: var(--radius);
-	background: var(--panel);
+	background-color: var(--panel);
+	background-image: linear-gradient(rgba(222, 219, 211, 0.45) 1px, transparent 1px);
+	background-size: 100% 1.6rem;
+	min-width: 0;
 }
 
-.graph-metric strong,
-.graph-inspector h3 {
-	display: block;
-	margin-bottom: 4px;
+.map-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--space-md);
+	flex-wrap: wrap;
+}
+
+.map-bounds {
+	margin: 0;
+	color: var(--muted);
 	font-family: var(--mono);
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: var(--ink);
-	letter-spacing: 0.02em;
+	font-size: 0.74rem;
 }
 
-.graph-metric span {
-	color: var(--faint);
+.map-bound {
+	padding: 0 1px 1px;
+	border: none;
+	border-bottom: 1px solid var(--line-strong);
+	border-radius: 0;
+	background: transparent;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.78rem;
+}
+
+.map-tree {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin-top: 6px;
+}
+
+.tree-tick {
+	fill: var(--faint);
+	font-family: var(--mono);
+	font-size: 9.5px;
+	font-weight: 600;
+	letter-spacing: 1.5px;
+}
+
+.tree-edge {
+	stroke: var(--line-strong);
+	stroke-width: 1.25;
+	stroke-dasharray: 5 4;
+	fill: none;
+}
+
+.tree-edge--path {
+	stroke: var(--ink);
+	stroke-width: 2;
+	stroke-dasharray: none;
+}
+
+.map-marker-gray {
+	stroke: var(--line-strong);
+}
+
+.map-marker-ink {
+	stroke: var(--ink);
+}
+
+.tree-edge-label {
+	fill: var(--faint);
+	font-family: var(--mono);
+	font-size: 10px;
+	paint-order: stroke;
+	stroke: var(--panel);
+	stroke-width: 4px;
+}
+
+.tree-edge-label--path {
+	fill: var(--muted);
+	font-weight: 700;
+}
+
+.tree-stub {
+	stroke: var(--line-strong);
+	stroke-width: 1.1;
+	stroke-dasharray: 4 4;
+	fill: none;
+}
+
+.tree-node {
+	cursor: pointer;
+	outline-offset: 3px;
+}
+
+.tree-node__value {
+	fill: var(--muted);
+	font-family: var(--mono);
+	font-size: 13px;
+	letter-spacing: 0.3px;
+	paint-order: stroke;
+	stroke: var(--panel);
+	stroke-width: 5px;
+}
+
+.tree-node--path .tree-node__value {
+	fill: var(--ink);
+	font-weight: 700;
+}
+
+.tree-node:hover .tree-node__value,
+.tree-node:focus-visible .tree-node__value {
+	fill: var(--act);
+}
+
+.tree-node__underline {
+	stroke: var(--ink);
+	stroke-width: 1.5;
+}
+
+.tree-again {
+	fill: var(--faint);
+	font-family: var(--mono);
+	font-size: 9px;
+	paint-order: stroke;
+	stroke: var(--panel);
+	stroke-width: 3px;
+}
+
+.map-legend {
+	margin: 4px 0 0;
+	color: var(--muted);
 	font-family: var(--mono);
 	font-size: 0.72rem;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
 }
 
-/* Map observations are COMPUTED facts about the explored region: they wear the
- * computed register (dashed pencil-gray left rule), never a verified verdict.
- * Each line states a count, bound, or absence — not a conclusion about MU. */
-.observations[data-tone='computed'] {
-	display: grid;
-	gap: var(--space-sm);
-	margin: 0;
-	padding: 0;
-	list-style: none;
+.map-legend__solid {
+	color: var(--ink);
+	font-weight: 700;
 }
 
-.observations[data-tone='computed'] .observation {
-	padding: var(--space-sm) var(--space-md);
-	border: 1px solid var(--line);
-	border-left: 3px dashed var(--faint);
-	border-radius: var(--radius);
-	background: var(--panel);
+.map-legend__dashed {
+	color: var(--faint);
 }
 
-.observations[data-tone='computed'] .observation strong {
-	display: block;
-	margin-bottom: 4px;
+.map-route {
+	margin: 10px 0 0;
 	color: var(--ink);
 	font-family: var(--mono);
-	font-size: 0.92rem;
-	letter-spacing: 0.01em;
+	font-size: 0.78rem;
+	line-height: 1.7;
+	overflow-wrap: anywhere;
 }
 
-.observations[data-tone='computed'] .observation span {
-	display: block;
+.map-route__value {
+	font-weight: 700;
+}
+
+.map-captions {
+	margin-top: 22px;
+	padding-top: 12px;
+	border-top: 2px dashed var(--faint);
+}
+
+.map-caption {
+	margin: 0 0 6px;
 	color: var(--muted);
 	font-size: 0.86rem;
 	line-height: 1.55;
 }
 
-/* The "absence here is not absence everywhere" fact carries the pedagogical
- * weight, so it reads as the gap itself — still phrased about the search. */
-.observations[data-tone='computed'] .observation--absence span {
-	color: var(--faint);
+.map-caption strong {
+	color: var(--ink);
+	font-weight: 600;
 }
 
 /* The bridge into Prove is a navigation affordance that crosses into the meta
@@ -1979,67 +2080,6 @@ body.module1-wide .site-shell {
 
 .prove-bridge[data-level='meta'] .prove-bridge__action {
 	justify-self: start;
-}
-
-.graph-layout {
-	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-	align-items: start;
-}
-
-.graph-node-list {
-	display: grid;
-	gap: 10px;
-	max-height: 420px;
-	overflow: auto;
-	padding-right: 4px;
-}
-
-.graph-node {
-	width: 100%;
-	padding: var(--space-sm);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-	transition:
-		border-color 160ms ease,
-		background 160ms ease;
-}
-
-.graph-node:hover,
-.graph-node:focus-visible {
-	border-color: var(--act);
-	background: rgba(138, 59, 46, 0.04);
-}
-
-.graph-node[data-active='true'] {
-	border-color: var(--act);
-	background: rgba(138, 59, 46, 0.06);
-}
-
-.graph-node__top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 8px;
-	font-family: var(--mono);
-}
-
-.graph-node__top strong {
-	color: var(--ink);
-	letter-spacing: 0.04em;
-}
-
-.graph-node small {
-	color: var(--muted);
-}
-
-.graph-inspector {
-	display: grid;
-	gap: 12px;
 }
 
 .rule-result-list,
@@ -2136,21 +2176,6 @@ body.module1-wide .site-shell {
 	margin-top: 6px;
 	color: var(--muted);
 	line-height: 1.5;
-}
-
-.path-list {
-	display: grid;
-	gap: 10px;
-	margin: 0;
-	padding-left: 20px;
-}
-
-.path-list li {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	color: var(--muted);
 }
 
 .placeholder-copy {
@@ -2258,10 +2283,7 @@ body.module1-wide .site-shell {
 @media (max-width: 980px) {
 	.hero,
 	.module-hero,
-	.panel-grid--three,
-	.graph-layout,
-	.control-grid,
-	.graph-summary {
+	.panel-grid--three {
 		grid-template-columns: 1fr;
 	}
 
