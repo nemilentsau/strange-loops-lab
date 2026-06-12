@@ -157,7 +157,11 @@ by the rework-2 mathematics: a count of one-way doors in view
 (`isDeadBranch` over the drawn nodes), tying Explore's trap note to the
 bare chains in the drawing. Node click selects and prints the node's full
 string with its shortest route under the tree (replacing the old
-inspector).
+inspector). From the June 12 played review: the active bound is named at
+the controls themselves ("the 16-string limit is the active bound — raising
+depth alone changes nothing") and the last depth column ticks "cut by the
+string limit" when the node limit governs — the slack control must never
+read as simply dead.
 
 The approved scope:
 

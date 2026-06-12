@@ -2,7 +2,37 @@ import { describe, expect, it } from 'vitest';
 
 import { buildReachabilityGraph, nodeIdFor } from '$lib/miu/graph';
 
-import { layoutReachabilityGraph } from './module1Map';
+import { describeActiveBound, layoutReachabilityGraph } from './module1Map';
+
+describe('describeActiveBound', () => {
+	it('names the node limit as governing and the depth control as idle', () => {
+		// Depth 5 with a 16-string limit: the limit binds first.
+		const graph = buildReachabilityGraph({ maxDepth: 5, maxNodes: 16 });
+		const note = describeActiveBound(graph, 4);
+
+		expect(graph.truncatedBy).toBe('node-limit');
+		expect(note.lead).toBe('the 16-string limit is the active bound');
+		expect(note.detail).toContain('raising depth alone changes nothing');
+	});
+
+	it('names the depth bound as governing when the region fits the limit', () => {
+		const graph = buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 });
+		const note = describeActiveBound(graph, 3);
+
+		expect(graph.truncatedBy).toBe('depth');
+		expect(note.lead).toBe('the depth bound is the active bound');
+		expect(note.detail).toContain('raising the string limit alone changes nothing');
+	});
+
+	it('reports full enumeration when no bound was hit', () => {
+		// Every MIU node has moves, so the builder never exhausts; exercise
+		// the branch directly.
+		const exhausted = { ...buildReachabilityGraph({ maxDepth: 0, maxNodes: 1 }), truncatedBy: null };
+		const note = describeActiveBound(exhausted, 0);
+
+		expect(note.lead).toBe('no bound is active');
+	});
+});
 
 describe('layoutReachabilityGraph', () => {
 	// The default Map view: 11 nodes, one reconvergence (MIIII →R3→ MIU).

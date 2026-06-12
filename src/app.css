@@ -1877,6 +1877,20 @@ body.module1-wide .site-shell {
 	font-size: 0.78rem;
 }
 
+/* Which bound governs the search, stated at the controls themselves: the
+ * slack control must not read as simply dead. */
+.map-bound-note {
+	margin: 2px 0 0;
+	color: var(--muted);
+	font-size: 0.74rem;
+	text-align: right;
+}
+
+.map-bound-note strong {
+	color: var(--ink);
+	font-weight: 600;
+}
+
 .map-tree {
 	display: block;
 	width: 100%;

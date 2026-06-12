@@ -9,7 +9,11 @@
 		type ReachabilityEdge,
 		type ReachabilityGraph
 	} from '$lib/miu/graph';
-	import { layoutReachabilityGraph, type MapLayoutNode } from '$lib/state/module1Map';
+	import {
+		describeActiveBound,
+		layoutReachabilityGraph,
+		type MapLayoutNode
+	} from '$lib/state/module1Map';
 	import {
 		GRAPH_DEPTH_OPTIONS,
 		GRAPH_NODE_LIMIT_OPTIONS,
@@ -155,6 +159,10 @@
 	}
 
 	const selectedNode = $derived(nodeById.get(selectedGraphNodeId) ?? null);
+	/* Which bound actually governs the search — without this, the slack
+	 * control appears dead (raising depth past a binding node limit changes
+	 * nothing on screen). */
+	const activeBound = $derived(describeActiveBound(reachabilityGraph, summary.deepestDepth));
 
 	const boundCaption = $derived(
 		reachabilityGraph.truncatedBy === 'depth'
@@ -201,6 +209,8 @@
 			</p>
 		</div>
 
+		<p class="map-bound-note"><strong>{activeBound.lead}</strong>{activeBound.detail}</p>
+
 		<svg
 			class="map-tree"
 			viewBox="0 0 {svgWidth} {svgHeight}"
@@ -223,9 +233,13 @@
 
 			{#each Array.from({ length: layout.depthCount }) as _, depth (depth)}
 				<text class="tree-tick" x={PAD_LEFT + depth * COL_W} y="18">
-					DEPTH {depth}{depth === layout.depthCount - 1 && reachabilityGraph.truncatedBy === 'depth'
-						? ' — AT THE BOUND'
-						: ''}
+					DEPTH {depth}{depth !== layout.depthCount - 1
+						? ''
+						: reachabilityGraph.truncatedBy === 'depth'
+							? ' — AT THE BOUND'
+							: reachabilityGraph.truncatedBy === 'node-limit'
+								? ' — CUT BY THE STRING LIMIT'
+								: ''}
 				</text>
 			{/each}
 

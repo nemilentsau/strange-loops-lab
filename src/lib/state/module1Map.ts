@@ -30,6 +30,43 @@ export interface MapLayout {
 	depthCount: number;
 }
 
+/**
+ * Name the bound that is actually governing the search, and what that means
+ * for the other control. The two bounds interact — the tighter one wins —
+ * and without this line the slack control appears simply dead (raising
+ * depth past a binding node limit changes nothing on screen).
+ */
+export interface ActiveBoundNote {
+	/** The clause to set strong: which bound governs. */
+	lead: string;
+	/** The consequence, appended after the lead. */
+	detail: string;
+}
+
+export function describeActiveBound(
+	graph: ReachabilityGraph,
+	deepestDepth: number
+): ActiveBoundNote {
+	if (graph.truncatedBy === 'node-limit') {
+		return {
+			lead: `the ${graph.maxNodes}-string limit is the active bound`,
+			detail: ` — it cut the search at depth ${deepestDepth}; raising depth alone changes nothing.`
+		};
+	}
+
+	if (graph.truncatedBy === 'depth') {
+		return {
+			lead: `the depth bound is the active bound`,
+			detail: ` — every string within ${graph.maxDepth} moves is drawn; raising the string limit alone changes nothing.`
+		};
+	}
+
+	return {
+		lead: 'no bound is active',
+		detail: ' — this region is fully enumerated.'
+	};
+}
+
 export function layoutReachabilityGraph(graph: ReachabilityGraph): MapLayout {
 	const nodeIds = new Set(graph.nodes.map((node) => node.id));
 	const parentEdges = new Map<string, ReachabilityEdge>();
