@@ -11,10 +11,10 @@ describe('buildProofDocument', () => {
 		expect(doc.clauses.every((clause) => clause.stamp === 'pass')).toBe(true);
 		expect(doc.clauses[0]!.head).toBe('Base — the axiom satisfies it.');
 		expect(doc.clauses[2]!.pattern).toBe('Mx → Mxx');
-		expect(doc.clauses[2]!.text).toContain('1 becomes 2, and 2 becomes 1');
+		expect(doc.clauses[2]!.text).toContain('1 → 2 and 2 → 1');
 		expect(doc.conclusion?.stamp).toBe('pass');
 		expect(doc.conclusion?.head).toContain('∎');
-		expect(doc.conclusion?.head).toContain('MU breaks the rule every derivable string obeys');
+		expect(doc.conclusion?.head).toContain('MU has count(I) = 0, which violates it');
 	});
 
 	it('renders a failing rule with its counterexample as the clause content', () => {
@@ -27,7 +27,7 @@ describe('buildProofDocument', () => {
 		expect(r2.witness).toContain('count(I): 1 → 2');
 		expect(r2.witness).toContain('2 mod 2 is 0');
 		expect(doc.conclusion?.stamp).toBe('fail');
-		expect(doc.conclusion?.text).toContain('The counterexample above is exactly where it breaks');
+		expect(doc.conclusion?.text).toContain('This candidate proves nothing about MU');
 	});
 
 	it('fails at the base when the axiom itself violates the candidate', () => {
@@ -36,7 +36,7 @@ describe('buildProofDocument', () => {
 		expect(doc.clauses[0]!.stamp).toBe('fail');
 		expect(doc.clauses[0]!.head).toBe('Base — the axiom already fails it.');
 		expect(doc.conclusion?.stamp).toBe('fail');
-		expect(doc.conclusion?.text).toContain('It breaks before it starts');
+		expect(doc.conclusion?.text).toContain('It fails at the axiom');
 	});
 
 	it('explains an uncheckable form instead of building clauses', () => {

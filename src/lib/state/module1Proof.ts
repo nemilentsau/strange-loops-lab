@@ -82,8 +82,8 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 			text: basePasses
 				? `MI has count(I) = 1, and 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — allowed.`
 				: `MI has count(I) = 1, but 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — ${
-						parsed.kind === 'mod-equals' ? `not ${parsed.residue}` : 'exactly the forbidden remainder'
-					}. An argument about reachable strings has to start where derivations start.`,
+						parsed.kind === 'mod-equals' ? `not ${parsed.residue}` : 'the forbidden remainder'
+					}. The axiom violates the candidate, so there is nothing to preserve.`,
 			stamp: basePasses ? 'pass' : 'fail',
 			witness: null
 		},
@@ -132,8 +132,8 @@ function buildConclusion(
 ): ProofConclusion {
 	if (allPass && muExcluded) {
 		return {
-			head: `So every string you can ever derive satisfies ${parsed.label}. MU has count(I) = 0, and 0 mod ${parsed.modulus} is 0 — MU breaks the rule every derivable string obeys. No derivation, however long, ever reaches it. ∎`,
-			text: 'Explore could only try paths one at a time, and Map could only search inside its bounds. This argument covers every derivation at once — and it took four lines of arithmetic.',
+			head: `Every derivable string satisfies ${parsed.label}. MU has count(I) = 0, which violates it. No derivation reaches MU. ∎`,
+			text: 'Search samples the space of derivations; the invariant covers all of it. This is the step outside the system.',
 			stamp: 'pass'
 		};
 	}
@@ -144,8 +144,8 @@ function buildConclusion(
 	// exist if the grammar ever grows.)
 	if (allPass) {
 		return {
-			head: 'A true invariant — but it does not catch MU.',
-			text: `Every rule preserves this property, so it really is an invariant. But MU satisfies it too: count(I) = 0 is allowed here. To rule MU out you need a property that MU lacks.`,
+			head: 'A true invariant — but it does not separate MU.',
+			text: 'Every rule preserves this property, but MU satisfies it too: count(I) = 0 is allowed. To rule MU out, the property has to fail for MU.',
 			stamp: 'fail'
 		};
 	}
@@ -153,14 +153,14 @@ function buildConclusion(
 	if (!basePasses) {
 		return {
 			head: 'The argument does not go through.',
-			text: 'It breaks before it starts: the axiom itself does not satisfy the property, so there is nothing for the rules to preserve. Try a property that MI actually has.',
+			text: 'It fails at the axiom: MI does not satisfy the candidate, so preservation never starts. Pick a property MI has.',
 			stamp: 'fail'
 		};
 	}
 
 	return {
 		head: 'The argument does not go through.',
-		text: 'If even one rule can break the property, the chain of reasoning snaps — one bad step somewhere in some derivation is enough. The counterexample above is exactly where it breaks. Mend the candidate, or try a different one.',
+		text: 'One breakable rule is enough: a derivation can pass through the counterexample above and leave the property behind. This candidate proves nothing about MU.',
 		stamp: 'fail'
 	};
 }
@@ -168,21 +168,21 @@ function buildConclusion(
 function preservedText(parsed: ParsedInvariantCandidate, ruleId: string): string {
 	switch (ruleId) {
 		case 'append-u':
-			return "Appending a U doesn't touch the I's — the count stays exactly where it was.";
+			return 'Appending a U leaves count(I) unchanged.';
 		case 'delete-uu':
-			return "Deleting two U's doesn't touch the I's either.";
+			return 'Deleting UU leaves count(I) unchanged.';
 		case 'double-tail':
-			return `Doubling turns n I's into 2n. Work it out mod ${parsed.modulus}: ${residueStory(
+			return `Doubling sends count(I) from n to 2n. Mod ${parsed.modulus}, the allowed remainders map ${residueStory(
 				parsed,
 				(n) => 2 * n
-			)} — every result is still allowed.`;
+			)} — all of them allowed.`;
 		case 'replace-iii':
 			return parsed.modulus === 3
-				? "This rule eats exactly three I's, and subtracting 3 never changes a remainder mod 3."
-				: `Removing III subtracts 3 from the count. Mod ${parsed.modulus}, ${residueStory(
+				? 'Removing III subtracts 3 from count(I), which leaves every remainder mod 3 unchanged.'
+				: `Removing III subtracts 3 from count(I). Mod ${parsed.modulus}, the allowed remainders map ${residueStory(
 						parsed,
 						(n) => n - 3
-					)} — every result is still allowed.`;
+					)} — all of them allowed.`;
 		default:
 			return 'Preserved.';
 	}
@@ -191,15 +191,15 @@ function preservedText(parsed: ParsedInvariantCandidate, ruleId: string): string
 function brokenText(ruleId: string): string {
 	switch (ruleId) {
 		case 'double-tail':
-			return "Doubling can land on a forbidden remainder. Here is a concrete string where it goes wrong:";
+			return 'Doubling can produce a forbidden remainder. A concrete case:';
 		case 'replace-iii':
-			return "Removing three I's can land on a forbidden remainder. Here is a concrete string where it goes wrong:";
+			return 'Removing III can produce a forbidden remainder. A concrete case:';
 		default:
-			return 'This rule can break the property. Here is a concrete string where it goes wrong:';
+			return 'This rule can break the property. A concrete case:';
 	}
 }
 
-/** "a remainder of 1 becomes 2, and 2 becomes 1" — the map on allowed residues. */
+/** "1 → 2 and 2 → 1" — the map on allowed residues. */
 function residueStory(parsed: ParsedInvariantCandidate, map: (n: number) => number): string {
 	const allowed: number[] = [];
 
@@ -209,15 +209,13 @@ function residueStory(parsed: ParsedInvariantCandidate, map: (n: number) => numb
 		}
 	}
 
-	const steps = allowed.map(
-		(residue) => `${residue} becomes ${mod(map(residue), parsed.modulus)}`
-	);
+	const steps = allowed.map((residue) => `${residue} → ${mod(map(residue), parsed.modulus)}`);
 
-	if (steps.length === 1) {
-		return `a remainder of ${steps[0]}`;
+	if (steps.length <= 2) {
+		return steps.join(' and ');
 	}
 
-	return `a remainder of ${steps.slice(0, -1).join(', ')}, and ${steps.at(-1)}`;
+	return `${steps.slice(0, -1).join(', ')}, and ${steps.at(-1)}`;
 }
 
 function satisfies(parsed: ParsedInvariantCandidate, iCount: number): boolean {
