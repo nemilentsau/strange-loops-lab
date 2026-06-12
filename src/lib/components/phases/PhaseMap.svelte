@@ -79,14 +79,13 @@
 	 * selected node is written under the tree. */
 	const PAD_LEFT = 16;
 	const PAD_TOP = 44;
-	const ROW_H = 46;
-	const COL_W = 230;
-	const CHAR_W = 7.8;
+	const ROW_H = 48;
+	const CHAR_W = 8.8;
+	/* Horizontal room each edge gets between a column's longest label and the
+	 * next column — columns are exactly as wide as their strings need. */
+	const EDGE_GAP = 130;
 
 	const frontier = $derived(reachabilityGraph.truncatedBy !== null);
-	const svgWidth = $derived(PAD_LEFT + layout.depthCount * COL_W + (frontier ? 130 : 40));
-	const svgHeight = $derived(PAD_TOP + layout.rowCount * ROW_H + 8);
-	const deepestNodes = $derived(layout.nodes.filter((node) => node.depth === layout.depthCount - 1));
 
 	function nodeLabel(value: string): string {
 		return ellipsizeMiddle(value, 24);
@@ -96,8 +95,30 @@
 		return nodeLabel(value).length * CHAR_W;
 	}
 
+	const columnX = $derived.by(() => {
+		const widths = Array.from({ length: layout.depthCount }, () => 0);
+
+		for (const node of layout.nodes) {
+			widths[node.depth] = Math.max(widths[node.depth]!, labelWidth(node.value));
+		}
+
+		const xs: number[] = [];
+		let x = PAD_LEFT;
+
+		for (const width of widths) {
+			xs.push(x);
+			x += width + EDGE_GAP;
+		}
+
+		return { xs, end: x - EDGE_GAP };
+	});
+
+	const svgWidth = $derived(columnX.end + (frontier ? 130 : 30));
+	const svgHeight = $derived(PAD_TOP + layout.rowCount * ROW_H + 8);
+	const deepestNodes = $derived(layout.nodes.filter((node) => node.depth === layout.depthCount - 1));
+
 	function nx(node: MapLayoutNode): number {
-		return PAD_LEFT + node.depth * COL_W;
+		return columnX.xs[node.depth] ?? PAD_LEFT;
 	}
 
 	function ny(node: MapLayoutNode): number {
@@ -150,6 +171,55 @@
 	function shortRule(ruleLabel: string): string {
 		return ruleLabel.replace('Rule ', 'R');
 	}
+
+	/* One label per rule per fan: a parent applying R3 at six sites gets a
+	 * single "R3 ×6" on the middle edge of that group instead of six stacked
+	 * labels smearing the gap between columns. Learner-path edges always
+	 * keep their own label. */
+	const treeEdgeLabels = $derived.by(() => {
+		const labels = new Map<string, string>();
+		const byParent = new Map<string, ReachabilityEdge[]>();
+
+		for (const edge of layout.treeEdges) {
+			const fan = byParent.get(edge.from);
+
+			if (fan) {
+				fan.push(edge);
+			} else {
+				byParent.set(edge.from, [edge]);
+			}
+		}
+
+		for (const fan of byParent.values()) {
+			const byRule = new Map<string, ReachabilityEdge[]>();
+
+			for (const edge of fan) {
+				if (learnerEdges.has(edge.id)) {
+					labels.set(edge.id, shortRule(edge.move.ruleLabel));
+					continue;
+				}
+
+				const group = byRule.get(edge.move.ruleId);
+
+				if (group) {
+					group.push(edge);
+				} else {
+					byRule.set(edge.move.ruleId, [edge]);
+				}
+			}
+
+			for (const group of byRule.values()) {
+				const carrier = group[Math.floor(group.length / 2)]!;
+
+				labels.set(
+					carrier.id,
+					`${shortRule(carrier.move.ruleLabel)}${group.length > 1 ? ` ×${group.length}` : ''}`
+				);
+			}
+		}
+
+		return labels;
+	});
 
 	function nodeKeydown(event: KeyboardEvent, nodeId: string) {
 		if (event.key === 'Enter' || event.key === ' ') {
@@ -211,8 +281,13 @@
 
 		<p class="map-bound-note"><strong>{activeBound.lead}</strong>{activeBound.detail}</p>
 
+		<!-- The figure renders at a fixed type scale and scrolls horizontally —
+		     a bigger search must never shrink the strings. -->
+		<div class="map-scroll">
 		<svg
 			class="map-tree"
+			width={svgWidth}
+			height={svgHeight}
 			viewBox="0 0 {svgWidth} {svgHeight}"
 			role="img"
 			aria-label={`The derivation tree from MI: ${summary.nodeCount} strings within depth ${summary.maxDepth}. Your derivation is drawn solid; reconvergence edges curve back into the tree; the drawing fades at the search bound.`}
@@ -232,7 +307,7 @@
 			</defs>
 
 			{#each Array.from({ length: layout.depthCount }) as _, depth (depth)}
-				<text class="tree-tick" x={PAD_LEFT + depth * COL_W} y="18">
+				<text class="tree-tick" x={columnX.xs[depth] ?? PAD_LEFT} y="18">
 					DEPTH {depth}{depth !== layout.depthCount - 1
 						? ''
 						: reachabilityGraph.truncatedBy === 'depth'
@@ -255,14 +330,16 @@
 						y2={line.y2}
 						marker-end={learnerEdges.has(edge.id) ? 'url(#map-arrow-ink)' : 'url(#map-arrow-gray)'}
 					/>
-					<text
-						class="tree-edge-label"
-						class:tree-edge-label--path={learnerEdges.has(edge.id)}
-						x={(line.x1 + line.x2) / 2}
-						y={(line.y1 + line.y2) / 2 - 5}
-					>
-						{shortRule(edge.move.ruleLabel)}
-					</text>
+					{#if treeEdgeLabels.has(edge.id)}
+						<text
+							class="tree-edge-label"
+							class:tree-edge-label--path={learnerEdges.has(edge.id)}
+							x={line.x1 + (line.x2 - line.x1) * 0.22}
+							y={line.y1 + (line.y2 - line.y1) * 0.22 - 4}
+						>
+							{treeEdgeLabels.get(edge.id)}
+						</text>
+					{/if}
 				{/if}
 			{/each}
 
@@ -276,7 +353,7 @@
 						marker-end={learnerEdges.has(edge.id) ? 'url(#map-arrow-ink)' : 'url(#map-arrow-gray)'}
 					/>
 					<text class="tree-edge-label" x={curve.lx} y={curve.ly}>
-						{shortRule(edge.move.ruleLabel)} · circles back
+						{shortRule(edge.move.ruleLabel)} ↩
 					</text>
 				{/if}
 			{/each}
@@ -286,16 +363,9 @@
 					<line
 						class="tree-stub"
 						x1={nx(node) + labelWidth(node.value) + 8}
-						y1={ny(node) - 6}
-						x2={nx(node) + labelWidth(node.value) + 95}
-						y2={ny(node) - 18}
-					/>
-					<line
-						class="tree-stub"
-						x1={nx(node) + labelWidth(node.value) + 8}
-						y1={ny(node) - 2}
-						x2={nx(node) + labelWidth(node.value) + 95}
-						y2={ny(node) + 10}
+						y1={ny(node) - 4}
+						x2={nx(node) + labelWidth(node.value) + 90}
+						y2={ny(node) - 4}
 					/>
 				{/each}
 			{/if}
@@ -341,6 +411,7 @@
 				/>
 			{/if}
 		</svg>
+		</div>
 
 		<p class="map-legend">
 			{#if learner.nodeIds.length > 1}

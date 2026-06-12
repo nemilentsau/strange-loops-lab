@@ -105,28 +105,35 @@ export function layoutReachabilityGraph(graph: ReachabilityGraph): MapLayout {
 		}
 	}
 
+	/* Rows: each depth column packs its nodes densely from the top, ordered
+	 * by their parent's row (barycenter-lite, so edges stay short and mostly
+	 * planar). Top-aligned packing anchors the axiom and the early fans in
+	 * the first screenful at any size — a global row per leaf, or centered
+	 * columns, would open a 64-string search onto mostly-empty paper. */
+	const depthCount = graph.nodes.reduce((max, node) => Math.max(max, node.depth), 0) + 1;
+	const columns: typeof graph.nodes[] = Array.from({ length: depthCount }, () => []);
+
+	for (const node of graph.nodes) {
+		columns[node.depth]!.push(node);
+	}
+
+	const rowCount = columns.reduce((max, column) => Math.max(max, column.length), 1);
 	const rows = new Map<string, number>();
-	let nextRow = 0;
 
-	const assignRow = (id: string): number => {
-		const kids = children.get(id) ?? [];
+	for (const [depth, column] of columns.entries()) {
+		if (depth > 0) {
+			column.sort((left, right) => {
+				const leftParent = rows.get(parentEdges.get(left.id)?.from ?? '') ?? 0;
+				const rightParent = rows.get(parentEdges.get(right.id)?.from ?? '') ?? 0;
 
-		if (kids.length === 0) {
-			const row = nextRow;
-			nextRow += 1;
-			rows.set(id, row);
-			return row;
+				return leftParent - rightParent || left.value.localeCompare(right.value);
+			});
 		}
 
-		const kidRows = kids.map(assignRow);
-		const row = (Math.min(...kidRows) + Math.max(...kidRows)) / 2;
-		rows.set(id, row);
-		return row;
-	};
-
-	assignRow(graph.rootId);
-
-	const depthCount = graph.nodes.reduce((max, node) => Math.max(max, node.depth), 0) + 1;
+		for (const [index, node] of column.entries()) {
+			rows.set(node.id, index);
+		}
+	}
 
 	return {
 		nodes: graph.nodes.map((node) => ({
@@ -137,7 +144,7 @@ export function layoutReachabilityGraph(graph: ReachabilityGraph): MapLayout {
 		})),
 		treeEdges: [...parentEdges.values()],
 		returnEdges,
-		rowCount: Math.max(nextRow, 1),
+		rowCount,
 		depthCount
 	};
 }

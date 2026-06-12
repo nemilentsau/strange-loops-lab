@@ -1891,11 +1891,17 @@ body.module1-wide .site-shell {
 	font-weight: 600;
 }
 
+/* The figure scrolls at a fixed type scale: more strings must never mean
+ * smaller strings. A clean panel ground keeps the ruled paper from running
+ * through the drawing. */
+.map-scroll {
+	margin-top: 6px;
+	overflow-x: auto;
+	background: var(--panel);
+}
+
 .map-tree {
 	display: block;
-	width: 100%;
-	height: auto;
-	margin-top: 6px;
 }
 
 .tree-tick {
@@ -1906,17 +1912,22 @@ body.module1-wide .site-shell {
 	letter-spacing: 1.5px;
 }
 
+/* Hierarchy by role: strings are the objects and get the ink; edges are
+ * structure and stay light; rule labels are metadata, clustered at each
+ * fan's departure point. */
 .tree-edge {
 	stroke: var(--line-strong);
 	stroke-width: 1.25;
 	stroke-dasharray: 5 4;
+	stroke-opacity: 0.55;
 	fill: none;
 }
 
 .tree-edge--path {
 	stroke: var(--ink);
-	stroke-width: 2;
+	stroke-width: 2.25;
 	stroke-dasharray: none;
+	stroke-opacity: 1;
 }
 
 .map-marker-gray {
@@ -1930,14 +1941,14 @@ body.module1-wide .site-shell {
 .tree-edge-label {
 	fill: var(--faint);
 	font-family: var(--mono);
-	font-size: 10px;
+	font-size: 9px;
 	paint-order: stroke;
 	stroke: var(--panel);
-	stroke-width: 4px;
+	stroke-width: 3px;
 }
 
 .tree-edge-label--path {
-	fill: var(--muted);
+	fill: var(--ink);
 	font-weight: 700;
 }
 
@@ -1954,9 +1965,10 @@ body.module1-wide .site-shell {
 }
 
 .tree-node__value {
-	fill: var(--muted);
+	fill: var(--ink);
 	font-family: var(--mono);
-	font-size: 13px;
+	font-size: 14.5px;
+	font-weight: 600;
 	letter-spacing: 0.3px;
 	paint-order: stroke;
 	stroke: var(--panel);
@@ -1964,8 +1976,7 @@ body.module1-wide .site-shell {
 }
 
 .tree-node--path .tree-node__value {
-	fill: var(--ink);
-	font-weight: 700;
+	font-weight: 800;
 }
 
 .tree-node:hover .tree-node__value,

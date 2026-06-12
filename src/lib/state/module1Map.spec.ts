@@ -54,17 +54,20 @@ describe('layoutReachabilityGraph', () => {
 		expect(layout.returnEdges[0]!.to).toBe(nodeIdFor('MIU'));
 	});
 
-	it('gives leaves sequential integer rows and parents the midpoint of their children', () => {
+	it('packs each depth column densely from the top, ordered by parent row', () => {
 		expect(layout.rowCount).toBe(5);
+		expect(rowOf('MI')).toBe(0);
+		expect(rowOf('MII')).toBe(0);
+		expect(rowOf('MIU')).toBe(1);
+		expect(rowOf('MIIII')).toBe(0);
+		expect(rowOf('MIIU')).toBe(1);
+		expect(rowOf('MIUIU')).toBe(2);
+		// Depth 3, parent-then-value order.
 		expect(rowOf('MIIIIIIII')).toBe(0);
 		expect(rowOf('MIIIIU')).toBe(1);
 		expect(rowOf('MUI')).toBe(2);
 		expect(rowOf('MIIUIIU')).toBe(3);
 		expect(rowOf('MIUIUIUIU')).toBe(4);
-		expect(rowOf('MIIII')).toBe(1);
-		expect(rowOf('MII')).toBe(2);
-		expect(rowOf('MIU')).toBe(4);
-		expect(rowOf('MI')).toBe(3);
 	});
 
 	it('keeps the doubling trap visible as a bare chain', () => {

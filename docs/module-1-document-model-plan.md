@@ -163,6 +163,18 @@ depth alone changes nothing") and the last depth column ticks "cut by the
 string limit" when the node limit governs — the slack control must never
 read as simply dead.
 
+The figure's visual grammar (June 12 second played review — "no visual
+hierarchy, everything pale, gets worse with more strings"): hierarchy by
+role — strings are the objects and carry the ink (14.5px, weight 600);
+edges are structure and stay light (dashed, 55% opacity, so wide fans read
+as texture); rule labels are metadata, one per rule per fan ("R3 ×14"),
+clustered at the departure point; learner-path edges keep individual
+labels. The figure renders at a fixed type scale and scrolls — more
+strings never means smaller strings. Columns are exactly as wide as their
+longest label; depth columns pack densely from the top, ordered by parent
+row, so the axiom and the early fans always fill the first screenful. The
+figure sits on clean panel ground, not the ruled paper.
+
 The approved scope:
 
 1. Depth layers top-down or left-right; nodes are strings; edges are rule
