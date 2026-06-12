@@ -224,7 +224,20 @@ hit the bound, take the bridge.
 
 ## Phase C — Prove: the proof document
 
-The existing scaffold re-set as one continuous numbered argument:
+**Implemented June 12, 2026** (mockup approved same day with one amendment,
+now design law: copy in a human voice — sentences a person would say aloud,
+no compressed logician's aphorisms; rule 8 updated). The document is built
+by a pure, test-first helper (`buildProofDocument`): claim · candidate
+(inline editable, rewrites the argument live) · base case · one clause per
+rule · conclusion, every stamp from `analyzeInvariantCandidate`. The base
+case (the axiom) and the MU separation (count 0) are stated as their own
+endpoints — the engine's per-rule checks alone never said them. Failing
+candidates read their counterexample as the failing clause's content; an
+uncheckable form gets a plain-language prompt at the candidate line. Saves
+(invariant run / proof attempt) stay; the working question leaves the page
+(it remains in Reflect). Awaiting played acceptance.
+
+The approved scope:
 
 1. Claim · candidate invariant · base case (MI) · one clause per rule
    (the ledger's four rules, now reasoned about) · conclusion — a single

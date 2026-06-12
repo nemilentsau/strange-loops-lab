@@ -597,15 +597,11 @@
 				<PhaseProve
 					{currentString}
 					invariantCandidate={draft.invariantCandidate}
-						{builtInInvariant}
-						{candidateInvariant}
 						{artifactStatus}
-						workingQuestion={draft.workingQuestion}
 						onApplyBuiltIn={applyBuiltInInvariant}
 						onSaveInvariantArtifact={saveInvariantArtifact}
 						onSaveProofArtifact={saveProofArtifact}
 						onUpdateInvariant={updateInvariant}
-						onUpdateQuestion={updateQuestion}
 					/>
 				</div>
 		{:else if draft.activePhase === 'reflect'}

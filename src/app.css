@@ -1455,11 +1455,6 @@ body.module1-wide .site-shell {
 	line-height: 1.55;
 }
 
-.proof-rail {
-	display: grid;
-	gap: var(--space-sm);
-}
-
 /* Reflect's guide-rail prompt list: one compact, full-width column so each
  * prompt is a single tap-to-seed row in the narrow rail. */
 .reflection-prompt-list {
@@ -1475,90 +1470,6 @@ body.module1-wide .site-shell {
 	margin-top: var(--space-md);
 	padding-top: var(--space-md);
 	border-top: 1px solid var(--line);
-}
-
-/* ── The graphite-left-rule card ──
- * One shared idiom for "a parchment card anchored by a solid graphite left
- * rule", used across Prove: the claim, proof steps, rule-preservation verdicts,
- * and the reference route. The left rule is the load-bearing mark; the
- * surrounding hairline is written as longhands so `--bare` can drop only the
- * three outer sides while keeping the left rule intact.
- * Register note: a graphite left rule reads as the verified register where it
- * carries a ✓/✗ stamp; on the un-stamped claim card it is structural anchoring
- * only, never a verification claim. */
-.ink-rule-card {
-	padding: var(--space-md);
-	border-top: 1px solid var(--line);
-	border-right: 1px solid var(--line);
-	border-bottom: 1px solid var(--line);
-	border-left: 3px solid var(--ink);
-	border-radius: 0 var(--radius) var(--radius) 0;
-	background: var(--panel);
-}
-
-/* Bare variant: keep the graphite left rule, drop the surrounding hairline. */
-.ink-rule-card--bare {
-	border-top: none;
-	border-right: none;
-	border-bottom: none;
-}
-
-/* ── Prove guide rail: the claim ──
- * The proposition the whole phase is about. A graphite left-rule anchors it as
- * the fixed claim; no accent (it is orientation, the act is "Use built-in").
- * Composes .ink-rule-card.ink-rule-card--bare; only its own padding/margin. */
-.claim-card {
-	margin-bottom: var(--space-sm);
-	padding: var(--space-sm) var(--space-md);
-}
-
-.claim-card h3 {
-	margin: 0 0 8px;
-	font-family: var(--serif);
-	font-size: 1.05rem;
-}
-
-.claim-card .field-note {
-	margin: 0;
-}
-
-/* Proof steps are verified scaffolding: solid graphite left-rule, no hue.
- * Composes .ink-rule-card; only the numbered two-column grid is local. */
-.proof-step {
-	display: grid;
-	grid-template-columns: auto minmax(0, 1fr);
-	gap: 16px;
-}
-
-.proof-step--conclusion {
-	border-color: var(--ink);
-	border-left-width: 4px;
-	background: var(--panel-meta);
-}
-
-.proof-step__index {
-	display: grid;
-	place-items: center;
-	width: 36px;
-	height: 36px;
-	border: 1px solid var(--line-strong);
-	border-radius: 50%;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.9rem;
-	font-weight: 600;
-	background: var(--panel);
-}
-
-.proof-step__body {
-	display: grid;
-	gap: 12px;
-}
-
-.proof-step h3 {
-	margin: 0;
-	font-family: var(--serif);
-	font-size: 1.05rem;
 }
 
 /* Reflection prompts seed the notes editor — they are actionable, so their
@@ -2213,6 +2124,231 @@ body.module1-wide .site-shell {
 	font-weight: 600;
 }
 
+/* ── Prove: the proof document ──
+ * One sheet of meta parchment, double-rule framed: claim, candidate (inline
+ * editable — editing rewrites the argument live), base case, one clause per
+ * rule, conclusion. Every clause carries the verifier's ✓/✗ inline;
+ * counterexamples render as the failing clause's content. */
+.proof-doc {
+	max-width: 880px;
+	margin: var(--space-md) auto var(--space-lg);
+	padding: 28px 40px 30px;
+	border: 1px solid var(--line-strong);
+	outline: 1px solid var(--line);
+	outline-offset: 4px;
+	border-radius: var(--radius);
+	background: var(--panel-meta);
+}
+
+.proof-claim {
+	margin: 14px 0 4px;
+	font-family: var(--serif);
+	font-size: 1.5rem;
+	letter-spacing: -0.01em;
+}
+
+.proof-claim__word {
+	margin-right: 10px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	vertical-align: 0.45em;
+}
+
+.proof-claim-note {
+	margin: 2px 0 0;
+	color: var(--muted);
+	font-size: 0.88rem;
+	line-height: 1.6;
+}
+
+.proof-candidate {
+	margin: 22px 0 0;
+	padding: 12px 0;
+	border-top: 1px solid var(--line);
+	border-bottom: 1px solid var(--line);
+}
+
+.proof-candidate__row {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.proof-candidate__word {
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.proof-candidate__input {
+	width: 22ch;
+	padding: 0 2px 1px;
+	border: none;
+	border-bottom: 1px solid var(--line-strong);
+	border-radius: 0;
+	background: transparent;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+
+.proof-candidate__builtin {
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--act);
+	font-size: 0.78rem;
+	cursor: pointer;
+}
+
+.proof-candidate__builtin:hover,
+.proof-candidate__builtin:focus-visible {
+	text-decoration: underline;
+}
+
+.proof-candidate__note {
+	margin: 6px 0 0;
+	color: var(--faint);
+	font-size: 0.74rem;
+}
+
+.proof-candidate__note code {
+	font-family: var(--mono);
+}
+
+.proof-candidate__now {
+	margin: 6px 0 0;
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.76rem;
+}
+
+.proof-clauses {
+	margin: 6px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.proof-clause {
+	display: flex;
+	gap: 16px;
+	align-items: baseline;
+	padding: 13px 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.proof-clause__num {
+	flex: 0 0 2ch;
+	color: var(--line-strong);
+	font-family: var(--mono);
+	font-size: 0.85rem;
+	text-align: right;
+}
+
+.proof-clause__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.proof-clause__head {
+	margin: 0;
+	color: var(--ink);
+	font-size: 0.92rem;
+	font-weight: 600;
+}
+
+.proof-clause__pat {
+	margin-left: 8px;
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.84rem;
+	font-weight: 500;
+}
+
+.proof-clause__text {
+	margin: 3px 0 0;
+	color: var(--muted);
+	font-size: 0.88rem;
+	line-height: 1.6;
+}
+
+/* The counterexample IS the failing clause's content: verified register,
+ * solid graphite left rule. */
+.proof-clause__witness {
+	margin: 6px 0 0;
+	padding: 6px 10px;
+	border-left: 3px solid var(--ink);
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.8rem;
+	overflow-wrap: anywhere;
+}
+
+.proof-clause__stamp {
+	flex: 0 0 auto;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 1rem;
+}
+
+.proof-clause[data-stamp='fail'] .proof-clause__stamp {
+	font-weight: 700;
+}
+
+.proof-clause--conclusion {
+	border-bottom: none;
+	padding-top: 16px;
+}
+
+.proof-clause--conclusion .proof-clause__body {
+	padding-left: 11px;
+	border-left: 3px solid var(--ink);
+}
+
+.proof-clause--conclusion .proof-clause__head {
+	font-family: var(--serif);
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+
+.proof-foot {
+	display: flex;
+	gap: 18px;
+	align-items: baseline;
+	margin-top: 18px;
+	padding-top: 12px;
+	border-top: 1px solid var(--line);
+}
+
+.proof-foot button {
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--act);
+	font-size: 0.78rem;
+	cursor: pointer;
+}
+
+.proof-foot button:hover,
+.proof-foot button:focus-visible {
+	text-decoration: underline;
+}
+
+.proof-foot__status {
+	margin-left: auto;
+	color: var(--faint);
+	font-size: 0.74rem;
+}
+
 /* The bridge into Prove is a navigation affordance that crosses into the meta
  * level. It references the meta register (warmer parchment, double-ring frame,
  * ◉ glyph, "about the system") but must NOT look like a verified ✓ verdict: no
@@ -2275,28 +2411,9 @@ body.module1-wide .site-shell {
 	justify-self: start;
 }
 
-.rule-result-list,
 .dialogue-transcript {
 	display: grid;
 	gap: 14px;
-}
-
-/* Rule-preservation results are verified verdicts: the graphite left-rule comes
- * from .ink-rule-card (composed in markup); the ✓/✗ stamp lives on the inline
- * badge. No card-specific declarations remain. */
-
-.rule-result__top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 8px;
-}
-
-.rule-result small {
-	display: block;
-	margin-top: 10px;
-	color: var(--muted);
 }
 
 /* ── Dialogue transcript: coaching register only ──
@@ -2490,10 +2607,6 @@ body.module1-wide .site-shell {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--space-sm);
-	}
-
-	.proof-step {
-		grid-template-columns: 1fr;
 	}
 }
 

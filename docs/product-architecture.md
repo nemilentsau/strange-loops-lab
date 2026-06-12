@@ -47,10 +47,10 @@ Shared Module 1 UI components (under `src/lib/components`) carry the composition
   the deterministic readout, and the object/meta level tag). It replaced the old
   hero + context strip + phase-nav stack; it holds no state of its own.
 - `LabDesk` — the three-zone phase layout (`guide` / `instrument` / `evidence`
-  snippets), used by `Prove` and `Reflect`. `Explore` (Phase A) and `Map`
-  (Phase B) left the lab desk in the document-model rework: `Explore` is a
-  derivation worksheet with a margin rail, `Map` is the drawn derivation
-  tree; both compose their pages directly.
+  snippets), now used by `Reflect` only. `Explore` (Phase A), `Map`
+  (Phase B), and `Prove` (Phase C) left the lab desk in the document-model
+  rework: a derivation worksheet with a margin rail, the drawn derivation
+  tree, and the proof document; each composes its page directly.
 - `SurfacePanel` — the standard panel; its `instrument` boolean opts a panel into
   the single oxblood action frame ("the work happens here", not an epistemic
   register), keeping the accent off verified/computed/coaching styling.

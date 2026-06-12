@@ -77,7 +77,11 @@ The MIU system is the concrete vehicle for this.
   - built-in MU non-reachability argument,
   - custom modular candidates of the form `count(I) mod k = r` and `!= r`,
   - concrete counterexamples when a candidate fails
-- proof scaffold in the `Prove` phase
+- `Prove` as the proof document: claim, inline-editable candidate invariant
+  (editing rewrites the argument live), base case, one verifier-stamped
+  clause per rule, and a conclusion that states the MU separation; failing
+  candidates render their counterexample as the failing clause's content;
+  copy in a human voice (design rule 8)
 - first-class invariant-run and proof-attempt artifacts
 - guided reflection prompts in the `Reflect` phase
 - SQLite-backed snapshots and saved artifacts

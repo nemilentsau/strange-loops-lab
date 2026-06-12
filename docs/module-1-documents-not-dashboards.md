@@ -226,12 +226,17 @@ and stay:
    last.
 7. **Mockup before code.** Interaction changes are approved on sight by the
    user before implementation (standing instruction).
-8. **Written for a mathematician.** The audience (vision §2.3) reads
-   graduate-level math. Every sentence on a surface must be one a serious
-   textbook would print: precise, plain, never cute. Gamification vocabulary
-   and chrome are banned — "challenge", "task", "achievement", checkbox-quest
-   framing, congratulation copy. Exercises in the textbook sense are welcome,
-   and each must print the mathematical observation it exists to produce.
+8. **Written for a mathematician, in a human voice.** The audience (vision
+   §2.3) reads graduate-level math. Every sentence on a surface must be one
+   a serious textbook would print: precise, plain, never cute — and one a
+   person would actually say aloud. Compressed clause-stacking ("a property
+   that every rule preserves, and that MU lacks, settles it all at once")
+   is banned the same as baby talk: explain the way a good teacher talks,
+   one claim per sentence, in natural rhythm. Gamification vocabulary and
+   chrome are banned — "challenge", "task", "achievement", checkbox-quest
+   framing, congratulation copy. Exercises in the textbook sense are
+   welcome, and each must print the mathematical observation it exists to
+   produce.
 9. **Every element names the fact it teaches.** Each interactive element and
    status surface must answer "what mathematical fact does this teach?" in
    one sentence (the ledger: availability is a property of the current
