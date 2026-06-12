@@ -237,6 +237,21 @@ uncheckable form gets a plain-language prompt at the candidate line. Saves
 (invariant run / proof attempt) stay; the working question leaves the page
 (it remains in Reflect). Awaiting played acceptance.
 
+From the June 12 played review ("if mod 3 proves it, why play with
+others?"): the candidate exploration now has a stated purpose and a
+destination. A purpose line at the field says what failures teach (each is
+a constraint the rules impose). The **residue wheel** draws the candidate
+as remainders mod k — the rules act on Z/k (R2 doubles, R3 subtracts 3),
+preservation is closure, and an escaping arrow is the failing clause's
+counterexample in abstract form; for the built-in the wheel is visibly
+sealed (minus-3 self-loops, doubling swapping 1 ↔ 2, the forbidden 0
+isolated). The **uniqueness line** under the conclusion runs the closure
+check across the whole grammar live (k ≤ 12) and reports the verified
+fact: exactly one candidate survives the four rules and excludes MU —
+subtracting 3 forces k = 3, doubling and the base force the residue. This
+is the §8.4 algebraic view, kept lightweight. Helpers `residueWheel` and
+`grammarSurvivors` are pure and test-first.
+
 The approved scope:
 
 1. Claim · candidate invariant · base case (MI) · one clause per rule

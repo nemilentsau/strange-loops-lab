@@ -1,6 +1,40 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildProofDocument } from './module1Proof';
+import { buildProofDocument, grammarSurvivors, residueWheel } from './module1Proof';
+
+describe('residueWheel', () => {
+	it('seals the built-in candidate: minus-3 self-loops, doubling swaps 1 and 2', () => {
+		const wheel = residueWheel('count(I) mod 3 != 0')!;
+
+		expect(wheel.modulus).toBe(3);
+		expect(wheel.allowed).toEqual([false, true, true]);
+		expect(wheel.arrows).toContainEqual({ from: 1, to: 2, map: 'double', escapes: false });
+		expect(wheel.arrows).toContainEqual({ from: 2, to: 1, map: 'double', escapes: false });
+		expect(wheel.arrows).toContainEqual({ from: 1, to: 1, map: 'minus3', escapes: false });
+		expect(wheel.arrows.every((arrow) => !arrow.escapes)).toBe(true);
+	});
+
+	it('draws the escaping arrows for a breaking candidate', () => {
+		const wheel = residueWheel('count(I) mod 2 != 0')!;
+
+		expect(wheel.allowed).toEqual([false, true]);
+		// Both maps send the only allowed remainder onto the forbidden one.
+		expect(wheel.arrows).toEqual([
+			{ from: 1, to: 0, map: 'double', escapes: true },
+			{ from: 1, to: 0, map: 'minus3', escapes: true }
+		]);
+	});
+
+	it('returns null for an uncheckable form', () => {
+		expect(residueWheel('all strings are nice')).toBeNull();
+	});
+});
+
+describe('grammarSurvivors', () => {
+	it('finds exactly one candidate in the whole grammar', () => {
+		expect(grammarSurvivors()).toEqual(['count(I) mod 3 != 0']);
+	});
+});
 
 describe('buildProofDocument', () => {
 	it('builds the complete argument for the built-in candidate', () => {

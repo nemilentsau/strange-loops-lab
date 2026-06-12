@@ -2232,6 +2232,115 @@ body.module1-wide .site-shell {
 	font-size: 0.76rem;
 }
 
+/* The candidate's purpose, said once: why the field exists when the
+ * built-in is one click away. */
+.proof-purpose {
+	margin: 8px 0 0;
+	color: var(--muted);
+	font-size: 0.84rem;
+	line-height: 1.6;
+}
+
+/* ── The residue wheel: the candidate seen as remainders mod k. The rules
+ * act on Z/k (R2 doubles, R3 subtracts 3); preservation is closure, and an
+ * escaping arrow is the counterexample in abstract form. */
+.proof-wheel {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	padding: 10px 0 4px;
+	border-bottom: 1px solid var(--line);
+}
+
+.proof-wheel__figure {
+	flex-shrink: 0;
+}
+
+.proof-wheel__side {
+	min-width: 0;
+}
+
+.proof-wheel__legend {
+	margin: 4px 0 0;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.72rem;
+}
+
+.proof-wheel__solid {
+	color: var(--muted);
+}
+
+.proof-wheel__dashed {
+	color: var(--faint);
+}
+
+.proof-wheel__caption {
+	margin: 8px 0 0;
+	color: var(--muted);
+	font-size: 0.84rem;
+	line-height: 1.6;
+}
+
+.wheel-dot {
+	fill: var(--ink);
+}
+
+.wheel-dot--forbidden {
+	fill: var(--panel-meta);
+	stroke: var(--line-strong);
+	stroke-width: 1.5;
+}
+
+.wheel-label {
+	fill: var(--ink);
+	font-family: var(--mono);
+	font-size: 12px;
+	font-weight: 600;
+	text-anchor: middle;
+}
+
+.wheel-label--forbidden {
+	fill: var(--faint);
+	font-weight: 400;
+}
+
+.wheel-arrow {
+	fill: none;
+	stroke: var(--line-strong);
+	stroke-width: 1.4;
+}
+
+.wheel-arrow--minus3 {
+	stroke-dasharray: 4 4;
+}
+
+.wheel-arrow--escape {
+	stroke: var(--ink);
+	stroke-width: 2;
+}
+
+.wheel-x {
+	fill: var(--ink);
+	font-family: var(--mono);
+	font-size: 12px;
+	font-weight: 700;
+	text-anchor: middle;
+	paint-order: stroke;
+	stroke: var(--panel-meta);
+	stroke-width: 4px;
+}
+
+/* The uniqueness line is computed live by the same closure check across
+ * the whole grammar — verified, never asserted. */
+.proof-unique {
+	margin: 14px 0 0;
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.76rem;
+	line-height: 1.6;
+}
+
 .proof-clauses {
 	margin: 6px 0 0;
 	padding: 0;

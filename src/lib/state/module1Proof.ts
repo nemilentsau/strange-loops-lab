@@ -225,3 +225,85 @@ function satisfies(parsed: ParsedInvariantCandidate, iCount: number): boolean {
 function mod(value: number, modulus: number): number {
 	return ((value % modulus) + modulus) % modulus;
 }
+
+/**
+ * The candidate, seen as remainders: strip the strings away and the rules
+ * act on Z/k — R2 is n → 2n, R3 is n → n − 3, R1 and R4 are the identity.
+ * A candidate is an allowed set of remainders, and preservation is exactly
+ * closure: no arrow out of an allowed remainder may land on a forbidden
+ * one. An escaping arrow is the abstract form of the failing clause's
+ * counterexample.
+ */
+export interface WheelArrow {
+	from: number;
+	to: number;
+	map: 'double' | 'minus3';
+	/** True when the arrow leaves the allowed set — the break, drawn. */
+	escapes: boolean;
+}
+
+export interface ResidueWheel {
+	modulus: number;
+	/** Index = residue; true when the candidate allows it. */
+	allowed: boolean[];
+	/** Arrows out of every allowed residue, both maps. */
+	arrows: WheelArrow[];
+}
+
+export function residueWheel(input: string): ResidueWheel | null {
+	const parsed = parseInvariantCandidate(input);
+
+	if (parsed === null) {
+		return null;
+	}
+
+	const allowed = Array.from({ length: parsed.modulus }, (_, residue) =>
+		satisfies(parsed, residue)
+	);
+	const arrows: WheelArrow[] = [];
+
+	for (let residue = 0; residue < parsed.modulus; residue += 1) {
+		if (!allowed[residue]) {
+			continue;
+		}
+
+		for (const [map, target] of [
+			['double', mod(2 * residue, parsed.modulus)],
+			['minus3', mod(residue - 3, parsed.modulus)]
+		] as const) {
+			arrows.push({ from: residue, to: target, map, escapes: !allowed[target] });
+		}
+	}
+
+	return { modulus: parsed.modulus, allowed, arrows };
+}
+
+/**
+ * Every candidate the grammar can express, checked for the full argument:
+ * closure of the allowed remainders under both maps, the axiom satisfying
+ * it, and MU violating it. Run live (never hardcoded) so the page's
+ * uniqueness line is the verifier's own result.
+ */
+export function grammarSurvivors(maxModulus = 12): string[] {
+	const survivors: string[] = [];
+
+	for (let modulus = 2; modulus <= maxModulus; modulus += 1) {
+		for (let residue = 0; residue < modulus; residue += 1) {
+			for (const operator of ['=', '!='] as const) {
+				const allowed = Array.from({ length: modulus }, (_, n) =>
+					operator === '=' ? n === residue : n !== residue
+				);
+				const closed = allowed.every(
+					(isAllowed, n) =>
+						!isAllowed || (allowed[mod(2 * n, modulus)] && allowed[mod(n - 3, modulus)])
+				);
+
+				if (closed && allowed[1 % modulus] && !allowed[0]) {
+					survivors.push(`count(I) mod ${modulus} ${operator} ${residue}`);
+				}
+			}
+		}
+	}
+
+	return survivors;
+}
