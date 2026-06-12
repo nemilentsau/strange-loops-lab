@@ -191,6 +191,18 @@ explosion the first-class artifact (the true profile is 1, 2, 3, 5, 14,
 counting is cheap. Helpers `mapLayerProfile` and `fanForString` are pure
 and test-first.
 
+Layout engine (June 12 fourth played review — "impossible to say what edge
+is R1/R2/R3; we can't keep manually adding text on graphs"): graph geometry
+is owned by ELK (`elkjs`, the layered/Sugiyama engine) — node positions,
+polyline edge routing, and inline edge-label placement all come from the
+layout, so a label stays visually attached to its edge (ELK reserves label
+space while routing, which no hand layout can). `buildElkGraph` (pure,
+test-first) declares structure only: depth partitions pin layers, learner-
+path edges always carry their own label, other fans get one carrier label
+per rule ("R3 ×6"), back edges are marked "↩". Rendering stays our own SVG
+and registers. This is the reusable graph primitive for later modules'
+drawings (the architecture doc's "graph explorer").
+
 The approved scope:
 
 1. Depth layers top-down or left-right; nodes are strings; edges are rule

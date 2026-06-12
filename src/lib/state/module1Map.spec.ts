@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { buildReachabilityGraph, nodeIdFor } from '$lib/miu/graph';
 
 import {
+	buildElkGraph,
 	describeActiveBound,
 	fanForString,
-	layoutReachabilityGraph,
 	mapLayerProfile
 } from './module1Map';
 
@@ -88,58 +88,72 @@ describe('describeActiveBound', () => {
 	});
 });
 
-describe('layoutReachabilityGraph', () => {
+describe('buildElkGraph', () => {
 	// The default Map view: 11 nodes, one reconvergence (MIIII →R3→ MIU).
-	const layout = layoutReachabilityGraph(buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 }));
+	const graph = buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 });
+	const size = () => ({ width: 60, height: 30 });
+	const labelSize = (text: string) => ({ width: text.length * 6, height: 11 });
 
-	function rowOf(value: string): number {
-		return layout.nodes.find((node) => node.id === nodeIdFor(value))!.row;
+	interface ElkChild {
+		id: string;
+		layoutOptions: Record<string, string>;
+	}
+	interface ElkEdge {
+		id: string;
+		sources: string[];
+		targets: string[];
+		labels: { text: string }[];
 	}
 
-	it('lays out every node with one tree edge per non-root node', () => {
-		expect(layout.nodes).toHaveLength(11);
-		expect(layout.treeEdges).toHaveLength(10);
-		expect(layout.depthCount).toBe(4);
+	it('declares every node pinned to its depth partition', () => {
+		const { root } = buildElkGraph(graph, new Set(), size, labelSize);
+		const children = (root as { children: ElkChild[] }).children;
+
+		expect(children).toHaveLength(11);
+		expect(
+			children.find((child) => child.id === nodeIdFor('MUI'))!.layoutOptions[
+				'elk.partitioning.partition'
+			]
+		).toBe('3');
 	});
 
-	it('separates the reconvergence edge from the tree', () => {
-		expect(layout.returnEdges).toHaveLength(1);
-		expect(layout.returnEdges[0]!.from).toBe(nodeIdFor('MIIII'));
-		expect(layout.returnEdges[0]!.to).toBe(nodeIdFor('MIU'));
+	it('labels one carrier per rule per fan and marks back edges', () => {
+		const { root, edgeMeta } = buildElkGraph(graph, new Set(), size, labelSize);
+		const edges = (root as { edges: ElkEdge[] }).edges;
+		const texts = edges.flatMap((edge) => edge.labels.map((label) => label.text));
+
+		// MI's fan: one R2, one R1 — each its own group's carrier.
+		expect(texts).toContain('R2');
+		expect(texts).toContain('R1');
+		// The reconvergence MIIII →R3→ MIU is always labeled and marked.
+		expect(texts).toContain('R3 ↩');
+
+		const backEdge = edges.find((edge) => edge.labels.some((label) => label.text === 'R3 ↩'))!;
+		expect(backEdge.sources).toEqual([nodeIdFor('MIIII')]);
+		expect(backEdge.targets).toEqual([nodeIdFor('MIU')]);
+		expect(edgeMeta.get(backEdge.id)?.back).toBe(true);
 	});
 
-	it('packs each depth column densely from the top, ordered by parent row', () => {
-		expect(layout.rowCount).toBe(5);
-		expect(rowOf('MI')).toBe(0);
-		expect(rowOf('MII')).toBe(0);
-		expect(rowOf('MIU')).toBe(1);
-		expect(rowOf('MIIII')).toBe(0);
-		expect(rowOf('MIIU')).toBe(1);
-		expect(rowOf('MIUIU')).toBe(2);
-		// Depth 3, parent-then-value order.
-		expect(rowOf('MIIIIIIII')).toBe(0);
-		expect(rowOf('MIIIIU')).toBe(1);
-		expect(rowOf('MUI')).toBe(2);
-		expect(rowOf('MIIUIIU')).toBe(3);
-		expect(rowOf('MIUIUIUIU')).toBe(4);
+	it('counts a multi-edge rule group on its single carrier label', () => {
+		// At depth 4, MIIIIIIII fans R3 across 6 sites.
+		const deep = buildReachabilityGraph({ maxDepth: 4, maxNodes: 64 });
+		const { root } = buildElkGraph(deep, new Set(), size, labelSize);
+		const texts = (root as { edges: ElkEdge[] }).edges.flatMap((edge) =>
+			edge.labels.map((label) => label.text)
+		);
+
+		expect(texts).toContain('R3 ×6');
+		expect(texts.filter((text) => text === 'R3 ×6')).toHaveLength(1);
 	});
 
-	it('keeps the doubling trap visible as a bare chain', () => {
-		// MIU's subtree is a chain: every layer adds exactly one node.
-		const chain = ['MIU', 'MIUIU', 'MIUIUIUIU'];
+	it('always labels learner-path edges individually', () => {
+		const pathEdge = graph.edges.find(
+			(edge) => edge.from === nodeIdFor('MI') && edge.to === nodeIdFor('MII')
+		)!;
+		const { root } = buildElkGraph(graph, new Set([pathEdge.id]), size, labelSize);
+		const edges = (root as { edges: ElkEdge[] }).edges;
+		const labeled = edges.find((edge) => edge.id === pathEdge.id)!;
 
-		for (const value of chain) {
-			expect(layout.treeEdges.filter((edge) => edge.from === nodeIdFor(value))).toHaveLength(
-				value === 'MIUIUIUIU' ? 0 : 1
-			);
-		}
-	});
-
-	it('handles a single-node graph', () => {
-		const single = layoutReachabilityGraph(buildReachabilityGraph({ maxDepth: 0, maxNodes: 1 }));
-
-		expect(single.nodes).toHaveLength(1);
-		expect(single.rowCount).toBe(1);
-		expect(single.treeEdges).toHaveLength(0);
+		expect(labeled.labels.map((label) => label.text)).toEqual(['R2']);
 	});
 });

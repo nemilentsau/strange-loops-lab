@@ -125,33 +125,109 @@ export function fanForString(graph: ReachabilityGraph, value: string): FanGroup[
 }
 
 /**
- * Deterministic layout for the Map phase's derivation tree: depth layers as
- * columns, rows assigned by a post-order walk of the discovery tree so every
- * subtree occupies a contiguous band and parents sit at the midpoint of
- * their children. Reconvergence edges (a rule application landing on an
- * already-discovered string) are returned separately — they are drawn as
- * curves back into the tree, not as tree structure.
+ * Build the ELK input for the drawn region. Layout — node positions, edge
+ * routing, and edge-label placement — is owned by the ELK layered engine
+ * (the standard Sugiyama implementation), not hand-placed: ELK reserves
+ * space for labels while routing, which is what keeps a label visually
+ * attached to ITS edge. We only declare structure here; rendering keeps
+ * the worksheet's own SVG and registers.
  *
- * The discovery tree uses the same parent extraction as `tracePathToNode`
- * (first edge into each node in the graph's sorted edge order), so the
- * drawn tree and the "shortest known path" agree.
+ * Labels stay sparse by design: a learner-path edge always carries its own
+ * rule label; other edges are grouped per (parent, rule) and only the
+ * group's carrier is labeled ("R3 ×6"); an edge that lands on an
+ * already-discovered string (depth does not increase) is marked "↩".
+ * Depth columns are pinned with ELK partitions so layers stay layers.
  */
-export interface MapLayoutNode {
-	id: string;
-	value: string;
-	depth: number;
-	/** Fractional row inside the depth-layer grid; multiply by a row height. */
-	row: number;
+export interface ElkSize {
+	width: number;
+	height: number;
 }
 
-export interface MapLayout {
-	nodes: MapLayoutNode[];
-	treeEdges: ReachabilityEdge[];
-	returnEdges: ReachabilityEdge[];
-	/** Number of integer leaf rows; the grid's height. */
-	rowCount: number;
-	/** Number of depth columns present (max depth + 1). */
-	depthCount: number;
+export interface ElkEdgeMeta {
+	/** True when the edge lands on an already-discovered string. */
+	back: boolean;
+}
+
+export function buildElkGraph(
+	graph: ReachabilityGraph,
+	learnerEdgeIds: ReadonlySet<string>,
+	nodeSize: (value: string) => ElkSize,
+	labelSize: (text: string) => ElkSize
+): { root: object; edgeMeta: Map<string, ElkEdgeMeta> } {
+	const depthOf = new Map(graph.nodes.map((node) => [node.id, node.depth]));
+	const edgeMeta = new Map<string, ElkEdgeMeta>();
+
+	// One label per rule per fan; path edges always labeled individually.
+	const labels = new Map<string, string>();
+	const fans = new Map<string, ReachabilityEdge[]>();
+
+	for (const edge of graph.edges) {
+		if (!depthOf.has(edge.to)) {
+			continue;
+		}
+
+		const back = (depthOf.get(edge.to) ?? 0) <= (depthOf.get(edge.from) ?? 0);
+		edgeMeta.set(edge.id, { back });
+
+		const shortLabel = edge.move.ruleLabel.replace('Rule ', 'R');
+
+		if (learnerEdgeIds.has(edge.id) || back) {
+			labels.set(edge.id, back ? `${shortLabel} ↩` : shortLabel);
+			continue;
+		}
+
+		const key = `${edge.from}:${edge.move.ruleId}`;
+		const fan = fans.get(key);
+
+		if (fan) {
+			fan.push(edge);
+		} else {
+			fans.set(key, [edge]);
+		}
+	}
+
+	for (const fan of fans.values()) {
+		const carrier = fan[Math.floor(fan.length / 2)]!;
+		const shortLabel = carrier.move.ruleLabel.replace('Rule ', 'R');
+
+		labels.set(carrier.id, fan.length > 1 ? `${shortLabel} ×${fan.length}` : shortLabel);
+	}
+
+	const root = {
+		id: 'root',
+		layoutOptions: {
+			'elk.algorithm': 'layered',
+			'elk.direction': 'RIGHT',
+			'elk.partitioning.activate': 'true',
+			'elk.edgeRouting': 'POLYLINE',
+			'elk.edgeLabels.inline': 'true',
+			'elk.spacing.nodeNode': '18',
+			'elk.spacing.edgeNode': '14',
+			'elk.spacing.edgeEdge': '10',
+			'elk.spacing.edgeLabel': '4',
+			'elk.layered.spacing.nodeNodeBetweenLayers': '90',
+			'elk.layered.spacing.edgeNodeBetweenLayers': '24'
+		},
+		children: graph.nodes.map((node) => ({
+			id: node.id,
+			...nodeSize(node.value),
+			layoutOptions: { 'elk.partitioning.partition': String(node.depth) }
+		})),
+		edges: graph.edges
+			.filter((edge) => depthOf.has(edge.to))
+			.map((edge) => {
+				const text = labels.get(edge.id);
+
+				return {
+					id: edge.id,
+					sources: [edge.from],
+					targets: [edge.to],
+					labels: text ? [{ text, ...labelSize(text) }] : []
+				};
+			})
+	};
+
+	return { root, edgeMeta };
 }
 
 /**
@@ -191,84 +267,3 @@ export function describeActiveBound(
 	};
 }
 
-export function layoutReachabilityGraph(graph: ReachabilityGraph): MapLayout {
-	const nodeIds = new Set(graph.nodes.map((node) => node.id));
-	const parentEdges = new Map<string, ReachabilityEdge>();
-	const returnEdges: ReachabilityEdge[] = [];
-
-	for (const edge of graph.edges) {
-		if (!nodeIds.has(edge.to)) {
-			// The move that tripped the node limit: its target was never added.
-			continue;
-		}
-
-		if (edge.to === graph.rootId || parentEdges.has(edge.to)) {
-			returnEdges.push(edge);
-			continue;
-		}
-
-		parentEdges.set(edge.to, edge);
-	}
-
-	// Children in the graph's node order (sorted by depth, then value).
-	const children = new Map<string, string[]>();
-
-	for (const node of graph.nodes) {
-		const parent = parentEdges.get(node.id);
-
-		if (!parent) {
-			continue;
-		}
-
-		const siblings = children.get(parent.from);
-
-		if (siblings) {
-			siblings.push(node.id);
-		} else {
-			children.set(parent.from, [node.id]);
-		}
-	}
-
-	/* Rows: each depth column packs its nodes densely from the top, ordered
-	 * by their parent's row (barycenter-lite, so edges stay short and mostly
-	 * planar). Top-aligned packing anchors the axiom and the early fans in
-	 * the first screenful at any size — a global row per leaf, or centered
-	 * columns, would open a 64-string search onto mostly-empty paper. */
-	const depthCount = graph.nodes.reduce((max, node) => Math.max(max, node.depth), 0) + 1;
-	const columns: typeof graph.nodes[] = Array.from({ length: depthCount }, () => []);
-
-	for (const node of graph.nodes) {
-		columns[node.depth]!.push(node);
-	}
-
-	const rowCount = columns.reduce((max, column) => Math.max(max, column.length), 1);
-	const rows = new Map<string, number>();
-
-	for (const [depth, column] of columns.entries()) {
-		if (depth > 0) {
-			column.sort((left, right) => {
-				const leftParent = rows.get(parentEdges.get(left.id)?.from ?? '') ?? 0;
-				const rightParent = rows.get(parentEdges.get(right.id)?.from ?? '') ?? 0;
-
-				return leftParent - rightParent || left.value.localeCompare(right.value);
-			});
-		}
-
-		for (const [index, node] of column.entries()) {
-			rows.set(node.id, index);
-		}
-	}
-
-	return {
-		nodes: graph.nodes.map((node) => ({
-			id: node.id,
-			value: node.value,
-			depth: node.depth,
-			row: rows.get(node.id) ?? 0
-		})),
-		treeEdges: [...parentEdges.values()],
-		returnEdges,
-		rowCount,
-		depthCount
-	};
-}

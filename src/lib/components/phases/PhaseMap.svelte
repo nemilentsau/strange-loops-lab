@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ELK from 'elkjs/lib/elk.bundled.js';
 	import { enumerateMiuMoves, isDeadBranch, type DerivationTrace } from '$lib/miu/core';
 	import {
 		graphNodeExists,
@@ -6,16 +7,14 @@
 		summarizeReachabilityGraph,
 		traceGraphPath,
 		type ProvenanceStep,
-		type ReachabilityEdge,
 		type ReachabilityGraph
 	} from '$lib/miu/graph';
 	import {
 		LAYER_DRAW_LIMIT,
+		buildElkGraph,
 		describeActiveBound,
 		fanForString,
-		layoutReachabilityGraph,
-		mapLayerProfile,
-		type MapLayoutNode
+		mapLayerProfile
 	} from '$lib/state/module1Map';
 	import {
 		GRAPH_DEPTH_OPTIONS,
@@ -70,8 +69,6 @@
 			edges: reachabilityGraph.edges.filter((edge) => ids.has(edge.from) && ids.has(edge.to))
 		};
 	});
-	const layout = $derived(layoutReachabilityGraph(drawnGraph));
-	const nodeById = $derived(new Map(layout.nodes.map((node) => [node.id, node])));
 	const bands = $derived(profile.layers.filter((layer) => !layer.drawn));
 	const muDepth = $derived(
 		reachabilityGraph.nodes.find((node) => node.value === 'MU')?.depth ?? null
@@ -122,7 +119,20 @@
 	const currentValue = $derived(trace.steps[trace.currentIndex]?.value ?? 'MI');
 	const currentInView = $derived(graphNodeExists(drawnGraph, nodeIdFor(currentValue)));
 
-	const returnTargets = $derived(new Set(layout.returnEdges.map((edge) => edge.to)));
+	/* Nodes reached again by a later move (an edge that does not increase
+	 * depth) get the "reached twice ↩" mark. */
+	const returnTargets = $derived.by(() => {
+		const depths = new Map(drawnGraph.nodes.map((node) => [node.id, node.depth]));
+		const targets = new Set<string>();
+
+		for (const edge of drawnGraph.edges) {
+			if ((depths.get(edge.to) ?? 0) <= (depths.get(edge.from) ?? 0)) {
+				targets.add(edge.to);
+			}
+		}
+
+		return targets;
+	});
 	const muReached = $derived(graphNodeExists(reachabilityGraph, nodeIdFor('MU')));
 	const closedCount = $derived(
 		reachabilityGraph.nodes.filter((node) => isDeadBranch(node.value)).length
@@ -134,18 +144,21 @@
 	// unbounded so the invariant still feels discovered rather than announced.
 	const showProveBridge = $derived(reachabilityGraph.truncatedBy !== null && !muReached);
 
-	/* ── Drawing geometry. Rows and columns come from the pure layout; only
-	 * scaling lives here. Labels are middle-ellipsized; the full string of the
-	 * selected node is written under the tree. */
+	/* ── Drawing geometry is owned by ELK (the layered/Sugiyama engine): node
+	 * positions, polyline edge routes, and inline edge-label placement all
+	 * come from the layout, so a label stays visually attached to ITS edge.
+	 * We declare structure (buildElkGraph) and render the result in the
+	 * worksheet's own SVG registers. Layout is async; the figure state
+	 * updates when it resolves. */
 	const PAD_LEFT = 16;
 	const PAD_TOP = 44;
-	const ROW_H = 48;
 	const CHAR_W = 8.8;
-	/* Horizontal room each edge gets between a column's longest label and the
-	 * next column — columns are exactly as wide as their strings need. */
-	const EDGE_GAP = 130;
 
 	const frontier = $derived(reachabilityGraph.truncatedBy !== null);
+	/* Stubs leave the last drawn layer whenever the territory continues —
+	 * into the counted bands, or into the erased frontier when nothing is
+	 * counted beyond the drawing. */
+	const continueRight = $derived(bands.length > 0 || frontier);
 
 	function nodeLabel(value: string): string {
 		return ellipsizeMiddle(value, 24);
@@ -155,135 +168,139 @@
 		return nodeLabel(value).length * CHAR_W;
 	}
 
-	const columnX = $derived.by(() => {
-		const widths = Array.from({ length: layout.depthCount }, () => 0);
-
-		for (const node of layout.nodes) {
-			widths[node.depth] = Math.max(widths[node.depth]!, labelWidth(node.value));
-		}
-
-		const xs: number[] = [];
-		let x = PAD_LEFT;
-
-		for (const width of widths) {
-			xs.push(x);
-			x += width + EDGE_GAP;
-		}
-
-		return { xs, end: x - EDGE_GAP };
-	});
-
-	const svgWidth = $derived(columnX.end + (frontier ? 130 : 30));
-	const svgHeight = $derived(PAD_TOP + layout.rowCount * ROW_H + 8);
-	/* Stubs leave the last drawn layer whenever the territory continues —
-	 * into the counted bands, or into the erased frontier when nothing is
-	 * counted beyond the drawing. */
-	const continueRight = $derived(bands.length > 0 || frontier);
-	const deepestNodes = $derived(layout.nodes.filter((node) => node.depth === layout.depthCount - 1));
-
-	function nx(node: MapLayoutNode): number {
-		return columnX.xs[node.depth] ?? PAD_LEFT;
-	}
-
-	function ny(node: MapLayoutNode): number {
-		return PAD_TOP + node.row * ROW_H + 14;
-	}
-
-	interface EdgeLine {
-		x1: number;
-		y1: number;
-		x2: number;
-		y2: number;
-	}
-
-	function edgeLine(edge: ReachabilityEdge): EdgeLine | null {
-		const from = nodeById.get(edge.from);
-		const to = nodeById.get(edge.to);
-
-		if (!from || !to) {
-			return null;
-		}
-
-		return {
-			x1: nx(from) + labelWidth(from.value) + 8,
-			y1: ny(from) - 4,
-			x2: nx(to) - 8,
-			y2: ny(to) - 4
-		};
-	}
-
-	/* A reconvergence edge runs back into the tree: drawn as a curve from the
-	 * top of its source to the right edge of its (already-discovered) target. */
-	function returnCurve(edge: ReachabilityEdge): { d: string; lx: number; ly: number } | null {
-		const from = nodeById.get(edge.from);
-		const to = nodeById.get(edge.to);
-
-		if (!from || !to) {
-			return null;
-		}
-
-		const x1 = nx(from) + labelWidth(from.value) / 2;
-		const y1 = ny(from) - 16;
-		const x2 = nx(to) + labelWidth(to.value) + 10;
-		const y2 = ny(to) - 4;
-		const cx = (x1 + x2) / 2;
-		const cy = Math.min(y1, y2) - 44;
-
-		return { d: `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`, lx: cx, ly: cy + 14 };
-	}
-
 	function shortRule(ruleLabel: string): string {
 		return ruleLabel.replace('Rule ', 'R');
 	}
 
-	/* One label per rule per fan: a parent applying R3 at six sites gets a
-	 * single "R3 ×6" on the middle edge of that group instead of six stacked
-	 * labels smearing the gap between columns. Learner-path edges always
-	 * keep their own label. */
-	const treeEdgeLabels = $derived.by(() => {
-		const labels = new Map<string, string>();
-		const byParent = new Map<string, ReachabilityEdge[]>();
+	interface PlacedLabel {
+		text: string;
+		x: number;
+		y: number;
+	}
 
-		for (const edge of layout.treeEdges) {
-			const fan = byParent.get(edge.from);
+	interface PlacedEdge {
+		id: string;
+		points: string;
+		labels: PlacedLabel[];
+		path: boolean;
+		back: boolean;
+	}
 
-			if (fan) {
-				fan.push(edge);
-			} else {
-				byParent.set(edge.from, [edge]);
-			}
-		}
+	interface PlacedNode {
+		id: string;
+		value: string;
+		depth: number;
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+	}
 
-		for (const fan of byParent.values()) {
-			const byRule = new Map<string, ReachabilityEdge[]>();
+	interface Drawing {
+		width: number;
+		height: number;
+		nodes: PlacedNode[];
+		edges: PlacedEdge[];
+	}
 
-			for (const edge of fan) {
-				if (learnerEdges.has(edge.id)) {
-					labels.set(edge.id, shortRule(edge.move.ruleLabel));
-					continue;
+	const elk = new ELK();
+	let drawing = $state<Drawing | null>(null);
+
+	$effect(() => {
+		const valueOf = new Map(drawnGraph.nodes.map((node) => [node.id, node.value]));
+		const depthOf = new Map(drawnGraph.nodes.map((node) => [node.id, node.depth]));
+		const pathEdges = learnerEdges;
+		const { root, edgeMeta } = buildElkGraph(
+			drawnGraph,
+			pathEdges,
+			(value) => ({ width: labelWidth(value) + 4, height: 34 }),
+			(text) => ({ width: text.length * 6.4 + 6, height: 12 })
+		);
+
+		let cancelled = false;
+
+		void elk
+			.layout(root as Parameters<typeof elk.layout>[0])
+			.then((result) => {
+				if (cancelled) {
+					return;
 				}
 
-				const group = byRule.get(edge.move.ruleId);
+				type ElkResult = {
+					width?: number;
+					height?: number;
+					children?: { id: string; x?: number; y?: number; width?: number; height?: number }[];
+					edges?: {
+						id: string;
+						sections?: {
+							startPoint: { x: number; y: number };
+							endPoint: { x: number; y: number };
+							bendPoints?: { x: number; y: number }[];
+						}[];
+						labels?: { text?: string; x?: number; y?: number }[];
+					}[];
+				};
+				const placed = result as ElkResult;
 
-				if (group) {
-					group.push(edge);
-				} else {
-					byRule.set(edge.move.ruleId, [edge]);
-				}
-			}
+				drawing = {
+					width: placed.width ?? 0,
+					height: placed.height ?? 0,
+					nodes: (placed.children ?? []).map((child) => ({
+						id: child.id,
+						value: valueOf.get(child.id) ?? '',
+						depth: depthOf.get(child.id) ?? 0,
+						x: child.x ?? 0,
+						y: child.y ?? 0,
+						width: child.width ?? 0,
+						height: child.height ?? 0
+					})),
+					edges: (placed.edges ?? []).map((edge) => {
+						const section = edge.sections?.[0];
+						const points = section
+							? [section.startPoint, ...(section.bendPoints ?? []), section.endPoint]
+							: [];
 
-			for (const group of byRule.values()) {
-				const carrier = group[Math.floor(group.length / 2)]!;
+						return {
+							id: edge.id,
+							points: points.map((point) => `${point.x},${point.y}`).join(' '),
+							labels: (edge.labels ?? []).map((label) => ({
+								text: label.text ?? '',
+								x: label.x ?? 0,
+								y: label.y ?? 0
+							})),
+							path: pathEdges.has(edge.id),
+							back: edgeMeta.get(edge.id)?.back ?? false
+						};
+					})
+				};
+			});
 
-				labels.set(
-					carrier.id,
-					`${shortRule(carrier.move.ruleLabel)}${group.length > 1 ? ` ×${group.length}` : ''}`
-				);
-			}
-		}
-
-		return labels;
+		return () => {
+			cancelled = true;
+		};
 	});
+
+	const svgWidth = $derived(PAD_LEFT + (drawing?.width ?? 0) + (continueRight ? 110 : 30));
+	const svgHeight = $derived(PAD_TOP + (drawing?.height ?? 0) + 12);
+	const depthTicks = $derived.by(() => {
+		if (!drawing) {
+			return [];
+		}
+
+		const minX = new Map<number, number>();
+
+		for (const node of drawing.nodes) {
+			minX.set(node.depth, Math.min(minX.get(node.depth) ?? Infinity, node.x));
+		}
+
+		return [...minX.entries()].sort((left, right) => left[0] - right[0]).map(([depth, x]) => ({
+			depth,
+			x
+		}));
+	});
+	const horizonNodes = $derived(
+		drawing?.nodes.filter((node) => node.depth === profile.drawnDepthLimit) ?? []
+	);
 
 	function nodeKeydown(event: KeyboardEvent, nodeId: string) {
 		if (event.key === 'Enter' || event.key === ' ') {
@@ -292,7 +309,9 @@
 		}
 	}
 
-	const selectedNode = $derived(nodeById.get(selectedGraphNodeId) ?? null);
+	const selectedNode = $derived(
+		reachabilityGraph.nodes.find((node) => node.id === selectedGraphNodeId) ?? null
+	);
 	/* Which bound actually governs the search — without this, the slack
 	 * control appears dead (raising depth past a binding node limit changes
 	 * nothing on screen). */
@@ -373,111 +392,96 @@
 				</linearGradient>
 			</defs>
 
-			<!-- The bound suffix belongs to the last drawn column only when
-			     nothing is counted beyond it — otherwise the bands carry it. -->
-			{#each Array.from({ length: layout.depthCount }) as _, depth (depth)}
-				<text class="tree-tick" x={columnX.xs[depth] ?? PAD_LEFT} y="18">
-					DEPTH {depth}{depth !== layout.depthCount - 1 || bands.length > 0
-						? ''
-						: reachabilityGraph.truncatedBy === 'depth'
-							? ' — AT THE BOUND'
-							: reachabilityGraph.truncatedBy === 'node-limit'
-								? ' — CUT BY THE STRING LIMIT'
-								: ''}
-				</text>
-			{/each}
-
-			{#each layout.treeEdges as edge (edge.id)}
-				{@const line = edgeLine(edge)}
-				{#if line}
-					<line
-						class="tree-edge"
-						class:tree-edge--path={learnerEdges.has(edge.id)}
-						x1={line.x1}
-						y1={line.y1}
-						x2={line.x2}
-						y2={line.y2}
-						marker-end={learnerEdges.has(edge.id) ? 'url(#map-arrow-ink)' : 'url(#map-arrow-gray)'}
-					/>
-					{#if treeEdgeLabels.has(edge.id)}
-						<text
-							class="tree-edge-label"
-							class:tree-edge-label--path={learnerEdges.has(edge.id)}
-							x={line.x1 + (line.x2 - line.x1) * 0.22}
-							y={line.y1 + (line.y2 - line.y1) * 0.22 - 4}
-						>
-							{treeEdgeLabels.get(edge.id)}
+			{#if drawing}
+				<g transform={`translate(${PAD_LEFT}, ${PAD_TOP})`}>
+					<!-- The bound suffix belongs to the last drawn column only when
+					     nothing is counted beyond it — otherwise the bands carry it. -->
+					{#each depthTicks as tick (tick.depth)}
+						<text class="tree-tick" x={tick.x} y={-26}>
+							DEPTH {tick.depth}{tick.depth !== profile.drawnDepthLimit || bands.length > 0
+								? ''
+								: reachabilityGraph.truncatedBy === 'depth'
+									? ' — AT THE BOUND'
+									: reachabilityGraph.truncatedBy === 'node-limit'
+										? ' — CUT BY THE STRING LIMIT'
+										: ''}
 						</text>
+					{/each}
+
+					{#each drawing.edges as edge (edge.id)}
+						<polyline
+							class="tree-edge"
+							class:tree-edge--path={edge.path}
+							points={edge.points}
+							marker-end={edge.path ? 'url(#map-arrow-ink)' : 'url(#map-arrow-gray)'}
+						/>
+						{#each edge.labels as label (label.text + label.x)}
+							<text
+								class="tree-edge-label"
+								class:tree-edge-label--path={edge.path}
+								x={label.x}
+								y={label.y + 9}
+							>
+								{label.text}
+							</text>
+						{/each}
+					{/each}
+
+					{#if continueRight}
+						{#each horizonNodes as node (node.id)}
+							<line
+								class="tree-stub"
+								x1={node.x + node.width + 6}
+								y1={node.y + 16}
+								x2={node.x + node.width + 84}
+								y2={node.y + 16}
+							/>
+						{/each}
 					{/if}
-				{/if}
-			{/each}
 
-			{#each layout.returnEdges as edge (edge.id)}
-				{@const curve = returnCurve(edge)}
-				{#if curve}
-					<path
-						class="tree-edge tree-return"
-						class:tree-edge--path={learnerEdges.has(edge.id)}
-						d={curve.d}
-						marker-end={learnerEdges.has(edge.id) ? 'url(#map-arrow-ink)' : 'url(#map-arrow-gray)'}
-					/>
-					<text class="tree-edge-label" x={curve.lx} y={curve.ly}>
-						{shortRule(edge.move.ruleLabel)} ↩
-					</text>
-				{/if}
-			{/each}
+					{#each drawing.nodes as node (node.id)}
+						<g
+							class="tree-node"
+							class:tree-node--path={learnerNodes.has(node.id)}
+							class:tree-node--selected={node.id === selectedGraphNodeId}
+							role="button"
+							tabindex="0"
+							aria-pressed={node.id === selectedGraphNodeId}
+							aria-label={`${node.value}, depth ${node.depth}`}
+							onclick={() => onSelectGraphNode(node.id)}
+							onkeydown={(event) => nodeKeydown(event, node.id)}
+						>
+							<text class="tree-node__value" x={node.x + 2} y={node.y + 20}>
+								{nodeLabel(node.value)}
+							</text>
+							{#if node.id === selectedGraphNodeId}
+								<line
+									class="tree-node__underline"
+									x1={node.x + 2}
+									y1={node.y + 25}
+									x2={node.x + 2 + labelWidth(node.value)}
+									y2={node.y + 25}
+								/>
+							{/if}
+							{#if node.id === reachabilityGraph.rootId}
+								<text class="tree-again" x={node.x + 2} y={node.y + 33}>axiom</text>
+							{:else if returnTargets.has(node.id)}
+								<text class="tree-again" x={node.x + 2} y={node.y + 33}>reached twice ↩</text>
+							{/if}
+						</g>
+					{/each}
 
-			{#if continueRight}
-				{#each deepestNodes as node (node.id)}
-					<line
-						class="tree-stub"
-						x1={nx(node) + labelWidth(node.value) + 8}
-						y1={ny(node) - 4}
-						x2={nx(node) + labelWidth(node.value) + 90}
-						y2={ny(node) - 4}
-					/>
-				{/each}
-			{/if}
-
-			{#each layout.nodes as node (node.id)}
-				<g
-					class="tree-node"
-					class:tree-node--path={learnerNodes.has(node.id)}
-					class:tree-node--selected={node.id === selectedGraphNodeId}
-					role="button"
-					tabindex="0"
-					aria-pressed={node.id === selectedGraphNodeId}
-					aria-label={`${node.value}, depth ${node.depth}`}
-					onclick={() => onSelectGraphNode(node.id)}
-					onkeydown={(event) => nodeKeydown(event, node.id)}
-				>
-					<text class="tree-node__value" x={nx(node)} y={ny(node)}>{nodeLabel(node.value)}</text>
-					{#if node.id === selectedGraphNodeId}
-						<line
-							class="tree-node__underline"
-							x1={nx(node)}
-							y1={ny(node) + 4}
-							x2={nx(node) + labelWidth(node.value)}
-							y2={ny(node) + 4}
+					{#if frontier && bands.length === 0}
+						<rect
+							x={drawing.width + 18}
+							y={-26}
+							width="100"
+							height={drawing.height + 38}
+							fill="url(#map-erase)"
+							pointer-events="none"
 						/>
 					{/if}
-					{#if node.id === reachabilityGraph.rootId}
-						<text class="tree-again" x={nx(node)} y={ny(node) + 14}>axiom</text>
-					{:else if returnTargets.has(node.id)}
-						<text class="tree-again" x={nx(node)} y={ny(node) + 14}>reached twice ↩</text>
-					{/if}
 				</g>
-			{/each}
-
-			{#if frontier && bands.length === 0}
-				<rect
-					x={svgWidth - 140}
-					y="26"
-					width="140"
-					height={svgHeight - 26}
-					fill="url(#map-erase)"
-					pointer-events="none"
-				/>
 			{/if}
 		</svg>
 
