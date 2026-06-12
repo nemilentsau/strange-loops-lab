@@ -2,7 +2,61 @@ import { describe, expect, it } from 'vitest';
 
 import { buildReachabilityGraph, nodeIdFor } from '$lib/miu/graph';
 
-import { describeActiveBound, layoutReachabilityGraph } from './module1Map';
+import {
+	describeActiveBound,
+	fanForString,
+	layoutReachabilityGraph,
+	mapLayerProfile
+} from './module1Map';
+
+describe('mapLayerProfile', () => {
+	it('profiles the default region with every layer inside the horizon', () => {
+		const profile = mapLayerProfile(buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 }));
+
+		expect(profile.layers.map((layer) => layer.count)).toEqual([1, 2, 3, 5]);
+		expect(profile.layers.every((layer) => layer.drawn)).toBe(true);
+		expect(profile.drawnDepthLimit).toBe(3);
+		// The single rediscovery: MIIII →R3→ MIU, found while building depth 3.
+		expect(profile.layers.map((layer) => layer.reconvergences)).toEqual([0, 0, 0, 1]);
+		expect(profile.layers.map((layer) => layer.deadChainCount)).toEqual([0, 1, 2, 2]);
+		expect(profile.nodeCount).toBe(11);
+		expect(profile.recordedMoves).toBe(11);
+		expect(profile.totalReconvergences).toBe(1);
+	});
+
+	it('collapses layers past the horizon in a deep search', () => {
+		const profile = mapLayerProfile(buildReachabilityGraph({ maxDepth: 6, maxNodes: 250 }));
+
+		expect(profile.layers.slice(0, 6).map((layer) => layer.count)).toEqual([1, 2, 3, 5, 14, 44]);
+		expect(profile.drawnDepthLimit).toBe(3);
+		expect(profile.layers[4]!.drawn).toBe(false);
+		expect(profile.layers[5]!.reconvergences).toBe(14);
+	});
+});
+
+describe('fanForString', () => {
+	it('groups the moves of one string by rule and marks results inside the region', () => {
+		const graph = buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 });
+		const fan = fanForString(graph, 'MIIIIIIII');
+
+		expect(fan.map((group) => [group.ruleLabel, group.results.length])).toEqual([
+			['R1', 1],
+			['R2', 1],
+			['R3', 6]
+		]);
+		// Its children live at depth 4 — outside this region.
+		expect(fan.every((group) => group.results.every((result) => !result.known))).toBe(true);
+	});
+
+	it('marks results already inside the region as known', () => {
+		const graph = buildReachabilityGraph({ maxDepth: 3, maxNodes: 16 });
+		const fan = fanForString(graph, 'MIIII');
+		const r3 = fan.find((group) => group.ruleLabel === 'R3')!;
+
+		// MIIII →R3→ MUI and MIU are both drawn nodes.
+		expect(r3.results.map((result) => result.known)).toEqual([true, true]);
+	});
+});
 
 describe('describeActiveBound', () => {
 	it('names the node limit as governing and the depth control as idle', () => {

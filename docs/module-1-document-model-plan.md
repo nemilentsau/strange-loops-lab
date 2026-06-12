@@ -175,6 +175,22 @@ longest label; depth columns pack densely from the top, ordered by parent
 row, so the axiom and the early fans always fill the first screenful. The
 figure sits on clean panel ground, not the ruled paper.
 
+The legibility horizon (June 12 third played review — "unusable past depth
+3; what value are we extracting?"): an extensional drawing cannot beat
+exponential growth, and past the horizon the individual string stops
+teaching — the aggregate does. The instrument now degrades from drawing
+into counting: a layer is drawn while it holds ≤ 8 strings
+(`LAYER_DRAW_LIMIT`); bigger layers collapse into fixed-size counted bands
+(new strings · reconvergences · dead chains · MU absent), each with a
+draw-a-string's-fan-on-demand local view. The horizon is stated on the
+page ("the page draws a layer while it fits — beyond that it can only
+count; the territory keeps going either way"). A growth strip — strings
+per depth, drawn layers solid, counted layers hatched — makes the
+explosion the first-class artifact (the true profile is 1, 2, 3, 5, 14,
+44, 181…), and the bound options now run to depth 8 / 250 strings because
+counting is cheap. Helpers `mapLayerProfile` and `fanForString` are pure
+and test-first.
+
 The approved scope:
 
 1. Depth layers top-down or left-right; nodes are strings; edges are rule

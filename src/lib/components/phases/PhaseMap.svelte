@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isDeadBranch, type DerivationTrace } from '$lib/miu/core';
+	import { enumerateMiuMoves, isDeadBranch, type DerivationTrace } from '$lib/miu/core';
 	import {
 		graphNodeExists,
 		nodeIdFor,
@@ -10,8 +10,11 @@
 		type ReachabilityGraph
 	} from '$lib/miu/graph';
 	import {
+		LAYER_DRAW_LIMIT,
 		describeActiveBound,
+		fanForString,
 		layoutReachabilityGraph,
+		mapLayerProfile,
 		type MapLayoutNode
 	} from '$lib/state/module1Map';
 	import {
@@ -51,8 +54,65 @@
 	const metaPresentation = LEVEL_PRESENTATION.meta;
 
 	const summary = $derived(summarizeReachabilityGraph(reachabilityGraph));
-	const layout = $derived(layoutReachabilityGraph(reachabilityGraph));
+
+	/* The drawing stops at the legibility horizon (layers of more than
+	 * LAYER_DRAW_LIMIT strings collapse into counted bands); only the drawn
+	 * region is laid out. */
+	const profile = $derived(mapLayerProfile(reachabilityGraph));
+	const drawnGraph = $derived.by(() => {
+		const horizon = profile.drawnDepthLimit;
+		const nodes = reachabilityGraph.nodes.filter((node) => node.depth <= horizon);
+		const ids = new Set(nodes.map((node) => node.id));
+
+		return {
+			...reachabilityGraph,
+			nodes,
+			edges: reachabilityGraph.edges.filter((edge) => ids.has(edge.from) && ids.has(edge.to))
+		};
+	});
+	const layout = $derived(layoutReachabilityGraph(drawnGraph));
 	const nodeById = $derived(new Map(layout.nodes.map((node) => [node.id, node])));
+	const bands = $derived(profile.layers.filter((layer) => !layer.drawn));
+	const muDepth = $derived(
+		reachabilityGraph.nodes.find((node) => node.value === 'MU')?.depth ?? null
+	);
+
+	/* Draw-a-fan-on-demand inside a counted band: the page can always afford
+	 * one string's neighborhood, even where it cannot draw the layer. */
+	let fanDepth = $state<number | null>(null);
+	let fanSource = $state<string>('');
+
+	const fanSources = $derived.by(() => {
+		const depth = fanDepth;
+
+		if (depth === null) {
+			return [];
+		}
+
+		return reachabilityGraph.nodes
+			.filter((node) => node.depth === depth - 1)
+			.map((node) => node.value);
+	});
+	const fan = $derived(
+		fanDepth !== null && fanSource ? fanForString(reachabilityGraph, fanSource) : []
+	);
+
+	function toggleFan(depth: number) {
+		if (fanDepth === depth) {
+			fanDepth = null;
+			fanSource = '';
+			return;
+		}
+
+		fanDepth = depth;
+		const sources = reachabilityGraph.nodes.filter((node) => node.depth === depth - 1);
+		// Default to the busiest source — the fan with the most to show.
+		fanSource = sources.reduce(
+			(best, node) =>
+				enumerateMiuMoves(node.value).length > enumerateMiuMoves(best).length ? node.value : best,
+			sources[0]?.value ?? ''
+		);
+	}
 
 	/* The learner's own derivation, mapped onto the drawing: the zoom-out from
 	 * Explore made literal. Solid ink through the dashed computed search. */
@@ -60,7 +120,7 @@
 	const learnerNodes = $derived(new Set(learner.nodeIds));
 	const learnerEdges = $derived(new Set(learner.edgeIds));
 	const currentValue = $derived(trace.steps[trace.currentIndex]?.value ?? 'MI');
-	const currentInView = $derived(graphNodeExists(reachabilityGraph, nodeIdFor(currentValue)));
+	const currentInView = $derived(graphNodeExists(drawnGraph, nodeIdFor(currentValue)));
 
 	const returnTargets = $derived(new Set(layout.returnEdges.map((edge) => edge.to)));
 	const muReached = $derived(graphNodeExists(reachabilityGraph, nodeIdFor('MU')));
@@ -115,6 +175,10 @@
 
 	const svgWidth = $derived(columnX.end + (frontier ? 130 : 30));
 	const svgHeight = $derived(PAD_TOP + layout.rowCount * ROW_H + 8);
+	/* Stubs leave the last drawn layer whenever the territory continues —
+	 * into the counted bands, or into the erased frontier when nothing is
+	 * counted beyond the drawing. */
+	const continueRight = $derived(bands.length > 0 || frontier);
 	const deepestNodes = $derived(layout.nodes.filter((node) => node.depth === layout.depthCount - 1));
 
 	function nx(node: MapLayoutNode): number {
@@ -282,8 +346,11 @@
 		<p class="map-bound-note"><strong>{activeBound.lead}</strong>{activeBound.detail}</p>
 
 		<!-- The figure renders at a fixed type scale and scrolls horizontally —
-		     a bigger search must never shrink the strings. -->
+		     a bigger search must never shrink the strings. Layers past the
+		     legibility horizon are not drawn at all: they stand to the right
+		     as counted bands. -->
 		<div class="map-scroll">
+		<div class="map-figure">
 		<svg
 			class="map-tree"
 			width={svgWidth}
@@ -306,9 +373,11 @@
 				</linearGradient>
 			</defs>
 
+			<!-- The bound suffix belongs to the last drawn column only when
+			     nothing is counted beyond it — otherwise the bands carry it. -->
 			{#each Array.from({ length: layout.depthCount }) as _, depth (depth)}
 				<text class="tree-tick" x={columnX.xs[depth] ?? PAD_LEFT} y="18">
-					DEPTH {depth}{depth !== layout.depthCount - 1
+					DEPTH {depth}{depth !== layout.depthCount - 1 || bands.length > 0
 						? ''
 						: reachabilityGraph.truncatedBy === 'depth'
 							? ' — AT THE BOUND'
@@ -358,7 +427,7 @@
 				{/if}
 			{/each}
 
-			{#if frontier}
+			{#if continueRight}
 				{#each deepestNodes as node (node.id)}
 					<line
 						class="tree-stub"
@@ -400,7 +469,7 @@
 				</g>
 			{/each}
 
-			{#if frontier}
+			{#if frontier && bands.length === 0}
 				<rect
 					x={svgWidth - 140}
 					y="26"
@@ -411,14 +480,82 @@
 				/>
 			{/if}
 		</svg>
+
+		{#if bands.length > 0}
+			<div class="map-bands">
+				{#each bands as layer (layer.depth)}
+					<div class="map-band">
+						<span class="map-band__tick">
+							Depth {layer.depth}{layer.depth === profile.layers.length - 1 &&
+							reachabilityGraph.truncatedBy === 'node-limit'
+								? ' — cut'
+								: ''}
+						</span>
+						<span class="map-band__count">+{layer.count} <small>strings</small></span>
+						<p class="map-band__fact">
+							<strong>{layer.reconvergences}</strong>
+							circle{layer.reconvergences === 1 ? 's' : ''} back{#if layer.deadChainCount > 0}{' '}·
+								<strong>{layer.deadChainCount}</strong> in dead chains{/if}
+						</p>
+						<p class="map-band__fact">
+							{muDepth === layer.depth ? 'MU appears in this layer' : 'MU absent'}
+						</p>
+
+						{#if fanDepth === layer.depth}
+							<div class="map-fan">
+								<select
+									class="map-bound map-fan__source"
+									aria-label="String whose fan to draw"
+									value={fanSource}
+									onchange={(event) => (fanSource = (event.target as HTMLSelectElement).value)}
+								>
+									{#each fanSources as source (source)}
+										<option value={source}>{ellipsizeMiddle(source, 18)}</option>
+									{/each}
+								</select>
+								{#each fan as group (group.ruleLabel)}
+									<p class="map-fan__group">
+										<span class="query__via"
+											>·{group.ruleLabel}{group.results.length > 1
+												? ` ×${group.results.length}`
+												: ''}·</span
+										>
+										{#each group.results as result, index (result.value)}{index > 0
+												? ' · '
+												: ' '}{ellipsizeMiddle(result.value, 18)}{result.known
+												? ''
+												: ' *'}{/each}
+									</p>
+								{/each}
+								{#if fan.some((group) => group.results.some((result) => !result.known))}
+									<p class="map-fan__note">* not yet reached by this search</p>
+								{/if}
+							</div>
+						{/if}
+
+						<button class="map-band__expand" type="button" onclick={() => toggleFan(layer.depth)}>
+							{fanDepth === layer.depth ? '▾ close the fan' : "▸ draw a string's fan…"}
+						</button>
+					</div>
+				{/each}
+			</div>
+		{/if}
 		</div>
+		</div>
+
+		{#if bands.length > 0}
+			<p class="map-horizon">
+				<strong>The page draws a layer while it fits — {LAYER_DRAW_LIMIT} strings or fewer.</strong>
+				Beyond that it can only count. The territory keeps going either way.
+			</p>
+		{/if}
 
 		<p class="map-legend">
 			{#if learner.nodeIds.length > 1}
 				<span class="map-legend__solid">──</span> your derivation, drawn solid ·
 				<span class="map-legend__dashed">┄┄</span> the computed search{currentInView
 					? ''
-					: ' — your current string lies beyond this bound'}
+					: ' — your current string lies beyond the drawn layers'}
 			{:else}
 				<span class="map-legend__dashed">┄┄</span> the computed search — make moves in Explore
 				and your derivation draws solid here
@@ -438,25 +575,42 @@
 			</p>
 		{/if}
 
-		<div class="map-captions">
-			<p class="worksheet__label">What the search shows — computed</p>
+		<div class="map-growth">
+			<p class="worksheet__label">Strings per depth — computed</p>
+			<div class="map-growth__bars">
+				{#each profile.layers as layer (layer.depth)}
+					<div class="map-gbar" class:map-gbar--counted={!layer.drawn}>
+						<span class="map-gbar__count">{layer.count}</span>
+						<div
+							class="map-gbar__rect"
+							style:height={`${Math.max(3, Math.round((110 * layer.count) / Math.max(...profile.layers.map((l) => l.count))))}px`}
+						></div>
+						<span class="map-gbar__tick">
+							{layer.depth}{layer.depth === profile.layers.length - 1 &&
+							reachabilityGraph.truncatedBy === 'node-limit'
+								? ' · cut'
+								: ''}
+						</span>
+					</div>
+				{/each}
+			</div>
 			<p class="map-caption">
-				<strong>{summary.nodeCount} strings reached</strong>
-				within depth {summary.maxDepth}{#if summary.frontierGrowth !== null}; depth {summary.deepestDepth}
-					{#if summary.frontierGrowth > 0}adds {summary.frontierGrowth} more than depth {summary.deepestDepth - 1}{:else if summary.frontierGrowth === 0}matched the count at depth {summary.deepestDepth - 1}{:else}was cut off by the bound before completing{/if}{/if}.
-			</p>
-			<p class="map-caption">
-				{#if summary.repeatedDiscoveryCount > 0}
-					<strong>
-						{summary.repeatedDiscoveryCount} rule application{summary.repeatedDiscoveryCount === 1
-							? ''
-							: 's'} circled back
-					</strong>
-					onto a string already reached — paths converge; the set grows slower than the moves.
+				<strong>
+					{profile.nodeCount} strings reached; {profile.recordedMoves} rule applications recorded.
+				</strong>
+				{#if profile.totalReconvergences > 0}
+					{profile.totalReconvergences} landed on strings already seen — the set grows slower than
+					the moves{bands.length > 0
+						? `, and still outruns the page by depth ${bands[0]!.depth}`
+						: ''}.
 				{:else}
-					<strong>No path has circled back yet</strong> — every legal move so far reached a new string.
+					No move has landed on an already-seen string yet.
 				{/if}
 			</p>
+		</div>
+
+		<div class="map-captions">
+			<p class="worksheet__label">What the search shows — computed</p>
 			<p class="map-caption"><strong>{boundCaption.split('.')[0]}.</strong>{boundCaption.slice(boundCaption.indexOf('.') + 1)}</p>
 			{#if closedCount > 0}
 				<p class="map-caption">

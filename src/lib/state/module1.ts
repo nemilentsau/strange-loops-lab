@@ -11,8 +11,12 @@ import {
 import type { DialogueResult } from '$lib/dialogue/types';
 
 export const MODULE1_STORAGE_KEY = 'strange-loops/module-1/v2';
-export const GRAPH_DEPTH_OPTIONS = [1, 2, 3, 4, 5] as const;
-export const GRAPH_NODE_LIMIT_OPTIONS = [8, 16, 24, 40, 64] as const;
+/* Counting is cheap (the drawing stops at the legibility horizon, layers
+ * beyond it collapse to verified counts), so the bounds may run far past
+ * what any page could draw — that gap is the lesson. The engine clamps at
+ * depth 8 / 250 nodes. */
+export const GRAPH_DEPTH_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
+export const GRAPH_NODE_LIMIT_OPTIONS = [8, 16, 24, 40, 64, 120, 250] as const;
 
 export const SURFACE_SEQUENCE = [
 	'sandbox',

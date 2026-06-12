@@ -1,4 +1,128 @@
-import type { ReachabilityEdge, ReachabilityGraph } from '$lib/miu/graph';
+import { enumerateMiuMoves, isDeadBranch } from '$lib/miu/core';
+import { nodeIdFor, type ReachabilityEdge, type ReachabilityGraph } from '$lib/miu/graph';
+
+/**
+ * The legibility horizon: a layer is drawn while it holds this many strings
+ * or fewer; bigger layers collapse into counted bands. The space grows
+ * exponentially and labels do not shrink — past this point the individual
+ * string stops teaching and the aggregate takes over.
+ */
+export const LAYER_DRAW_LIMIT = 8;
+
+export interface MapLayer {
+	depth: number;
+	/** Strings first reached at this depth. */
+	count: number;
+	/** Rule applications from the previous layer that landed on an already-reached string. */
+	reconvergences: number;
+	/** Strings in this layer that are provably closed (only R2 will ever apply). */
+	deadChainCount: number;
+	/** True while every layer up to and including this one fits the horizon. */
+	drawn: boolean;
+}
+
+export interface MapProfile {
+	layers: MapLayer[];
+	/** Deepest drawn layer; layers beyond it are counted, not drawn. */
+	drawnDepthLimit: number;
+	nodeCount: number;
+	/** Rule applications recorded inside the explored region (discoveries + reconvergences). */
+	recordedMoves: number;
+	totalReconvergences: number;
+}
+
+/**
+ * The layer-by-layer account of the explored region: how many strings each
+ * depth adds, how many moves circled back building it, how much of it is
+ * dead chains — and where the drawing must stop. Every number is a count
+ * over the verifier's graph, never re-derived.
+ */
+export function mapLayerProfile(graph: ReachabilityGraph): MapProfile {
+	const depthOf = new Map(graph.nodes.map((node) => [node.id, node.depth]));
+	const maxDepth = graph.nodes.reduce((max, node) => Math.max(max, node.depth), 0);
+
+	const counts = Array.from({ length: maxDepth + 1 }, () => 0);
+	const dead = Array.from({ length: maxDepth + 1 }, () => 0);
+
+	for (const node of graph.nodes) {
+		counts[node.depth] += 1;
+
+		if (isDeadBranch(node.value)) {
+			dead[node.depth] += 1;
+		}
+	}
+
+	// Every recorded edge leaves a node at depth d and lands at depth d+1
+	// (a discovery) or on an already-reached string (a reconvergence, while
+	// building layer d+1). Edges whose target was never added (the move
+	// that tripped the node limit) are not part of the explored region.
+	const edgesInto = Array.from({ length: maxDepth + 2 }, () => 0);
+	let recordedMoves = 0;
+
+	for (const edge of graph.edges) {
+		const from = depthOf.get(edge.from);
+
+		if (from === undefined || !depthOf.has(edge.to)) {
+			continue;
+		}
+
+		edgesInto[from + 1] = (edgesInto[from + 1] ?? 0) + 1;
+		recordedMoves += 1;
+	}
+
+	let drawnDepthLimit = 0;
+
+	while (drawnDepthLimit < maxDepth && (counts[drawnDepthLimit + 1] ?? 0) <= LAYER_DRAW_LIMIT) {
+		drawnDepthLimit += 1;
+	}
+
+	const layers: MapLayer[] = counts.map((count, depth) => ({
+		depth,
+		count,
+		reconvergences: depth === 0 ? 0 : Math.max(0, (edgesInto[depth] ?? 0) - count),
+		deadChainCount: dead[depth] ?? 0,
+		drawn: depth <= drawnDepthLimit
+	}));
+
+	return {
+		layers,
+		drawnDepthLimit,
+		nodeCount: graph.nodes.length,
+		recordedMoves,
+		totalReconvergences: Math.max(0, recordedMoves - (graph.nodes.length - 1))
+	};
+}
+
+export interface FanGroup {
+	/** Short rule name as written in the ledger: R1…R4. */
+	ruleLabel: string;
+	results: { value: string; known: boolean }[];
+}
+
+/**
+ * One string's moves, grouped by rule, for the counted region's
+ * draw-a-fan-on-demand: the local neighborhood the page can always afford
+ * to show, even where it cannot draw the whole layer. `known` marks
+ * results already inside the explored region.
+ */
+export function fanForString(graph: ReachabilityGraph, value: string): FanGroup[] {
+	const knownIds = new Set(graph.nodes.map((node) => node.id));
+	const groups = new Map<string, FanGroup>();
+
+	for (const move of enumerateMiuMoves(value)) {
+		const ruleLabel = move.ruleLabel.replace('Rule ', 'R');
+		const group = groups.get(ruleLabel);
+		const result = { value: move.result, known: knownIds.has(nodeIdFor(move.result)) };
+
+		if (group) {
+			group.results.push(result);
+		} else {
+			groups.set(ruleLabel, { ruleLabel, results: [result] });
+		}
+	}
+
+	return [...groups.values()];
+}
 
 /**
  * Deterministic layout for the Map phase's derivation tree: depth layers as

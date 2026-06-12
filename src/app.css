@@ -1900,8 +1900,176 @@ body.module1-wide .site-shell {
 	background: var(--panel);
 }
 
+.map-figure {
+	display: flex;
+	align-items: stretch;
+}
+
 .map-tree {
 	display: block;
+	flex-shrink: 0;
+}
+
+/* ── The counted region: one slim band per layer past the legibility
+ * horizon. Dashed = computed register. Bands never grow with the layer —
+ * the counts do. */
+.map-bands {
+	display: flex;
+	gap: 14px;
+	padding: 34px 4px 6px 6px;
+}
+
+.map-band {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 178px;
+	flex-shrink: 0;
+	padding: 10px 14px;
+	border: 1px dashed var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+}
+
+.map-band__tick {
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 9.5px;
+	font-weight: 600;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+}
+
+.map-band__count {
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 1.3rem;
+	font-weight: 700;
+}
+
+.map-band__count small {
+	color: var(--muted);
+	font-size: 0.7rem;
+	font-weight: 600;
+}
+
+.map-band__fact {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.76rem;
+	line-height: 1.5;
+}
+
+.map-band__fact strong {
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.map-band__expand {
+	margin-top: auto;
+	padding: 3px 0 0;
+	border: none;
+	background: none;
+	text-align: left;
+	color: var(--act);
+	font-size: 0.74rem;
+	cursor: pointer;
+}
+
+.map-band__expand:hover,
+.map-band__expand:focus-visible {
+	text-decoration: underline;
+}
+
+/* Draw-a-fan-on-demand: one string's neighborhood, listed by rule. */
+.map-fan {
+	display: grid;
+	gap: 4px;
+	padding-top: 6px;
+	border-top: 1px solid var(--line);
+}
+
+.map-fan__source {
+	justify-self: start;
+	max-width: 100%;
+}
+
+.map-fan__group {
+	margin: 0;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.72rem;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+
+.map-fan__note {
+	margin: 0;
+	color: var(--faint);
+	font-size: 0.68rem;
+}
+
+.map-horizon {
+	margin: 8px 0 0;
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.72rem;
+}
+
+.map-horizon strong {
+	color: var(--ink);
+}
+
+/* ── Growth strip: strings per depth. Drawn layers bar solid; counted-only
+ * layers hatched. The wall is the lesson. */
+.map-growth {
+	margin-top: 20px;
+	padding-top: 12px;
+	border-top: 2px dashed var(--faint);
+}
+
+.map-growth__bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 26px;
+	margin: 14px 0 10px;
+	padding-left: 4px;
+}
+
+.map-gbar {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+}
+
+.map-gbar__count {
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.74rem;
+	font-weight: 700;
+}
+
+.map-gbar__rect {
+	width: 34px;
+	background: var(--line-strong);
+}
+
+.map-gbar--counted .map-gbar__rect {
+	background: repeating-linear-gradient(45deg, var(--line-strong) 0 3px, var(--panel) 3px 6px);
+	border: 1px dashed var(--line-strong);
+	box-sizing: border-box;
+}
+
+.map-gbar--counted .map-gbar__count {
+	color: var(--muted);
+}
+
+.map-gbar__tick {
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.66rem;
 }
 
 .tree-tick {
