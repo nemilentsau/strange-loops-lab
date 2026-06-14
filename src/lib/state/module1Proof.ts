@@ -7,16 +7,16 @@ import {
 import { ellipsizeMiddle } from './module1';
 
 /**
- * The Prove page's proof document: claim, candidate, base case, one clause
- * per rule, conclusion — every stamp from the verifier, every sentence
- * written the way a person explains an argument aloud (design rule 8: a
- * human voice, one claim per sentence; no compressed logician's
- * aphorisms). This module owns the copy so it is testable.
+ * The Prove page's proof document: a structural induction on derivations —
+ * the predicate P (the candidate), the base case (the axiom MI), one clause
+ * per rule (the inductive step), and the conclusion. Every verdict comes from
+ * `analyzeInvariantCandidate`, never re-derived; the base case (count(I) = 1)
+ * and the MU separation (count(I) = 0) are the two endpoints the engine's
+ * per-rule checks do not state, computed here from the same parsed candidate.
  *
- * Verdicts come from `analyzeInvariantCandidate`, never re-derived; the
- * base case (the axiom, count(I) = 1) and the MU separation (count(I) = 0)
- * are the two endpoints the engine's per-rule checks don't state, computed
- * here from the same parsed candidate.
+ * Copy is the formal register (see `.agents/skills/prose/SKILL.md`): the
+ * predicate, base case, and inductive step are stated and displayed, not
+ * dissolved into conversational prose.
  */
 export interface ProofClause {
 	num: string;
@@ -40,7 +40,9 @@ export interface ProofDocument {
 	/** Human prompt shown at the candidate line when the form is not checkable. */
 	unsupportedReason: string | null;
 	candidateLabel: string;
-	/** One quiet line checking the learner's current string against the candidate. */
+	/** The predicate under induction, e.g. "P(s): count(I) mod 3 != 0"; null when unsupported. */
+	definition: string | null;
+	/** One quiet line checking the learner's current string against P. */
 	currentLine: string;
 	clauses: ProofClause[];
 	conclusion: ProofConclusion | null;
@@ -62,9 +64,10 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 		return {
 			supported: false,
 			unsupportedReason:
-				"That's not a form the verifier can check. It can check properties shaped like count(I) mod k = r or count(I) mod k != r — try one of those.",
+				'The verifier checks predicates of the form count(I) mod k = r or count(I) mod k != r. Restate the candidate in that form.',
 			candidateLabel: input.trim(),
-			currentLine: `your current string ${shortCurrent} has count(I) = ${currentCount}`,
+			definition: null,
+			currentLine: `Current string ${shortCurrent}: count(I) = ${currentCount}.`,
 			clauses: [],
 			conclusion: null
 		};
@@ -77,11 +80,11 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 	const clauses: ProofClause[] = [
 		{
 			num: '1',
-			head: basePasses ? 'Base — the axiom satisfies it.' : 'Base — the axiom already fails it.',
+			head: basePasses ? 'Base. The axiom satisfies P.' : 'Base. The axiom fails P.',
 			pattern: null,
 			text: basePasses
-				? `MI has count(I) = 1, and 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — which the candidate allows.`
-				: `MI has count(I) = 1, and 1 mod ${parsed.modulus} is ${1 % parsed.modulus} — which the candidate forbids.`,
+				? `MI has count(I) = 1, and 1 mod ${parsed.modulus} = ${1 % parsed.modulus} — which P allows.`
+				: `MI has count(I) = 1, and 1 mod ${parsed.modulus} = ${1 % parsed.modulus} — which P forbids.`,
 			stamp: basePasses ? 'pass' : 'fail',
 			witness: null
 		},
@@ -90,19 +93,17 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 
 			return {
 				num: String(index + 2),
-				head: result.preserved ? `${short} preserves it.` : `${short} breaks it.`,
+				head: result.preserved ? `${short} preserves P.` : `${short} breaks P.`,
 				pattern: RULE_PATTERNS[result.ruleId] ?? null,
-				text: result.preserved
-					? preservedText(parsed, result.ruleId)
-					: brokenText(result.ruleId),
+				text: result.preserved ? preservedText(parsed, result.ruleId) : brokenText(result.ruleId),
 				stamp: result.preserved ? 'pass' : 'fail',
 				witness: result.witness
 					? `${ellipsizeMiddle(result.witness.source, 18)} ·${short}· ${ellipsizeMiddle(
 							result.witness.result,
 							18
-						)} — count(I): ${result.witness.iCountBefore} → ${result.witness.iCountAfter}, and ${
+						)} — count(I): ${result.witness.iCountBefore} → ${result.witness.iCountAfter}; ${
 							result.witness.iCountAfter
-						} mod ${parsed.modulus} is ${result.witness.iCountAfter % parsed.modulus}`
+						} mod ${parsed.modulus} = ${result.witness.iCountAfter % parsed.modulus}`
 					: null
 			};
 		})
@@ -114,9 +115,10 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 		supported: true,
 		unsupportedReason: null,
 		candidateLabel: parsed.label,
-		currentLine: `your current string ${shortCurrent} has count(I) = ${currentCount} — it ${
-			satisfies(parsed, currentCount) ? 'satisfies the candidate' : 'already violates the candidate'
-		}`,
+		definition: `P(s): ${parsed.label}`,
+		currentLine: `Current string ${shortCurrent}: count(I) = ${currentCount} — ${
+			satisfies(parsed, currentCount) ? 'satisfies P' : 'violates P'
+		}.`,
 		clauses,
 		conclusion: buildConclusion(parsed, allPass, basePasses, muExcluded)
 	};
@@ -130,35 +132,35 @@ function buildConclusion(
 ): ProofConclusion {
 	if (allPass && muExcluded) {
 		return {
-			head: `So every derivable string satisfies ${parsed.label}. MU doesn't — its I-count is 0. No derivation can ever reach it. ∎`,
-			text: 'Searching could only ever check derivations one at a time. The invariant covers them all — that is the step outside the system.',
+			head: `Every theorem satisfies P; MU does not, since count(I) = 0. So MU is not derivable in MIU. ∎`,
+			text: 'A search inspects derivations one at a time and never terminates; the induction settles all of them at once, because every rule preserves P.',
 			stamp: 'pass'
 		};
 	}
 
-	// A preserved invariant that MU also satisfies can't separate MU from the
+	// A preserved invariant that MU also satisfies cannot separate MU from the
 	// reachable strings. (No candidate in the current grammar reaches this
-	// branch — only mod-3 ≠ 0 survives all four rules — but the copy must
+	// branch — only mod-3 != 0 survives all four rules — but the copy must
 	// exist if the grammar ever grows.)
 	if (allPass) {
 		return {
-			head: 'A true invariant — but it does not separate MU.',
-			text: 'Every rule preserves this property, but MU satisfies it too: count(I) = 0 is allowed. To rule MU out, the property has to fail for MU.',
+			head: 'A genuine invariant — but it does not separate MU.',
+			text: 'Every rule preserves P, yet MU satisfies it too: count(I) = 0 is allowed. To exclude MU, P must fail at MU.',
 			stamp: 'fail'
 		};
 	}
 
 	if (!basePasses) {
 		return {
-			head: 'The argument does not go through.',
-			text: "It fails at the very first string: MI doesn't satisfy the candidate, so there is nothing to preserve. You need a property MI actually has.",
+			head: 'The induction has no base.',
+			text: 'MI does not satisfy P, so there is nothing to preserve. The property must hold at the axiom.',
 			stamp: 'fail'
 		};
 	}
 
 	return {
-		head: 'The argument does not go through.',
-		text: 'It only takes one breakable rule: a derivation can run through the counterexample above and come out the other side without the property. So this candidate tells us nothing about MU.',
+		head: 'The inductive step fails.',
+		text: 'At least one rule breaks P (above), so a derivation can pass through it and emerge without the property. P says nothing about MU.',
 		stamp: 'fail'
 	};
 }
@@ -166,21 +168,21 @@ function buildConclusion(
 function preservedText(parsed: ParsedInvariantCandidate, ruleId: string): string {
 	switch (ruleId) {
 		case 'append-u':
-			return 'Appending a U leaves the I-count unchanged.';
+			return 'Appending U leaves count(I) unchanged.';
 		case 'delete-uu':
-			return 'Deleting UU leaves the I-count unchanged.';
+			return 'Deleting UU leaves count(I) unchanged.';
 		case 'double-tail':
-			return `Doubling takes the I-count from n to 2n. Mod ${parsed.modulus}, that sends ${residueStory(
+			return `Doubling sends count(I) from n to 2n. Mod ${parsed.modulus}: ${residueStory(
 				parsed,
 				(n) => 2 * n
-			)} — every result is still allowed.`;
+			)} — all allowed.`;
 		case 'replace-iii':
 			return parsed.modulus === 3
-				? 'Removing III takes 3 away from the I-count — and subtracting 3 changes nothing mod 3.'
-				: `Removing III takes 3 away from the I-count. Mod ${parsed.modulus}, that sends ${residueStory(
+				? 'Removing III subtracts 3 from count(I); subtracting 3 changes nothing mod 3.'
+				: `Removing III subtracts 3 from count(I). Mod ${parsed.modulus}: ${residueStory(
 						parsed,
 						(n) => n - 3
-					)} — every result is still allowed.`;
+					)} — all allowed.`;
 		default:
 			return 'Preserved.';
 	}
@@ -189,11 +191,11 @@ function preservedText(parsed: ParsedInvariantCandidate, ruleId: string): string
 function brokenText(ruleId: string): string {
 	switch (ruleId) {
 		case 'double-tail':
-			return 'Doubling can land on the forbidden remainder. For example:';
+			return 'Doubling can land on the forbidden residue:';
 		case 'replace-iii':
-			return 'Removing III can land on the forbidden remainder. For example:';
+			return 'Removing III can land on the forbidden residue:';
 		default:
-			return 'This rule can break the property. For example:';
+			return 'This rule can break P:';
 	}
 }
 

@@ -58,8 +58,13 @@ CLAUDE_DIALOGUE_EFFORT=low
 
 ## What this is
 
-**Strange Loops Lab** is a multi-module interactive learning environment built
-around the core ideas in GEB:
+**Strange Loops Lab** is a research instrument for testing whether the
+constructions in GEB have real counterparts in modern mathematics and in
+ML/AI. The method is to build both sides of a candidate bridge and check for a
+shared invariant, proof template, or reduction — the connection gate decides
+whether the bridge is real or decorative.
+
+The GEB ideas it draws on:
 
 - formal systems
 - meta-level vs object-level reasoning
@@ -71,35 +76,31 @@ around the core ideas in GEB:
 - computability
 - information-theoretic limits
 
-Each module is designed as an **instrument**, not a toy:
-something you can manipulate, inspect, and reason with.
+Each construction is built as an **instrument**, not a toy: the mathematical
+object itself — the string, the derivation, the residue — is the interface, and
+you manipulate, inspect, and reason with it directly.
 
 ---
 
 ## Current focus
 
-This project is being built iteratively while reading GEB.
+The first built bridge is **MIU ↔ Kolmogorov complexity**, shipped as a single
+MIU instrument at the root route. One object — the derivation — read three ways:
 
-### Active build phase
-Scaffolding + **Module 1: Formal Systems & Their Walls**
+- **Manipulate** (the worksheet): the derivation spine, the current string with
+  its rule sites in the string itself, and the four MIU rules always on screen,
+  each showing the exact reason it cannot fire when it cannot.
+- **The wall**: the residue wheel on ℤ/3 plus a reachability check. MU is
+  rejected by the invariant `#I ≡ 0 (mod 3)` — a verified negative, distinct
+  from a search-bound limit.
+- **The bridge**: the derivation read as a program. `K_MIU(s)` is the
+  shortest-derivation length, computed by a bounded BFS; the instrument shows
+  compressible against incompressible strings. Kolmogorov complexity and Chaitin
+  are named as the next instrument, explicitly not claimed by this one (the four
+  MIU rules are a fixed, non-universal machine).
 
-Module 1 is the only active implementation focus for the foreseeable future.
-Module 2 remains part of the long-term vision, but it is not the next build
-target.
-
-Current Module 1 goals:
-
-- sharpen the proof-building workflow around invariants
-- make the object-level / meta-level split more explicit in the UI
-- improve invalid-move pedagogy rather than only preventing illegal moves
-- turn persistence into a stronger learning notebook with reusable artifacts
-- evaluate whether dialogue actually improves understanding
-
-The purpose of Module 1 is not just to “solve the MU puzzle,” but to make one
-foundational idea intuitive:
-
-> Sometimes you cannot understand the limits of a formal system from inside
-> the system alone. You need to step outside it.
+This is the Arc 1 minimal case: a wall exposed by an invariant, carried through
+to a descriptional-complexity reading of the same derivations.
 
 ---
 
@@ -122,31 +123,15 @@ No badges. No streaks. No gamified fluff.
 
 ---
 
-## Planned modules
+## The bridge program
 
-### Module 1 — Formal Systems & Their Walls
-MIU system, derivation graphs, invariants, unreachable targets.
-
-### Module 2 — Diagonalization
-Cantor, halting, Russell, and Gödel through a shared structural template.
-
-### Module 3 — Gödel Numbering
-Encoding syntax as arithmetic; making “math talking about math” tangible.
-
-### Module 4 — Self-Reference & Fixed Points
-Quines, lambda calculus, diagonal lemma, recursion theorem.
-
-### Module 5 — Incompleteness
-Interactive construction of the incompleteness theorems.
-
-### Module 6 — Halting & Undecidability
-Programs, reductions, Rice’s theorem, impossibility in code.
-
-### Module 7 — Chaitin & Information
-Compression, Kolmogorov complexity, Ω, and incompleteness via information.
-
-### Module 8 — Beyond GEB
-Löb, Rosser, Tarski, Goodstein, and the broader landscape.
+The project is organized as a dependency graph of small instruments, not a
+linear syllabus, grouped into four arcs that carry it from formal systems to
+ML/AI. Each arc poses a comparative question over a contrast set of systems and
+names the ML/AI bridges it reaches. The full program — the concept-dependency
+graph, the four arcs, and the recurring form→meaning move they share — is in
+`docs/strange-loops-vision.md`. The MIU instrument is the first built bridge of
+Arc 1 (form and meaning ↔ representation and expressivity).
 
 ---
 
@@ -188,39 +173,40 @@ when it has not.
 
 ## Status
 
-Working first pass with Module 1 live and under refinement.
+The MIU instrument is built: the worksheet, the residue-wheel wall, and the
+`K_MIU` bridge, over the deterministic MIU layer.
 
-Implemented now:
-- shared SvelteKit scaffolding
-- MIU rule engine and derivation trace core
-- bounded reachability explorer
-- invariant explorer for MU non-reachability
-- SQLite-backed snapshots and saved artifacts
-- artifact restore/reopen flow back into live Module 1 surfaces
-- Claude Code dialogue path
+Built now:
+- the deterministic MIU layer: rule engine and derivation trace (`core`),
+  reachability/rewrite graph (`graph`), the `#I (mod 3)` invariant
+  (`invariants`), and the `K_MIU` shortest-derivation engine — a bounded BFS
+  that reports `found`, the verified invariant negative, or an honest search
+  horizon (`complexity`)
+- the single-route instrument: the three readings of one derivation, with the
+  object itself as the interface
 
-Current refinement work:
-- stronger object-level / meta-level framing
-- evaluating whether the new proof workflow actually teaches better
-- improving graph pedagogy beyond basic bounded exploration
-- improving notebook review and curation beyond the first-pass restore flow
-- testing whether the interactions actually deepen understanding
+Present but dormant (in the repo, not wired to the instrument):
+- persistence: SQLite at `data/strange-loops.db`, the
+  `/api/modules/[slug]/{snapshot,artifacts}` routes, and the client API
+- dialogue: the Claude Code path under `src/lib/server/dialogue` and its API
+  route
 
-Module 1 status and next-work priorities are tracked in:
-- `docs/strange-loops-module-1.md`
-- `docs/module-1-document-model-plan.md`
+These layers are kept against later instruments rather than removed; they do not
+back the MIU instrument as it stands.
+
+The build direction is in `docs/strange-loops-vision.md`; the retired
+phase-based Module 1 build that preceded this instrument, and the binding design
+law it produced, are in `docs/module-1-postmortem.md`.
 
 ## Current docs
 
 The active docs set is intentionally small:
 
 - `README.md` for project overview and current build posture
-- `docs/strange-loops-module-1.md` for canonical Module 1 scope, status, and improvement priorities
-- `docs/module-1-documents-not-dashboards.md` for the Module 1 interaction-design direction and the postmortem behind it
-- `docs/module-1-document-model-plan.md` for the active Module 1 rework plan
+- `docs/strange-loops-vision.md` for the vision and build reference (the dependency graph, the four arcs, the conceptual move)
+- `docs/module-1-postmortem.md` for the Module 1 build postmortem and the binding design law
 - `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
 - `docs/agent-behavior.md` for the current dialogue/agent contract
-- `docs/strange-loops-vision.md` for the long-term conceptual roadmap
 
 Older first-pass implementation specs and duplicate agent-behavior docs have
 been retired so the current state lives in fewer places.
@@ -240,18 +226,15 @@ It is aimed at making difficult ideas more tangible.
 
 ## Near-term roadmap
 
-- [x] establish project scaffolding
-- [x] build Module 1 MIU sandbox
-- [x] build derivation graph explorer
-- [x] build invariant explorer
-- [x] add artifact persistence
-- [x] add first dialogue mode
-- [x] surface the phase/lens cue in Module 1
-- [x] add explicit invalid-move explanation
-- [x] improve guided tasks, proof artifacts, and reflection support
-- [ ] continue tightening object-level / meta-level framing
-- [ ] evaluate what actually helped through repeated Module 1 use
-- [ ] keep Module 2 deferred until Module 1 proves durable value
+- [x] build the deterministic MIU layer (engine, graph, invariant, `K_MIU`)
+- [x] build the MIU instrument: the three readings of one derivation
+- [x] reach the first bridge — `K_MIU` as descriptional complexity over a fixed
+      machine, with Kolmogorov and Chaitin named as the next instrument
+- [ ] build the next Arc 1 bridge: invariant ↔ expressivity wall (a function a
+      fixed architecture provably cannot compute)
+- [ ] extend Arc 1 to its contrast set: pq's coherence against MIU's wall
+- [ ] decide whether and where to wire the dormant persistence and dialogue
+      layers back in
 
 ---
 
@@ -261,7 +244,7 @@ It is aimed at making difficult ideas more tangible.
 - arbitrary code execution
 - social/community features
 - overextended physics analogies
-- broad content coverage before Module 1 is genuinely useful
+- broad coverage before a single arc proves durable value
 
 ---
 

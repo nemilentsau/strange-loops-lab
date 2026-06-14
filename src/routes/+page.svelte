@@ -1,84 +1,103 @@
 <script lang="ts">
-	import ModuleCard from '$lib/components/ModuleCard.svelte';
-	import { modules } from '$lib/content/modules';
+	import { browser } from '$app/environment';
+	import MiuSheet from '$lib/components/miu/MiuSheet.svelte';
+	import MiuBridge from '$lib/components/miu/MiuBridge.svelte';
+	import {
+		analyzeMiuRuleAvailability,
+		applyMoveToTrace,
+		jumpToTraceStep,
+		type MiuMove
+	} from '$lib/miu/core';
+	import {
+		createModule1Draft,
+		readModule1Draft,
+		writeModule1Draft,
+		type Module1Draft
+	} from '$lib/state/module1';
+	import { onMount } from 'svelte';
 
-	const principles = [
-		{
-			title: 'Verifier before vibe',
-			body: 'If the system can check a claim deterministically, the UI should surface that fact explicitly instead of laundering it through language.'
-		},
-		{
-			title: 'Module-aware guidance',
-			body: 'The agent belongs inside the active instrument and must respond to the learner’s current state, not as a detached chat box.'
-		},
-		{
-			title: 'Artifacts over noise',
-			body: 'Persistence should preserve traces, notes, candidate invariants, and reflection, not an undifferentiated event log.'
+	let draft = $state(createModule1Draft());
+	let hydrated = $state(false);
+	let reachTarget = $state('MU');
+
+	const currentStep = $derived(
+		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
+	);
+	const currentString = $derived(currentStep.value);
+	const iCount = $derived((currentString.match(/I/g) || []).length);
+	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
+
+	onMount(() => {
+		if (!browser) {
+			return;
 		}
-	];
+		draft = readModule1Draft(window.localStorage);
+		hydrated = true;
+	});
+
+	$effect(() => {
+		if (!browser || !hydrated) {
+			return;
+		}
+		writeModule1Draft(window.localStorage, draft);
+	});
+
+	function patchDraft(next: Partial<Module1Draft>) {
+		draft = { ...draft, ...next, lastEditedAt: new Date().toISOString() };
+	}
+
+	function applyMove(move: MiuMove) {
+		patchDraft({ trace: applyMoveToTrace(draft.trace, move) });
+	}
+
+	function jumpToStep(index: number) {
+		patchDraft({ trace: jumpToTraceStep(draft.trace, index) });
+	}
+
+	function updateReachTarget(event: Event) {
+		reachTarget = (event.currentTarget as HTMLInputElement).value;
+	}
+
+	function resetSession() {
+		const fresh = createModule1Draft();
+		draft = { ...fresh, lastEditedAt: new Date().toISOString() };
+		if (browser) {
+			writeModule1Draft(window.localStorage, draft);
+		}
+	}
 </script>
 
 <svelte:head>
-	<title>Strange Loops Lab | Overview</title>
+	<title>Strange Loops Lab | MIU</title>
 </svelte:head>
 
-<section class="hero">
-	<div class="hero__copy">
-		<p class="eyebrow">Scaffolded for Module 1</p>
-		<h1>Build the shell first. Let the formal system teach the architecture.</h1>
-		<p class="hero__lede">
-			The first pass stays narrow on purpose: a stable SvelteKit application shell, module-aware
-			routing, local artifact persistence, and a serious landing point for the MIU laboratory.
-		</p>
-
-		<div class="hero__actions">
-			<a class="button button--primary" href="/modules/module-1">Enter Module 1</a>
-			<span class="button button--ghost">Root scaffold in place</span>
-		</div>
+<div class="ibar">
+	<div class="ibar__brand">
+		<span class="ibar__wordmark">Strange Loops</span>
+		<span class="ibar__sub">MIU</span>
 	</div>
-
-	<div class="hero__frame">
-		<p class="hero__label">Current shell</p>
-		<ul class="metric-list">
-			<li>
-				<strong>Root app</strong>
-				<span>SvelteKit + TypeScript</span>
-			</li>
-			<li>
-				<strong>Persistence</strong>
-				<span>Local notebook state for Module 1</span>
-			</li>
-			<li>
-				<strong>Boundary</strong>
-				<span>Verified, computed, and coaching surfaces stay distinct</span>
-			</li>
-		</ul>
+	<div class="ibar__facts">
+		<span class="ibar__fact ibar__fact--string"
+			><span>string</span> <b title={currentString}
+				>{currentString.length > 22 ? currentString.slice(0, 21) + '…' : currentString}</b
+			></span
+		>
+		<span class="ibar__fact"><span>length</span> <b>{currentString.length}</b></span>
+		<span class="ibar__fact"><span>#I</span> <b>{iCount}</b></span>
+		<span class="ibar__fact"><span>#I mod 3</span> <b>{iCount % 3}</b></span>
 	</div>
-</section>
+	<button class="ibar__reset" type="button" onclick={resetSession}>Reset to MI</button>
+</div>
 
-<section class="panel-grid panel-grid--three">
-	{#each principles as principle}
-		<article class="panel panel--soft">
-			<p class="eyebrow">Operating rule</p>
-			<h2>{principle.title}</h2>
-			<p>{principle.body}</p>
-		</article>
-	{/each}
-</section>
+<MiuSheet
+	trace={draft.trace}
+	{currentString}
+	{ruleAvailability}
+	invariantCandidate={draft.invariantCandidate}
+	{reachTarget}
+	onApplyMove={applyMove}
+	onJumpToStep={jumpToStep}
+	onUpdateReachTarget={updateReachTarget}
+/>
 
-<section class="section-header">
-	<div>
-		<p class="eyebrow">Module registry</p>
-		<h2>Live now, planned next</h2>
-	</div>
-	<p class="section-header__copy">
-		The shell is ready for multiple modules, but only Module 1 is implemented as an active work
-		surface.
-	</p>
-</section>
-
-<section class="module-grid">
-	{#each modules as module}
-		<ModuleCard {module} />
-	{/each}
-</section>
+<MiuBridge {currentString} userSteps={draft.trace.currentIndex} />

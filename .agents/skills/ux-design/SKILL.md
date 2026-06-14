@@ -7,9 +7,8 @@ license: Complete terms in LICENSE.txt
 ## Project override — Strange Loops Lab (binding, read first)
 
 This repo is a mathematical laboratory for graduate-level readers of GEB,
-not a consumer app. The design law in
-`docs/module-1-documents-not-dashboards.md` §5 overrides everything below
-where they conflict:
+not a consumer app. The design law in `docs/module-1-postmortem.md` overrides
+everything below where they conflict:
 
 - The page is the canonical mathematical document for its altitude
   (worksheet / derivation tree / proof / notebook) — never a dashboard of

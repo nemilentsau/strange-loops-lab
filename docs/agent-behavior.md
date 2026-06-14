@@ -12,7 +12,15 @@ This document is the single current reference for:
 It replaces the older split between `docs/spec.md` and
 `docs/agents-prompt.md`.
 
-Last updated: March 28, 2026.
+**Status: dormant.** The dialogue/coaching layer still exists in the repo
+(`src/lib/server/dialogue`, the `/api/modules/[slug]/dialogue` route,
+`src/lib/dialogue/types.ts`), but it is not wired into the current app. The
+current app is a single MIU instrument with no coaching surface. The contract
+below is preserved as the intended behavior for when a future instrument
+re-earns coaching and re-wires it; until then no coaching is surfaced and the
+agent runs nowhere.
+
+Last updated: June 14, 2026.
 
 ---
 
@@ -28,7 +36,8 @@ Its job is to help the user:
 - sharpen proof structure without pretending to certify it,
 - and leave behind useful reflective artifacts.
 
-The live product currently uses one honest coaching mode:
+When coaching is wired into an instrument, the user-facing contract is one
+honest coaching mode:
 
 - `Explain-Back Examiner`
 
@@ -86,11 +95,11 @@ of those outputs, not as their source.
 The agent should not operate on raw chat alone. It should receive structured
 context such as:
 
-- current module identifier,
-- active phase or surface,
-- recent user actions or current draft state,
-- current trace summary,
-- current invariant candidate or proof state when relevant,
+- the current derivation and its trace (the string the user has built and the
+  steps that produced it),
+- the current invariant candidate,
+- the reachability readout for the target the user is testing,
+- the K_MIU readout (the shortest-derivation measure) for the current string,
 - relevant saved artifacts,
 - and the user’s current explanation or question.
 
@@ -99,7 +108,10 @@ actually using.
 
 ---
 
-## 5. Current Module 1 behavior
+## 5. Intended behavior for the MIU instrument
+
+This is the coaching the agent should give once it is wired into the MIU
+instrument. It is not surfaced today (see Status, above).
 
 ### Primary conceptual target
 The user should internalize that:
@@ -130,7 +142,7 @@ The user should internalize that:
 When building the runtime prompt, the agent should be told, in substance:
 
 1. You are embedded in Strange Loops Lab, not a standalone chat.
-2. Stay grounded in the current module and current surface.
+2. Stay grounded in the instrument the user is in and its current state.
 3. Distinguish verified facts from coaching.
 4. Prefer one incisive question over a long lecture.
 5. Help the user sharpen the exact weak step rather than performing the whole proof for them.

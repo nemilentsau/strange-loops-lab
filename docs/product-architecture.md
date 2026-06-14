@@ -8,19 +8,22 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: June 11, 2026.
+Last updated: June 14, 2026.
 
 ---
 
 ## 1. Current architectural stance
 
-The product is currently a **single SvelteKit application** with:
+The product is currently a **single SvelteKit application** running one MIU
+instrument, with:
 
 - a TypeScript deterministic formal layer for MIU logic,
-- Svelte components and page state for the module experience,
-- server routes for persistence and dialogue orchestration,
-- SQLite for snapshots and artifacts,
-- and a Claude Code-backed coaching path for dialogue.
+- Svelte components and page state for the instrument (the derivation read
+  three ways),
+- localStorage for trace continuity,
+- and a dormant persistence/dialogue stack — server routes, SQLite, and a
+  Claude Code-backed coaching path — present in the repo but not wired to the
+  instrument.
 
 There is **no separate Python service** in the current implementation.
 Future computation boundaries should be earned by concrete complexity pressure,
@@ -35,88 +38,100 @@ Owned by the SvelteKit app.
 
 Responsibilities:
 
-- route structure and module entry points,
-- phase navigation and UI composition,
-- local draft/session state,
-- wiring deterministic outputs, persistence, and dialogue into one module flow,
+- the single MIU instrument at the root route `/`,
+- composition of the three readings of one object — the derivation,
+- local draft/session state and its continuity across reloads,
 - and preserving the visual distinction between verified, computed, and coaching surfaces.
 
-Shared Module 1 UI components (under `src/lib/components`) carry the composition:
+The phase-based interaction layer (Explore / Map / Prove / Reflect and its
+lab-desk components) is deleted. The app is now a single instrument:
+`src/routes/+page.svelte` at `/`, wrapped by a minimal
+`src/routes/+layout.svelte` (no site topbar, no module navigation). The page
+holds one object — the derivation — and reads it three ways with three
+components under `src/lib/components/miu`:
 
-- `CommandBar` — the single slim masthead (wordmark, free phase-tab navigation,
-  the deterministic readout, and the object/meta level tag). It replaced the old
-  hero + context strip + phase-nav stack; it holds no state of its own.
-- `LabDesk` — the three-zone phase layout (`guide` / `instrument` / `evidence`
-  snippets), now used by `Reflect` only. `Explore` (Phase A), `Map`
-  (Phase B), and `Prove` (Phase C) left the lab desk in the document-model
-  rework: a derivation worksheet with a margin rail, the drawn derivation
-  tree, and the proof document; each composes its page directly.
-- `SurfacePanel` — the standard panel; its `instrument` boolean opts a panel into
-  the single oxblood action frame ("the work happens here", not an epistemic
-  register), keeping the accent off verified/computed/coaching styling.
-- `TaskList` — compact, expand-on-click guided-task rows for the remaining
-  lab-desk guide rails; `Explore`'s guided tasks were replaced by
-  verifier-detected exercises on the worksheet itself.
-- `WorkingQuestion` — the editable working question, rendered at the top of
-  the lab-desk phases' guide rails; removed from `Explore` in Phase A (it
-  remains global draft state).
+- `MiuSheet.svelte` — manipulate. The page is the derivation: a numbered
+  spine, the current string written large with its rule sites as in-string
+  click targets, and the four rules always on screen with the exact reason any
+  rule cannot fire. It carries `MiuInvariant` in its margin.
+- `MiuInvariant.svelte` — the wall. The residue wheel on ℤ/3 with reachability;
+  MU is rejected by the invariant (#I ≡ 0 mod 3), a verified negative held
+  distinct from a search-bound limit.
+- `MiuBridge.svelte` — the bridge. The derivation read as a program, with
+  K_MIU as the shortest-derivation length and the compressible/incompressible
+  contrast; Kolmogorov and Chaitin are named as the next instrument, not
+  claimed here.
 
-The June 10, 2026 UX reboot was presentational/compositional only — no
-state-shape, persistence, dialogue, or MIU-logic boundaries moved. The
-document-model rework of the phase interaction layer is in execution: Phase A
-(Explore as the derivation worksheet) shipped on June 11, 2026; a Phase A
-rework pass and then Map/Prove/Reflect follow per
-`docs/module-1-document-model-plan.md`. The design law is
-`docs/module-1-documents-not-dashboards.md` §5. The remaining lab-desk
-component names above will change as later phases land.
+This is a presentational and compositional change, not a boundary move: no
+state-shape, persistence, dialogue, or MIU-logic boundary shifted. The
+phase-based build is superseded as a direction (see
+`docs/strange-loops-vision.md` for the architecture going forward and
+`docs/module-1-postmortem.md` for the build it replaces and the binding design
+law).
 
 ### 2.2 Deterministic formal layer
-Owned by TypeScript library modules under `src/lib/miu`.
+Owned by TypeScript library modules under `src/lib/miu`: `core.ts`, `graph.ts`,
+`invariants.ts`, and `complexity.ts`.
 
 Responsibilities:
 
-- MIU rule legality,
-- move enumeration,
-- derivation trace behavior,
-- bounded reachability exploration,
-- invariant analysis for supported candidates,
+- MIU rule legality and move enumeration (`core.ts`),
+- derivation trace behavior (`core.ts`),
+- bounded reachability exploration (`graph.ts`),
+- invariant analysis for supported candidates (`invariants.ts`),
+- shortest-derivation / descriptional complexity (`complexity.ts`):
+  `shortestDerivation` computes K_MIU by bounded BFS over the rewrite graph and
+  returns one of three outcomes — `found` with the shortest path,
+  `unreachable-invariant` as a verified negative, or `exhausted` as an honest
+  search horizon tagged with which bound stopped it (`depth` or `nodes`),
 - and explicit rejection of invalid user proposals.
 
 This layer is the current verifier boundary. If the UI says something is a
 legal MIU move or a preserved supported invariant, this layer should be the
 reason that claim is trustworthy.
 
-### 2.3 Client API layer
-Owned by TypeScript modules under `src/lib/client`.
+### 2.3 Client API layer (dormant)
+Owned by TypeScript modules under `src/lib/client` (`module1Api.ts`). Present
+in the repo but not wired to the instrument.
 
-Responsibilities:
+Responsibilities (as built):
 
 - wrapping each server API call (snapshot GET/PUT, artifacts GET/POST, dialogue POST) in a small typed helper that takes `fetch` as a parameter,
 - normalizing API responses into domain types via the existing `normalizeModule1Draft` / `normalizeModule1Artifact(s)` functions,
-- and signalling success or failure with typed discriminated-union results so the page can map them to status strings without embedding fetch logic inline.
+- and signalling success or failure with typed discriminated-union results so a caller can map them to status strings without embedding fetch logic inline.
 
-This layer does not set UI status strings or contain reactive state.
+This layer does not set UI status strings or contain reactive state. The
+instrument does not call it today; it persists continuity through localStorage
+(see §4).
 
-### 2.4 Persistence layer
-Owned by server-side TypeScript under `src/lib/server` and API routes.
+### 2.4 Persistence layer (dormant)
+Owned by server-side TypeScript under `src/lib/server` (`persistence.ts`) and
+the API routes `src/routes/api/modules/[slug]/{snapshot,artifacts}`, backed by
+SQLite at `data/strange-loops.db`. The state shim is
+`src/lib/state/module1Artifacts.ts`. Present in the repo but not wired to the
+instrument.
 
-Responsibilities:
+Responsibilities (as built):
 
 - SQLite-backed draft snapshots,
 - saved artifacts,
 - artifact listing and creation,
-- and restoring saved work back into the live Module 1 surfaces.
+- and restoring saved work into a Module 1 surface.
 
 The persistence model is intentionally artifact-first rather than event-log
-heavy. The goal is continuity of thinking, not exhaustive telemetry.
+heavy. The goal is continuity of thinking, not exhaustive telemetry. When it is
+re-wired (see §6), it should keep that posture.
 
-### 2.5 Dialogue layer
-Owned by server-side orchestration around local Claude Code.
+### 2.5 Dialogue layer (dormant)
+Owned by server-side orchestration around local Claude Code under
+`src/lib/server/dialogue` (`team.ts`), reached through
+`src/routes/api/modules/[slug]/dialogue`. Present in the repo but not wired to
+the instrument.
 
-Responsibilities:
+Responsibilities (as built):
 
 - collect structured Module 1 context,
-- run the current coaching flow,
+- run the coaching flow,
 - persist dialogue transcripts as artifacts,
 - and return coaching output clearly separated from verifier-backed results.
 
@@ -147,7 +162,7 @@ Examples:
 
 - bounded graph views,
 - node/path summaries,
-- phase guidance derived from current state.
+- the residue and shortest-derivation readouts derived from current state.
 
 ### Coaching
 LLM-driven questioning, reflection, and proof-sharpening.
@@ -163,22 +178,25 @@ channel.
 
 ---
 
-## 4. Current Module 1 data flow
+## 4. Current data flow
 
-1. The user interacts with a Module 1 surface in the SvelteKit UI.
-2. Page state updates the local draft.
-3. Deterministic MIU or invariant logic runs in-process via TypeScript modules.
-4. If persistence is requested, the app calls its server routes and stores a
-   snapshot or artifact in SQLite.
-5. If dialogue is requested, the app sends the current structured draft to the
-   server dialogue route.
-6. The dialogue route invokes the Claude-backed coaching flow and stores the
-   resulting transcript as an artifact.
-7. The UI renders deterministic and coaching outputs in separate labeled
-   surfaces.
+1. The user manipulates the derivation in the instrument: applies a rule at a
+   site, jumps to a step, or sets the reachability target.
+2. Page state updates the local draft (`Module1Draft`).
+3. Deterministic MIU logic runs in-process: `core.ts` for legality and trace,
+   `invariants.ts` for the residue, `complexity.ts` for the shortest
+   derivation. Each reading renders directly from that result.
+4. On change, the page writes a continuity subset of the draft to localStorage
+   (`writeModule1Draft`) and reads it back on load (`readModule1Draft`), so a
+   reload restores the trace in progress.
+5. The verified, computed, and coaching distinction is preserved in the UI, but
+   only verified and computed surfaces are live; the instrument produces no
+   coaching output today.
 
-This flow is already sufficient for Module 1. Any new boundary should make this
-flow clearer or more reliable, not merely more “architectural.”
+The persistence and dialogue routes (§2.4, §2.5) still exist and still work,
+but the instrument does not call them; continuity is localStorage-only. Any new
+boundary should make this flow clearer or more reliable, not merely more
+“architectural.”
 
 ---
 
@@ -189,7 +207,7 @@ SvelteKit should remain the center of gravity for:
 
 - route structure,
 - page composition,
-- module phase flow,
+- instrument composition,
 - API endpoints,
 - and user-facing orchestration.
 
@@ -211,22 +229,24 @@ proofs or define the formal rules of the module.
 
 ## 6. Current implementation posture
 
-The project is no longer just scaffolding. The current architecture already
-supports:
+The project is no longer just scaffolding. The current architecture supports:
 
-- a live Module 1 route,
-- a functioning formal engine,
-- saved artifacts and snapshots,
-- notebook restore/reopen flow,
-- and Claude-backed reflection/coaching.
+- a single MIU instrument at `/` — the derivation read three ways
+  (manipulate / wall / bridge),
+- a functioning formal engine, now including shortest-derivation / K_MIU,
+- localStorage continuity for the trace in progress,
+- and a dormant persistence and dialogue stack kept whole behind the API
+  routes, not wired to the instrument.
 
-The next work is refinement, not architectural expansion. The main architectural
-pressures now are:
+The instrument is built. The next work is the next architectural pressure, not
+expansion of the current one:
 
-- making the object-level / meta-level split more visible,
-- improving graph pedagogy,
-- improving notebook review and artifact curation,
-- and evaluating dialogue quality against real usage.
+- the next candidate bridge — the invariant ↔ expressivity wall — and whether a
+  second instrument (pq, tq) can share enough structure to extract a boundary
+  without bending the single-object shape,
+- and whether and when to re-wire persistence (and, after it, dialogue) to the
+  instrument, or to let localStorage continuity stand until a second instrument
+  forces the question.
 
 ---
 
@@ -273,10 +293,8 @@ For the current stage, avoid:
 Use the docs as follows:
 
 - `README.md`: high-level project overview and current build posture
-- `docs/strange-loops-module-1.md`: canonical Module 1 specification, status, and improvement plan
-- `docs/module-1-documents-not-dashboards.md`: Module 1 interaction-design direction and postmortem
-- `docs/module-1-document-model-plan.md`: active Module 1 rework plan
+- `docs/strange-loops-vision.md`: the vision and build reference (dependency graph, four arcs, the conceptual move)
+- `docs/module-1-postmortem.md`: the Module 1 build postmortem and binding design law
 - `docs/agent-behavior.md`: current agent role, boundaries, and prompt contract
-- `docs/strange-loops-vision.md`: long-term conceptual roadmap beyond Module 1
 
 This architecture doc should stay synchronized with that smaller current set.

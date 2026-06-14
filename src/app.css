@@ -80,759 +80,9 @@ select {
 	padding: 28px 24px 56px;
 }
 
-/* The Module 1 lab desk gets a wider shell so its three rails breathe on large
- * displays. No effect at ≤1440px (the 1280 acceptance viewport is unchanged). */
-body.module1-wide .site-shell {
-	max-width: 1440px;
-}
-
-/* ── Shared panel surfaces ── */
-.site-topbar,
-.hero__copy,
-.hero__frame,
-.panel,
-.module-card,
-.surface-panel,
-.module-hero__copy,
-.module-hero__meta {
-	border: 1px solid var(--line);
-	background: var(--panel);
-}
-
-.site-topbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 20px;
-	margin-bottom: var(--space-lg);
-	padding: 16px 20px;
-	border-radius: var(--radius);
-}
-
-.site-mark {
-	display: inline-flex;
-	align-items: center;
-	gap: 14px;
-}
-
-.site-mark__glyph {
-	display: inline-grid;
-	place-items: center;
-	width: 40px;
-	height: 40px;
-	border: 1px solid var(--line-strong);
-	border-radius: 50%;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.9rem;
-	letter-spacing: 0.12em;
-}
-
-.site-mark__text {
-	display: flex;
-	flex-direction: column;
-}
-
-.site-mark__text strong {
-	font-family: var(--serif);
-	font-size: 1rem;
-	font-weight: 600;
-	letter-spacing: 0.01em;
-}
-
-.site-mark__text small {
-	color: var(--muted);
-	font-size: 0.78rem;
-}
-
-.site-nav,
-.hero__actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-}
-
-.site-nav a,
-.button {
-	transition:
-		border-color 160ms ease,
-		color 160ms ease,
-		background 160ms ease;
-}
-
-.site-nav a {
-	padding: 8px 14px;
-	border: 1px solid transparent;
-	border-radius: var(--radius);
-	color: var(--muted);
-}
-
-.site-nav a:hover,
-.site-nav a:focus-visible {
-	border-color: var(--line-strong);
-	color: var(--act);
-}
-
-.site-main,
-.surface-panel__body {
+.site-main {
 	display: grid;
 	gap: var(--space-md);
-}
-
-.hero,
-.module-hero {
-	display: grid;
-	grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.95fr);
-	gap: 24px;
-}
-
-.button--sm {
-	font-size: 0.76rem;
-	padding: 6px 14px;
-}
-
-.hero__copy,
-.hero__frame,
-.module-hero__copy,
-.module-hero__meta,
-.panel,
-.module-card,
-.surface-panel {
-	padding: var(--space-lg);
-	border-radius: var(--radius);
-}
-
-.hero__frame {
-	background: var(--page-meta);
-}
-
-.hero__copy h1,
-.module-hero__copy h1 {
-	margin: 0 0 16px;
-	font-family: var(--serif);
-	font-size: clamp(2.6rem, 5vw, 4.2rem);
-	line-height: 1;
-	letter-spacing: -0.01em;
-}
-
-.hero__lede,
-.module-hero__copy p,
-.panel p,
-.module-card p,
-.field-note,
-.section-header__copy,
-.placeholder-copy {
-	color: var(--muted);
-	line-height: 1.65;
-}
-
-/* ── Buttons ──
- * Rest: ink on panel with a structural border. Hover / focus / active /
- * primary: the action accent. Filled primary uses the accent ground. */
-.button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 10px 18px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	cursor: pointer;
-}
-
-.button:hover,
-.button:focus-visible {
-	border-color: var(--act);
-	color: var(--act);
-}
-
-.button:active {
-	background: rgba(138, 59, 46, 0.06);
-}
-
-.button--primary {
-	background: var(--act);
-	border-color: var(--act);
-	color: var(--act-ink);
-	font-weight: 600;
-}
-
-.button--primary:hover,
-.button--primary:focus-visible {
-	background: #76301f;
-	border-color: #76301f;
-	color: var(--act-ink);
-}
-
-.button--ghost {
-	color: var(--ink);
-	background: transparent;
-	border-color: var(--line-strong);
-}
-
-.button--ghost:hover,
-.button--ghost:focus-visible {
-	color: var(--act);
-	border-color: var(--act);
-	background: transparent;
-}
-
-.button--ghost:active {
-	background: rgba(138, 59, 46, 0.06);
-}
-
-.button:disabled {
-	opacity: 0.45;
-	pointer-events: none;
-}
-
-.hero__label,
-.eyebrow {
-	margin: 0 0 var(--space-2xs);
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.hero__label {
-	margin-bottom: var(--space-md);
-	padding-bottom: var(--space-sm);
-	border-bottom: 1px solid var(--line);
-}
-
-.metric-list,
-.ledger,
-.module-card__surfaces {
-	display: grid;
-	gap: 14px;
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.metric-list li,
-.ledger li,
-.module-card__surface {
-	display: flex;
-	justify-content: space-between;
-	gap: 18px;
-	padding-bottom: 14px;
-	border-bottom: 1px solid var(--line);
-}
-
-.metric-list li strong,
-.module-card__surface strong {
-	font-family: var(--mono);
-	font-size: 0.82rem;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	color: var(--ink);
-}
-
-.metric-list span {
-	font-size: 0.82rem;
-	text-align: right;
-}
-
-.metric-list li:last-child,
-.ledger li:last-child,
-.module-card__surface:last-child {
-	padding-bottom: 0;
-	border-bottom: 0;
-}
-
-.panel-grid--three {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 20px;
-}
-
-.panel--soft {
-	background: var(--panel);
-	transition: border-color 200ms ease;
-}
-
-.panel--soft:hover {
-	border-color: var(--line-strong);
-}
-
-.panel--soft h2 {
-	font-family: var(--serif);
-	font-size: 1.3rem;
-	letter-spacing: -0.01em;
-	margin: 0 0 var(--space-xs);
-}
-
-.section-header,
-.module-card__top,
-.surface-panel__header {
-	display: flex;
-	align-items: start;
-	justify-content: space-between;
-	gap: 16px;
-}
-
-.section-header {
-	padding-bottom: var(--space-md);
-	margin-bottom: var(--space-xs);
-	border-bottom: 1px solid var(--line);
-}
-
-.section-header h2 {
-	font-family: var(--serif);
-	font-size: 1.7rem;
-	letter-spacing: -0.01em;
-	margin: 0;
-}
-
-.surface-panel__header {
-	padding-bottom: 10px;
-	margin-bottom: 8px;
-	border-bottom: 1px solid var(--line);
-}
-
-.surface-panel__header h2,
-.surface-panel__header h3 {
-	font-family: var(--serif);
-	font-size: 1.4rem;
-	letter-spacing: -0.01em;
-	margin: 0;
-}
-
-.module-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 20px;
-}
-
-.module-card {
-	display: grid;
-	gap: 14px;
-	transition: border-color 200ms ease;
-}
-
-.module-card:hover {
-	border-color: var(--line-strong);
-}
-
-.module-card h2 {
-	font-family: var(--serif);
-	font-size: 1.35rem;
-	letter-spacing: -0.01em;
-	margin: 0;
-}
-
-/* ── Chips / badges ──
- * The base chip is neutral bookkeeping. Status pills (site registry) and the
- * register badges below qualify it; none of them carry a hue. */
-.status-pill,
-.badge,
-.legend-chip {
-	display: inline-flex;
-	align-items: center;
-	padding: 5px 11px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	font-weight: 500;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	background: var(--panel);
-	color: var(--muted);
-}
-
-/* Module registry status: neutral, distinguished by border weight only. */
-.status-pill[data-status='live'] {
-	color: var(--ink);
-	border-color: var(--ink);
-}
-
-.status-pill[data-status='scaffolding'] {
-	color: var(--muted);
-	border-style: dashed;
-}
-
-.status-pill[data-status='planned'] {
-	color: var(--faint);
-	border-style: dotted;
-}
-
-/*
- * Register badge grammar (form, never hue):
- *   verified → solid graphite frame + ✓/✗ stamp, upright
- *   computed → dashed frame
- *   coaching → dotted frame, italic serif
- */
-.badge[data-tone='verified'] {
-	color: var(--ink);
-	border-color: var(--ink);
-}
-
-.badge[data-tone='computed'] {
-	color: var(--muted);
-	border-style: dashed;
-}
-
-.badge[data-tone='coaching'] {
-	color: var(--muted);
-	border-style: dotted;
-	font-family: var(--serif);
-	font-style: italic;
-	text-transform: none;
-	letter-spacing: 0;
-}
-
-.badge[data-verdict]::before {
-	margin-right: 6px;
-	font-weight: 700;
-}
-
-.badge[data-verdict='pass']::before {
-	content: '✓';
-}
-
-.badge[data-verdict='fail']::before {
-	content: '✗';
-}
-
-.badge[data-verdict='fail'] {
-	color: var(--muted);
-	border-color: var(--line-strong);
-}
-
-.module-card__status {
-	color: var(--muted);
-	font-size: 0.88rem;
-}
-
-.metric-list span,
-.ledger span {
-	color: var(--muted);
-}
-
-.module-card__surface strong {
-	color: var(--ink);
-}
-
-.module-card__surface span {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-}
-
-/* ── Command Bar ──
- * One slim row replaces the old hero + context strip + phase nav stack. It is
- * the module-1 masthead: a serif wordmark and free phase navigation on the
- * left; the live instrument readout (current string + deterministic facts),
- * the object/meta level tag, and Reset on the right. The single accent —
- * oxblood — marks only the active tab and interactive hover/focus. The
- * deterministic facts are verified-register readouts: a solid graphite
- * left-rule, never hue. */
-.command-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	gap: var(--space-md);
-	padding: var(--space-xs) var(--space-md);
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	position: sticky;
-	top: 0;
-	z-index: 10;
-}
-
-.command-bar__brand {
-	display: flex;
-	align-items: center;
-	gap: var(--space-md);
-	min-width: 0;
-}
-
-.command-bar__wordmark {
-	flex-shrink: 0;
-	font-family: var(--serif);
-	font-size: 1.05rem;
-	font-weight: 600;
-	letter-spacing: 0.01em;
-	color: var(--ink);
-}
-
-.command-bar__tabs {
-	display: flex;
-	align-items: center;
-	gap: var(--space-xs);
-	flex-wrap: wrap;
-}
-
-.command-bar__cluster {
-	display: inline-flex;
-	align-items: center;
-	gap: 2px;
-}
-
-.command-bar__cluster-glyph {
-	margin-right: 4px;
-	font-size: 0.82rem;
-	color: var(--faint);
-}
-
-.command-bar__divider {
-	width: 1px;
-	align-self: stretch;
-	margin: 4px 6px;
-	background: var(--line-strong);
-}
-
-/* Tabs are quiet sans buttons; rest is ink-on-panel. The active tab is the one
- * place the action accent lives — it is where you are acting. Visited but
- * inactive tabs get a subtle underline, never hue. */
-.command-bar__tab {
-	position: relative;
-	padding: 6px 10px 7px;
-	border: 1px solid transparent;
-	border-radius: var(--radius);
-	background: none;
-	color: var(--muted);
-	font-family: var(--sans);
-	font-size: 0.86rem;
-	font-weight: 500;
-	letter-spacing: 0.01em;
-	cursor: pointer;
-	transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
-}
-
-.command-bar__tab:hover {
-	color: var(--act);
-}
-
-.command-bar__tab[data-active='true'] {
-	color: var(--act);
-	font-weight: 600;
-	box-shadow: inset 0 -2px 0 var(--act);
-}
-
-.command-bar__tab[data-visited='true']:not([data-active='true']) {
-	color: var(--ink);
-}
-
-.command-bar__tab[data-visited='true']:not([data-active='true'])::after {
-	content: '';
-	position: absolute;
-	left: 50%;
-	bottom: 2px;
-	width: 3px;
-	height: 3px;
-	margin-left: -1.5px;
-	border-radius: 50%;
-	background: var(--line-strong);
-}
-
-.command-bar__readout {
-	display: flex;
-	align-items: center;
-	gap: var(--space-sm);
-	flex-wrap: wrap;
-	min-width: 0;
-}
-
-.command-bar__string {
-	font-family: var(--mono);
-	font-size: 1.05rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	color: var(--ink);
-	line-height: 1;
-	white-space: nowrap;
-	/* Long derivations can grow the string without end; clip with an ellipsis.
-	 * The full value stays available via the element's title attribute. */
-	max-width: 22ch;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.command-bar__facts {
-	display: flex;
-	align-items: center;
-	gap: var(--space-xs);
-	flex-wrap: wrap;
-}
-
-/* Deterministic readouts: verified register, solid graphite left-rule, no hue. */
-.command-bar__fact {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 9px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	font-family: var(--mono);
-	font-size: 0.7rem;
-	letter-spacing: 0.06em;
-	background: var(--panel);
-	color: var(--ink);
-}
-
-.command-bar__fact[data-tone='verified'] {
-	border-left: 3px solid var(--ink);
-}
-
-.command-bar__fact-label {
-	text-transform: uppercase;
-	color: var(--faint);
-}
-
-.command-bar__fact-value {
-	font-weight: 600;
-}
-
-/* Object/meta level tag: glyph + label, faint small caps. Carries no accent —
- * it states where you are, it is not an action. */
-.command-bar__level {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	font-family: var(--mono);
-	font-size: 0.66rem;
-	font-weight: 600;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--faint);
-	white-space: nowrap;
-}
-
-.command-bar__level-glyph {
-	font-size: 0.8rem;
-}
-
-.command-bar__edited {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	white-space: nowrap;
-}
-
-/* ── Phase Content ── */
-.module-phases {
-	margin-top: 4px;
-}
-
-.phase-content {
-	border-radius: var(--radius);
-	padding: 4px;
-}
-
-/* ── Phase Canvas: object level vs meta level ──
- * Object canvases (Explore, Map) sit ON the system: a faint ruled-paper tint,
- * single hairline frame. Meta canvases (Prove, Reflect) step OUTSIDE it: the
- * ruling disappears, a second ring frames the frame, and panel headings turn
- * to serif italic. Same ink everywhere; the level is structural. */
-.phase-canvas {
-	position: relative;
-	margin-top: 4px;
-	padding: var(--space-lg) var(--space-md) var(--space-md);
-	border-radius: var(--radius);
-}
-
-.phase-canvas__rim {
-	position: absolute;
-	top: -10px;
-	left: 22px;
-	z-index: 2;
-	display: inline-flex;
-	align-items: center;
-	gap: 7px;
-	padding: 3px 12px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.62rem;
-	font-weight: 600;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
-
-.phase-canvas__rim-glyph {
-	font-size: 0.78rem;
-	line-height: 1;
-}
-
-.phase-canvas--object {
-	border: 1px solid var(--line);
-	background-color: var(--page);
-	background-image: linear-gradient(var(--line) 1px, transparent 1px);
-	background-size: 100% 1.4rem;
-}
-
-.phase-canvas--meta {
-	padding: var(--space-xl) var(--space-lg) var(--space-lg);
-	border: 1px solid var(--line-strong);
-	outline: 1px solid var(--line);
-	outline-offset: 5px;
-	background: var(--page-meta);
-}
-
-.phase-canvas--meta .surface-panel__header h2,
-.phase-canvas--meta .surface-panel__header h3 {
-	font-style: italic;
-}
-
-/* ── The lab desk ──
- * Three zones: a quiet guide rail, the instrument (center, the main event,
- * wearing the oxblood frame), and an evidence rail. The instrument column is
- * widest so the bench reads as primary on load. */
-.lab-desk {
-	display: grid;
-	grid-template-columns: 0.9fr 2fr 0.9fr;
-	gap: var(--space-md);
-	align-items: start;
-}
-
-.lab-desk__guide,
-.lab-desk__instrument,
-.lab-desk__evidence {
-	display: grid;
-	gap: var(--space-md);
-	align-content: start;
-	min-width: 0;
-}
-
-/* The instrument is the only thing on the desk that carries the action accent's
- * frame — it marks where the work happens. Opt-in via SurfacePanel's `instrument`
- * prop rather than DOM position, so the frame is an explicit declaration. */
-.surface-panel--instrument {
-	border: 1px solid var(--act);
-}
-
-/* Stacked fallback (not a designed mobile layout): instrument first, then
- * evidence, guide last. */
-@media (max-width: 1200px) {
-	.lab-desk {
-		grid-template-columns: 1fr;
-	}
-
-	.lab-desk__instrument {
-		order: 1;
-	}
-
-	.lab-desk__evidence {
-		order: 2;
-	}
-
-	.lab-desk__guide {
-		order: 3;
-	}
 }
 
 /* ── Explore: the derivation worksheet ──
@@ -1155,47 +405,6 @@ body.module1-wide .site-shell {
 	color: var(--muted);
 }
 
-/* ── Rule anatomy: a typographic footnote under the RULES label, not a card.
- * Names the real structure — global rewrites (R1/R2) vs local subword
- * matches (R3/R4) — i.e. what kind of rewriting system this is. */
-.anatomy {
-	margin: 2px 0 10px;
-}
-
-.anatomy__toggle {
-	padding: 2px 4px 2px 0;
-	border: none;
-	background: transparent;
-	color: var(--muted);
-	font-family: var(--sans);
-	font-size: 0.78rem;
-	cursor: pointer;
-}
-
-.anatomy__toggle:hover,
-.anatomy__toggle:focus-visible {
-	color: var(--act);
-}
-
-.anatomy__body {
-	margin: 6px 0 0 14px;
-	padding-left: 12px;
-	border-left: 1px solid var(--line);
-}
-
-.anatomy__body p {
-	margin: 0 0 6px;
-	color: var(--muted);
-	font-size: 0.8rem;
-	line-height: 1.55;
-}
-
-.anatomy__rule {
-	font-family: var(--mono);
-	font-size: 0.76rem;
-	color: var(--ink);
-}
-
 /* ── The dead-branch note: a verified meta-fact about the current branch
  * (isDeadBranch's closure proof), solid graphite left rule. Shown only when
  * proven; the jump phrase is a real action, earning the accent. */
@@ -1255,17 +464,6 @@ body.module1-wide .site-shell {
 	font-size: 0.82rem;
 }
 
-.query__bound {
-	padding: 0 1px 1px;
-	border: none;
-	border-bottom: 1px solid var(--line-strong);
-	border-radius: 0;
-	background: transparent;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.8rem;
-}
-
 .query__verdict {
 	margin: 12px 0 0;
 	color: var(--ink);
@@ -1282,1008 +480,6 @@ body.module1-wide .site-shell {
 	color: var(--muted);
 	font-size: 0.78rem;
 	line-height: 1.55;
-}
-
-.query__path {
-	margin: 8px 0 0;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.74rem;
-	line-height: 1.7;
-	overflow-wrap: anywhere;
-}
-
-.query__via {
-	color: var(--faint);
-	font-size: 0.7rem;
-}
-
-.query__walk {
-	margin-top: 10px;
-	padding: 5px 14px;
-	border: 1px solid var(--act);
-	border-radius: 999px;
-	background: transparent;
-	color: var(--act);
-	font-size: 0.78rem;
-	font-weight: 600;
-	cursor: pointer;
-}
-
-.query__clauses {
-	margin-top: 8px;
-	font-family: var(--mono);
-	font-size: 0.74rem;
-	line-height: 1.5;
-}
-
-.query__clause {
-	padding: 5px 0;
-	border-bottom: 1px solid var(--line);
-	color: var(--muted);
-	overflow-wrap: anywhere;
-}
-
-.query__clause-id {
-	color: var(--ink);
-	font-weight: 600;
-}
-
-/* ── Margin: exercises — verifier-detected, never clicked. The open state
- * prints the observation to produce; the detected state is a written note
- * carrying the verifier's step stamp. */
-.exercises {
-	margin-top: 30px;
-}
-
-.exercises__hint {
-	margin: 0 0 10px;
-	color: var(--faint);
-	font-size: 0.72rem;
-}
-
-.exercise {
-	margin: 0 0 16px;
-	font-size: 0.8rem;
-	line-height: 1.55;
-}
-
-.exercise__head {
-	margin: 0;
-	color: var(--ink);
-	font-weight: 600;
-}
-
-.exercise__body {
-	margin: 2px 0 0;
-	color: var(--muted);
-}
-
-.exercise__stamp,
-.exercise__progress {
-	font-family: var(--mono);
-	font-size: 0.74rem;
-	color: var(--ink);
-}
-
-/* ── Guide rail: working question ── */
-.working-question {
-	display: grid;
-	gap: 8px;
-}
-
-.working-question__label {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.working-question__input {
-	font-family: var(--sans);
-}
-
-/* ── Guide rail: compact guided-task rows ──
- * One line each (caret + title + a quiet "Use" affordance); body text reveals
- * on click. Untoned — these are prompts, not verified results. */
-.task-list {
-	display: grid;
-	gap: var(--space-xs);
-}
-
-.task-row {
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-.task-row[data-expanded='true'] {
-	border-color: var(--line-strong);
-}
-
-.task-row__head {
-	display: flex;
-	align-items: center;
-	gap: var(--space-xs);
-	padding: 6px 8px 6px 4px;
-}
-
-.task-row__toggle {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 4px 6px;
-	border: none;
-	background: transparent;
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-	border-radius: var(--radius);
-}
-
-.task-row__toggle:hover,
-.task-row__toggle:focus-visible {
-	color: var(--act);
-}
-
-.task-row__caret {
-	flex-shrink: 0;
-	color: var(--faint);
-	font-size: 0.7rem;
-}
-
-.task-row__title {
-	font-size: 0.9rem;
-	font-weight: 600;
-	line-height: 1.3;
-}
-
-.task-row__use {
-	flex-shrink: 0;
-}
-
-.task-row__body {
-	margin: 0;
-	padding: 0 12px 12px 22px;
-	color: var(--muted);
-	font-size: 0.85rem;
-	line-height: 1.55;
-}
-
-/*
- * The notebook is the learner's own store — deliberately UNTONED. Filters and
- * metadata are neutral bookkeeping (ink on paper, no register marks). They
- * make no epistemic claim about the saved work.
- */
-.artifact-filters {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--space-2xs);
-}
-
-.artifact-filter {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 5px 12px;
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: transparent;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	cursor: pointer;
-	transition:
-		color 0.15s ease,
-		border-color 0.15s ease,
-		background 0.15s ease;
-}
-
-.artifact-filter:hover:not(:disabled) {
-	color: var(--act);
-	border-color: var(--act);
-}
-
-.artifact-filter[data-active='true'] {
-	color: var(--act);
-	border-color: var(--act);
-	background: rgba(138, 59, 46, 0.05);
-}
-
-.artifact-filter:disabled {
-	opacity: 0.4;
-	cursor: default;
-}
-
-.artifact-filter__count {
-	font-variant-numeric: tabular-nums;
-	opacity: 0.7;
-}
-
-.artifact-ledger {
-	gap: var(--space-md);
-}
-
-.artifact-ledger__item {
-	align-items: flex-start;
-}
-
-.artifact-ledger__meta {
-	display: grid;
-	gap: var(--space-xs);
-	min-width: 0;
-}
-
-.artifact-ledger__title-row {
-	display: flex;
-	align-items: baseline;
-	flex-wrap: wrap;
-	gap: var(--space-xs);
-}
-
-.artifact-ledger__meta strong {
-	overflow-wrap: anywhere;
-}
-
-/* Neutral type badge: reuse the untoned base .badge (no verdict, no tone). */
-.artifact-type-badge {
-	padding: 3px 9px;
-	font-size: 0.62rem;
-	letter-spacing: 0.06em;
-	color: var(--muted);
-	flex-shrink: 0;
-}
-
-.artifact-ledger__facts {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px var(--space-md);
-	margin: 0;
-}
-
-.artifact-fact {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 6px;
-	min-width: 0;
-}
-
-.artifact-fact dt {
-	font-family: var(--mono);
-	font-size: 0.64rem;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	color: var(--faint);
-}
-
-.artifact-fact dd {
-	margin: 0;
-	font-size: 0.78rem;
-	color: var(--muted);
-	overflow-wrap: anywhere;
-}
-
-/* ── Reflect: the notebook's closing page ──
- * One document, single column, on the meta canvas — like its three siblings.
- * The header states the settled result (cited from Prove, never re-stamped
- * here); the account is the learner's manuscript; the examiner is the coaching
- * margin; the kept documents are an index. No cards, no lab desk. */
-.reflect-doc {
-	max-width: 1060px;
-	margin: 0 auto;
-	padding: var(--space-xl) var(--space-2xl);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-.reflect-section {
-	padding: var(--space-lg) 0;
-	border-bottom: 1px solid var(--line);
-}
-
-.reflect-section:first-of-type {
-	padding-top: var(--space-xs);
-}
-
-.reflect-section:last-child {
-	padding-bottom: 0;
-	border-bottom: 0;
-}
-
-/* The working question lives here now: a line you write on, not a boxed field. */
-.reflect-question__field {
-	width: 100%;
-	padding: 6px 0;
-	border: 0;
-	border-bottom: 1px dashed var(--line-strong);
-	background: transparent;
-	color: var(--ink);
-	font-family: var(--serif);
-	font-size: 1.12rem;
-	font-style: italic;
-}
-
-.reflect-question__field:focus {
-	outline: none;
-	border-bottom-color: var(--act);
-}
-
-.reflect-question__field::placeholder {
-	color: var(--faint);
-}
-
-/* The result carries the verified stamp but names where it was verified —
- * Reflect cites Prove, it does not re-verify. */
-.reflect-claim-stamp {
-	margin-top: 12px;
-}
-
-/* The coda: authored connective prose — what the proof is and where it goes.
- * Reference register: plain ink on panel, not coaching, not a stamp. */
-.reflect-coda__lead {
-	margin: 0 0 var(--space-lg);
-	max-width: 66ch;
-	font-size: 0.96rem;
-	line-height: 1.72;
-	color: var(--ink);
-}
-
-.reflect-coda__threads {
-	display: grid;
-	gap: 14px;
-	max-width: 66ch;
-}
-
-.reflect-coda__thread {
-	margin: 0;
-	padding-left: 16px;
-	border-left: 1px solid var(--line-strong);
-	font-size: 0.92rem;
-	line-height: 1.68;
-	color: var(--muted);
-}
-
-.reflect-coda__thread em {
-	color: var(--ink);
-	font-style: italic;
-}
-
-/* Saves: quiet inline actions on the closing page, not bordered cards. */
-.reflect-saves {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 14px;
-	margin-top: var(--space-md);
-}
-
-.restore-destination {
-	white-space: nowrap;
-}
-
-/* ── Surface Panel register variants ──
- * Register line grammar (independent of hue, so it survives colorblindness):
- * solid graphite rule = verified, dashed gray rule = computed, dotted rule +
- * serif italic = coaching. A top rule above the panel header carries it. */
-.surface-panel {
-	position: relative;
-}
-
-.surface-panel[data-tone]::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 0;
-	border-top: 2px solid var(--ink);
-	border-top-left-radius: var(--radius);
-	border-top-right-radius: var(--radius);
-}
-
-.surface-panel[data-tone='verified']::before {
-	border-top: 2px solid var(--ink);
-}
-
-.surface-panel[data-tone='computed']::before {
-	border-top: 2px dashed var(--faint);
-}
-
-.surface-panel[data-tone='coaching']::before {
-	border-top: 2px dotted var(--faint);
-}
-
-.surface-panel[data-tone='verified'] .legend-chip {
-	color: var(--ink);
-	border-color: var(--ink);
-}
-
-.surface-panel[data-tone='computed'] .legend-chip {
-	color: var(--muted);
-	border-style: dashed;
-}
-
-.surface-panel[data-tone='coaching'] .legend-chip {
-	color: var(--muted);
-	border-style: dotted;
-	font-family: var(--serif);
-	font-style: italic;
-	text-transform: none;
-	letter-spacing: 0;
-}
-
-.text-field {
-	width: 100%;
-	padding: 12px 14px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	box-sizing: border-box;
-	font-size: 0.88rem;
-	transition: border-color 200ms ease;
-}
-
-.text-field:hover {
-	border-color: var(--faint);
-}
-
-.text-field:focus {
-	outline: none;
-	border-color: var(--act);
-}
-
-.text-field::placeholder {
-	color: var(--faint);
-}
-
-/* MIU strings are typed in monospace. */
-.text-field {
-	font-family: var(--mono);
-}
-
-/* ── Map: the derivation tree ──
- * The page is the drawn tree: depth columns left to right, the learner's
- * derivation solid ink through the dashed computed search, reconvergence
- * curving back into the tree, and the search bound rendered as an erased
- * frontier. Captions below the drawing are computed register (dashed rule);
- * the bridge into Prove keeps its meta framing. */
-.map-sheet {
-	max-width: 1100px;
-	margin: var(--space-md) auto var(--space-lg);
-	padding: var(--space-lg) var(--space-xl);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background-color: var(--panel);
-	background-image: linear-gradient(rgba(222, 219, 211, 0.45) 1px, transparent 1px);
-	background-size: 100% 1.6rem;
-	min-width: 0;
-}
-
-.map-head {
-	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: var(--space-md);
-	flex-wrap: wrap;
-}
-
-.map-bounds {
-	margin: 0;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.74rem;
-}
-
-.map-bound {
-	padding: 0 1px 1px;
-	border: none;
-	border-bottom: 1px solid var(--line-strong);
-	border-radius: 0;
-	background: transparent;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.78rem;
-}
-
-/* Which bound governs the search, stated at the controls themselves: the
- * slack control must not read as simply dead. */
-.map-bound-note {
-	margin: 2px 0 0;
-	color: var(--muted);
-	font-size: 0.74rem;
-	text-align: right;
-}
-
-.map-bound-note strong {
-	color: var(--ink);
-	font-weight: 600;
-}
-
-/* The figure scrolls at a fixed type scale: more strings must never mean
- * smaller strings. A clean panel ground keeps the ruled paper from running
- * through the drawing. */
-.map-scroll {
-	margin-top: 6px;
-	overflow-x: auto;
-	background: var(--panel);
-}
-
-.map-figure {
-	display: flex;
-	align-items: stretch;
-}
-
-.map-tree {
-	display: block;
-	flex-shrink: 0;
-}
-
-/* ── The counted region: one slim band per layer past the legibility
- * horizon. Dashed = computed register. Bands never grow with the layer —
- * the counts do. */
-.map-bands {
-	display: flex;
-	gap: 14px;
-	padding: 34px 4px 6px 6px;
-}
-
-.map-band {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	width: 178px;
-	flex-shrink: 0;
-	padding: 10px 14px;
-	border: 1px dashed var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-.map-band__tick {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 9.5px;
-	font-weight: 600;
-	letter-spacing: 1.5px;
-	text-transform: uppercase;
-}
-
-.map-band__count {
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 1.3rem;
-	font-weight: 700;
-}
-
-.map-band__count small {
-	color: var(--muted);
-	font-size: 0.7rem;
-	font-weight: 600;
-}
-
-.map-band__fact {
-	margin: 0;
-	color: var(--muted);
-	font-size: 0.76rem;
-	line-height: 1.5;
-}
-
-.map-band__fact strong {
-	color: var(--ink);
-	font-weight: 600;
-}
-
-.map-band__expand {
-	margin-top: auto;
-	padding: 3px 0 0;
-	border: none;
-	background: none;
-	text-align: left;
-	color: var(--act);
-	font-size: 0.74rem;
-	cursor: pointer;
-}
-
-.map-band__expand:hover,
-.map-band__expand:focus-visible {
-	text-decoration: underline;
-}
-
-/* Draw-a-fan-on-demand: one string's neighborhood, listed by rule. */
-.map-fan {
-	display: grid;
-	gap: 4px;
-	padding-top: 6px;
-	border-top: 1px solid var(--line);
-}
-
-.map-fan__source {
-	justify-self: start;
-	max-width: 100%;
-}
-
-.map-fan__group {
-	margin: 0;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.72rem;
-	line-height: 1.6;
-	overflow-wrap: anywhere;
-}
-
-.map-fan__note {
-	margin: 0;
-	color: var(--faint);
-	font-size: 0.68rem;
-}
-
-.map-horizon {
-	margin: 8px 0 0;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.72rem;
-}
-
-.map-horizon strong {
-	color: var(--ink);
-}
-
-/* ── Growth strip: strings per depth. Drawn layers bar solid; counted-only
- * layers hatched. The wall is the lesson. */
-.map-growth {
-	margin-top: 20px;
-	padding-top: 12px;
-	border-top: 2px dashed var(--faint);
-}
-
-.map-growth__bars {
-	display: flex;
-	align-items: flex-end;
-	gap: 26px;
-	margin: 14px 0 10px;
-	padding-left: 4px;
-}
-
-.map-gbar {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 4px;
-}
-
-.map-gbar__count {
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.74rem;
-	font-weight: 700;
-}
-
-.map-gbar__rect {
-	width: 34px;
-	background: var(--line-strong);
-}
-
-.map-gbar--counted .map-gbar__rect {
-	background: repeating-linear-gradient(45deg, var(--line-strong) 0 3px, var(--panel) 3px 6px);
-	border: 1px dashed var(--line-strong);
-	box-sizing: border-box;
-}
-
-.map-gbar--counted .map-gbar__count {
-	color: var(--muted);
-}
-
-.map-gbar__tick {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.66rem;
-}
-
-.tree-tick {
-	fill: var(--faint);
-	font-family: var(--mono);
-	font-size: 9.5px;
-	font-weight: 600;
-	letter-spacing: 1.5px;
-}
-
-/* Hierarchy by role: strings are the objects and get the ink; edges are
- * structure and stay light; rule labels are metadata, clustered at each
- * fan's departure point. */
-.tree-edge {
-	stroke: var(--line-strong);
-	stroke-width: 1.25;
-	stroke-dasharray: 5 4;
-	stroke-opacity: 0.55;
-	fill: none;
-}
-
-.tree-edge--path {
-	stroke: var(--ink);
-	stroke-width: 2.25;
-	stroke-dasharray: none;
-	stroke-opacity: 1;
-}
-
-.map-marker-gray {
-	stroke: var(--line-strong);
-}
-
-.map-marker-ink {
-	stroke: var(--ink);
-}
-
-.tree-edge-label {
-	fill: var(--faint);
-	font-family: var(--mono);
-	font-size: 9px;
-	paint-order: stroke;
-	stroke: var(--panel);
-	stroke-width: 3px;
-}
-
-.tree-edge-label--path {
-	fill: var(--ink);
-	font-weight: 700;
-}
-
-.tree-stub {
-	stroke: var(--line-strong);
-	stroke-width: 1.1;
-	stroke-dasharray: 4 4;
-	fill: none;
-}
-
-.tree-node {
-	cursor: pointer;
-	outline-offset: 3px;
-}
-
-.tree-node__value {
-	fill: var(--ink);
-	font-family: var(--mono);
-	font-size: 14.5px;
-	font-weight: 600;
-	letter-spacing: 0.3px;
-	paint-order: stroke;
-	stroke: var(--panel);
-	stroke-width: 5px;
-}
-
-.tree-node--path .tree-node__value {
-	font-weight: 800;
-}
-
-.tree-node:hover .tree-node__value,
-.tree-node:focus-visible .tree-node__value {
-	fill: var(--act);
-}
-
-.tree-node__underline {
-	stroke: var(--ink);
-	stroke-width: 1.5;
-}
-
-.tree-again {
-	fill: var(--faint);
-	font-family: var(--mono);
-	font-size: 9px;
-	paint-order: stroke;
-	stroke: var(--panel);
-	stroke-width: 3px;
-}
-
-.map-legend {
-	margin: 4px 0 0;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.72rem;
-}
-
-.map-legend__solid {
-	color: var(--ink);
-	font-weight: 700;
-}
-
-.map-legend__dashed {
-	color: var(--faint);
-}
-
-.map-route {
-	margin: 10px 0 0;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.78rem;
-	line-height: 1.7;
-	overflow-wrap: anywhere;
-}
-
-.map-route__value {
-	font-weight: 700;
-}
-
-.map-captions {
-	margin-top: 22px;
-	padding-top: 12px;
-	border-top: 2px dashed var(--faint);
-}
-
-.map-caption {
-	margin: 0 0 6px;
-	color: var(--muted);
-	font-size: 0.86rem;
-	line-height: 1.55;
-}
-
-.map-caption strong {
-	color: var(--ink);
-	font-weight: 600;
-}
-
-/* ── Prove: the proof document ──
- * One sheet of meta parchment, double-rule framed: claim, candidate (inline
- * editable — editing rewrites the argument live), base case, one clause per
- * rule, conclusion. Every clause carries the verifier's ✓/✗ inline;
- * counterexamples render as the failing clause's content. */
-.proof-doc {
-	max-width: 880px;
-	margin: var(--space-md) auto var(--space-lg);
-	padding: 28px 40px 30px;
-	border: 1px solid var(--line-strong);
-	outline: 1px solid var(--line);
-	outline-offset: 4px;
-	border-radius: var(--radius);
-	background: var(--panel-meta);
-}
-
-.proof-claim {
-	margin: 14px 0 4px;
-	font-family: var(--serif);
-	font-size: 1.5rem;
-	letter-spacing: -0.01em;
-}
-
-.proof-claim__word {
-	margin-right: 10px;
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-	vertical-align: 0.45em;
-}
-
-.proof-claim-note {
-	margin: 2px 0 0;
-	color: var(--muted);
-	font-size: 0.88rem;
-	line-height: 1.6;
-}
-
-.proof-candidate {
-	margin: 22px 0 0;
-	padding: 12px 0;
-	border-top: 1px solid var(--line);
-	border-bottom: 1px solid var(--line);
-}
-
-.proof-candidate__row {
-	display: flex;
-	align-items: baseline;
-	gap: 12px;
-	flex-wrap: wrap;
-}
-
-.proof-candidate__word {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.68rem;
-	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.proof-candidate__input {
-	width: 22ch;
-	padding: 0 2px 1px;
-	border: none;
-	border-bottom: 1px solid var(--line-strong);
-	border-radius: 0;
-	background: transparent;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 1.05rem;
-	font-weight: 600;
-}
-
-.proof-candidate__builtin {
-	padding: 0;
-	border: none;
-	background: none;
-	color: var(--act);
-	font-size: 0.78rem;
-	cursor: pointer;
-}
-
-.proof-candidate__builtin:hover,
-.proof-candidate__builtin:focus-visible {
-	text-decoration: underline;
-}
-
-.proof-candidate__note {
-	margin: 6px 0 0;
-	color: var(--faint);
-	font-size: 0.74rem;
-}
-
-.proof-candidate__note code {
-	font-family: var(--mono);
-}
-
-.proof-candidate__now {
-	margin: 6px 0 0;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.76rem;
-}
-
-/* The candidate's purpose, said once: why the field exists when the
- * built-in is one click away. */
-.proof-purpose {
-	margin: 8px 0 0;
-	color: var(--muted);
-	font-size: 0.84rem;
-	line-height: 1.6;
-}
-
-/* ── The residue wheel: the candidate seen as remainders mod k. The rules
- * act on Z/k (R2 doubles, R3 subtracts 3); preservation is closure, and an
- * escaping arrow is the counterexample in abstract form. */
-.proof-wheel {
-	display: flex;
-	align-items: center;
-	gap: 24px;
-	padding: 10px 0 4px;
-	border-bottom: 1px solid var(--line);
-}
-
-.proof-wheel__figure {
-	flex-shrink: 0;
-}
-
-.proof-wheel__side {
-	min-width: 0;
-}
-
-.proof-wheel__legend {
-	margin: 4px 0 0;
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.72rem;
-}
-
-.proof-wheel__solid {
-	color: var(--muted);
-}
-
-.proof-wheel__dashed {
-	color: var(--faint);
-}
-
-.proof-wheel__caption {
-	margin: 8px 0 0;
-	color: var(--muted);
-	font-size: 0.84rem;
-	line-height: 1.6;
 }
 
 .wheel-dot {
@@ -2319,301 +515,282 @@ body.module1-wide .site-shell {
 	stroke-dasharray: 4 4;
 }
 
-.wheel-arrow--escape {
-	stroke: var(--ink);
-	stroke-width: 2;
-}
-
-.wheel-x {
-	fill: var(--ink);
-	font-family: var(--mono);
-	font-size: 12px;
-	font-weight: 700;
-	text-anchor: middle;
-	paint-order: stroke;
-	stroke: var(--panel-meta);
-	stroke-width: 4px;
-}
-
-/* The uniqueness line is computed live by the same closure check across
- * the whole grammar — verified, never asserted. */
-.proof-unique {
-	margin: 14px 0 0;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.76rem;
-	line-height: 1.6;
-}
-
-.proof-clauses {
-	margin: 6px 0 0;
-	padding: 0;
-	list-style: none;
-}
-
-.proof-clause {
-	display: flex;
-	gap: 16px;
-	align-items: baseline;
-	padding: 13px 0;
-	border-bottom: 1px solid var(--line);
-}
-
-.proof-clause__num {
-	flex: 0 0 2ch;
-	color: var(--line-strong);
-	font-family: var(--mono);
-	font-size: 0.85rem;
-	text-align: right;
-}
-
-.proof-clause__body {
-	flex: 1;
-	min-width: 0;
-}
-
-.proof-clause__head {
-	margin: 0;
-	color: var(--ink);
-	font-size: 0.92rem;
-	font-weight: 600;
-}
-
-.proof-clause__pat {
-	margin-left: 8px;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.84rem;
-	font-weight: 500;
-}
-
-.proof-clause__text {
-	margin: 3px 0 0;
-	color: var(--muted);
-	font-size: 0.88rem;
-	line-height: 1.6;
-}
-
-/* The counterexample IS the failing clause's content: verified register,
- * solid graphite left rule. */
-.proof-clause__witness {
-	margin: 6px 0 0;
-	padding: 6px 10px;
-	border-left: 3px solid var(--ink);
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.8rem;
-	overflow-wrap: anywhere;
-}
-
-.proof-clause__stamp {
-	flex: 0 0 auto;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 1rem;
-}
-
-.proof-clause[data-stamp='fail'] .proof-clause__stamp {
-	font-weight: 700;
-}
-
-.proof-clause--conclusion {
-	border-bottom: none;
-	padding-top: 16px;
-}
-
-.proof-clause--conclusion .proof-clause__body {
-	padding-left: 11px;
-	border-left: 3px solid var(--ink);
-}
-
-.proof-clause--conclusion .proof-clause__head {
-	font-family: var(--serif);
-	font-size: 1.05rem;
-	font-weight: 600;
-}
-
-.proof-foot {
-	display: flex;
-	gap: 18px;
-	align-items: baseline;
-	margin-top: 18px;
-	padding-top: 12px;
-	border-top: 1px solid var(--line);
-}
-
-.proof-foot button {
-	padding: 0;
-	border: none;
-	background: none;
-	color: var(--act);
-	font-size: 0.78rem;
-	cursor: pointer;
-}
-
-.proof-foot button:hover,
-.proof-foot button:focus-visible {
-	text-decoration: underline;
-}
-
-.proof-foot__status {
-	margin-left: auto;
-	color: var(--faint);
-	font-size: 0.74rem;
-}
-
-/* The bridge into Prove is a navigation affordance that crosses into the meta
- * level. It references the meta register (warmer parchment, double-ring frame,
- * ◉ glyph, "about the system") but must NOT look like a verified ✓ verdict: no
- * stamp, no solid graphite frame. It only renders once a bound is hit and MU is
- * absent. The "Go to Prove" button is the single accent inside it. */
-.prove-bridge[data-level='meta'] {
-	display: grid;
-	grid-template-columns: auto minmax(0, 1fr);
-	gap: var(--space-md);
-	align-items: start;
-	margin-top: var(--space-sm);
-	padding: var(--space-md);
-	border: 1px solid var(--line-strong);
-	outline: 1px solid var(--line);
-	outline-offset: 4px;
-	border-radius: var(--radius);
-	background: var(--page-meta);
-}
-
-.prove-bridge[data-level='meta'] .prove-bridge__glyph {
-	display: grid;
-	place-items: center;
-	width: 40px;
-	height: 40px;
-	border: 1px solid var(--line-strong);
-	border-radius: 50%;
-	color: var(--ink);
-	font-size: 1.05rem;
-	line-height: 1;
-}
-
-.prove-bridge[data-level='meta'] .prove-bridge__body {
-	display: grid;
-	gap: 10px;
-}
-
-.prove-bridge[data-level='meta'] .prove-bridge__eyebrow {
-	margin: 0;
-	color: var(--muted);
-	font-family: var(--mono);
-	font-size: 0.62rem;
-	font-weight: 600;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-}
-
-.prove-bridge[data-level='meta'] .prove-bridge__text {
-	margin: 0;
-	color: var(--ink);
-	font-size: 0.92rem;
-	line-height: 1.6;
-}
-
-.prove-bridge[data-level='meta'] .prove-bridge__text em {
-	font-family: var(--serif);
-	font-style: italic;
-}
-
-.prove-bridge[data-level='meta'] .prove-bridge__action {
-	justify-self: start;
-}
-
-
-.placeholder-copy {
-	margin: 0;
-	padding: var(--space-md);
-	border: 1px dashed var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--muted);
-}
-
-/* ── Legend Chip Tooltip ── */
-.legend-chip[title] {
-	cursor: help;
-}
-
-/* ── Motion ──
- * The dark-era glow pulse and meta pull-back camera move are gone. A single
- * quiet fade on phase entry remains, guarded for reduced-motion. */
-@keyframes phase-enter {
-	from {
-		opacity: 0;
-		transform: translateY(6px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.phase-content {
-	animation: phase-enter 250ms ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.phase-content {
-		animation: none;
-	}
-}
-
-@media (max-width: 980px) {
-	.hero,
-	.module-hero,
-	.panel-grid--three {
-		grid-template-columns: 1fr;
-	}
-
-	.section-header,
-	.site-topbar {
-		flex-direction: column;
-		align-items: stretch;
-	}
-
-	.command-bar {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: var(--space-sm);
-	}
-}
-
 @media (max-width: 640px) {
 	.site-shell {
 		padding-inline: 16px;
 	}
+}
 
-	.hero__copy,
-	.hero__frame,
-	.module-hero__copy,
-	.module-hero__meta,
-	.panel,
-	.module-card,
-	.surface-panel {
-		padding: var(--space-md);
-	}
+/* ════════════════════════════════════════════════════════════════════════
+ * The MIU instrument — one object read three ways. The derivation is the
+ * spine (the worksheet, reused); the invariant and the bridge are readings
+ * of it. No phase chrome.
+ * ════════════════════════════════════════════════════════════════════════ */
 
-	.hero__copy h1,
-	.module-hero__copy h1 {
-		font-size: 2.7rem;
-	}
+/* ── Slim instrument bar (replaces CommandBar; no phase tabs). The readouts
+ * are verified register: a solid graphite left-rule, never hue. ── */
+.ibar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--space-md);
+	padding: var(--space-xs) var(--space-md);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: var(--panel);
+	margin-bottom: var(--space-lg);
+}
 
-	.phase-canvas {
-		padding: var(--space-md) var(--space-xs) var(--space-xs);
-	}
+.ibar__brand {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	min-width: 0;
+}
 
-	.phase-canvas--meta {
-		padding: var(--space-lg) var(--space-sm) var(--space-sm);
-		outline-offset: 3px;
-	}
+.ibar__wordmark {
+	font-family: var(--serif);
+	font-size: 1.05rem;
+	font-weight: 600;
+}
 
-	.phase-canvas__rim {
-		left: 12px;
-		letter-spacing: 0.12em;
-	}
+.ibar__sub {
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.ibar__facts {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	flex-wrap: wrap;
+}
+
+.ibar__fact {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 9px;
+	border: 1px solid var(--line-strong);
+	border-left: 3px solid var(--ink);
+	border-radius: var(--radius);
+	font-family: var(--mono);
+	font-size: 0.7rem;
+	letter-spacing: 0.06em;
+	background: var(--panel);
+	color: var(--ink);
+}
+
+.ibar__fact b {
+	font-weight: 600;
+}
+
+.ibar__fact span {
+	color: var(--faint);
+	text-transform: uppercase;
+}
+
+.ibar__fact--string b {
+	max-width: 22ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ibar__reset {
+	padding: 6px 14px;
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	background: transparent;
+	color: var(--ink);
+	font-size: 0.76rem;
+	cursor: pointer;
+}
+
+.ibar__reset:hover,
+.ibar__reset:focus-visible {
+	border-color: var(--act);
+	color: var(--act);
+}
+
+/* ── Reading 2: the invariant margin (residue wheel + reachability) ── */
+.reach {
+	margin-bottom: var(--space-lg);
+}
+
+.inv {
+	margin-top: 30px;
+}
+
+.inv__def {
+	margin: 6px 0 10px;
+	font-family: var(--mono);
+	font-size: 0.86rem;
+	color: var(--ink);
+}
+
+.inv__wheel {
+	display: block;
+}
+
+.inv__caption {
+	margin: 8px 0 0;
+	color: var(--muted);
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+
+.inv__now {
+	margin: 6px 0 0;
+	font-family: var(--mono);
+	font-size: 0.78rem;
+	color: var(--ink);
+}
+
+.wheel-dot--now {
+	fill: var(--ink);
+	stroke: var(--act);
+	stroke-width: 2.5;
+}
+
+.wheel-legend {
+	margin: 4px 0 0;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.7rem;
+	line-height: 1.5;
+}
+
+/* ── Reading 3: the bridge — the derivation read as a program. Verified K
+ * values carry the solid graphite left-rule; the horizon note does not. ── */
+.bridge {
+	max-width: 1100px;
+	margin: var(--space-lg) auto 0;
+	padding: var(--space-lg) var(--space-xl);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
+}
+
+.bridge__title {
+	font-family: var(--serif);
+	font-size: 1.5rem;
+	letter-spacing: -0.01em;
+	margin: 4px 0 6px;
+}
+
+.bridge__lede {
+	margin: 0 0 var(--space-md);
+	max-width: 70ch;
+	color: var(--muted);
+	font-size: 0.94rem;
+	line-height: 1.7;
+}
+
+.bridge__def {
+	margin: 0 0 var(--space-lg);
+	padding: 12px 16px;
+	border-left: 3px solid var(--ink);
+	font-family: var(--mono);
+	font-size: 0.84rem;
+	line-height: 1.85;
+	color: var(--ink);
+	white-space: pre;
+	overflow-x: auto;
+}
+
+.bridge__measures {
+	display: grid;
+	gap: 10px;
+	margin: 0 0 var(--space-lg);
+}
+
+.measure {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 6px 18px;
+	align-items: baseline;
+	padding: 10px 14px;
+	border-left: 3px solid var(--ink);
+	background: var(--panel-meta);
+}
+
+.measure__string {
+	font-family: var(--mono);
+	font-size: 0.92rem;
+	color: var(--ink);
+	overflow-wrap: anywhere;
+	min-width: 0;
+}
+
+.measure__tag {
+	color: var(--faint);
+	font-size: 0.68rem;
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+}
+
+.measure__nums {
+	font-family: var(--mono);
+	font-size: 0.82rem;
+	color: var(--muted);
+	white-space: nowrap;
+}
+
+.measure__nums b {
+	color: var(--ink);
+}
+
+.measure__read {
+	grid-column: 1 / -1;
+	font-size: 0.82rem;
+	color: var(--muted);
+}
+
+.measure__read--big {
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.bridge__contrast-head {
+	margin: 0 0 8px;
+	font-size: 0.9rem;
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.bridge__note {
+	margin: var(--space-sm) 0 0;
+	max-width: 70ch;
+	color: var(--muted);
+	font-size: 0.86rem;
+	line-height: 1.65;
+}
+
+.bridge__note code {
+	font-family: var(--mono);
+	color: var(--ink);
+}
+
+.bridge__horizon {
+	margin: var(--space-lg) 0 0;
+	padding: 12px 16px;
+	border-left: 2px dotted var(--faint);
+	max-width: 70ch;
+	font-family: var(--serif);
+	font-style: italic;
+	font-size: 0.92rem;
+	line-height: 1.7;
+	color: var(--muted);
+}
+
+.bridge__horizon b {
+	font-style: normal;
+	font-family: var(--sans);
+	font-weight: 600;
+	color: var(--ink);
 }

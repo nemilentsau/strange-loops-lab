@@ -1,59 +1,62 @@
 ---
 name: prose
-description: How to write learner-facing copy in this app — phase documents, claims, captions, exercises, dialogue, any string a reader sees. Read before writing or editing reader copy, especially when reaching for elevated or profound-sounding phrasing.
+description: How to write learner-facing copy in this app — phase documents, claims, definitions, captions, exercises, any string a reader sees. Read before writing or editing reader copy, especially proof and exposition text, and whenever reaching for elevated, profound-sounding, or casual/conversational phrasing.
 user-invocable: false
 ---
 
-## Core rule
+## Audience and register
 
-Write app copy in the same plain, declarative voice you'd use explaining the idea to a working mathematician in conversation. State the math and stop.
+The reader is a graduate-level mathematician. Two things hold always; the register depends on what the sentence is doing.
 
-The audience is graduate-level (design law §5 in `docs/module-1-documents-not-dashboards.md`, rules 8/11/12). Hard-to-parse is not the same as deep. Reaching for profundity produces fog, and this reader sees through it.
+**Always:** name the real objects directly — structural induction, the inductively-defined theorem set, soundness, decidability, Post's word problem, Gödel. No rhetorical scaffolding. Copy is written per surface and per case, never templated from engine data; engine vocabulary (node, draft, snapshot) never reaches the reader.
 
-**Test every sentence: would you say it out loud to a colleague? If not, rewrite it or cut it.**
+**Register by content:**
+- **Formal content — a definition, theorem, claim, base case, inductive step, rule check, a model.** Display it, structured, the way a clean proof writeup or lecture notes would. Do **not** dissolve it into flowing prose.
+- **Motivation and bridges — intuition, why it matters, the link to Gödel or to LLMs.** Connected, precise prose. Nothing to display here; just don't make it folksy.
 
-## The failure this skill exists to stop
+The "read it aloud" instinct belongs to motivation only; it does not license dissolving a definition or a proof into chatty prose. The common failure is **under-formalizing**: writing proof content conversationally because it reads friendlier. For this reader the formal statement is the clearer one.
 
-Writing "for an app" triggers the LLM-essay reflex — dressing plain facts in elevated structure. Every tic below was shipped into this app and rejected by the reader. None of them carry information.
+## Three registers — only the third ships for proof content
+
+| Register | Example | Verdict |
+|---|---|---|
+| Childish / friendly-app | "there are infinitely many derivations to check, but suppose some property holds…" | banned |
+| Conversational | "structural induction, not a search — you check MI and that no rule breaks it" | too informal for a proof; fine only as a one-line motivating aside |
+| Formal exposition | the displayed block below | ship |
+
+```
+Proof, by structural induction on derivations.
+Define  P(s):  #I(s) ≢ 0 (mod 3).
+Base:   MI has one I, so P(MI).
+Step:   each rule preserves P —
+        R2:  k → 2k      (2 is a unit mod 3, so ≢0 stays ≢0)
+        R3:  k → k − 3   (residue unchanged)
+        R1, R4: k unchanged.
+Hence every theorem satisfies P. MU has #I = 0, so MU is not a theorem.
+```
+
+## Banned tics (every register)
 
 | Tic | Banned | Fix |
-|-----|--------|-----|
-| Antithesis reach ("X, not merely Y") | "Settled, not merely unobserved" | "The I-count mod 3 is preserved by every rule, and MU has count 0." |
-| Personified arguments/objects | "The argument was not a search that gave up" | "This is structural induction, not a search." |
-| Portentous vagueness | "the one step that takes a mathematician", "a local mercy", "that luck runs out" | Name it: "the only real work is finding the invariant"; "MIU is decidable". |
-| Hand-holding narration | "there are infinitely many derivations to check. But suppose some property holds…" | "No search settles a statement about all derivations. Structural induction does: …" |
-| Gamification / praise | "Nice work — you've unlocked…" | Delete it. |
+|---|---|---|
+| Antithesis reach | "Settled, not merely unobserved" | state the fact |
+| Personified objects | "the argument was not a search that gave up" | "the proof is not an enumeration" |
+| Portentous vagueness | "the one step that takes a mathematician", "a local mercy" | name it: "finding the invariant"; "MIU is decidable" |
+| Hand-holding | "But suppose some property holds…" | state the method |
+| Gamification / praise | "Nice work — you've unlocked…" | delete |
 
-The first three are the LLM-profound register; the last two are the friendly-app register. Both are banned.
+## Tests before shipping
 
-## Bad → good
+- Is this a formal statement? Display it; don't prose-ify it.
+- Is it motivation? Is it precise, or just atmosphere? Cut atmosphere.
+- Does the sentence carry information, or only sound good? Cut the second kind.
+- Would it appear, as written, in a clean writeup or lecture notes for this reader? Too casual or too cute → rewrite.
 
-**Childish hand-holding → plain peer-level:**
+## Red flags — STOP
 
-> ✗ Search can't settle this — there are infinitely many derivations to check. But suppose some property holds for MI and no rule can break it. Then every derivable string has it, no matter how it was derived. If MU lacks that property, MU is unreachable.
-
-> ✓ No search settles a statement about all derivations — there are infinitely many. Structural induction does: the theorems come from MI by the four rules, so any property that holds at MI and is preserved by every rule holds for every theorem. The work is finding such a property that MU fails.
-
-**Faux-profound → plain:**
-
-> ✗ The argument was not a search that gave up. … the one step that takes a mathematician is finding the property.
-
-> ✓ This is structural induction, not a search. … the only real work is finding the invariant.
-
-> ✗ Derivability in MIU is a local mercy; change the rules and that luck runs out.
-
-> ✓ MIU is decidable. For string-rewriting systems in general, derivability is undecidable (Post, 1947).
-
-## Also write it, don't dress it
-
-- Name the real objects directly — structural induction, model/soundness, decidability, Post's word problem, Gödel. Don't gesture at them.
-- Connected prose: real verbs, pronouns that track their referents, the paragraph as the unit. Not telegraphic fragments, not clause-stacked aphorisms.
-- Copy is written per surface and per case, never templated from engine data shapes; engine vocabulary (node, draft, snapshot) never reaches the reader.
-
-## Red flags — STOP and rewrite
-
-- An "X, not Y" or "not merely" construction
-- An argument, rule, or proof that "wants", "gives up", "tries", "refuses"
-- Adjectives of significance with no content behind them ("profound", "remarkable", "a mercy", "the real question")
-- A sentence you kept because it sounded good
+- A proof or definition written as a flowing sentence instead of displayed structure
+- An "X, not Y" / "not merely" construction
+- An argument, rule, or proof that "wants", "gives up", "tries"
+- Adjectives of significance with no content ("profound", "a mercy", "the real question")
+- A sentence kept because it sounded good
 - Explaining something this reader already owns

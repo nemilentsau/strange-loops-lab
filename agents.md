@@ -10,18 +10,37 @@
 
 ## Current stage
 
-This repository is in a working first-pass state with Module 1 as the active
-implementation focus.
+The phase-based Module 1 (Explore / Map / Prove / Reflect) is retired. The app
+is now a single MIU instrument at the root route — one object, the derivation,
+read three ways:
 
-Treat the docs as the source of truth for product direction, and avoid
+- manipulate it (the worksheet: the four rules always on screen, each with the
+  exact reason it cannot fire when it cannot);
+- see the wall (the residue wheel on ℤ/3; MU rejected by the invariant — a
+  verified negative, not a search limit);
+- read the derivation as a program (K_MIU, the shortest-derivation length:
+  compressible vs. incompressible, with Kolmogorov complexity and Chaitin named
+  as the next instrument, not claimed by this one).
+
+See `docs/strange-loops-vision.md` for the direction and
+`docs/module-1-postmortem.md` for the build this replaced and the binding design
+law it produced.
+
+The deterministic layer stays and grew a descriptional-complexity module
+(`src/lib/miu/complexity.ts`). The persistence and dialogue layers are kept but
+**dormant** — present in the repo, not wired to the instrument. Avoid
 hard-coding assumptions from a conventional `frontend/` + `backend/` split
 unless the repo actually grows that structure.
 
-Current implementation focus:
-- Module 1 (`MIU`) refinement
-- persistence/artifact/notebook model
-- verifier vs. LLM boundary
-- graph pedagogy and dialogue quality evaluation
+Current focus:
+- the GEB → modern-math / ML bridge investigation, with the builder as the
+  learner: build both sides of a candidate bridge and check for a shared
+  invariant, template, or reduction — the connection gate is the method, not
+  just a guardrail. First built bridge: MIU ↔ Kolmogorov complexity (a
+  derivation is a program; K_MIU is its shortest length). Next candidate:
+  invariant ↔ expressivity wall.
+- persistence/artifact/notebook model and the verifier-vs-LLM boundary, kept
+  dormant until an instrument re-earns them.
 
 ## Primary references
 
@@ -30,9 +49,7 @@ Read only the files relevant to the task:
 - Product vision: `README.md`, `docs/strange-loops-vision.md`
 - Architecture: `docs/product-architecture.md`
 - Agent behavior: `docs/agent-behavior.md`
-- Module 1 scope and status: `docs/strange-loops-module-1.md`
-- Module 1 interaction-design direction and postmortem: `docs/module-1-documents-not-dashboards.md`
-- Active Module 1 rework plan: `docs/module-1-document-model-plan.md`
+- Module 1 build postmortem and binding design law: `docs/module-1-postmortem.md`
 - Guidance on keeping agent instructions lean: `coding-agents-guide.md`
 
 If you change architecture, module scope, or agent responsibilities, update the
@@ -49,9 +66,9 @@ corresponding docs in the same pass.
 ## Design law (binding for all learner-facing work)
 
 The audience is a graduate-level mathematical reader; this is a laboratory,
-not an education game. The binding rules are
-`docs/module-1-documents-not-dashboards.md` §5 — read them before any UI,
-copy, or pedagogy change. The ones violated most often:
+not an education game. The binding rules are the design law in
+`docs/module-1-postmortem.md` — read them before any UI, copy, or pedagogy
+change. The ones violated most often:
 
 - no gamification vocabulary or chrome; write like a serious textbook
 - every element must name the mathematical fact it teaches, or be deleted

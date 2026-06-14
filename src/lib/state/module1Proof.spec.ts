@@ -41,14 +41,15 @@ describe('buildProofDocument', () => {
 		const doc = buildProofDocument('count(I) mod 3 != 0', 'MII');
 
 		expect(doc.supported).toBe(true);
+		expect(doc.definition).toBe('P(s): ' + doc.candidateLabel);
 		expect(doc.clauses).toHaveLength(5);
 		expect(doc.clauses.every((clause) => clause.stamp === 'pass')).toBe(true);
-		expect(doc.clauses[0]!.head).toBe('Base — the axiom satisfies it.');
+		expect(doc.clauses[0]!.head).toBe('Base. The axiom satisfies P.');
 		expect(doc.clauses[2]!.pattern).toBe('Mx → Mxx');
 		expect(doc.clauses[2]!.text).toContain('1 → 2 and 2 → 1');
 		expect(doc.conclusion?.stamp).toBe('pass');
 		expect(doc.conclusion?.head).toContain('∎');
-		expect(doc.conclusion?.head).toContain("MU doesn't — its I-count is 0");
+		expect(doc.conclusion?.head).toContain('MU does not, since count(I) = 0');
 	});
 
 	it('renders a failing rule with its counterexample as the clause content', () => {
@@ -56,27 +57,28 @@ describe('buildProofDocument', () => {
 		const r2 = doc.clauses.find((clause) => clause.pattern === 'Mx → Mxx')!;
 
 		expect(r2.stamp).toBe('fail');
-		expect(r2.head).toBe('R2 breaks it.');
+		expect(r2.head).toBe('R2 breaks P.');
 		expect(r2.witness).toContain('MI ·R2· MII');
 		expect(r2.witness).toContain('count(I): 1 → 2');
-		expect(r2.witness).toContain('2 mod 2 is 0');
+		expect(r2.witness).toContain('2 mod 2 = 0');
 		expect(doc.conclusion?.stamp).toBe('fail');
-		expect(doc.conclusion?.text).toContain('this candidate tells us nothing about MU');
+		expect(doc.conclusion?.text).toContain('P says nothing about MU');
 	});
 
 	it('fails at the base when the axiom itself violates the candidate', () => {
 		const doc = buildProofDocument('count(I) mod 3 = 0', 'MI');
 
 		expect(doc.clauses[0]!.stamp).toBe('fail');
-		expect(doc.clauses[0]!.head).toBe('Base — the axiom already fails it.');
+		expect(doc.clauses[0]!.head).toBe('Base. The axiom fails P.');
 		expect(doc.conclusion?.stamp).toBe('fail');
-		expect(doc.conclusion?.text).toContain('It fails at the very first string');
+		expect(doc.conclusion?.text).toContain('The property must hold at the axiom');
 	});
 
 	it('explains an uncheckable form instead of building clauses', () => {
 		const doc = buildProofDocument('all strings are nice', 'MI');
 
 		expect(doc.supported).toBe(false);
+		expect(doc.definition).toBeNull();
 		expect(doc.unsupportedReason).toContain('count(I) mod k = r');
 		expect(doc.clauses).toEqual([]);
 		expect(doc.conclusion).toBeNull();
@@ -84,10 +86,10 @@ describe('buildProofDocument', () => {
 
 	it('checks the current string against the candidate in one line', () => {
 		expect(buildProofDocument('count(I) mod 3 != 0', 'MII').currentLine).toBe(
-			'your current string MII has count(I) = 2 — it satisfies the candidate'
+			'Current string MII: count(I) = 2 — satisfies P.'
 		);
 		expect(buildProofDocument('count(I) mod 2 != 0', 'MII').currentLine).toBe(
-			'your current string MII has count(I) = 2 — it already violates the candidate'
+			'Current string MII: count(I) = 2 — violates P.'
 		);
 	});
 });

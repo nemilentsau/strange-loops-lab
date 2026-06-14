@@ -526,6 +526,6 @@ function assertValidMiuString(value: string): void {
 	}
 }
 
-function isValidMiuString(value: string): boolean {
+export function isValidMiuString(value: string): boolean {
 	return /^M[IU]*$/.test(value);
 }
