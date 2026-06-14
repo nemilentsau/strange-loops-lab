@@ -38,7 +38,6 @@
 	} from '$lib/state/module1';
 	import {
 		buildInvariantArtifact,
-		buildNoteArtifact,
 		buildProofArtifact,
 		buildTraceArtifact,
 		type ArtifactBlueprint
@@ -47,7 +46,6 @@
 		createArtifact,
 		listArtifacts,
 		loadSnapshot,
-		runDialogue as runDialogueApi,
 		saveSnapshot
 	} from '$lib/client/module1Api';
 	import { onMount } from 'svelte';
@@ -57,23 +55,6 @@
 	let { data }: { data: PageData } = $props();
 
 	const module = $derived(data.module as ModuleSummary);
-	const reflectionPrompts = [
-		{
-			title: 'Why search fails',
-			subtitle: 'Even infinite patience wouldn\'t help. Why?',
-			text: 'Explain why exploring more derivations cannot by itself prove that MU is unreachable.'
-		},
-		{
-			title: 'Weak step in the proof',
-			subtitle: 'Which rule was hardest to check?',
-			text: 'State the single rule you had to justify most carefully, and explain why it preserves the invariant.'
-		},
-		{
-			title: 'Object vs meta',
-			subtitle: 'Two different kinds of reasoning.',
-			text: 'Describe the difference between applying an MIU rule and proving a fact about all MIU derivations.'
-		}
-	] as const;
 
 	const timestampFormatter = new Intl.DateTimeFormat('en-US', {
 		dateStyle: 'medium',
@@ -86,8 +67,6 @@
 	let snapshotStatus = $state('Your saved progress will appear here.');
 	let artifactStatus = $state('Your saved work will appear here.');
 	let savedArtifacts = $state<Module1Artifact[]>([]);
-	let dialogueStatus = $state('Submit your explanation above to get coaching feedback.');
-	let dialogueRunning = $state(false);
 	const currentTraceStep = $derived(
 		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
 	);
@@ -208,25 +187,6 @@
 			invariantCandidate: target.value,
 			visitedSurfaces: ensureVisited('invariants'),
 			visitedPhases: ensureVisitedPhases('prove')
-		});
-	}
-
-	function updateNotes(event: Event) {
-		const target = event.currentTarget as HTMLTextAreaElement;
-		patchDraft({ notes: target.value });
-	}
-
-	function seedReflectionPrompt(prompt: string) {
-		const seeded = draft.notes.trim()
-			? `${draft.notes.trim()}\n\n${prompt}\n`
-			: `${prompt}\n`;
-
-		patchDraft({
-			activePhase: 'reflect',
-			activeSurface: 'artifacts',
-			notes: seeded,
-			visitedSurfaces: ensureVisited('artifacts'),
-			visitedPhases: ensureVisitedPhases('reflect')
 		});
 	}
 
@@ -387,16 +347,6 @@
 		snapshotStatus = `Progress saved at ${formatTimestamp(result.updatedAt)}.`;
 	}
 
-	async function saveNoteArtifact() {
-		if (!draft.notes.trim()) {
-			artifactStatus = 'Add a note before saving a note artifact.';
-			return;
-		}
-
-		const blueprint = buildNoteArtifact(draft.notes, currentString, draft.lastEditedAt);
-		await saveArtifactBlueprint(blueprint);
-	}
-
 	async function saveTraceArtifact() {
 		const blueprint = buildTraceArtifact(draft.trace, currentString);
 		await saveArtifactBlueprint(blueprint);
@@ -473,72 +423,9 @@
 		writeModule1Draft(window.localStorage, draft);
 		snapshotStatus = 'Session reset. Saved progress unchanged.';
 		artifactStatus = 'Session reset. Saved artifacts still available.';
-		dialogueStatus = 'Submit your explanation above to get coaching feedback.';
 		lastEditedLabel = timestampFormatter.format(new Date());
 	}
 
-	function updateDialogueInput(event: Event) {
-		const target = event.currentTarget as HTMLTextAreaElement;
-		patchDraft({
-			activePhase: 'reflect',
-			activeSurface: 'dialogue',
-			dialogueInput: target.value,
-			visitedSurfaces: ensureVisited('dialogue'),
-			visitedPhases: ensureVisitedPhases('reflect')
-		});
-	}
-
-	function populateDialogueSuggestion(text: string) {
-		patchDraft({
-			activePhase: 'reflect',
-			activeSurface: 'dialogue',
-			dialogueInput: text,
-			visitedSurfaces: ensureVisited('dialogue'),
-			visitedPhases: ensureVisitedPhases('reflect')
-		});
-	}
-
-	async function runDialogue() {
-		const userInput = draft.dialogueInput.trim();
-
-		if (!userInput) {
-			dialogueStatus = 'Enter an explanation or question before running dialogue mode.';
-			return;
-		}
-
-		dialogueRunning = true;
-		dialogueStatus = 'Getting coaching feedback...';
-
-		try {
-			const result = await runDialogueApi(fetch, module.slug, userInput, draft);
-
-			if (!result.ok) {
-				dialogueStatus = result.error;
-				return;
-			}
-
-			patchDraft({
-				activePhase: 'reflect',
-				activeSurface: 'dialogue',
-				lastDialogue: result.dialogue,
-				visitedSurfaces: ensureVisited('dialogue', 'artifacts'),
-				visitedPhases: ensureVisitedPhases('reflect')
-			});
-
-			if (result.artifact) {
-				savedArtifacts = [result.artifact, ...savedArtifacts];
-			}
-
-			dialogueStatus = result.dialogue.costUsd
-				? `Feedback received. Cost: $${result.dialogue.costUsd.toFixed(4)}.`
-				: 'Feedback received.';
-			artifactStatus = result.artifact
-				? `Saved dialogue artifact at ${formatTimestamp(result.artifact.createdAt)}.`
-				: artifactStatus;
-		} finally {
-			dialogueRunning = false;
-		}
-	}
 
 	</script>
 
@@ -607,26 +494,13 @@
 		{:else if draft.activePhase === 'reflect'}
 			<div class="phase-content" data-phase="reflect">
 				<PhaseReflect
-					dialogueInput={draft.dialogueInput}
-					dialogueMode={draft.dialogueMode}
-					lastDialogue={draft.lastDialogue}
-					{dialogueRunning}
-					{dialogueStatus}
-					notes={draft.notes}
 					{snapshotStatus}
 					{artifactStatus}
 					{savedArtifacts}
-					{reflectionPrompts}
 					workingQuestion={draft.workingQuestion}
-					onUpdateDialogueInput={updateDialogueInput}
-					onRunDialogue={runDialogue}
-					onUpdateNotes={updateNotes}
-					onUseReflectionPrompt={seedReflectionPrompt}
 					onSaveSnapshot={saveSnapshotToDatabase}
-					onSaveNote={saveNoteArtifact}
 					onSaveTrace={saveTraceArtifact}
 					onRestoreArtifact={restoreArtifact}
-					onPopulateSuggestion={populateDialogueSuggestion}
 					onUpdateQuestion={updateQuestion}
 					{formatTimestamp}
 				/>

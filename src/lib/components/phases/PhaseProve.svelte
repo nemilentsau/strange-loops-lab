@@ -119,9 +119,10 @@
 			<span class="proof-claim__word">Claim</span>MU is not derivable in the MIU system.
 		</p>
 		<p class="proof-claim-note">
-			Search can't settle this — there are infinitely many derivations to check. But suppose
-			some property holds for MI and no rule can break it. Then every derivable string has it,
-			no matter how it was derived. If MU lacks that property, MU is unreachable.
+			No search settles a statement about all derivations — there are infinitely many. Structural
+			induction does: the theorems come from MI by the four rules, so any property that holds at MI
+			and is preserved by every rule holds for every theorem. The work is finding such a property
+			that MU fails. Here it's the I-count mod 3.
 		</p>
 
 		<div class="proof-candidate">

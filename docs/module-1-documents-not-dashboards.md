@@ -173,9 +173,18 @@ become one document.
 
 ### 3.4 Reflect: the notebook
 
-Notes and dialogue as manuscript (coaching register unchanged); the
-artifact notebook as an index of saved documents — derivations, search
-summaries, proof attempts — rather than a card gallery.
+The closing page: the working question and the result it reached; an authored
+coda stating what the proof actually is (structural induction; the invariant
+as a model plus soundness) and where it goes (decidability vs. the word
+problem; the Gödel / inside-outside seed; the bridge to a token-by-token
+generator that can't step outside itself); and the artifact notebook as an
+index of saved documents — derivations, search summaries, proof attempts —
+rather than a card gallery.
+
+The live examiner that earlier sat here was retired (June 13, 2026): for a
+graduate reader the lesson is trivial and the coaching register cannot be
+trusted on metamathematics, so the depth is authored, not negotiated with an
+LLM. The dialogue backend is parked for the AI-stage reflexive-dialogue idea.
 
 ### 3.5 The threads that make it one arc
 
@@ -188,7 +197,8 @@ summaries, proof attempts — rather than a card gallery.
   shift is carried by this recurrence structurally, not by captions.
 - The epistemic registers and object/meta paper treatments survive
   unchanged: derivation lines and proof stamps are verified; the tree and
-  its captions are computed; dialogue remains a coaching margin note.
+  its captions are computed; the Reflect coda is authored reference, never a
+  stamp.
 
 ---
 

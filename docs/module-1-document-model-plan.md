@@ -267,14 +267,49 @@ candidate and read its counterexample, save both artifact types.
 
 ## Phase D — Reflect: the notebook page
 
-1. Notes and dialogue as manuscript (coaching register unchanged: dotted,
-   italic serif, margin-note feel; the examiner stays the only coaching
-   surface).
-2. The artifact notebook becomes a document index — one line per saved
-   document with its type, recognizing metadata, and restore destination —
-   not a card gallery. Filters stay.
+**Implemented June 13, 2026** (mockup approved on sight the same day),
+awaiting played acceptance. The page is the closing document — single column
+on the meta canvas, like its three siblings, and the last phase off the
+three-column lab desk, which leaves `LabDesk`, `SurfacePanel`, and
+`WorkingQuestion` orphaned for the final-pass purge. Three movements:
 
-Played acceptance: seed a prompt, save a note, filter, restore.
+1. **The header.** The working question lives here now (its home after
+   leaving Explore, Map, and Prove), written on a line, over the settled
+   result — "MU is not reachable from MI" — stated with its one-line why (the
+   I-count mod 3 is preserved by every rule; MU has count 0). The result is
+   cited from Prove with the verified stamp ("verified in Prove"), never
+   re-verified here: Reflect cites, it does not stamp.
+2. **What you proved, and where it goes.** An authored coda in the reference
+   register (not coaching): the proof is structural induction over the
+   inductively-defined theorem set, and the only real work is finding the
+   invariant (the loop-invariant problem). Then three threads name the real
+   mathematics — the invariant as a model plus soundness; MIU's decidability
+   against the undecidable word problem for general rewriting (Post, 1947);
+   and the inside/outside move as the Gödel seed and the bridge to a
+   token-by-token generator that can't step outside itself.
+3. **The kept documents.** The artifact notebook is a document index — one
+   line per saved document with its type, recognizing metadata, and restore
+   destination, filters kept — not a card gallery.
+
+The live examiner is **retired** (June 13 played review). For a graduate
+reader the lesson is trivial and the coaching register can't be trusted on
+metamathematics, so a live LLM coach was the wrong instrument; the depth is
+delivered instead as the authored coda, where the product can stand behind
+it. The dialogue backend (endpoint, team, client, `smoke:dialogue`) is
+**parked, not deleted** — reserved for the AI-stage reflexive-dialogue idea
+(the LLM as a specimen of an in-system generator). The notes editor is cut
+too: the closing page is result + coda + filing, with nothing to fill in.
+
+Saves collapse to quiet inline actions: Save derivation · Save progress.
+("Save derivation" is **kept**: it is the only trace-save path in the app —
+Explore has none — so removing it would delete the capability.)
+
+A repo-local skill, `.agents/skills/prose/SKILL.md`, was written from this
+phase's register failures (the faux-profound LLM tics) and is the standard
+for all reader-facing copy going forward.
+
+Played acceptance: edit the working question, read the coda, filter the
+notebook, restore an artifact.
 
 ## Final pass — purge and docs
 

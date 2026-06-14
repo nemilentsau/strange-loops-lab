@@ -66,6 +66,10 @@ and whether a mathematician would respect it. Do not default to cards,
 checklists, or friendly-app idioms; that is the documented failure mode this
 law exists to stop.
 
+Before writing or editing any reader-facing copy, read
+`.agents/skills/prose/SKILL.md` — the plain-register rules and the banned
+faux-profound / friendly-app tics.
+
 ## Dependencies and commands
 
 The current scaffold is a root SvelteKit app managed with `npm`.
@@ -92,6 +96,7 @@ Current repo-local skills worth keeping:
 
 - `.agents/skills/testing/SKILL.md` — read before adding or restructuring tests
 - `.agents/skills/ux-design/SKILL.md` — use for distinctive UI work when building the module experience
+- `.agents/skills/prose/SKILL.md` — read before writing or editing any reader-facing copy; the plain-register rules and the banned faux-profound / friendly-app tics
 
 Removed or avoid-for-now categories:
 - data-analysis / dashboard-specific skills from the old project

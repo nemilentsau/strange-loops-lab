@@ -146,8 +146,7 @@ body.module1-wide .site-shell {
 }
 
 .site-nav,
-.hero__actions,
-.status-row {
+.hero__actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 12px;
@@ -1455,81 +1454,6 @@ body.module1-wide .site-shell {
 	line-height: 1.55;
 }
 
-/* Reflect's guide-rail prompt list: one compact, full-width column so each
- * prompt is a single tap-to-seed row in the narrow rail. */
-.reflection-prompt-list {
-	display: grid;
-	gap: var(--space-sm);
-}
-
-/* Synthesis instrument: the explain-back examiner sits below the notes editor,
- * separated by a hairline. */
-.synthesis-examiner {
-	display: grid;
-	gap: var(--space-sm);
-	margin-top: var(--space-md);
-	padding-top: var(--space-md);
-	border-top: 1px solid var(--line);
-}
-
-/* Reflection prompts seed the notes editor — they are actionable, so their
- * hover is the accent. One neutral ink treatment, single hue (the old
- * per-prompt --rose/--teal/--gold modifiers are gone). */
-.reflection-prompt {
-	position: relative;
-	padding: var(--space-md) var(--space-md) var(--space-lg);
-	padding-left: calc(var(--space-md) + 16px);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-	transition:
-		border-color 200ms ease,
-		background 200ms ease;
-}
-
-.reflection-prompt::before {
-	content: '';
-	position: absolute;
-	left: var(--space-md);
-	top: calc(var(--space-md) + 5px);
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--faint);
-}
-
-.reflection-prompt:hover,
-.reflection-prompt:focus-visible {
-	border-color: var(--act);
-	background: rgba(138, 59, 46, 0.04);
-}
-
-.reflection-prompt strong {
-	color: var(--ink);
-}
-
-.reflection-prompt__subtitle {
-	display: block;
-	margin-top: 2px;
-	font-size: 0.78rem;
-	font-style: italic;
-	color: var(--muted);
-}
-
-.reflection-prompt p {
-	margin: 8px 0 0;
-	color: var(--muted);
-	line-height: 1.55;
-}
-
-.artifact-notebook {
-	display: grid;
-	gap: var(--space-md);
-}
-
 /*
  * The notebook is the learner's own store — deliberately UNTONED. Filters and
  * metadata are neutral bookkeeping (ink on paper, no register marks). They
@@ -1645,6 +1569,104 @@ body.module1-wide .site-shell {
 	overflow-wrap: anywhere;
 }
 
+/* ── Reflect: the notebook's closing page ──
+ * One document, single column, on the meta canvas — like its three siblings.
+ * The header states the settled result (cited from Prove, never re-stamped
+ * here); the account is the learner's manuscript; the examiner is the coaching
+ * margin; the kept documents are an index. No cards, no lab desk. */
+.reflect-doc {
+	max-width: 1060px;
+	margin: 0 auto;
+	padding: var(--space-xl) var(--space-2xl);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--panel);
+}
+
+.reflect-section {
+	padding: var(--space-lg) 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.reflect-section:first-of-type {
+	padding-top: var(--space-xs);
+}
+
+.reflect-section:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+/* The working question lives here now: a line you write on, not a boxed field. */
+.reflect-question__field {
+	width: 100%;
+	padding: 6px 0;
+	border: 0;
+	border-bottom: 1px dashed var(--line-strong);
+	background: transparent;
+	color: var(--ink);
+	font-family: var(--serif);
+	font-size: 1.12rem;
+	font-style: italic;
+}
+
+.reflect-question__field:focus {
+	outline: none;
+	border-bottom-color: var(--act);
+}
+
+.reflect-question__field::placeholder {
+	color: var(--faint);
+}
+
+/* The result carries the verified stamp but names where it was verified —
+ * Reflect cites Prove, it does not re-verify. */
+.reflect-claim-stamp {
+	margin-top: 12px;
+}
+
+/* The coda: authored connective prose — what the proof is and where it goes.
+ * Reference register: plain ink on panel, not coaching, not a stamp. */
+.reflect-coda__lead {
+	margin: 0 0 var(--space-lg);
+	max-width: 66ch;
+	font-size: 0.96rem;
+	line-height: 1.72;
+	color: var(--ink);
+}
+
+.reflect-coda__threads {
+	display: grid;
+	gap: 14px;
+	max-width: 66ch;
+}
+
+.reflect-coda__thread {
+	margin: 0;
+	padding-left: 16px;
+	border-left: 1px solid var(--line-strong);
+	font-size: 0.92rem;
+	line-height: 1.68;
+	color: var(--muted);
+}
+
+.reflect-coda__thread em {
+	color: var(--ink);
+	font-style: italic;
+}
+
+/* Saves: quiet inline actions on the closing page, not bordered cards. */
+.reflect-saves {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	margin-top: var(--space-md);
+}
+
+.restore-destination {
+	white-space: nowrap;
+}
+
 /* ── Surface Panel register variants ──
  * Register line grammar (independent of hue, so it survives colorblindness):
  * solid graphite rule = verified, dashed gray rule = computed, dotted rule +
@@ -1696,16 +1718,7 @@ body.module1-wide .site-shell {
 	letter-spacing: 0;
 }
 
-.field-label {
-	display: grid;
-	gap: 8px;
-	font-size: 0.88rem;
-	font-weight: 600;
-	color: var(--ink);
-}
-
-.text-field,
-.text-area {
+.text-field {
 	width: 100%;
 	padding: 12px 14px;
 	border: 1px solid var(--line-strong);
@@ -1717,31 +1730,22 @@ body.module1-wide .site-shell {
 	transition: border-color 200ms ease;
 }
 
-.text-field:hover,
-.text-area:hover {
+.text-field:hover {
 	border-color: var(--faint);
 }
 
-.text-field:focus,
-.text-area:focus {
+.text-field:focus {
 	outline: none;
 	border-color: var(--act);
 }
 
-.text-field::placeholder,
-.text-area::placeholder {
+.text-field::placeholder {
 	color: var(--faint);
 }
 
 /* MIU strings are typed in monospace. */
 .text-field {
 	font-family: var(--mono);
-}
-
-.text-area {
-	min-height: 170px;
-	resize: vertical;
-	font-family: var(--sans);
 }
 
 /* ── Map: the derivation tree ──
@@ -2520,82 +2524,6 @@ body.module1-wide .site-shell {
 	justify-self: start;
 }
 
-.dialogue-transcript {
-	display: grid;
-	gap: 14px;
-}
-
-/* ── Dialogue transcript: coaching register only ──
- * Dotted rules, italic serif, a slightly warmer paper tint. Speaker roles are
- * distinguished by edge STYLE (solid vs dashed left edge), never by hue. The
- * coaching register never gets a stamp and never gets the action accent. */
-.dialogue-turn,
-.dialogue-final {
-	padding: var(--space-md);
-	border: 1px dotted var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel-meta);
-	font-family: var(--serif);
-	font-style: italic;
-}
-
-.dialogue-turn[data-agent='examiner'] {
-	border-left: 3px solid var(--faint);
-}
-
-.dialogue-turn[data-agent='proof_coach'] {
-	border-left: 3px dashed var(--faint);
-}
-
-.dialogue-final {
-	border: 1px dotted var(--line-strong);
-	border-left: 3px dotted var(--faint);
-}
-
-.dialogue-turn__top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 8px;
-}
-
-.dialogue-turn p,
-.dialogue-final p {
-	margin: 0;
-	color: var(--muted);
-	line-height: 1.65;
-}
-
-.dialogue-final small {
-	display: block;
-	margin-top: 10px;
-	color: var(--faint);
-	font-style: normal;
-	font-family: var(--mono);
-}
-
-/* The dialogue-mode notice is coaching chrome: dotted, serif italic, no hue. */
-.dialogue-mode-card {
-	padding: 14px 16px;
-	border: 1px dotted var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel-meta);
-	font-family: var(--serif);
-	font-style: italic;
-}
-
-.dialogue-mode-card strong {
-	display: block;
-	color: var(--ink);
-}
-
-.dialogue-mode-card small {
-	display: block;
-	margin-top: 6px;
-	color: var(--muted);
-	line-height: 1.5;
-}
 
 .placeholder-copy {
 	margin: 0;
@@ -2604,70 +2532,6 @@ body.module1-wide .site-shell {
 	border-radius: var(--radius);
 	background: var(--panel);
 	color: var(--muted);
-}
-
-/* ── Dialogue Empty State ── (coaching chrome: dotted, serif italic) */
-.dialogue-empty-state {
-	padding: var(--space-md);
-	border: 1px dotted var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel-meta);
-	font-family: var(--serif);
-	font-style: italic;
-}
-
-.dialogue-empty-state p {
-	margin: 0;
-	color: var(--muted);
-	line-height: 1.55;
-	font-size: 0.92rem;
-}
-
-/* The "try this" affordance IS actionable → accent, and steps out of the
- * italic coaching voice into an upright sans button. */
-.dialogue-empty-state__suggestion {
-	display: inline-block;
-	margin-top: var(--space-sm);
-	padding: 6px 14px;
-	border: 1px solid var(--line-strong);
-	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--ink);
-	font-family: var(--sans);
-	font-style: normal;
-	font-size: 0.8rem;
-	cursor: pointer;
-	transition: border-color 160ms ease, color 160ms ease;
-}
-
-.dialogue-empty-state__suggestion:hover,
-.dialogue-empty-state__suggestion:focus-visible {
-	border-color: var(--act);
-	color: var(--act);
-}
-
-/* ── Save Actions ── */
-.save-actions {
-	display: grid;
-	gap: var(--space-md);
-}
-
-.save-actions__group {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--space-sm);
-}
-
-.save-action {
-	display: grid;
-	gap: 4px;
-}
-
-.save-action__hint {
-	font-size: 0.72rem;
-	color: var(--muted);
-	line-height: 1.4;
-	padding-left: 2px;
 }
 
 /* ── Legend Chip Tooltip ── */

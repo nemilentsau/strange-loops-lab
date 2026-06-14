@@ -1,11 +1,6 @@
 <script lang="ts">
-	import LabDesk from '$lib/components/LabDesk.svelte';
-	import SurfacePanel from '$lib/components/SurfacePanel.svelte';
-	import WorkingQuestion from '$lib/components/WorkingQuestion.svelte';
-	import type { DialogueResult } from '$lib/dialogue/types';
 	import {
 		restoreTargetForModule1Artifact,
-		type DialogueMode,
 		type Module1Artifact,
 		PHASE_META,
 		LEVEL_PRESENTATION
@@ -19,68 +14,31 @@
 		type ArtifactTypeFilter
 	} from '$lib/state/module1Artifacts';
 
-	interface ReflectionPrompt {
-		title: string;
-		subtitle: string;
-		text: string;
-	}
-
 	let {
-		dialogueInput,
-		dialogueMode,
-		lastDialogue,
-		dialogueRunning,
-		dialogueStatus,
-		notes,
 		snapshotStatus,
 		artifactStatus,
 		savedArtifacts,
-		reflectionPrompts,
 		workingQuestion,
-		onUpdateDialogueInput,
-		onRunDialogue,
-		onUpdateNotes,
-		onUseReflectionPrompt,
 		onSaveSnapshot,
-		onSaveNote,
 		onSaveTrace,
 		onRestoreArtifact,
-		onPopulateSuggestion,
 		onUpdateQuestion,
 		formatTimestamp
 	}: {
-		dialogueInput: string;
-		dialogueMode: DialogueMode;
-		lastDialogue: DialogueResult | null;
-		dialogueRunning: boolean;
-		dialogueStatus: string;
-		notes: string;
 		snapshotStatus: string;
 		artifactStatus: string;
 		savedArtifacts: Module1Artifact[];
-		reflectionPrompts: readonly ReflectionPrompt[];
 		workingQuestion: string;
-		onUpdateDialogueInput: (event: Event) => void;
-		onRunDialogue: () => void;
-		onUpdateNotes: (event: Event) => void;
-		onUseReflectionPrompt: (prompt: string) => void;
 		onSaveSnapshot: () => void;
-		onSaveNote: () => void;
 		onSaveTrace: () => void;
 		onRestoreArtifact: (artifact: Module1Artifact) => void;
-		onPopulateSuggestion: (text: string) => void;
 		onUpdateQuestion: (event: Event) => void;
 		formatTimestamp: (value: string | null) => string;
 	} = $props();
 
 	function restoreLabelFor(artifactType: string): string {
 		const target = restoreTargetForModule1Artifact(artifactType);
-
-		if (!target) {
-			return 'Restore unavailable';
-		}
-
-		return `Restore to ${capitalize(target.phase)}`;
+		return target ? `Restore to ${capitalize(target.phase)}` : 'Saved only';
 	}
 
 	function capitalize(value: string): string {
@@ -105,238 +63,166 @@
 			count: typeCounts[type]
 		}))
 	]);
-	const visibleArtifacts = $derived(
-		filterArtifactsByType(savedArtifacts, artifactFilter)
-	);
+	const visibleArtifacts = $derived(filterArtifactsByType(savedArtifacts, artifactFilter));
 
 	// If the active filter empties out (e.g. after a reset), fall back to All so
-	// the learner is never staring at a blank notebook with hidden entries.
+	// the reader is never staring at a blank notebook with hidden entries.
 	$effect(() => {
 		if (artifactFilter !== 'all' && typeCounts[artifactFilter] === 0) {
 			artifactFilter = 'all';
 		}
 	});
 
-	const DEFAULT_DIALOGUE_STATUS = 'Submit your explanation above to get coaching feedback.';
-	const hasDialogueRun = $derived(lastDialogue !== null);
-	const showDialogueStatus = $derived(
-		hasDialogueRun || dialogueRunning || dialogueStatus !== DEFAULT_DIALOGUE_STATUS
-	);
-
 	const level = PHASE_META.reflect.level;
 	const levelPresentation = LEVEL_PRESENTATION[level];
 </script>
 
+<!--
+	Reflect: the notebook's closing page. One document, single column, like its
+	three siblings. The question you came with and the result you reached; an
+	authored account of what the proof actually is and where it goes; the kept
+	documents, filed as an index. The live examiner is retired — it had no value
+	for a peer-level reader on a lesson they already own, and the coaching
+	register can't be trusted on metamathematics. The dialogue backend is parked
+	(still covered by smoke:dialogue) — see docs/module-1-document-model-plan.md.
+-->
 <div class="phase-canvas phase-canvas--{level} phase-reflect">
 	<span class="phase-canvas__rim">
 		<span class="phase-canvas__rim-glyph" aria-hidden="true">{levelPresentation.glyph}</span>
 		{levelPresentation.label}
 	</span>
 
-	<LabDesk>
-		{#snippet guide()}
-			<WorkingQuestion {workingQuestion} {onUpdateQuestion} />
+	<div class="reflect-doc">
+		<p class="worksheet__label">The notebook’s closing page — synthesis</p>
 
-			<SurfacePanel title="Reflection Prompts" eyebrow="If the blank page is too open">
-				<div class="reflection-prompt-list">
-					{#each reflectionPrompts as prompt}
+		<!-- Movement 1: your question, and what the module settled -->
+		<section class="reflect-section">
+			<label class="worksheet__label" for="reflect-question">Your working question</label>
+			<input
+				id="reflect-question"
+				class="reflect-question__field"
+				placeholder="What did you come here to decide? (e.g. can MU be reached from MI?)"
+				value={workingQuestion}
+				oninput={onUpdateQuestion}
+			/>
+
+			<p class="proof-claim">
+				<span class="proof-claim__word">Result</span>MU is not reachable from MI.
+			</p>
+			<p class="proof-claim-note">
+				The I-count mod 3 is preserved by every rule and MU has count 0, so no derivation reaches it.
+				It’s a claim about every derivation at once, which is why it’s proved in Prove and not just
+				left unsearched here.
+			</p>
+			<span class="badge reflect-claim-stamp" data-tone="verified" data-verdict="pass">verified in Prove</span>
+		</section>
+
+		<!-- Movement 2: what the proof is, and where it goes — authored, not coaching -->
+		<section class="reflect-section">
+			<p class="worksheet__label">What you proved</p>
+			<p class="reflect-coda__lead">
+				This is structural induction, not a search. The theorems are defined inductively — MI, plus
+				whatever the four rules produce from a theorem — so to prove something about all of them you
+				check that it holds for MI and that no rule breaks it. The I-count mod 3 works: MI has 1, every
+				rule keeps it nonzero, MU would need 0. The only real work is finding that invariant; the rest
+				is mechanical. It’s the same problem as finding a loop invariant — you strengthen a guess until
+				every rule preserves it.
+			</p>
+
+			<p class="worksheet__label worksheet__label--rules">Where it goes</p>
+			<div class="reflect-coda__threads">
+				<p class="reflect-coda__thread">
+					<em>The invariant is a model.</em> The rules act on ℤ/3: R2 doubles the count, R3 removes three
+					I’s so it does nothing mod 3, R1 and R4 leave it alone. From 1 you only ever reach 1 or 2,
+					never 0 — and MU is 0, so it isn’t a theorem. This is the usual way to prove something
+					unprovable: find a model where it fails. Forcing does the same for ¬CH.
+				</p>
+				<p class="reflect-coda__thread">
+					<em>MIU is decidable.</em> A string is a theorem exactly when its number of I’s isn’t a multiple
+					of 3 — you can just check. That depends on these four rules. For string-rewriting systems in
+					general, whether one string can be rewritten into another is undecidable (Post, 1947). MIU is
+					just on the decidable side of that line, and the open question is when the invariant trick
+					stops working.
+				</p>
+				<p class="reflect-coda__thread">
+					<em>The proof talks about the system from outside.</em> It isn’t a longer derivation; it’s a
+					statement about all derivations, which the system can’t make itself. That gap — provable inside
+					versus true seen from outside — is where Gödel starts. It’s also why MIU is on the way to what
+					we’re really after: a system that emits strings one token at a time and can’t step outside
+					itself to see what it will never produce.
+				</p>
+			</div>
+		</section>
+
+		<!-- Movement 3: kept documents -->
+		<section class="reflect-section">
+			<p class="worksheet__label">Kept documents</p>
+
+			{#if savedArtifacts.length > 0}
+				<div class="artifact-filters" role="group" aria-label="Filter the notebook by document type">
+					{#each filterOptions as option}
 						<button
-							class="reflection-prompt"
+							class="artifact-filter"
 							type="button"
-							onclick={() => onUseReflectionPrompt(prompt.text)}
+							data-active={artifactFilter === option.value}
+							disabled={option.value !== 'all' && option.count === 0}
+							aria-pressed={artifactFilter === option.value}
+							onclick={() => (artifactFilter = option.value)}
 						>
-							<strong>{prompt.title}</strong>
-							<span class="reflection-prompt__subtitle">{prompt.subtitle}</span>
-							<p>{prompt.text}</p>
+							{option.label}
+							<span class="artifact-filter__count">{option.count}</span>
 						</button>
 					{/each}
 				</div>
-			</SurfacePanel>
 
-			<SurfacePanel title="Save your work" eyebrow="Capture this session">
-				<div class="save-actions">
-					<div class="save-action">
-						<button class="button button--ghost" type="button" onclick={onSaveSnapshot}>
-							Save progress
-						</button>
-						<span class="save-action__hint">Saves your entire session so you can resume later.</span>
-					</div>
-					<p class="field-note">{snapshotStatus}</p>
-
-					<div class="save-actions__group">
-						<div class="save-action">
-							<button class="button button--ghost" type="button" onclick={onSaveNote}>
-								Save notes
-							</button>
-							<span class="save-action__hint">Captures your current notes as a named artifact.</span>
-						</div>
-						<div class="save-action">
-							<button class="button button--ghost" type="button" onclick={onSaveTrace}>
-								Save derivation
-							</button>
-							<span class="save-action__hint">Captures the derivation trace you built in Explore.</span>
-						</div>
-					</div>
-				</div>
-			</SurfacePanel>
-		{/snippet}
-
-		{#snippet instrument()}
-			<SurfacePanel title="Synthesis" eyebrow="Your own words" instrument>
-				<label class="field-label" for="module-notes">
-					Notes and reflections
-					<textarea
-						id="module-notes"
-						class="text-area"
-						placeholder="Jot down observations, conjectures, or things you want to remember..."
-						value={notes}
-						oninput={onUpdateNotes}
-					></textarea>
-				</label>
-
-				<div class="synthesis-examiner">
-					<div class="surface-panel__header">
-						<div>
-							<p class="eyebrow">Explain-back examiner</p>
-							<h3>Talk your reasoning through; the examiner probes for the weak step.</h3>
-						</div>
-						<span
-							class="legend-chip"
-							title="The examiner probes your understanding — it does not verify or certify proof correctness."
-						>Coaching, not proof</span>
-					</div>
-
-					<div class="dialogue-mode-card">
-						<strong>{dialogueMode}</strong>
-						<small>
-							One honest coaching mode for now: probe the user explanation until the weak step
-							becomes explicit, without pretending to certify proof.
-						</small>
-					</div>
-
-					<label class="field-label" for="dialogue-input">
-						Your explanation or question
-						<textarea
-							id="dialogue-input"
-							class="text-area"
-							placeholder="Describe your understanding or ask a question..."
-							oninput={onUpdateDialogueInput}
-						>{dialogueInput}</textarea>
-					</label>
-					<div class="status-row">
-						<button
-							class="button button--ghost"
-							type="button"
-							onclick={onRunDialogue}
-							disabled={dialogueRunning}
-						>
-							{dialogueRunning ? 'Getting feedback...' : 'Get feedback'}
-						</button>
-					</div>
-
-					{#if !hasDialogueRun && !dialogueRunning}
-						<div class="dialogue-empty-state">
-							<p>Describe what you understood about the proof. The examiner will probe your explanation to help you find gaps.</p>
-							<button
-								class="dialogue-empty-state__suggestion"
-								type="button"
-								onclick={() => onPopulateSuggestion('I think MU is unreachable because...')}
-							>
-								Try: "I think MU is unreachable because..."
-							</button>
-						</div>
-					{/if}
-
-					{#if showDialogueStatus}
-						<p class="field-note">{dialogueStatus}</p>
-					{/if}
-
-					{#if lastDialogue}
-						<div class="dialogue-transcript">
-							{#each lastDialogue.messages as message}
-								<div class="dialogue-turn" data-agent={message.agent}>
-									<div class="dialogue-turn__top">
-										<strong>{message.agent === 'examiner' ? 'Examiner' : 'Proof Coach'}</strong>
-										<span class="badge" data-tone="coaching">coaching</span>
-									</div>
-									<p>{message.content}</p>
+				<ul class="ledger artifact-ledger">
+					{#each visibleArtifacts as artifact (artifact.id)}
+						<li class="artifact-ledger__item">
+							<div class="artifact-ledger__meta">
+								<div class="artifact-ledger__title-row">
+									<span class="badge artifact-type-badge">{artifactTypeLabel(artifact.artifactType)}</span>
+									<strong>{artifact.title}</strong>
 								</div>
-							{/each}
-
-							<div class="dialogue-final">
-								<p class="eyebrow">Final response</p>
-								<p>{lastDialogue.finalResponse}</p>
-								{#if lastDialogue.sessionId}
-									<small>Session {lastDialogue.sessionId}</small>
-								{/if}
-							</div>
-						</div>
-					{/if}
-				</div>
-			</SurfacePanel>
-		{/snippet}
-
-		{#snippet evidence()}
-			<SurfacePanel title="Artifact Notebook" eyebrow="Your saved work">
-				{#if savedArtifacts.length > 0}
-					<div class="artifact-notebook">
-						<div class="artifact-filters" role="group" aria-label="Filter notebook by artifact type">
-							{#each filterOptions as option}
-								<button
-									class="artifact-filter"
-									type="button"
-									data-active={artifactFilter === option.value}
-									disabled={option.value !== 'all' && option.count === 0}
-									aria-pressed={artifactFilter === option.value}
-									onclick={() => (artifactFilter = option.value)}
-								>
-									{option.label}
-									<span class="artifact-filter__count">{option.count}</span>
-								</button>
-							{/each}
-						</div>
-
-						<ul class="ledger artifact-ledger">
-							{#each visibleArtifacts as artifact (artifact.id)}
-								<li class="artifact-ledger__item">
-									<div class="artifact-ledger__meta">
-										<div class="artifact-ledger__title-row">
-											<span class="badge artifact-type-badge">{artifactTypeLabel(artifact.artifactType)}</span>
-											<strong>{artifact.title}</strong>
+								<dl class="artifact-ledger__facts">
+									{#each reviewFactsFor(artifact) as field}
+										<div class="artifact-fact">
+											<dt>{field.label}</dt>
+											<dd>{field.value}</dd>
 										</div>
-										<dl class="artifact-ledger__facts">
-											{#each reviewFactsFor(artifact) as field}
-												<div class="artifact-fact">
-													<dt>{field.label}</dt>
-													<dd>{field.value}</dd>
-												</div>
-											{/each}
-											<div class="artifact-fact">
-												<dt>Saved</dt>
-												<dd>{formatTimestamp(artifact.createdAt)}</dd>
-											</div>
-										</dl>
+									{/each}
+									<div class="artifact-fact">
+										<dt>Saved</dt>
+										<dd>{formatTimestamp(artifact.createdAt)}</dd>
 									</div>
-									<button
-										class="button button--ghost button--sm"
-										type="button"
-										onclick={() => onRestoreArtifact(artifact)}
-										disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
-									>
-										{restoreLabelFor(artifact.artifactType)}
-									</button>
-								</li>
-							{/each}
-						</ul>
-					</div>
-				{:else}
-					<p class="placeholder-copy">
-						Nothing saved yet. Save your notes, derivation, or proof work and it lands here.
-					</p>
-				{/if}
+								</dl>
+							</div>
+							<button
+								class="button button--ghost button--sm restore-destination"
+								type="button"
+								onclick={() => onRestoreArtifact(artifact)}
+								disabled={!restoreTargetForModule1Artifact(artifact.artifactType)}
+							>
+								{restoreLabelFor(artifact.artifactType)}
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{:else}
+				<p class="placeholder-copy">
+					Nothing saved yet. Work you save in Explore, Map, and Prove lands here.
+				</p>
+			{/if}
 
-				<p class="field-note">{artifactStatus}</p>
-			</SurfacePanel>
-		{/snippet}
-	</LabDesk>
+			<div class="reflect-saves">
+				<button class="button button--ghost button--sm" type="button" onclick={onSaveTrace}>
+					Save derivation
+				</button>
+				<button class="button button--ghost button--sm" type="button" onclick={onSaveSnapshot}>
+					Save progress
+				</button>
+			</div>
+			<p class="field-note">{artifactStatus}</p>
+			<p class="field-note">{snapshotStatus}</p>
+		</section>
+	</div>
 </div>
