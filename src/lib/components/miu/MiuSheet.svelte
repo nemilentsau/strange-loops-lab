@@ -38,34 +38,12 @@
 		onReset: () => void;
 	} = $props();
 
-	let pinnedRuleId = $state<MiuRuleId | null>(null);
 	let hoverRuleId = $state<MiuRuleId | null>(null);
 	let hoverMoveKey = $state<string | null>(null);
-	let lastTrace: DerivationTrace | null = null;
-
-	$effect(() => {
-		if (trace !== lastTrace) {
-			const isFreshTrace = trace.steps.length === 1;
-			lastTrace = trace;
-			if (isFreshTrace) {
-				pinnedRuleId = null;
-			}
-		}
-	});
-
-	$effect(() => {
-		if (
-			pinnedRuleId &&
-			!ruleAvailability.some((row) => row.ruleId === pinnedRuleId && row.status === 'available')
-		) {
-			pinnedRuleId = null;
-		}
-	});
 
 	const activeRule = $derived.by(() => {
-		const id = hoverRuleId ?? pinnedRuleId;
-		if (!id) return null;
-		const row = ruleAvailability.find((candidate) => candidate.ruleId === id);
+		if (!hoverRuleId) return null;
+		const row = ruleAvailability.find((candidate) => candidate.ruleId === hoverRuleId);
 		return row && row.status === 'available' ? row : null;
 	});
 	const activeMoves = $derived(activeRule?.moves ?? []);
@@ -122,10 +100,6 @@
 			event.preventDefault();
 			applySite(move);
 		}
-	}
-
-	function toggleRulePin(ruleId: MiuRuleId) {
-		pinnedRuleId = pinnedRuleId === ruleId ? null : ruleId;
 	}
 
 	function shortRuleId(ruleLabel: string): string {
@@ -219,7 +193,9 @@
 		<button class="worksheet-reset" type="button" onclick={onReset}>Reset to MI</button>
 	</div>
 
-	<div class="spine">
+	<div class="worksheet__cols">
+		<div class="worksheet__main">
+			<div class="spine">
 		{#each trace.steps as step, index}
 			{#if index < trace.currentIndex}
 				{@render spineLine(step, index, false)}
@@ -286,70 +262,84 @@
 				from step {trace.currentIndex} — branching discards {aheadSteps === 1 ? 'it' : 'them'}.
 			</p>
 		{/if}
-	</div>
-
-	<p class="worksheet__label worksheet__label--rules">Rules</p>
-
-	<div class="rules-ledger">
-		{#each ruleAvailability as row (row.ruleId)}
-			<div
-				class="ledger-row"
-				role="group"
-				aria-label={row.ruleLabel}
-				data-state={row.status}
-				data-pinned={pinnedRuleId === row.ruleId}
-				onpointerenter={() => {
-					if (row.status === 'available') hoverRuleId = row.ruleId;
-				}}
-				onpointerleave={() => (hoverRuleId = null)}
-			>
-				<span class="ledger-row__id">{shortRuleId(row.ruleLabel)}</span>
-				<span class="ledger-row__pattern">{row.pattern}</span>
-
-				{#if row.status === 'unavailable'}
-					<span class="ledger-row__status">— {row.reason}</span>
-				{:else if row.moves.length === 1}
-					<span class="ledger-row__preview">→ {ellipsizeMiddle(row.moves[0]!.result)}</span>
-					<button
-						class="ledger-apply"
-						type="button"
-						onfocus={() => (hoverRuleId = row.ruleId)}
-						onblur={() => (hoverRuleId = null)}
-						onclick={() => applySite(row.moves[0]!)}
-					>
-						Apply
-					</button>
-				{:else}
-					<button
-						class="ledger-sites"
-						type="button"
-						aria-pressed={pinnedRuleId === row.ruleId}
-						onfocus={() => (hoverRuleId = row.ruleId)}
-						onblur={() => (hoverRuleId = null)}
-						onclick={() => toggleRulePin(row.ruleId)}
-					>
-						<strong>applies at {row.moves.length} places</strong>
-						<span class="ledger-sites__hint">— sites marked in the string</span>
-					</button>
-				{/if}
 			</div>
-		{/each}
-	</div>
 
-	{#if deadBranchStart !== null}
-		<div class="dead-branch">
-			<strong>This branch is closed.</strong> Only R2 applies, and doubling this tail can never create
-			III, UU, or a final I — the other rules will never reopen from here, however far you double.
-			{#if deadBranchStart > 0}
-				<button
-					class="dead-branch__jump"
-					type="button"
-					onclick={() => onJumpToStep(deadBranchStart - 1)}
-				>
-					↩ leave this branch — back to step {deadBranchStart - 1}
-				</button>
+			{#if deadBranchStart !== null}
+				<div class="dead-branch">
+					<strong>This branch is closed.</strong> Only R2 applies, and doubling this tail can never
+					create III, UU, or a final I — the other rules will never reopen from here, however far
+					you double.
+					{#if deadBranchStart > 0}
+						<button
+							class="dead-branch__jump"
+							type="button"
+							onclick={() => onJumpToStep(deadBranchStart - 1)}
+						>
+							↩ leave this branch — back to step {deadBranchStart - 1}
+						</button>
+					{/if}
+				</div>
 			{/if}
 		</div>
-	{/if}
 
+		<aside class="rules-rail">
+			<p class="worksheet__label">Rules</p>
+			<div class="rules-ledger">
+				{#each ruleAvailability as row (row.ruleId)}
+					<div
+						class="ledger-row"
+						role="group"
+						aria-label={row.ruleLabel}
+						data-state={row.status}
+						onpointerenter={() => {
+							if (row.status === 'available') hoverRuleId = row.ruleId;
+						}}
+						onpointerleave={() => {
+							hoverRuleId = null;
+							hoverMoveKey = null;
+						}}
+					>
+						<div class="ledger-row__head">
+							<span class="ledger-row__id">{shortRuleId(row.ruleLabel)}</span>
+							<span class="ledger-row__pattern">{row.pattern}</span>
+							{#if row.status === 'available' && row.moves.length > 1}
+								<span class="ledger-row__count">{row.moves.length} sites</span>
+							{/if}
+						</div>
+
+						{#if row.status === 'unavailable'}
+							<p class="ledger-row__status">— {row.reason}</p>
+						{:else}
+							<div class="ledger-results">
+								{#each row.moves as move (move.key)}
+									<button
+										class="ledger-result"
+										type="button"
+										aria-label={`Apply ${row.ruleLabel}, producing ${move.result}`}
+										onpointerenter={() => {
+											hoverRuleId = row.ruleId;
+											hoverMoveKey = move.key;
+										}}
+										onpointerleave={() => (hoverMoveKey = null)}
+										onfocus={() => {
+											hoverRuleId = row.ruleId;
+											hoverMoveKey = move.key;
+										}}
+										onblur={() => {
+											hoverRuleId = null;
+											hoverMoveKey = null;
+										}}
+										onclick={() => applySite(move)}
+									>
+										<span class="ledger-result__arrow" aria-hidden="true">→</span>
+										<span class="ledger-result__value">{ellipsizeMiddle(move.result)}</span>
+									</button>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		</aside>
+	</div>
 </div>

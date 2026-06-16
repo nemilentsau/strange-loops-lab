@@ -185,11 +185,26 @@ select {
 	color: var(--act);
 }
 
-.worksheet__label--rules {
-	margin-top: var(--space-xl);
-	padding-top: var(--space-sm);
-	border-top: 1px solid var(--line-strong);
-	color: var(--muted);
+/* The derivation and the rules sit side by side: the derivation is the main
+ * column, the rules a right-hand rail. */
+.worksheet__cols {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 18rem;
+	gap: var(--space-xl);
+	align-items: start;
+}
+
+.worksheet__main {
+	min-width: 0;
+}
+
+/* The rail is sticky so the four-rule ledger stays on screen as the derivation
+ * grows. Each producible string in it is its own control: hover lights the
+ * site it fills in the focal string; click takes that step. */
+.rules-rail {
+	position: sticky;
+	top: var(--space-md);
+	min-width: 0;
 }
 
 /* The spine: each past (or ahead) step is one thin line — number · string ·
@@ -359,19 +374,17 @@ select {
 }
 
 /* The rules ledger: four fixed rows, always on screen. Unavailable rules stay
- * visible with their exact reason — the "why not" is the lesson. */
+ * visible with their exact reason — the "why not" is the lesson. Available
+ * rules list every producible string as a hover-to-locate, click-to-apply
+ * control; R3 and R4 finally show all their site results, not just a count. */
 .rules-ledger {
 	font-size: 0.84rem;
 	min-width: 0;
 }
 
 .ledger-row {
-	display: flex;
-	gap: 16px;
-	align-items: baseline;
-	padding: 7px 8px;
+	padding: 9px 0;
 	border-top: 1px solid var(--line);
-	border-left: 2px solid transparent;
 	min-width: 0;
 }
 
@@ -379,83 +392,89 @@ select {
 	border-bottom: 1px solid var(--line);
 }
 
-.ledger-row[data-state='unavailable'] {
-	color: var(--faint);
-}
-
-.ledger-row[data-pinned='true'] {
-	border-left: 2px solid var(--act);
-	background: rgba(138, 59, 46, 0.05);
+.ledger-row__head {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	min-width: 0;
 }
 
 .ledger-row__id {
 	flex: 0 0 2.5ch;
 	font-family: var(--mono);
 	font-weight: 600;
+	color: var(--ink);
 }
 
 .ledger-row__pattern {
-	flex: 0 0 9ch;
 	font-family: var(--mono);
 	white-space: nowrap;
 }
 
-.ledger-row__status {
-	min-width: 0;
-	flex-shrink: 0;
+.ledger-row[data-state='unavailable'] .ledger-row__id,
+.ledger-row[data-state='unavailable'] .ledger-row__pattern {
+	color: var(--faint);
 }
 
-/* Sits right next to Apply when short; shrinks and wraps with a clean left
- * edge when the result is long (R2 doubles — design for step 10). */
-.ledger-row__preview {
-	flex: 0 1 auto;
-	min-width: 0;
+.ledger-row__count {
 	margin-left: auto;
 	color: var(--faint);
 	font-family: var(--mono);
-	font-size: 0.76rem;
-	overflow-wrap: anywhere;
+	font-size: 0.68rem;
+	letter-spacing: 0.08em;
+	white-space: nowrap;
 }
 
-.ledger-apply {
-	flex-shrink: 0;
-	padding: 4px 14px;
-	border: 1px solid var(--act);
+.ledger-row__status {
+	margin: 5px 0 0;
+	color: var(--faint);
+}
+
+.ledger-results {
+	display: grid;
+	gap: 4px;
+	margin-top: 7px;
+}
+
+.ledger-result {
+	display: flex;
+	gap: 8px;
+	align-items: baseline;
+	width: 100%;
+	padding: 4px 8px;
+	border: 1px solid transparent;
 	border-radius: var(--radius);
-	background: var(--panel);
-	color: var(--act);
-	font-size: 0.78rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background 120ms ease;
-}
-
-.ledger-apply:hover,
-.ledger-apply:focus-visible {
-	background: rgba(138, 59, 46, 0.07);
-}
-
-/* Multi-site rules: the row's status text is the selection toggle; the actual
- * apply happens in the string. */
-.ledger-sites {
-	display: inline;
-	padding: 0;
-	border: none;
 	background: transparent;
-	font: inherit;
-	color: inherit;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.8rem;
 	text-align: left;
 	cursor: pointer;
 	min-width: 0;
+	transition:
+		background 120ms ease,
+		border-color 120ms ease;
 }
 
-.ledger-sites:hover strong,
-.ledger-sites:focus-visible strong {
+.ledger-result:hover,
+.ledger-result:focus-visible {
+	border-color: var(--act);
+	background: rgba(138, 59, 46, 0.06);
+}
+
+.ledger-result__arrow {
+	flex-shrink: 0;
+	color: var(--faint);
+}
+
+.ledger-result:hover .ledger-result__arrow,
+.ledger-result:focus-visible .ledger-result__arrow {
 	color: var(--act);
 }
 
-.ledger-sites__hint {
-	color: var(--muted);
+.ledger-result__value {
+	min-width: 0;
+	overflow-wrap: anywhere;
 }
 
 /* A revisited string is written on its line, not passed silently: the
@@ -492,6 +511,25 @@ select {
 .dead-branch__jump:hover,
 .dead-branch__jump:focus-visible {
 	text-decoration: underline;
+}
+
+/* Below the rail's working width, stack it under the derivation and restore a
+ * separator above the Rules label. */
+@media (max-width: 860px) {
+	.worksheet__cols {
+		grid-template-columns: 1fr;
+		gap: var(--space-lg);
+	}
+
+	.rules-rail {
+		position: static;
+	}
+
+	.rules-rail > .worksheet__label {
+		margin-top: var(--space-lg);
+		padding-top: var(--space-sm);
+		border-top: 1px solid var(--line-strong);
+	}
 }
 
 @media (max-width: 640px) {
