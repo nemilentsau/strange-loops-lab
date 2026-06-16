@@ -158,9 +158,9 @@
 {#snippet witnessMenu(index: number)}
 	{#if activeWitness && activeWitness.anchorIndex === index}
 		<div class="witness-menu" data-state={activeWitness.status}>
-			<p class="witness-menu__label">shortest witness for {ellipsizeMiddle(witnessTarget ?? trimmedTarget)}</p>
+			<p class="witness-menu__label">shortest derivation for {ellipsizeMiddle(witnessTarget ?? trimmedTarget)}</p>
 			{#if activeWitness.status === 'complete'}
-				<p class="witness-menu__next">target reached on this witness.</p>
+				<p class="witness-menu__next">target reached along this derivation.</p>
 			{:else if activeWitness.nextMove}
 				<p class="witness-menu__next">
 					{ruleNote(activeWitness.nextMove)} ⇒ {ellipsizeMiddle(activeWitness.result ?? activeWitness.nextMove.result)}
@@ -171,7 +171,7 @@
 						type="button"
 						onclick={() => applyWitnessMove(activeWitness.nextMove)}
 					>
-						apply witness step
+						apply next step
 					</button>
 				{:else}
 					<button

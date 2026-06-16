@@ -4,7 +4,7 @@
 	import type { MiuMove } from '$lib/miu/core';
 
 	/**
-	 * Movement 3 — description length. The query's step-count is a description
+	 * Movement 3 — description length. Shortest derivation length is a description
 	 * length: a derivation is a program, K_MIU(s) its shortest. Fixed specimen
 	 * strings carry the compressible-vs-incompressible split; session strings
 	 * can be compared against them.
@@ -40,7 +40,7 @@
 			len: value.length,
 			k: result.outcome === 'found' ? result.length : null,
 			bound: result.maxDepth,
-			program: result.path ? programFor(result.path) : 'not found within horizon'
+			program: result.path ? programFor(result.path) : 'not found within bound'
 		};
 	}
 
@@ -63,7 +63,7 @@
 
 	function readingFor(len: number, k: number | null): string {
 		if (k === null) {
-			return 'beyond horizon';
+			return 'beyond bound';
 		}
 
 		if (k * 2 <= len) {
@@ -109,7 +109,7 @@ K_MIU(s)      the fewest moves in any derivation MI ⇒ s</div>
 				{:else}
 					<td class="num">&gt; {row.bound}</td>
 					<td class="program">{row.program}</td>
-					<td class="note">beyond the search horizon</td>
+					<td class="note">beyond the search bound</td>
 				{/if}
 			</tr>
 		{/each}
@@ -137,7 +137,7 @@ K_MIU(s)      the fewest moves in any derivation MI ⇒ s</div>
 						<td class="note">{row.reading}</td>
 					{:else}
 						<td class="num">&gt; {row.bound}</td>
-						<td class="note">beyond the search horizon</td>
+						<td class="note">beyond the search bound</td>
 					{/if}
 				</tr>
 			{/each}
@@ -146,7 +146,7 @@ K_MIU(s)      the fewest moves in any derivation MI ⇒ s</div>
 {/if}
 
 <p class="observation">
-	The comparison is internal to this rewrite system. <code>MIIIUIU</code> is short but not
-	given a shorter MIU description; <code>MIUIIIIIUIIII</code> is longer on the page and shorter as
-	a derivation. That is the local analogue of description length.
+	The comparison is relative to this rewrite system. <code>MIIIUIU</code> is short as a string
+	but has no shorter MIU description; <code>MIUIIIIIUIIII</code> is longer as a string but has
+	a shorter derivation.
 </p>

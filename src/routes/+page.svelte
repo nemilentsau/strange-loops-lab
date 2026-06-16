@@ -123,8 +123,8 @@
 
 <section class="movement">
 	<div class="movement__head">
-		<h2 class="movement__title">Theorem query</h2>
-		<span class="movement__altitude">▦ rewriting system</span>
+		<h2 class="movement__title">Theoremhood</h2>
+		<span class="movement__altitude">in the system</span>
 	</div>
 
 	<MiuProduce
@@ -152,12 +152,14 @@
 <section class="movement movement--invariant">
 	<div class="movement__head">
 		<h2 class="movement__title">Invariant certificate</h2>
-		<span class="movement__altitude">◉ reachability obstruction</span>
+		<span class="movement__altitude">about the system</span>
 	</div>
 	<p class="lede">
-		The theorem query answers positively by exhibiting a derivation. A negative answer needs a
-		certificate instead: a property that holds at MI, survives every rule, and fails for the
-		target. For MIU one property does it — the count of I's, taken modulo 3.
+		To prove <span class="m">s &isin; Th(MIU)</span>, give a derivation
+		<span class="m">MI &rArr; s</span>. To prove <span class="m">s &notin; Th(MIU)</span>, give a
+		certificate: a property that holds at <span class="m">MI</span>, is preserved by
+		<span class="m">R1</span>–<span class="m">R4</span>, and fails for <span class="m">s</span>.
+		For <span class="m">MU</span>, the certificate is the count of <b>I</b>'s modulo 3.
 	</p>
 
 	<MiuInvariant {currentString} />
@@ -166,13 +168,13 @@
 <section class="movement">
 	<div class="movement__head">
 		<h2 class="movement__title">Description length</h2>
-		<span class="movement__altitude">↗ about all such systems</span>
+		<span class="movement__altitude">about all such systems</span>
 	</div>
 
 	<div class="claim">
 		<p class="claim__head">
-			<b>Claim.</b> For the fixed MIU machine, both questions are settled by an algorithm — one a
-			decision, one a computation.
+			<b>Claim.</b> For the fixed MIU system, theoremhood is decidable and shortest
+			derivation length is computable.
 		</p>
 		<ol class="claim__list">
 			<li>
@@ -180,16 +182,17 @@
 				MU (residue 0) from every theorem (residue 1 or 2).
 			</li>
 			<li>
-				<b>K_MIU(s) is computable.</b> Breadth-first over derivations ordered by length returns
-				the shortest; theoremhood decided first bounds the search.
+				<b>K_MIU(s) is computable for theorems.</b> Once <span class="m">s &isin; Th(MIU)</span>,
+				breadth-first search over derivations ordered by length returns a shortest derivation.
 			</li>
 		</ol>
 	</div>
 
 	<p class="lede">
-		The theorem-query step count is not bookkeeping. A derivation is a program: MI is the input,
-		each rule-and-site choice an instruction, the string the output. The shortest such program is
-		the string's description length against this machine.
+		<span class="m">K_MIU(s)</span> is the length of the shortest derivation of
+		<span class="m">s</span>. A derivation can be read as a program: <span class="m">MI</span> is
+		the input, each rule-and-site choice is an instruction, and the final string is the output.
+		Thus <span class="m">K_MIU(s)</span> is a description length relative to this rewrite system.
 	</p>
 
 	<MiuBridge {sessionStrings} />

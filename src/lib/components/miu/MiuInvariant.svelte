@@ -76,17 +76,17 @@
 	<span class="inv-live__sep">&middot;</span> r(s) = <span class="m">{currentResidue}</span>
 	<span class="inv-live__sep">&middot;</span>
 	<span class="inv-live__verdict" class:inv-live__verdict--out={currentResidue === 0}>
-		{currentResidue === 0 ? 'residue 0 — excluded' : 'in {1, 2}, so not excluded'}
+		{currentResidue === 0 ? 'residue 0 — excluded' : 'in {1, 2}; the invariant does not exclude it'}
 	</span>
 </p>
 
 <div class="nontheorems">
-	<p class="worksheet__label">Is MU the only one?</p>
+	<p class="worksheet__label">Excluded class</p>
 	<p class="nontheorems__def">excluded = { '{' } s : s starts with M, I(s) mod 3 = 0 { '}' }</p>
 	<p class="nontheorems__list">MU · MUU · MIII · MUIIIU · MIIIUUU · …</p>
 	<p class="nontheorems__note">
-		The invariant proves one direction: a theorem must have residue 1 or 2. The converse — that
-		every string with residue 1 or 2 is a theorem — is a construction, not this invariant.
+		The invariant proves one direction: every theorem has residue 1 or 2. The converse — that
+		every string with residue 1 or 2 is a theorem — requires a construction.
 	</p>
 </div>
 

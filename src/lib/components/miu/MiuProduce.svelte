@@ -54,7 +54,7 @@
 
 <div class="theorem-query">
 	<div class="theorem-query__target">
-		<div class="query-label" id="produce-target-label">target theorem</div>
+		<div class="query-label" id="produce-target-label">target string</div>
 		<div class="target-editor" aria-labelledby="produce-target-label">
 			<span class="target-editor__prefix" aria-hidden="true">M</span>
 			<input
@@ -70,7 +70,7 @@
 				autocomplete="off"
 			/>
 		</div>
-		<div class="target-examples" aria-label="Theorem targets">
+		<div class="target-examples" aria-label="Example theorem strings">
 			{#each THEOREM_TARGETS as value}
 				<button
 					class="target-chip"
@@ -107,26 +107,27 @@
 				K_MIU({trimmed}) = {theoremQuery.length}
 				{#if (theoremQuery.length ?? 0) > 0}
 					<button class="query-verdict__witness" type="button" onclick={onToggleWitness}>
-						{witnessOpen ? 'close shortest witness' : 'open shortest witness'}
+						{witnessOpen ? 'hide shortest derivation' : 'show shortest derivation'}
 					</button>
 				{/if}
 			</p>
 		{:else}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">…</span>
-				<span>{trimmed}: no witness in the bounded graph</span>
+				<span>{trimmed}: no derivation found within the bound</span>
 			</div>
 			<p class="query-verdict__fact">
-				horizon: {theoremQuery?.stoppedBy === 'depth'
+				bound: {theoremQuery?.stoppedBy === 'depth'
 					? `depth ${theoremQuery.maxDepth}`
-					: `${theoremQuery?.maxNodes} strings`}; this is not a negative verdict.
+					: `${theoremQuery?.maxNodes} strings`}; absence within this bound is not a proof of
+				non-theoremhood.
 				{#if theoremQuery?.stoppedBy === 'nodes' && nextNodeBound}
 					<button
 						class="query-verdict__witness"
 						type="button"
 						onclick={() => onUpdateMaxNodes(nextNodeBound)}
 					>
-						raise limit to {formatNodeBound(nextNodeBound)}
+						increase bound to {formatNodeBound(nextNodeBound)}
 					</button>
 				{/if}
 			</p>
