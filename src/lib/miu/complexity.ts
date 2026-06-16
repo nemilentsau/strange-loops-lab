@@ -30,8 +30,25 @@ export interface ShortestDerivationOptions {
 	maxNodes?: number;
 }
 
-const DEFAULT_MAX_DEPTH = 20;
-const DEFAULT_MAX_NODES = 6000;
+export const MIU_QUERY_NODE_BOUNDS = [200_000, 1_000_000, 2_000_000, 5_000_000] as const;
+
+export const MIU_QUERY_BOUNDS = {
+	maxDepth: 64,
+	maxNodes: MIU_QUERY_NODE_BOUNDS[0]
+} as const;
+
+export const MIU_QUERY_LIMITS = {
+	maxDepth: 64,
+	maxNodes: MIU_QUERY_NODE_BOUNDS[MIU_QUERY_NODE_BOUNDS.length - 1]
+} as const;
+
+export function nextMiuQueryNodeBound(current: number): number | null {
+	return MIU_QUERY_NODE_BOUNDS.find((bound) => bound > current) ?? null;
+}
+
+export function queryMaxNodesForTarget(target: string, currentMaxNodes: number): number {
+	return target.trim() === MIU_INITIAL_STRING ? MIU_QUERY_BOUNDS.maxNodes : currentMaxNodes;
+}
 
 /**
  * The shortest derivation of `target` from MI, or the honest reason there is
@@ -54,8 +71,16 @@ export function shortestDerivation(
 		throw new Error(`Invalid MIU target: ${target}`);
 	}
 
-	const maxDepth = clampBound(options.maxDepth ?? DEFAULT_MAX_DEPTH, 0, 64);
-	const maxNodes = clampBound(options.maxNodes ?? DEFAULT_MAX_NODES, 1, 200_000);
+	const maxDepth = clampBound(
+		options.maxDepth ?? MIU_QUERY_BOUNDS.maxDepth,
+		0,
+		MIU_QUERY_LIMITS.maxDepth
+	);
+	const maxNodes = clampBound(
+		options.maxNodes ?? MIU_QUERY_BOUNDS.maxNodes,
+		1,
+		MIU_QUERY_LIMITS.maxNodes
+	);
 	const base = { target, maxDepth, maxNodes };
 
 	// Verified negative: the I-count invariant excludes residue 0 (mod 3).

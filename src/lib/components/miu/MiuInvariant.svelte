@@ -133,8 +133,8 @@ Hence every theorem satisfies P. MU has #I = 0, so MU is not a theorem.</div>
 	<p class="nontheorems__list">MU · MUU · MIII · MUIIIU · MIIIUUU · …</p>
 	<p class="nontheorems__note">
 		The invariant proves one direction: a theorem must have #I ≢ 0. The converse — that every such
-		string is a theorem — is a construction, not the invariant; the oracle confirms it string by
-		string.
+		string is a theorem — is a construction, not the invariant; bounded BFS checks individual
+		strings.
 	</p>
 </div>
 

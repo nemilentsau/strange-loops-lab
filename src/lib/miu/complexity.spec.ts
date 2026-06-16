@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { MIU_INITIAL_STRING, applyMiuMove, type MiuMove } from './core';
-import { shortestDerivation } from './complexity';
+import {
+	MIU_QUERY_BOUNDS,
+	MIU_QUERY_LIMITS,
+	MIU_QUERY_NODE_BOUNDS,
+	nextMiuQueryNodeBound,
+	queryMaxNodesForTarget,
+	shortestDerivation
+} from './complexity';
 
 /** Replay a derivation from MI: every move must be legal at its step. */
 function replay(path: MiuMove[]): string {
@@ -8,6 +15,35 @@ function replay(path: MiuMove[]): string {
 }
 
 describe('shortestDerivation (K_MIU)', () => {
+	it('uses the theorem-query horizon by default', () => {
+		const result = shortestDerivation('MUI');
+
+		expect(result.maxDepth).toBe(MIU_QUERY_BOUNDS.maxDepth);
+		expect(result.maxNodes).toBe(200_000);
+	});
+
+	it('caps manually raised horizons at the instrument limit', () => {
+		const result = shortestDerivation('MI', { maxDepth: 99, maxNodes: 99_000_000 });
+
+		expect(result.maxDepth).toBe(MIU_QUERY_LIMITS.maxDepth);
+		expect(result.maxNodes).toBe(MIU_QUERY_LIMITS.maxNodes);
+	});
+
+	it('steps the theorem-query horizon through bounded presets', () => {
+		expect(MIU_QUERY_NODE_BOUNDS).toEqual([200_000, 1_000_000, 2_000_000, 5_000_000]);
+		expect(MIU_QUERY_LIMITS.maxNodes).toBe(5_000_000);
+		expect(nextMiuQueryNodeBound(200_000)).toBe(1_000_000);
+		expect(nextMiuQueryNodeBound(1_000_000)).toBe(2_000_000);
+		expect(nextMiuQueryNodeBound(2_000_000)).toBe(5_000_000);
+		expect(nextMiuQueryNodeBound(5_000_000)).toBeNull();
+	});
+
+	it('resets a raised theorem-query horizon only when the target returns to MI', () => {
+		expect(queryMaxNodesForTarget('MI', 5_000_000)).toBe(MIU_QUERY_BOUNDS.maxNodes);
+		expect(queryMaxNodesForTarget(' MI ', 2_000_000)).toBe(MIU_QUERY_BOUNDS.maxNodes);
+		expect(queryMaxNodesForTarget('MUI', 5_000_000)).toBe(5_000_000);
+	});
+
 	it('returns an empty derivation for the axiom MI', () => {
 		const result = shortestDerivation('MI');
 

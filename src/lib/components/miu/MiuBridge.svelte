@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { shortestDerivation } from '$lib/miu/complexity';
+	import { MIU_QUERY_BOUNDS, shortestDerivation } from '$lib/miu/complexity';
 
 	/**
-	 * Movement 3 — description length. The oracle's step-count is a description
+	 * Movement 3 — description length. The query's step-count is a description
 	 * length: a derivation is a program, K_MIU(s) its shortest. The session's
 	 * own strings carry the compressible-vs-incompressible split; the bridge
 	 * states the next question without claiming the universal-machine case here.
@@ -11,7 +11,7 @@
 
 	const rows = $derived(
 		sessionStrings.map((value) => {
-			const result = shortestDerivation(value, { maxNodes: 40_000, maxDepth: 32 });
+			const result = shortestDerivation(value, MIU_QUERY_BOUNDS);
 			return {
 				value,
 				len: value.length,
@@ -29,7 +29,7 @@
 <div class="bridge__def">input         MI
 instructions  ⟨rule, site⟩ at each step
 output        the string
-K_MIU(s)      length of the shortest program producing s   (the oracle's number)</div>
+K_MIU(s)      length of the shortest program producing s   (the query's number)</div>
 
 <p class="worksheet__label">What you produced this session</p>
 <table class="ait-table">
@@ -62,7 +62,7 @@ K_MIU(s)      length of the shortest program producing s   (the oracle's number)
 </p>
 
 <p class="bridge__horizon">
-	Here both questions are answerable. <b>K_MIU is computable</b> — the oracle just computed it — and
+	Here both questions are answerable. <b>K_MIU is computable</b> — the query just computed it — and
 	<b>theoremhood is decidable</b> — the invariant decides it with a count mod 3. The next instrument
 	changes the machine. With a universal machine, shortest descriptions become <b>Kolmogorov
 	complexity</b> K, and producibility becomes the halting question. With formal systems strong enough

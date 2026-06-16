@@ -110,6 +110,10 @@ export function analyzeMiuProposal(source: string, proposedInput: string): MiuPr
 	};
 }
 
+export function normalizeMiuTailInput(value: string): string {
+	return value.toUpperCase().replace(/[^IU]/g, '');
+}
+
 /**
  * A dead branch: a state from which no rule other than R2 (doubling) will
  * EVER apply again, however far you double.

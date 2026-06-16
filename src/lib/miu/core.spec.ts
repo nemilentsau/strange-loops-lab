@@ -9,6 +9,7 @@ import {
 	enumerateMiuMoves,
 	isDeadBranch,
 	isValidMiuString,
+	normalizeMiuTailInput,
 	jumpToTraceStep,
 	normalizeTrace,
 	restartTrace,
@@ -54,6 +55,12 @@ describe('isDeadBranch', () => {
 });
 
 describe('MIU engine', () => {
+	it('normalizes target tails to the MIU alphabet only', () => {
+		expect(normalizeMiuTailInput('iuuxM123')).toBe('IUU');
+		expect(normalizeMiuTailInput('  I-u_i  ')).toBe('IUI');
+		expect(normalizeMiuTailInput('mx')).toBe('');
+	});
+
 	it('starts from MI with an initial trace step', () => {
 		const trace = createDerivationTrace();
 

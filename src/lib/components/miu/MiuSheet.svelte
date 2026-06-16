@@ -8,6 +8,7 @@
 	} from '$lib/miu/core';
 	import { currentDeadBranchStart, traceRevisitIndices } from '$lib/state/module1Exercises';
 	import { ellipsizeMiddle } from '$lib/state/module1';
+	import { nextWitnessStep } from '$lib/miu/witness';
 
 	/**
 	 * Movement 1 — the workspace. The page IS the derivation: a numbered spine,
@@ -20,17 +21,21 @@
 		currentString,
 		ruleAvailability,
 		target,
+		witnessTarget,
+		witnessPath,
 		onApplyMove,
 		onJumpToStep,
-		onShowPath
+		onReset
 	}: {
 		trace: DerivationTrace;
 		currentString: string;
 		ruleAvailability: MiuRuleAvailability[];
 		target: string;
+		witnessTarget: string | null;
+		witnessPath: MiuMove[] | null;
 		onApplyMove: (move: MiuMove) => void;
 		onJumpToStep: (index: number) => void;
-		onShowPath: () => void;
+		onReset: () => void;
 	} = $props();
 
 	let pinnedRuleId = $state<MiuRuleId | null>(null);
@@ -106,6 +111,12 @@
 		onApplyMove(move);
 	}
 
+	function applyWitnessMove(move: MiuMove | null) {
+		if (move) {
+			onApplyMove(move);
+		}
+	}
+
 	function siteKeydown(event: KeyboardEvent, move: MiuMove) {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
@@ -141,6 +152,13 @@
 	const deadBranchStart = $derived(currentDeadBranchStart(trace));
 	const trimmedTarget = $derived(target.trim());
 	const reachedTarget = $derived(trimmedTarget !== '' && currentString === trimmedTarget);
+	const activeWitness = $derived.by(() => {
+		if (!witnessPath || !witnessTarget || witnessTarget !== trimmedTarget) {
+			return null;
+		}
+
+		return nextWitnessStep(trace, witnessPath);
+	});
 </script>
 
 {#snippet spineLine(step: DerivationStep, index: number, ahead: boolean)}
@@ -163,13 +181,49 @@
 	</button>
 {/snippet}
 
+{#snippet witnessMenu(index: number)}
+	{#if activeWitness && activeWitness.anchorIndex === index}
+		<div class="witness-menu" data-state={activeWitness.status}>
+			<p class="witness-menu__label">shortest witness for {ellipsizeMiddle(witnessTarget ?? trimmedTarget)}</p>
+			{#if activeWitness.status === 'complete'}
+				<p class="witness-menu__next">target reached on this witness.</p>
+			{:else if activeWitness.nextMove}
+				<p class="witness-menu__next">
+					{ruleNote(activeWitness.nextMove)} ⇒ {ellipsizeMiddle(activeWitness.result ?? activeWitness.nextMove.result)}
+				</p>
+				{#if trace.currentIndex === index}
+					<button
+						class="witness-menu__action"
+						type="button"
+						onclick={() => applyWitnessMove(activeWitness.nextMove)}
+					>
+						apply witness step
+					</button>
+				{:else}
+					<button
+						class="witness-menu__action"
+						type="button"
+						onclick={() => onJumpToStep(index)}
+					>
+						continue from step {index}
+					</button>
+				{/if}
+			{/if}
+		</div>
+	{/if}
+{/snippet}
+
 <div class="worksheet">
-	<p class="worksheet__label">Your derivation</p>
+	<div class="worksheet__head">
+		<p class="worksheet__label">Derivation toward {trimmedTarget}</p>
+		<button class="worksheet-reset" type="button" onclick={onReset}>Reset to MI</button>
+	</div>
 
 	<div class="spine">
 		{#each trace.steps as step, index}
 			{#if index < trace.currentIndex}
 				{@render spineLine(step, index, false)}
+				{@render witnessMenu(index)}
 			{:else if index === trace.currentIndex}
 				<div class="focal">
 					<span class="focal__num">{index}</span>
@@ -206,8 +260,7 @@
 							</p>
 						{:else if activeRule && activeRule.moves.length > 1}
 							<p class="focal__hint">
-								{activeRule.ruleLabel} applies at {activeRule.moves.length} places — hover a highlighted
-								site to preview it, click to apply.
+								{activeRule.ruleLabel} applies at {activeRule.moves.length} sites.
 							</p>
 						{:else}
 							<p class="focal__note">
@@ -218,8 +271,10 @@
 						{/if}
 					</div>
 				</div>
+				{@render witnessMenu(index)}
 			{:else}
 				{@render spineLine(step, index, true)}
+				{@render witnessMenu(index)}
 			{/if}
 		{/each}
 
@@ -274,7 +329,7 @@
 						onclick={() => toggleRulePin(row.ruleId)}
 					>
 						<strong>applies at {row.moves.length} places</strong>
-						<span class="ledger-sites__hint">— click a site in the string</span>
+						<span class="ledger-sites__hint">— sites marked in the string</span>
 					</button>
 				{/if}
 			</div>
@@ -297,13 +352,4 @@
 		</div>
 	{/if}
 
-	{#if trimmedTarget}
-		<p class="help-line">
-			{#if reachedTarget}
-				This is the target. <button type="button" onclick={onShowPath}>Show the shortest path</button> to compare with your route.
-			{:else}
-				Building toward {ellipsizeMiddle(trimmedTarget)}. <button type="button" onclick={onShowPath}>Show the shortest path</button>.
-			{/if}
-		</p>
-	{/if}
 </div>

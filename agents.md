@@ -72,6 +72,9 @@ change. The ones violated most often:
 
 - no gamification vocabulary or chrome; write like a serious textbook
 - every element must name the mathematical fact it teaches, or be deleted
+- no lede may explain control use; if prose is needed to operate a control,
+  redesign the control. Ledes may state definitions, scope, or motivation;
+  labels, verdicts, actions, and captions carry interaction.
 - mockups must show played states (mid-session, completed, expanded,
   rejection), not just the fresh page
 - copy is written per case, never templated from engine data shapes
