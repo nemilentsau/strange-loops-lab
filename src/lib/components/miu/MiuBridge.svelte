@@ -2,110 +2,70 @@
 	import { shortestDerivation } from '$lib/miu/complexity';
 
 	/**
-	 * Reading 3 — the bridge. The same derivation read as a program: its length
-	 * is a description length, and K_MIU(s) is the shortest such program. The
-	 * current string is measured against the derivation the learner actually
-	 * walked; two fixed strings show compressible against incompressible.
+	 * Movement 3 — description length. The oracle's step-count is a description
+	 * length: a derivation is a program, K_MIU(s) its shortest. The session's
+	 * own strings carry the compressible-vs-incompressible split; the bridge
+	 * states the next question without claiming the universal-machine case here.
 	 */
-	let {
-		currentString,
-		userSteps
-	}: {
-		currentString: string;
-		userSteps: number;
-	} = $props();
+	let { sessionStrings }: { sessionStrings: string[] } = $props();
 
-	const current = $derived(shortestDerivation(currentString, { maxNodes: 40_000, maxDepth: 32 }));
-	const currentLen = $derived(currentString.length);
+	const rows = $derived(
+		sessionStrings.map((value) => {
+			const result = shortestDerivation(value, { maxNodes: 40_000, maxDepth: 32 });
+			return {
+				value,
+				len: value.length,
+				k: result.outcome === 'found' ? result.length : null,
+				bound: result.maxDepth
+			};
+		})
+	);
 
-	// Fixed worked examples. Generous bounds so the demonstration always resolves.
-	const EXAMPLES = ['M' + 'I'.repeat(16), 'MII', 'MUI'].map((target) => ({
-		target,
-		k: shortestDerivation(target, { maxNodes: 60_000, maxDepth: 40 })
-	}));
-	const headline = EXAMPLES[0];
-	const sameLength = EXAMPLES.slice(1);
-
-	function ratio(k: number | null, len: number): 'compressible' | 'incompressible' | null {
-		if (k === null) return null;
-		return k * 2 <= len ? 'compressible' : 'incompressible';
+	function shown(value: string): string {
+		return value.length > 30 ? value.slice(0, 29) + '…' : value;
 	}
 </script>
 
-<section class="bridge">
-	<h2 class="bridge__title">The derivation as a program</h2>
-	<p class="bridge__lede">
-		A derivation is a program: the axiom MI is the input, the rule and site chosen at each step are
-		the instructions, and the string is the output. Its length is a description length.
-	</p>
-
-	<div class="bridge__def">input         MI
+<div class="bridge__def">input         MI
 instructions  ⟨rule, site⟩ at each step
 output        the string
-K_MIU(s)      length of the shortest program producing s</div>
+K_MIU(s)      length of the shortest program producing s   (the oracle's number)</div>
 
-	<div class="bridge__measures">
-		<div class="measure">
-			<span class="measure__string">{currentString.length > 40 ? currentString.slice(0, 39) + '…' : currentString} <span class="measure__tag">the current string</span></span>
-			{#if current.outcome === 'found'}
-				<span class="measure__nums">|s| = <b>{currentLen}</b> · K_MIU = <b>{current.length}</b></span>
-				<span class="measure__read measure__read--big">
-					{#if current.length === userSteps}
-						your derivation is minimal — {userSteps} step{userSteps === 1 ? '' : 's'}.
-					{:else}
-						you reached it in {userSteps} step{userSteps === 1 ? '' : 's'}; the shortest derivation is {current.length}.
-					{/if}
-				</span>
-			{:else}
-				<span class="measure__nums">|s| = <b>{currentLen}</b> · K_MIU ≤ <b>{userSteps}</b></span>
-				<span class="measure__read">
-					your derivation gives an upper bound of {userSteps}; the shortest was not found within the
-					search horizon.
-				</span>
-			{/if}
-		</div>
-	</div>
-
-	{#if headline.k.outcome === 'found'}
-		<div class="bridge__measures">
-			<div class="measure">
-				<span class="measure__string">M followed by 16 I&nbsp;&nbsp;<span class="measure__tag">M I¹⁶</span></span>
-				<span class="measure__nums">|s| = <b>{headline.target.length}</b> · K_MIU = <b>{headline.k.length}</b></span>
-				<span class="measure__read measure__read--big">
-					compressible: a {headline.target.length}-character string from a {headline.k.length}-instruction program ({headline.k.length} doublings).
-				</span>
-			</div>
-		</div>
-	{/if}
-
-	<p class="bridge__contrast-head">Same length, different shortest program</p>
-	<div class="bridge__measures">
-		{#each sameLength as example (example.target)}
-			{#if example.k.outcome === 'found'}
-				<div class="measure">
-					<span class="measure__string">{example.target}</span>
-					<span class="measure__nums">|s| = <b>{example.target.length}</b> · K_MIU = <b>{example.k.length}</b></span>
-					<span class="measure__read">
-						{ratio(example.k.length, example.target.length) === 'compressible'
-							? `${example.k.length} step${example.k.length === 1 ? '' : 's'} — compressible.`
-							: 'no doubling route reaches it — incompressible (K_MIU = |s|).'}
-					</span>
-				</div>
-			{/if}
+<p class="worksheet__label">What you produced this session</p>
+<table class="ait-table">
+	<thead>
+		<tr><th>string</th><th class="num">|s|</th><th class="num">K_MIU</th><th>&nbsp;</th></tr>
+	</thead>
+	<tbody>
+		{#each rows as row (row.value)}
+			<tr>
+				<td>{shown(row.value)}</td>
+				<td class="num">{row.len}</td>
+				{#if row.k !== null}
+					<td class="num" class:ratio-low={row.k * 2 <= row.len}>{row.k}</td>
+					<td class="note">
+						{#if row.k * 2 <= row.len}compressible{:else if row.k >= row.len}as long as itself{/if}
+					</td>
+				{:else}
+					<td class="num">&gt; {row.bound}</td>
+					<td class="note">beyond the search horizon</td>
+				{/if}
+			</tr>
 		{/each}
-	</div>
+	</tbody>
+</table>
 
-	<p class="bridge__note">
-		Short programs are scarce: only finitely many derivations are shorter than a given length, so
-		almost every string needs a program about as long as itself. The compressible strings — like
-		<code>M I^(2^k)</code> — are the rare exceptions.
-	</p>
+<p class="observation">
+	Programs are scarce: there are fewer than <code>b^m</code> derivations of length below
+	<code>m</code>, so almost every string needs a program about as long as itself. The compressible
+	strings — the doubled I-runs, where <code>K_MIU ≈ log₂|s|</code> — are the rare exceptions.
+</p>
 
-	<p class="bridge__horizon">
-		K_MIU measures description length against the four MIU rules — a fixed, non-universal machine.
-		With a universal machine in their place, K_MIU becomes <b>Kolmogorov complexity</b> K:
-		uncomputable, with a ceiling (<b>Chaitin</b> incompleteness) on the lower bounds any fixed
-		system can prove about it. This instrument measures K_MIU only; that universal-machine step is
-		the next instrument.
-	</p>
-</section>
+<p class="bridge__horizon">
+	Here both questions are answerable. <b>K_MIU is computable</b> — the oracle just computed it — and
+	<b>theoremhood is decidable</b> — the invariant decides it with a count mod 3. The next instrument
+	changes the machine. With a universal machine, shortest descriptions become <b>Kolmogorov
+	complexity</b> K, and producibility becomes the halting question. With formal systems strong enough
+	to talk about those descriptions, <b>Chaitin</b> gives incompleteness through provable lower bounds
+	on K. Those are the next constructions, named here, not claimed by MIU.
+</p>

@@ -54,9 +54,8 @@ export interface ReachabilitySummary {
 	 * Rule applications that landed on a string already reached. Edges to strings
 	 * that were never added (the edge that tripped the node limit) are excluded,
 	 * so this only counts rediscoveries within the explored region.
-	 * Note: self-edges (a rule rewriting a string to itself, e.g. M→M from a
-	 * degenerate start) count as rediscoveries — the field means "edges landing
-	 * on an already-reached string," not strictly "two distinct paths met."
+	 * The field means "edges landing on an already-reached string," not strictly
+	 * "two distinct paths met."
 	 */
 	repeatedDiscoveryCount: number;
 	/** Why the search stopped, mirrored from the graph; `null` means it ran to exhaustion. */

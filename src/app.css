@@ -85,37 +85,19 @@ select {
 	gap: var(--space-md);
 }
 
-/* ── Explore: the derivation worksheet ──
- * One sheet of paper. The page IS the derivation: thin numbered spine lines
- * down the main column, the current string written large (and interactive —
- * sites of the selected rule are click targets in the string itself), the
- * four-rule ledger with its anatomy footnote, and a true right margin
- * holding the target query and the verifier-detected exercises as
- * marginalia. Statuses and verdicts are verified register (form, not hue);
- * oxblood appears only where you can act. */
+/* ── The derivation worksheet (Movement 1) ──
+ * One sheet of paper, single column: thin numbered spine lines, the current
+ * string written large (and interactive — sites of the selected rule are click
+ * targets in the string itself), and the four-rule ledger. The invariant and
+ * the bridge are their own movements below, not a margin here. */
 .worksheet {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 280px;
-	gap: 0 32px;
-	max-width: 1100px;
-	margin: var(--space-md) auto var(--space-lg);
+	margin: var(--space-md) 0 0;
 	padding: var(--space-lg) var(--space-xl);
 	border: 1px solid var(--line);
 	border-radius: var(--radius);
 	background-color: var(--panel);
 	background-image: linear-gradient(rgba(222, 219, 211, 0.45) 1px, transparent 1px);
 	background-size: 100% 1.6rem;
-	min-width: 0;
-}
-
-.worksheet__main {
-	min-width: 0;
-}
-
-/* The worksheet margin: a document margin behind a hairline rule. */
-.worksheet__margin {
-	border-left: 1px solid var(--line-strong);
-	padding-left: 22px;
 	min-width: 0;
 }
 
@@ -435,53 +417,6 @@ select {
 	text-decoration: underline;
 }
 
-/* ── Margin: the target query — "from <current>, can <target> be reached
- * within ≤ k moves?" Verified register throughout: stamped verdict, found
- * paths in mono, compact clauses at bound 1, the search's honest limitation
- * printed when it stays silent. */
-.query__ask {
-	margin: 6px 0 0;
-	color: var(--ink);
-	font-size: 0.82rem;
-	line-height: 1.6;
-}
-
-.query__from {
-	font-family: var(--mono);
-	font-size: 0.78rem;
-	overflow-wrap: anywhere;
-}
-
-.query__input {
-	width: 8ch;
-	padding: 0 2px 1px;
-	border: none;
-	border-bottom: 1px solid var(--line-strong);
-	border-radius: 0;
-	background: transparent;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 0.82rem;
-}
-
-.query__verdict {
-	margin: 12px 0 0;
-	color: var(--ink);
-	font-size: 0.84rem;
-	font-weight: 600;
-}
-
-.query__stamp {
-	font-family: var(--mono);
-}
-
-.query__detail {
-	margin: 6px 0 0;
-	color: var(--muted);
-	font-size: 0.78rem;
-	line-height: 1.55;
-}
-
 .wheel-dot {
 	fill: var(--ink);
 }
@@ -617,33 +552,6 @@ select {
 	color: var(--act);
 }
 
-/* ── Reading 2: the invariant margin (residue wheel + reachability) ── */
-.reach {
-	margin-bottom: var(--space-lg);
-}
-
-.inv {
-	margin-top: 30px;
-}
-
-.inv__def {
-	margin: 6px 0 10px;
-	font-family: var(--mono);
-	font-size: 0.86rem;
-	color: var(--ink);
-}
-
-.inv__wheel {
-	display: block;
-}
-
-.inv__caption {
-	margin: 8px 0 0;
-	color: var(--muted);
-	font-size: 0.8rem;
-	line-height: 1.55;
-}
-
 .inv__now {
 	margin: 6px 0 0;
 	font-family: var(--mono);
@@ -665,32 +573,8 @@ select {
 	line-height: 1.5;
 }
 
-/* ── Reading 3: the bridge — the derivation read as a program. Verified K
- * values carry the solid graphite left-rule; the horizon note does not. ── */
-.bridge {
-	max-width: 1100px;
-	margin: var(--space-lg) auto 0;
-	padding: var(--space-lg) var(--space-xl);
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	background: var(--panel);
-}
-
-.bridge__title {
-	font-family: var(--serif);
-	font-size: 1.5rem;
-	letter-spacing: -0.01em;
-	margin: 4px 0 6px;
-}
-
-.bridge__lede {
-	margin: 0 0 var(--space-md);
-	max-width: 70ch;
-	color: var(--muted);
-	font-size: 0.94rem;
-	line-height: 1.7;
-}
-
+/* ── Movement 3: the derivation read as a program. The reframe is displayed;
+ * the horizon note is computed/coaching register (dotted, italic). ── */
 .bridge__def {
 	margin: 0 0 var(--space-lg);
 	padding: 12px 16px;
@@ -701,79 +585,6 @@ select {
 	color: var(--ink);
 	white-space: pre;
 	overflow-x: auto;
-}
-
-.bridge__measures {
-	display: grid;
-	gap: 10px;
-	margin: 0 0 var(--space-lg);
-}
-
-.measure {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	gap: 6px 18px;
-	align-items: baseline;
-	padding: 10px 14px;
-	border-left: 3px solid var(--ink);
-	background: var(--panel-meta);
-}
-
-.measure__string {
-	font-family: var(--mono);
-	font-size: 0.92rem;
-	color: var(--ink);
-	overflow-wrap: anywhere;
-	min-width: 0;
-}
-
-.measure__tag {
-	color: var(--faint);
-	font-size: 0.68rem;
-	letter-spacing: 0.04em;
-	white-space: nowrap;
-}
-
-.measure__nums {
-	font-family: var(--mono);
-	font-size: 0.82rem;
-	color: var(--muted);
-	white-space: nowrap;
-}
-
-.measure__nums b {
-	color: var(--ink);
-}
-
-.measure__read {
-	grid-column: 1 / -1;
-	font-size: 0.82rem;
-	color: var(--muted);
-}
-
-.measure__read--big {
-	color: var(--ink);
-	font-weight: 600;
-}
-
-.bridge__contrast-head {
-	margin: 0 0 8px;
-	font-size: 0.9rem;
-	color: var(--ink);
-	font-weight: 600;
-}
-
-.bridge__note {
-	margin: var(--space-sm) 0 0;
-	max-width: 70ch;
-	color: var(--muted);
-	font-size: 0.86rem;
-	line-height: 1.65;
-}
-
-.bridge__note code {
-	font-family: var(--mono);
-	color: var(--ink);
 }
 
 .bridge__horizon {
@@ -793,4 +604,316 @@ select {
 	font-family: var(--sans);
 	font-weight: 600;
 	color: var(--ink);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ * The AIT redesign — one document, three movements at rising altitude:
+ * produce (in the system) · invariant (about the system) · description length
+ * (about all such systems).
+ * ════════════════════════════════════════════════════════════════════════ */
+
+.movement {
+	margin-top: var(--space-2xl);
+}
+
+.movement:first-of-type {
+	margin-top: var(--space-lg);
+}
+
+.movement__head {
+	display: flex;
+	align-items: baseline;
+	gap: 14px;
+	margin-bottom: var(--space-lg);
+	padding-bottom: 8px;
+	border-bottom: 2px solid var(--ink);
+}
+
+.movement__title {
+	margin: 0;
+	font-family: var(--serif);
+	font-size: 1.6rem;
+	letter-spacing: -0.01em;
+}
+
+.movement__altitude {
+	margin-left: auto;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.lede {
+	max-width: 72ch;
+	margin: 0 0 var(--space-lg);
+	color: var(--muted);
+	font-size: 0.95rem;
+	line-height: 1.7;
+}
+
+.lede em {
+	color: var(--ink);
+	font-style: italic;
+}
+
+/* ── Movement 1: the goal + oracle. The target is written on a line; the
+ * oracle answers immediately in verified register. ── */
+.goal {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 18px 32px;
+	align-items: end;
+	margin-bottom: var(--space-md);
+}
+
+.goal__field {
+	min-width: 0;
+}
+
+.goal__label {
+	display: block;
+	margin-bottom: 6px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.goal__input {
+	width: 100%;
+	padding: 2px 2px 6px;
+	border: none;
+	border-bottom: 2px solid var(--line-strong);
+	background: transparent;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 2rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+}
+
+.goal__input:focus {
+	outline: none;
+	border-bottom-color: var(--act);
+}
+
+.oracle {
+	text-align: right;
+	white-space: nowrap;
+}
+
+.oracle__verdict {
+	color: var(--ink);
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+
+.oracle__verdict .stamp {
+	margin-right: 6px;
+	font-family: var(--mono);
+}
+
+.oracle__fact {
+	margin: 4px 0 0;
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.82rem;
+}
+
+.oracle__fact b {
+	color: var(--ink);
+}
+
+.oracle__path {
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--act);
+	font: inherit;
+	cursor: pointer;
+}
+
+.oracle__path:hover,
+.oracle__path:focus-visible {
+	text-decoration: underline;
+}
+
+/* The help line under the workspace: a quiet action, oxblood only on the verb. */
+.help-line {
+	margin-top: var(--space-md);
+	color: var(--muted);
+	font-size: 0.84rem;
+}
+
+.help-line button {
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--act);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.help-line button:hover,
+.help-line button:focus-visible {
+	text-decoration: underline;
+}
+
+.focal__note--target {
+	color: var(--act);
+	font-weight: 600;
+}
+
+/* ── Movement 2: displayed proof, the wheel, the non-theorem class, candidates ── */
+.proof {
+	margin: 0 0 var(--space-lg);
+	padding: 14px 18px;
+	border-left: 3px solid var(--ink);
+	background: var(--panel-meta);
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.82rem;
+	line-height: 1.8;
+	white-space: pre;
+	overflow-x: auto;
+}
+
+.wheel-wrap {
+	display: flex;
+	align-items: center;
+	gap: 28px;
+	margin: 0 0 var(--space-xl);
+}
+
+.wheel-side {
+	min-width: 0;
+}
+
+.wheel-caption {
+	margin: 6px 0 0;
+	max-width: 56ch;
+	color: var(--muted);
+	font-size: 0.84rem;
+	line-height: 1.55;
+}
+
+.nontheorems {
+	margin: 0 0 var(--space-xl);
+}
+
+.nontheorems__def {
+	margin: 0 0 6px;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.92rem;
+}
+
+.nontheorems__list {
+	margin: 0 0 10px;
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 0.84rem;
+}
+
+.nontheorems__note {
+	max-width: 72ch;
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.9rem;
+	line-height: 1.65;
+}
+
+.candidates {
+	display: grid;
+	gap: 0;
+	margin: 0;
+	font-family: var(--mono);
+	font-size: 0.82rem;
+}
+
+.candidate {
+	display: flex;
+	gap: 14px;
+	align-items: baseline;
+	padding: 6px 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.candidate__stamp {
+	flex: 0 0 1.5ch;
+	color: var(--ink);
+}
+
+.candidate__form {
+	flex: 0 0 16ch;
+	color: var(--ink);
+}
+
+.candidate__why {
+	color: var(--muted);
+}
+
+.candidate[data-holds='true'] .candidate__form {
+	font-weight: 700;
+}
+
+/* ── Movement 3: the session table (not cards) + the counting observation ── */
+.ait-table {
+	width: 100%;
+	margin: 0 0 var(--space-md);
+	border-collapse: collapse;
+	font-family: var(--mono);
+	font-size: 0.84rem;
+}
+
+.ait-table th {
+	padding: 0 18px 8px 0;
+	border-bottom: 1px solid var(--line-strong);
+	color: var(--faint);
+	font-size: 0.66rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	text-align: left;
+}
+
+.ait-table th.num,
+.ait-table td.num {
+	text-align: right;
+}
+
+.ait-table td {
+	padding: 7px 18px 7px 0;
+	border-bottom: 1px solid var(--line);
+	color: var(--ink);
+}
+
+.ait-table td.note {
+	color: var(--muted);
+	font-family: var(--sans);
+	font-size: 0.8rem;
+}
+
+.ait-table .ratio-low {
+	color: var(--act);
+}
+
+.observation {
+	max-width: 72ch;
+	margin: 0 0 var(--space-lg);
+	color: var(--muted);
+	font-size: 0.9rem;
+	line-height: 1.65;
+}
+
+.observation code {
+	color: var(--ink);
+	font-family: var(--mono);
 }

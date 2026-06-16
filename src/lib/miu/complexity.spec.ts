@@ -75,6 +75,7 @@ describe('shortestDerivation (K_MIU)', () => {
 	});
 
 	it('throws on a target that is not a MIU string', () => {
+		expect(() => shortestDerivation('M')).toThrow();
 		expect(() => shortestDerivation('MX')).toThrow();
 		expect(() => shortestDerivation('I')).toThrow();
 	});

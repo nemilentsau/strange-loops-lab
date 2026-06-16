@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-	import {
-		analyzeMiuProposal,
-		analyzeMiuRuleAvailability,
-		applyMiuMove,
-		applyMoveToTrace,
-		createDerivationTrace,
+import {
+	analyzeMiuProposal,
+	analyzeMiuRuleAvailability,
+	applyMiuMove,
+	applyMoveToTrace,
+	createDerivationTrace,
 	enumerateMiuMoves,
 	isDeadBranch,
+	isValidMiuString,
 	jumpToTraceStep,
 	normalizeTrace,
 	restartTrace,
@@ -101,41 +102,46 @@ describe('MIU engine', () => {
 		expect(() => applyMiuMove('MI', illegalMove)).toThrow(/Illegal MIU move/);
 	});
 
-		it('rejects malformed strings before evaluation', () => {
-			expect(() => enumerateMiuMoves('IU')).toThrow(/Invalid MIU string/);
-		});
-
-		it('explains when a proposal matches a legal rule', () => {
-			const analysis = analyzeMiuProposal('MI', 'MIU');
-
-			expect(analysis.syntaxValid).toBe(true);
-			expect(analysis.exactMatches).toHaveLength(1);
-			expect(analysis.summary).toContain('Legal next step');
-			expect(analysis.ruleChecks.find((check) => check.ruleId === 'append-u')?.status).toBe('matches');
-		});
-
-		it('explains why a tempting proposal is still illegal', () => {
-			const analysis = analyzeMiuProposal('MI', 'MU');
-
-			expect(analysis.syntaxValid).toBe(true);
-			expect(analysis.exactMatches).toHaveLength(0);
-			expect(analysis.summary).toContain('No legal MIU rule produces MU from MI');
-			expect(analysis.ruleChecks.find((check) => check.ruleId === 'replace-iii')?.status).toBe(
-				'unavailable'
-			);
-			expect(analysis.ruleChecks.find((check) => check.ruleId === 'double-tail')?.status).toBe(
-				'different-result'
-			);
-		});
-
-		it('rejects syntactically invalid proposals before rule analysis', () => {
-			const analysis = analyzeMiuProposal('MI', 'IUU');
-
-			expect(analysis.syntaxValid).toBe(false);
-			expect(analysis.ruleChecks).toEqual([]);
-			expect(analysis.summary).toContain('Not a valid MIU string');
-		});
+	it('rejects malformed strings before evaluation', () => {
+		expect(() => enumerateMiuMoves('IU')).toThrow(/Invalid MIU string/);
 	});
+
+	it('requires a nonempty I/U tail after the initial M', () => {
+		expect(isValidMiuString('M')).toBe(false);
+		expect(() => enumerateMiuMoves('M')).toThrow(/Invalid MIU string/);
+	});
+
+	it('explains when a proposal matches a legal rule', () => {
+		const analysis = analyzeMiuProposal('MI', 'MIU');
+
+		expect(analysis.syntaxValid).toBe(true);
+		expect(analysis.exactMatches).toHaveLength(1);
+		expect(analysis.summary).toContain('Legal next step');
+		expect(analysis.ruleChecks.find((check) => check.ruleId === 'append-u')?.status).toBe('matches');
+	});
+
+	it('explains why a tempting proposal is still illegal', () => {
+		const analysis = analyzeMiuProposal('MI', 'MU');
+
+		expect(analysis.syntaxValid).toBe(true);
+		expect(analysis.exactMatches).toHaveLength(0);
+		expect(analysis.summary).toContain('No legal MIU rule produces MU from MI');
+		expect(analysis.ruleChecks.find((check) => check.ruleId === 'replace-iii')?.status).toBe(
+			'unavailable'
+		);
+		expect(analysis.ruleChecks.find((check) => check.ruleId === 'double-tail')?.status).toBe(
+			'different-result'
+		);
+	});
+
+	it('rejects syntactically invalid proposals before rule analysis', () => {
+		const analysis = analyzeMiuProposal('MI', 'IUU');
+
+		expect(analysis.syntaxValid).toBe(false);
+		expect(analysis.ruleChecks).toEqual([]);
+		expect(analysis.summary).toContain('Not a valid MIU string');
+	});
+});
 
 describe('MIU rule availability', () => {
 	it('reports a mixed mid-session state with exact counts, sites, and reasons', () => {

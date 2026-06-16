@@ -89,7 +89,7 @@ export function analyzeMiuProposal(source: string, proposedInput: string): MiuPr
 			syntaxValid: false,
 			exactMatches: [],
 			ruleChecks: [],
-			summary: 'Not a valid MIU string. States must start with M and then use only I and U.'
+			summary: 'Not a valid MIU string. States must start with M followed by at least one I or U.'
 		};
 	}
 
@@ -527,5 +527,5 @@ function assertValidMiuString(value: string): void {
 }
 
 export function isValidMiuString(value: string): boolean {
-	return /^M[IU]*$/.test(value);
+	return /^M[IU]+$/.test(value);
 }

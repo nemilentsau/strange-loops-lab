@@ -261,9 +261,10 @@ of the following becomes true:
 - the computation cost or isolation need clearly exceeds in-process execution,
 - or multiple modules start sharing a formal engine that deserves its own boundary.
 
-### 7.2 Keep Module 1 as the forcing function
-Architecture changes should solve observed Module 1 problems first. Future
-module ideas do not justify premature service decomposition.
+### 7.2 Let current instruments force architecture
+Architecture changes should solve observed pressure from the current MIU
+instrument or the next Arc 1 instrument. Future module ideas do not justify
+premature service decomposition.
 
 ### 7.3 Preserve artifact-first persistence
 If persistence grows, it should still privilege reusable artifacts, drafts, and
@@ -284,7 +285,7 @@ For the current stage, avoid:
 - a Python service that becomes the political center of the app,
 - collapsing verifier and dialogue responsibilities,
 - treating artifact persistence as analytics infrastructure,
-- or adding infrastructure for future modules before Module 1 earns it.
+- or adding infrastructure for future modules before an instrument earns it.
 
 ---
 

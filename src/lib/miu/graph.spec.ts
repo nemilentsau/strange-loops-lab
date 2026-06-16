@@ -194,14 +194,9 @@ describe('summarizeReachabilityGraph', () => {
 		expect(summary.maxNodes).toBe(4);
 	});
 
-	it('reports no truncation when the explored region is exhausted within bounds', () => {
-		// 'M' only rewrites to itself, so its reachable set is fully enumerated
-		// long before either bound is reached.
-		const summary = summarizeReachabilityGraph(
-			buildReachabilityGraph({ start: 'M', maxDepth: 8, maxNodes: 64 })
+	it('rejects a custom root outside the MIU theorem-candidate grammar', () => {
+		expect(() => buildReachabilityGraph({ start: 'M', maxDepth: 8, maxNodes: 64 })).toThrow(
+			/Invalid MIU string/
 		);
-
-		expect(summary.truncatedBy).toBeNull();
-		expect(summary.nodeCount).toBe(1);
 	});
 });

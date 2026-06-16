@@ -1,32 +1,16 @@
 <script lang="ts">
-	import { isValidMiuString } from '$lib/miu/core';
 	import { countI } from '$lib/miu/invariants';
-	import { shortestDerivation } from '$lib/miu/complexity';
 	import { residueWheel, type WheelArrow } from '$lib/state/module1Proof';
 
 	/**
-	 * Reading 2 — the wall. The current string read as a residue on ℤ/k (the
-	 * built-in invariant #I ≢ 0 mod 3) and a reachability check whose negative,
-	 * when the invariant decides it, is verified rather than a search limit.
+	 * Movement 2 — why some strings are not theorems. The displayed induction,
+	 * the four rules as a model on ℤ/3, the class of non-theorems, and the
+	 * candidates that fail. The current string's residue rides on the wheel.
 	 */
-	let {
-		currentString,
-		invariantCandidate,
-		reachTarget,
-		onUpdateReachTarget
-	}: {
-		currentString: string;
-		invariantCandidate: string;
-		reachTarget: string;
-		onUpdateReachTarget: (event: Event) => void;
-	} = $props();
+	let { currentString, invariantCandidate }: { currentString: string; invariantCandidate: string } =
+		$props();
 
 	const wheel = $derived(residueWheel(invariantCandidate));
-	const trimmedTarget = $derived(reachTarget.trim());
-	const reach = $derived(
-		isValidMiuString(trimmedTarget) ? shortestDerivation(trimmedTarget) : null
-	);
-	const targetICount = $derived(isValidMiuString(trimmedTarget) ? countI(trimmedTarget) : 0);
 	const currentResidue = $derived(wheel ? countI(currentString) % wheel.modulus : null);
 
 	// Wheel geometry: dots on a circle, chords bowed apart by map family,
@@ -72,63 +56,33 @@
 
 		return `M ${startX} ${startY} Q ${(startX + endX) / 2 + px} ${(startY + endY) / 2 + py} ${endX} ${endY}`;
 	}
+
+	// Candidates of the same form that fail: even moduli die to doubling, odd
+	// moduli other than 3 die to minus-three, and only mod 3 survives both.
+	const CANDIDATES = [
+		{ form: '#I ≢ 0 (mod 2)', holds: false, why: 'R2 doubles 1 → 0 — every even modulus dies to doubling.' },
+		{ form: '#I ≢ 0 (mod 4)', holds: false, why: 'R2 doubles 2 → 0.' },
+		{ form: '#I ≢ 0 (mod 5)', holds: false, why: 'odd, so R2 is fine — but R3 subtracts 3 → 0.' },
+		{ form: '#I ≢ 0 (mod 3)', holds: true, why: 'odd (R2 stays a unit) and 3 ≡ 0 (R3 fixes residues) — the only modulus surviving both.' }
+	];
 </script>
 
-<div class="reach">
-	<p class="worksheet__label">Reachable?</p>
-	<p class="query__ask">
-		From <span class="query__from">{currentString.length > 14 ? currentString.slice(0, 13) + '…' : currentString}</span> — can
-		<input
-			class="query__input"
-			type="text"
-			aria-label="Target string"
-			value={reachTarget}
-			oninput={onUpdateReachTarget}
-		/>
-		be reached?
-	</p>
-
-	{#if !trimmedTarget}
-		<p class="query__detail">Enter a target string.</p>
-	{:else if !reach}
-		<p class="query__detail">Not a MIU string — states start with M, then I and U.</p>
-	{:else if reach.outcome === 'unreachable-invariant'}
-		<p class="query__verdict">
-			<span class="query__stamp" aria-hidden="true">✗</span>
-			{trimmedTarget} is not a theorem.
-		</p>
-		<p class="query__detail">
-			#I({trimmedTarget}) = {targetICount} ≡ 0 (mod 3); no theorem has residue 0. Excluded by the
-			invariant — not the limit of a search.
-		</p>
-	{:else if reach.outcome === 'found'}
-		<p class="query__verdict">
-			<span class="query__stamp" aria-hidden="true">✓</span>
-			{trimmedTarget} is reachable.
-		</p>
-		<p class="query__detail">Shortest derivation: {reach.length} step{reach.length === 1 ? '' : 's'}.</p>
-	{:else}
-		<p class="query__detail">
-			No derivation found within the search horizon ({reach.stoppedBy === 'depth'
-				? `depth ${reach.maxDepth}`
-				: `${reach.maxNodes} strings`}). Reachability is open beyond it — this is a bound, not a
-			verdict.
-		</p>
-	{/if}
-</div>
+<div class="proof">Proof, by structural induction on derivations.
+Define  P(s):  #I(s) ≢ 0 (mod 3).
+Base:   MI has one I, so P(MI).
+Step:   R2:  k → 2k      (2 is a unit mod 3, so ≢ 0 stays ≢ 0)
+        R3:  k → k − 3   (residue unchanged)
+        R1, R4: k unchanged.
+Hence every theorem satisfies P. MU has #I = 0, so MU is not a theorem.</div>
 
 {#if wheel}
-	<div class="inv">
-		<p class="worksheet__label">Invariant · ℤ/{wheel.modulus}</p>
-		<p class="inv__def">P(s): #I(s) ≢ 0 (mod {wheel.modulus})</p>
-
+	<div class="wheel-wrap">
 		<svg
-			class="inv__wheel"
 			width="168"
 			height="168"
 			viewBox="0 0 168 168"
 			role="img"
-			aria-label={`Residues mod ${wheel.modulus}: allowed residues filled, residue 0 forbidden; doubling and minus-three arrows; the current residue ${currentResidue} ringed.`}
+			aria-label={`The four rules as a model on ℤ/${wheel.modulus}: residue 0 forbidden, the rest allowed; doubling and minus-three arrows; the current string's residue ${currentResidue} ringed.`}
 		>
 			<defs>
 				<marker id="inv-head" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto">
@@ -156,20 +110,43 @@
 					cy={dot.y}
 					r="5"
 				/>
-				<text
-					class="wheel-label"
-					class:wheel-label--forbidden={!isAllowed}
-					x={label.x}
-					y={label.y}>{residue}</text
+				<text class="wheel-label" class:wheel-label--forbidden={!isAllowed} x={label.x} y={label.y}
+					>{residue}</text
 				>
 			{/each}
 		</svg>
-
-		<p class="wheel-legend">⟶ doubling (R2) · ⇢ minus 3 (R3) · filled = allowed · ◯ current</p>
-		<p class="inv__caption">
-			R2 doubles (k → 2k); R3 removes three (k → k−3, fixed mod {wheel.modulus}). The allowed set is
-			closed — the inductive step, on ℤ/{wheel.modulus}.
-		</p>
-		<p class="inv__now">now: #I = {countI(currentString)} ≡ {currentResidue}</p>
+		<div class="wheel-side">
+			<p class="wheel-legend">⟶ doubling (R2) · ⇢ minus 3 (R3) · filled = a theorem's residue · ◯ your current string</p>
+			<p class="wheel-caption">
+				The four rules act on ℤ/{wheel.modulus}. Doubling carries the allowed residues to each other;
+				minus-three fixes them. The set {'{'}1, 2{'}'} is closed — nothing the rules do escapes it, and
+				0 is never entered. That closure is the inductive step.
+			</p>
+			<p class="inv__now">your current string: #I = {countI(currentString)} ≡ {currentResidue} (mod {wheel.modulus})</p>
+		</div>
 	</div>
 {/if}
+
+<div class="nontheorems">
+	<p class="worksheet__label">Is MU the only one?</p>
+	<p class="nontheorems__def">non-theorems = { '{' } M x : x ∈ {'{'}I, U{'}'}⁺, #I(x) ≡ 0 (mod 3) { '}' }</p>
+	<p class="nontheorems__list">MU · MUU · MIII · MUIIIU · MIIIUUU · …</p>
+	<p class="nontheorems__note">
+		The invariant proves one direction: a theorem must have #I ≢ 0. The converse — that every such
+		string is a theorem — is a construction, not the invariant; the oracle confirms it string by
+		string.
+	</p>
+</div>
+
+<div class="candidates-wrap">
+	<p class="worksheet__label">Other candidates fail</p>
+	<div class="candidates">
+		{#each CANDIDATES as candidate (candidate.form)}
+			<div class="candidate" data-holds={candidate.holds}>
+				<span class="candidate__stamp" aria-hidden="true">{candidate.holds ? '✓' : '✗'}</span>
+				<span class="candidate__form">{candidate.form}</span>
+				<span class="candidate__why">{candidate.why}</span>
+			</div>
+		{/each}
+	</div>
+</div>
