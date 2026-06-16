@@ -150,12 +150,3 @@ K_MIU(s)      the fewest moves in any derivation MI ⇒ s</div>
 	given a shorter MIU description; <code>MIUIIIIIUIIII</code> is longer on the page and shorter as
 	a derivation. That is the local analogue of description length.
 </p>
-
-<p class="bridge__horizon">
-	Here both questions are answerable. <b>K_MIU is computable</b> — the query just computed it — and
-	<b>theoremhood is decidable</b> — the invariant decides it with a count mod 3. The next instrument
-	changes the machine. With a universal machine, shortest descriptions become <b>Kolmogorov
-	complexity</b> K, and producibility becomes the halting question. With formal systems strong enough
-	to talk about those descriptions, <b>Chaitin</b> gives incompleteness through provable lower bounds
-	on K. Those are the next constructions, named here, not claimed by MIU.
-</p>

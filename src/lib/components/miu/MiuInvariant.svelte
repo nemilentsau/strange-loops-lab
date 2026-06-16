@@ -2,9 +2,9 @@
 	import { countI } from '$lib/miu/invariants';
 
 	/**
-	 * Movement 2 — why some strings are not theorems. The displayed induction,
-	 * the residue class excluded by the invariant, and the nearby candidates
-	 * that fail.
+	 * Movement 2 — why some strings are not theorems. Result first (MU is
+	 * unreachable), then the invariant that certifies it: a displayed induction,
+	 * the residue class it excludes, and why modulus 3 specifically.
 	 */
 	let { currentString }: { currentString: string } = $props();
 
@@ -30,48 +30,59 @@
 	];
 </script>
 
-<div class="invariant-notation">
-	<div class="notation-row">
-		<span class="notation-row__symbol">I(s)</span>
-		<span>the number of letters <b>I</b> in the string <b>s</b>.</span>
+<p class="inv-notation">
+	<span class="m">I(s)</span> = the number of <b>I</b>'s in <b>s</b>.
+	<span class="m">r(s)</span> = <span class="m">I(s)</span> mod 3.
+</p>
+
+<div class="result">
+	<p class="result__line">
+		<span class="result__label">Result</span>
+		<span>No derivation from <b>MI</b> reaches <b>MU</b>.</span>
+	</p>
+	<p class="result__line">
+		<span class="result__label">Certificate</span>
+		<span><span class="m">r(s)</span> is invariant under the four rules. Every theorem has
+			<span class="m">r(s) &isin; {'{'}1, 2{'}'}</span>, while <span class="m">r(MU) = 0</span>.</span>
+	</p>
+</div>
+
+<div class="inv-proof">
+	<div class="inv-proof__row">
+		<span class="inv-proof__label">Base</span>
+		<p><span class="m">MI</span> has one <b>I</b>, so <span class="m">I(MI) = 1</span> and
+			<span class="m">r(MI) = 1</span>.</p>
 	</div>
-	<div class="notation-row">
-		<span class="notation-row__symbol">r(s)</span>
-		<span>I(s) modulo 3. The invariant is the condition <b>r(s) ∈ {'{'}1, 2{'}'}</b>.</span>
+	<div class="inv-proof__row inv-proof__row--step">
+		<span class="inv-proof__label">Step</span>
+		<div class="inv-rules">
+			<div><span class="m">R1</span><span class="m">xI &rarr; xIU</span><span class="inv-rules__why">r unchanged</span></div>
+			<div><span class="m">R2</span><span class="m">Mx &rarr; Mxx</span><span class="inv-rules__why">r: 1 and 2 swap</span></div>
+			<div><span class="m">R3</span><span class="m">III &rarr; U</span><span class="inv-rules__why">I drops by 3, r unchanged</span></div>
+			<div><span class="m">R4</span><span class="m">UU &rarr; &empty;</span><span class="inv-rules__why">r unchanged</span></div>
+		</div>
+	</div>
+	<div class="inv-proof__row">
+		<span class="inv-proof__label">Conclusion</span>
+		<p><span class="m">{'{'}1, 2{'}'}</span> is closed under all four rules, so a derivation that starts
+			there never reaches residue 0.</p>
 	</div>
 </div>
 
-<div class="proof">
-	<div class="proof__claim">
-		<span class="proof__label">Claim</span>
-		<p>Every theorem <b>s</b> of the MIU system satisfies <b>r(s) ∈ {'{'}1, 2{'}'}</b>. Since
-			<b>r(MU) = 0</b>, MU is not a theorem.</p>
-		<p class="inv__now">current string {currentString}: I(s) = {currentICount}, so r(s) = {currentResidue}</p>
-	</div>
-	<div class="proof__steps">
-		<div class="proof-step">
-			<span class="proof-step__name">Base</span>
-			<span><b>MI</b> has one <b>I</b>, so <b>I(MI) = 1</b> and <b>r(MI) = 1</b>.</span>
-		</div>
-		<div class="proof-step proof-step--rules">
-			<span class="proof-step__name">Step</span>
-			<div class="rule-preservation">
-				<div><b>R1</b> <span>xI → xIU</span> <em>I(s) is unchanged.</em></div>
-				<div><b>R2</b> <span>Mx → Mxx</span> <em>r = 1 and r = 2 are swapped.</em></div>
-				<div><b>R3</b> <span>III → U</span> <em>I(s) decreases by 3, so r(s) is unchanged.</em></div>
-				<div><b>R4</b> <span>UU → ∅</span> <em>I(s) is unchanged.</em></div>
-			</div>
-		</div>
-		<div class="proof-step">
-			<span class="proof-step__name">Conclusion</span>
-			<span>The residues <b>{'{'}1, 2{'}'}</b> form a closed set for all four rules. A derivation that starts in that set cannot reach residue 0.</span>
-		</div>
-	</div>
-</div>
+<p class="inv-live">
+	<span class="inv-live__label">on the worksheet</span>
+	<span class="m">{currentString}</span>
+	<span class="inv-live__sep">&middot;</span> I(s) = <span class="m">{currentICount}</span>
+	<span class="inv-live__sep">&middot;</span> r(s) = <span class="m">{currentResidue}</span>
+	<span class="inv-live__sep">&middot;</span>
+	<span class="inv-live__verdict" class:inv-live__verdict--out={currentResidue === 0}>
+		{currentResidue === 0 ? 'residue 0 — excluded' : 'in {1, 2}, so not excluded'}
+	</span>
+</p>
 
 <div class="nontheorems">
 	<p class="worksheet__label">Is MU the only one?</p>
-	<p class="nontheorems__def">strings excluded by this invariant = { '{' } s : s starts with M, I(s) mod 3 = 0 { '}' }</p>
+	<p class="nontheorems__def">excluded = { '{' } s : s starts with M, I(s) mod 3 = 0 { '}' }</p>
 	<p class="nontheorems__list">MU · MUU · MIII · MUIIIU · MIIIUUU · …</p>
 	<p class="nontheorems__note">
 		The invariant proves one direction: a theorem must have residue 1 or 2. The converse — that
@@ -80,7 +91,7 @@
 </div>
 
 <div class="candidates-wrap">
-	<p class="worksheet__label">Other candidates fail</p>
+	<p class="worksheet__label">Why modulus 3</p>
 	<div class="candidates">
 		{#each CANDIDATES as candidate (candidate.form)}
 			<div class="candidate" data-holds={candidate.holds}>

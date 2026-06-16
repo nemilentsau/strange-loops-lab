@@ -155,10 +155,9 @@
 		<span class="movement__altitude">◉ reachability obstruction</span>
 	</div>
 	<p class="lede">
-		The theorem query gives positive answers by a derivation. A negative answer needs a different
-		certificate: a set that contains MI, is closed under the four rules, and excludes the target.
-		For MIU, the certificate is the I-count modulo 3: every theorem has residue 1 or 2,
-		while MU has residue 0.
+		The theorem query answers positively by exhibiting a derivation. A negative answer needs a
+		certificate instead: a property that holds at MI, survives every rule, and fails for the
+		target. For MIU one property does it — the count of I's, taken modulo 3.
 	</p>
 
 	<MiuInvariant {currentString} />
@@ -169,6 +168,24 @@
 		<h2 class="movement__title">Description length</h2>
 		<span class="movement__altitude">↗ about all such systems</span>
 	</div>
+
+	<div class="claim">
+		<p class="claim__head">
+			<b>Claim.</b> For the fixed MIU machine, both questions are settled by an algorithm — one a
+			decision, one a computation.
+		</p>
+		<ol class="claim__list">
+			<li>
+				<b>Theoremhood is decidable.</b> #I mod 3 is invariant under the four rules and separates
+				MU (residue 0) from every theorem (residue 1 or 2).
+			</li>
+			<li>
+				<b>K_MIU(s) is computable.</b> Breadth-first over derivations ordered by length returns
+				the shortest; theoremhood decided first bounds the search.
+			</li>
+		</ol>
+	</div>
+
 	<p class="lede">
 		The theorem-query step count is not bookkeeping. A derivation is a program: MI is the input,
 		each rule-and-site choice an instruction, the string the output. The shortest such program is
@@ -176,4 +193,16 @@
 	</p>
 
 	<MiuBridge {sessionStrings} />
+
+	<div class="coda">
+		<p class="coda__altitude">→ the next machine</p>
+		<p class="coda__body">
+			What changes next is the machine. With a universal machine, shortest descriptions become
+			<b>Kolmogorov complexity</b> K, and producibility becomes the halting question. In formal
+			systems strong enough to reason about those descriptions, <b>Chaitin</b> obtains
+			incompleteness from a ceiling on provable lower bounds: each sound system fixes a constant
+			c beyond which it proves no bound K(s) &gt; c — though infinitely many such bounds are true.
+		</p>
+		<p class="coda__note">Those are the next constructions, named here, not claimed by MIU.</p>
+	</div>
 </section>
