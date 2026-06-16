@@ -149,18 +149,19 @@
 	/>
 </section>
 
-<section class="movement">
+<section class="movement movement--invariant">
 	<div class="movement__head">
-		<h2 class="movement__title">Why some strings are not theorems</h2>
-		<span class="movement__altitude">◉ about the system</span>
+		<h2 class="movement__title">Invariant certificate</h2>
+		<span class="movement__altitude">◉ reachability obstruction</span>
 	</div>
 	<p class="lede">
-		MU is the displayed negative: certainty comes from an invariant, not from an exhausted search.
-		No derivation reaches MU, because every rule preserves a quantity MU violates. This is
-		Hofstadter's puzzle, and its resolution is an invariant.
+		The theorem query gives positive answers by a derivation. A negative answer needs a different
+		certificate: a set that contains MI, is closed under the four rules, and excludes the target.
+		For MIU, the certificate is the I-count modulo 3: every theorem has residue 1 or 2,
+		while MU has residue 0.
 	</p>
 
-	<MiuInvariant {currentString} invariantCandidate={draft.invariantCandidate} />
+	<MiuInvariant {currentString} />
 </section>
 
 <section class="movement">

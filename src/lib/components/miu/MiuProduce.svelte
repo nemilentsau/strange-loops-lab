@@ -97,7 +97,7 @@
 				<span class="stamp" aria-hidden="true">✗</span>
 				<span>{trimmed} ∉ Th(MIU)</span>
 			</div>
-			<p class="query-verdict__fact">#I = {targetICount} ≡ 0 (mod 3); the invariant excludes it.</p>
+			<p class="query-verdict__fact">I-count = {targetICount}, residue 0 mod 3; the invariant excludes it.</p>
 		{:else if theoremQuery?.outcome === 'found'}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">✓</span>

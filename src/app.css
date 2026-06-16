@@ -494,39 +494,6 @@ select {
 	text-decoration: underline;
 }
 
-.wheel-dot {
-	fill: var(--ink);
-}
-
-.wheel-dot--forbidden {
-	fill: var(--panel-meta);
-	stroke: var(--line-strong);
-	stroke-width: 1.5;
-}
-
-.wheel-label {
-	fill: var(--ink);
-	font-family: var(--mono);
-	font-size: 12px;
-	font-weight: 600;
-	text-anchor: middle;
-}
-
-.wheel-label--forbidden {
-	fill: var(--faint);
-	font-weight: 400;
-}
-
-.wheel-arrow {
-	fill: none;
-	stroke: var(--line-strong);
-	stroke-width: 1.4;
-}
-
-.wheel-arrow--minus3 {
-	stroke-dasharray: 4 4;
-}
-
 @media (max-width: 640px) {
 	.site-shell {
 		padding-inline: 16px;
@@ -540,24 +507,11 @@ select {
  * ════════════════════════════════════════════════════════════════════════ */
 
 .inv__now {
-	margin: 6px 0 0;
+	margin: 12px 0 0;
 	font-family: var(--mono);
-	font-size: 0.78rem;
+	font-size: 0.92rem;
 	color: var(--ink);
-}
-
-.wheel-dot--now {
-	fill: var(--ink);
-	stroke: var(--act);
-	stroke-width: 2.5;
-}
-
-.wheel-legend {
-	margin: 4px 0 0;
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.7rem;
-	line-height: 1.5;
+	overflow-wrap: anywhere;
 }
 
 /* ── Movement 3: the derivation read as a program. The reframe is displayed;
@@ -578,7 +532,6 @@ select {
 	margin: var(--space-lg) 0 0;
 	padding: 12px 16px;
 	border-left: 2px dotted var(--faint);
-	max-width: 70ch;
 	font-family: var(--serif);
 	font-style: italic;
 	font-size: 0.92rem;
@@ -635,7 +588,6 @@ select {
 }
 
 .lede {
-	max-width: 72ch;
 	margin: 0 0 var(--space-lg);
 	color: var(--muted);
 	font-size: 0.95rem;
@@ -870,37 +822,120 @@ select {
 	font-weight: 600;
 }
 
-/* ── Movement 2: displayed proof, the wheel, the non-theorem class, candidates ── */
+/* ── Movement 2: displayed proof, the non-theorem class, candidates ── */
+.invariant-notation {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0;
+	margin: 0 0 var(--space-md);
+	border-top: 1px solid var(--line-strong);
+	border-bottom: 1px solid var(--line-strong);
+}
+
+.notation-row {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 14px;
+	align-items: baseline;
+	padding: 12px 16px;
+	border-right: 1px solid var(--line);
+	color: var(--muted);
+	font-size: 0.95rem;
+	line-height: 1.55;
+}
+
+.notation-row:last-child {
+	border-right: none;
+}
+
+.notation-row b {
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.notation-row__symbol {
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 1.2rem;
+	font-weight: 700;
+}
+
 .proof {
 	margin: 0 0 var(--space-lg);
-	padding: 14px 18px;
+	padding: 18px 22px;
 	border-left: 3px solid var(--ink);
 	background: var(--panel-meta);
 	color: var(--ink);
+	display: grid;
+	grid-template-columns: minmax(220px, 0.6fr) minmax(0, 1.4fr);
+	gap: var(--space-lg);
+	font-size: 0.94rem;
+	line-height: 1.6;
+}
+
+.proof__claim p {
+	margin: 8px 0 0;
+	font-size: 1rem;
+	line-height: 1.6;
+}
+
+.proof__label,
+.proof-step__name {
+	display: block;
+	color: var(--faint);
 	font-family: var(--mono);
-	font-size: 0.82rem;
-	line-height: 1.8;
-	white-space: pre;
-	overflow-x: auto;
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
 }
 
-.wheel-wrap {
-	display: flex;
-	align-items: center;
-	gap: 28px;
-	margin: 0 0 var(--space-xl);
-}
-
-.wheel-side {
+.proof__steps {
+	display: grid;
+	gap: 12px;
 	min-width: 0;
 }
 
-.wheel-caption {
-	margin: 6px 0 0;
-	max-width: 56ch;
-	color: var(--muted);
+.proof-step {
+	display: grid;
+	grid-template-columns: 9ch minmax(0, 1fr);
+	gap: 16px;
+	align-items: baseline;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--line);
+}
+
+.proof-step:last-child {
+	padding-bottom: 0;
+	border-bottom: none;
+}
+
+.proof-step b {
+	font-weight: 700;
+}
+
+.rule-preservation {
+	display: grid;
+	gap: 7px;
+	font-family: var(--mono);
 	font-size: 0.84rem;
-	line-height: 1.55;
+}
+
+.rule-preservation div {
+	display: grid;
+	grid-template-columns: 3ch 12ch minmax(0, 1fr);
+	gap: 12px;
+	align-items: baseline;
+}
+
+.rule-preservation span {
+	color: var(--ink);
+}
+
+.rule-preservation em {
+	color: var(--muted);
+	font-family: var(--sans);
+	font-style: normal;
 }
 
 .nontheorems {
@@ -911,7 +946,9 @@ select {
 	margin: 0 0 6px;
 	color: var(--ink);
 	font-family: var(--mono);
-	font-size: 0.92rem;
+	font-size: 1rem;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
 }
 
 .nontheorems__list {
@@ -922,10 +959,10 @@ select {
 }
 
 .nontheorems__note {
-	max-width: 72ch;
+	max-width: none;
 	margin: 0;
 	color: var(--muted);
-	font-size: 0.9rem;
+	font-size: 0.95rem;
 	line-height: 1.65;
 }
 
@@ -951,7 +988,7 @@ select {
 }
 
 .candidate__form {
-	flex: 0 0 16ch;
+	flex: 0 0 28ch;
 	color: var(--ink);
 }
 
@@ -963,7 +1000,41 @@ select {
 	font-weight: 700;
 }
 
-/* ── Movement 3: the session table (not cards) + the counting observation ── */
+@media (max-width: 780px) {
+	.invariant-notation,
+	.proof {
+		grid-template-columns: 1fr;
+	}
+
+	.notation-row {
+		border-right: none;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.notation-row:last-child {
+		border-bottom: none;
+	}
+
+	.proof-step {
+		grid-template-columns: 1fr;
+		gap: 4px;
+	}
+}
+
+@media (max-width: 640px) {
+	.rule-preservation div,
+	.candidate {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 3px;
+	}
+
+	.candidate__form {
+		flex-basis: auto;
+	}
+}
+
+/* ── Movement 3: specimen strings + the local description-length contrast ── */
 .ait-table {
 	width: 100%;
 	margin: 0 0 var(--space-md);
@@ -992,6 +1063,17 @@ select {
 	padding: 7px 18px 7px 0;
 	border-bottom: 1px solid var(--line);
 	color: var(--ink);
+	vertical-align: top;
+}
+
+.ait-table td:first-child {
+	overflow-wrap: anywhere;
+}
+
+.ait-table td.program {
+	color: var(--ink);
+	font-size: 0.78rem;
+	white-space: normal;
 }
 
 .ait-table td.note {
@@ -1000,12 +1082,26 @@ select {
 	font-size: 0.8rem;
 }
 
+.ait-table td.note--reading {
+	min-width: 22ch;
+}
+
+.ait-table td.note--reading b,
+.ait-table td.note--reading span {
+	display: block;
+}
+
+.ait-table td.note--reading b {
+	margin-bottom: 2px;
+	color: var(--ink);
+	font-weight: 600;
+}
+
 .ait-table .ratio-low {
 	color: var(--act);
 }
 
 .observation {
-	max-width: 72ch;
 	margin: 0 0 var(--space-lg);
 	color: var(--muted);
 	font-size: 0.9rem;
@@ -1015,4 +1111,11 @@ select {
 .observation code {
 	color: var(--ink);
 	font-family: var(--mono);
+}
+
+@media (max-width: 780px) {
+	.ait-table {
+		display: block;
+		overflow-x: auto;
+	}
 }

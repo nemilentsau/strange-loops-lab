@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { THEOREM_TARGETS } from './examples';
+import { DESCRIPTION_LENGTH_EXAMPLES, THEOREM_TARGETS } from './examples';
 import { shortestDerivation } from './complexity';
 
 describe('MIU theorem target examples', () => {
@@ -34,5 +34,13 @@ describe('MIU theorem target examples', () => {
 		expect(compressible.outcome).toBe('found');
 		expect(compressible.target.length).toBe(13);
 		expect(compressible.length).toBe(5);
+	});
+
+	it('pins the description-length specimen rows', () => {
+		expect(DESCRIPTION_LENGTH_EXAMPLES.map((example) => [example.value, example.reading])).toEqual([
+			['MIIIUIU', 'as long as itself'],
+			['MIUIIIIIUIIII', 'compressible'],
+			['MIUIUIUIU', 'compressible']
+		]);
 	});
 });
