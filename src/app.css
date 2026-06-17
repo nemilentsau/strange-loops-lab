@@ -1028,64 +1028,25 @@ select {
 	color: var(--muted);
 }
 
-/* The live readout: the one computed value, in the computed register (dashed),
- * set apart from the static proof. Its job is to classify the worksheet's
- * current string against the invariant — every derived string lands in {1,2}. */
-.inv-live {
-	margin: 0 0 var(--space-xl);
-	padding: 10px 14px;
-	border: 1px dashed var(--line-strong);
-	border-radius: var(--radius);
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 6px 10px;
-	font-size: 0.9rem;
-	color: var(--muted);
-	overflow-wrap: anywhere;
-}
-
-.inv-live__label {
-	font-family: var(--mono);
-	font-size: 0.64rem;
-	font-weight: 700;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: var(--faint);
-}
-
-.inv-live__sep {
-	color: var(--line-strong);
-}
-
-.inv-live__verdict {
-	font-family: var(--sans);
-	font-size: 0.86rem;
-	color: var(--muted);
-}
-
-.inv-live__verdict--out {
-	font-weight: 700;
-}
-
 .nontheorems {
 	margin: 0 0 var(--space-xl);
 }
 
 .nontheorems__def {
-	margin: 0 0 6px;
-	color: var(--ink);
-	font-family: var(--mono);
-	font-size: 1rem;
+	margin: 4px 0 14px;
+	color: var(--muted);
+	font-size: 0.9rem;
 	line-height: 1.6;
 	overflow-wrap: anywhere;
 }
 
 .nontheorems__list {
-	margin: 0 0 10px;
-	color: var(--muted);
+	margin: 0;
+	color: var(--ink);
 	font-family: var(--mono);
-	font-size: 0.84rem;
+	font-size: 1rem;
+	line-height: 1.55;
+	overflow-wrap: anywhere;
 }
 
 .nontheorems__note {

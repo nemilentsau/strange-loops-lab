@@ -1,17 +1,9 @@
 <script lang="ts">
-	import { countI } from '$lib/miu/invariants';
-
 	/**
 	 * Movement 2 — why some strings are not theorems. Result first (MU is
 	 * unreachable), then the invariant that certifies it: a displayed induction,
 	 * the residue class it excludes, and why modulus 3 specifically.
 	 */
-	let { currentString }: { currentString: string } = $props();
-
-	const modulus = 3;
-	const currentICount = $derived(countI(currentString));
-	const currentResidue = $derived(currentICount % modulus);
-
 	// Candidates of the same form that fail: even moduli die to doubling, odd
 	// moduli other than 3 die to minus-three, and only mod 3 survives both.
 	const CANDIDATES = [
@@ -69,24 +61,17 @@
 	</div>
 </div>
 
-<p class="inv-live">
-	<span class="inv-live__label">on the worksheet</span>
-	<span class="m">{currentString}</span>
-	<span class="inv-live__sep">&middot;</span> I(s) = <span class="m">{currentICount}</span>
-	<span class="inv-live__sep">&middot;</span> r(s) = <span class="m">{currentResidue}</span>
-	<span class="inv-live__sep">&middot;</span>
-	<span class="inv-live__verdict" class:inv-live__verdict--out={currentResidue === 0}>
-		{currentResidue === 0 ? 'residue 0 — excluded' : 'in {1, 2}; the invariant does not exclude it'}
-	</span>
-</p>
-
 <div class="nontheorems">
-	<p class="worksheet__label">Excluded class</p>
-	<p class="nontheorems__def">excluded = { '{' } s : s starts with M, I(s) mod 3 = 0 { '}' }</p>
+	<p class="worksheet__label">Strings ruled out by the invariant</p>
 	<p class="nontheorems__list">MU · MUU · MIII · MUIIIU · MIIIUUU · …</p>
+	<p class="nontheorems__def">
+		If <span class="m">I(s) &equiv; 0 (mod 3)</span>, then
+		<span class="m">s &notin; Th(MIU)</span>.
+	</p>
 	<p class="nontheorems__note">
-		The invariant proves one direction: every theorem has residue 1 or 2. The converse — that
-		every string with residue 1 or 2 is a theorem — requires a construction.
+		The invariant proves the necessary condition: every theorem has residue 1 or 2. For valid
+		MIU strings this condition is also sufficient, but that converse requires a separate
+		construction.
 	</p>
 </div>
 

@@ -162,7 +162,7 @@
 		For <span class="m">MU</span>, the certificate is the count of <b>I</b>'s modulo 3.
 	</p>
 
-	<MiuInvariant {currentString} />
+	<MiuInvariant />
 </section>
 
 <section class="movement">
