@@ -89,15 +89,17 @@
 		{#if !valid}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">?</span>
-				<span>target ∉ M{'{'}I,U{'}'}<sup>+</sup></span>
+				<span>{trimmed} ∉ M{'{'}I,U{'}'}<sup>+</sup></span>
 			</div>
-			<p class="query-verdict__fact">the tail must be nonempty and contain only I and U.</p>
+			<p class="query-verdict__fact">the tail after M must be nonempty and contain only I and U.</p>
 		{:else if theoremQuery?.outcome === 'unreachable-invariant'}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">✗</span>
 				<span>{trimmed} ∉ Th(MIU)</span>
 			</div>
-			<p class="query-verdict__fact">I-count = {targetICount}, residue 0 mod 3; the invariant excludes it.</p>
+			<p class="query-verdict__fact">
+				I({trimmed}) = {targetICount} ≡ 0 (mod 3); the invariant excludes it.
+			</p>
 		{:else if theoremQuery?.outcome === 'found'}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">✓</span>

@@ -118,7 +118,7 @@
 
 <header class="instrument-header">
 	<h1>MIU system</h1>
-	<p>A derivation is a program; K_MIU is its shortest length.</p>
+	<p>One derivation, read as theoremhood, invariant, and description length.</p>
 </header>
 
 <section class="movement">
@@ -173,8 +173,8 @@
 
 	<div class="claim">
 		<p class="claim__head">
-			<b>Claim.</b> For the fixed MIU system, theoremhood is decidable and shortest
-			derivation length is computable.
+			<b>Claim.</b> For the fixed MIU system, theoremhood is decidable; for theorems,
+			shortest derivation length is computable.
 		</p>
 		<ol class="claim__list">
 			<li>

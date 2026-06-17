@@ -56,8 +56,9 @@
 	</div>
 	<div class="inv-proof__row">
 		<span class="inv-proof__label">Conclusion</span>
-		<p><span class="m">{'{'}1, 2{'}'}</span> is closed under all four rules, so a derivation that starts
-			there never reaches residue 0.</p>
+		<p><span class="m">{'{'}1, 2{'}'}</span> is closed under all four rules. Since
+			<span class="m">r(MI) = 1</span>, every derivation from <span class="m">MI</span> stays outside
+			residue 0.</p>
 	</div>
 </div>
 
@@ -69,9 +70,9 @@
 		<span class="m">s &notin; Th(MIU)</span>.
 	</p>
 	<p class="nontheorems__note">
-		The invariant proves the necessary condition: every theorem has residue 1 or 2. For valid
-		MIU strings this condition is also sufficient, but that converse requires a separate
-		construction.
+		The invariant proves the necessary condition: every theorem has residue 1 or 2. Among strings
+		of the form <span class="m">M{'{'}I,U{'}'}<sup>+</sup></span>, this condition is also
+		sufficient, but that converse requires a separate construction.
 	</p>
 </div>
 
