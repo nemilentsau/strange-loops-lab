@@ -95,7 +95,7 @@ export function analyzeMiuProposal(source: string, proposedInput: string): MiuPr
 
 	const legalMoves = enumerateMiuMoves(source);
 	const exactMatches = legalMoves.filter((move) => move.result === proposed);
-	const ruleChecks = MIU_RULES.map((ruleId) => inspectRuleProposal(source, proposed, ruleId, legalMoves));
+	const ruleChecks = MIU_RULES.map((ruleId) => inspectRuleProposal(proposed, ruleId, legalMoves));
 
 	return {
 		source,
@@ -313,12 +313,7 @@ function normalizeMove(input: unknown, result: string): MiuMove | null {
 	};
 }
 
-function inspectRuleProposal(
-	source: string,
-	proposed: string,
-	ruleId: MiuRuleId,
-	legalMoves: MiuMove[]
-): MiuProposalRuleCheck {
+function inspectRuleProposal(proposed: string, ruleId: MiuRuleId, legalMoves: MiuMove[]): MiuProposalRuleCheck {
 	const ruleMoves = legalMoves.filter((move) => move.ruleId === ruleId);
 	const matchingMoves = ruleMoves.filter((move) => move.result === proposed);
 
@@ -341,7 +336,7 @@ function inspectRuleProposal(
 			ruleId,
 			ruleLabel: labelForRule(ruleId),
 			status: 'unavailable',
-			explanation: unavailableRuleExplanation(source, ruleId),
+			explanation: unavailableRuleExplanation(ruleId),
 			legalResults: [],
 			matchingMoves: []
 		};
@@ -463,7 +458,7 @@ function differentResultExplanation(ruleId: MiuRuleId, proposed: string, ruleMov
 	return `${labelForRule(ruleId)} is applicable here, but it can only produce ${preview}${suffix}, not ${proposed}.`;
 }
 
-function unavailableRuleExplanation(source: string, ruleId: MiuRuleId): string {
+function unavailableRuleExplanation(ruleId: MiuRuleId): string {
 	switch (ruleId) {
 		case 'append-u':
 			return 'Rule 1 is unavailable because the current string does not end in I.';

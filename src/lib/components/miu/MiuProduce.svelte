@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { isValidMiuString, normalizeMiuTailInput } from '$lib/miu/core';
 	import { THEOREM_TARGETS } from '$lib/miu/examples';
-	import {
-		MIU_QUERY_BOUNDS,
-		nextMiuQueryNodeBound,
-		shortestDerivation
-	} from '$lib/miu/complexity';
+	import { nextMiuQueryNodeBound, type ShortestDerivation } from '$lib/miu/complexity';
 	import { countI } from '$lib/miu/invariants';
 
 	let {
 		target,
+		theoremQuery,
 		queryMaxNodes,
 		witnessOpen,
 		onUpdateTarget,
@@ -17,6 +14,7 @@
 		onToggleWitness
 	}: {
 		target: string;
+		theoremQuery: ShortestDerivation | null;
 		queryMaxNodes: number;
 		witnessOpen: boolean;
 		onUpdateTarget: (target: string) => void;
@@ -27,8 +25,6 @@
 	const trimmed = $derived(target.trim());
 	const targetTail = $derived(trimmed.startsWith('M') ? trimmed.slice(1) : '');
 	const valid = $derived(isValidMiuString(trimmed));
-	const queryBounds = $derived({ maxDepth: MIU_QUERY_BOUNDS.maxDepth, maxNodes: queryMaxNodes });
-	const theoremQuery = $derived(valid ? shortestDerivation(trimmed, queryBounds) : null);
 	const targetICount = $derived(valid ? countI(trimmed) : 0);
 	const nextNodeBound = $derived(nextMiuQueryNodeBound(queryMaxNodes));
 

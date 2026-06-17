@@ -120,16 +120,11 @@ export function buildProofDocument(input: string, currentString: string): ProofD
 			satisfies(parsed, currentCount) ? 'satisfies P' : 'violates P'
 		}.`,
 		clauses,
-		conclusion: buildConclusion(parsed, allPass, basePasses, muExcluded)
+		conclusion: buildConclusion(allPass, basePasses, muExcluded)
 	};
 }
 
-function buildConclusion(
-	parsed: ParsedInvariantCandidate,
-	allPass: boolean,
-	basePasses: boolean,
-	muExcluded: boolean
-): ProofConclusion {
+function buildConclusion(allPass: boolean, basePasses: boolean, muExcluded: boolean): ProofConclusion {
 	if (allPass && muExcluded) {
 		return {
 			head: `Every theorem satisfies P; MU does not, since count(I) = 0. So MU is not derivable in MIU. ∎`,

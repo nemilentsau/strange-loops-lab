@@ -32,6 +32,16 @@
 	);
 	const currentString = $derived(currentStep.value);
 	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
+	const trimmedProduceTarget = $derived(produceTarget.trim());
+	const validProduceTarget = $derived(isValidMiuString(trimmedProduceTarget));
+	const theoremQuery = $derived(
+		validProduceTarget
+			? shortestDerivation(trimmedProduceTarget, {
+					maxDepth: MIU_QUERY_BOUNDS.maxDepth,
+					maxNodes: queryMaxNodes
+				})
+			: null
+	);
 	// "What you produced this session": the distinct strings the derivation has
 	// passed through, each carrying its own description length in Movement 3.
 	const sessionStrings = $derived(Array.from(new Set(draft.trace.steps.map((step) => step.value))));
@@ -77,28 +87,23 @@
 	}
 
 	function toggleShortestWitness() {
-		const trimmed = produceTarget.trim();
-		if (!isValidMiuString(trimmed)) {
+		if (!validProduceTarget) {
 			return;
 		}
 
-		if (witnessTarget === trimmed && witnessPath) {
+		if (witnessTarget === trimmedProduceTarget && witnessPath) {
 			witnessTarget = null;
 			witnessPath = null;
 			return;
 		}
 
-		const result = shortestDerivation(trimmed, {
-			maxDepth: MIU_QUERY_BOUNDS.maxDepth,
-			maxNodes: queryMaxNodes
-		});
-		if (result.outcome !== 'found' || !result.path) {
+		if (theoremQuery?.outcome !== 'found' || !theoremQuery.path) {
 			witnessTarget = null;
 			witnessPath = null;
 			return;
 		}
-		witnessTarget = trimmed;
-		witnessPath = result.path;
+		witnessTarget = trimmedProduceTarget;
+		witnessPath = theoremQuery.path;
 	}
 
 	function resetSession() {
@@ -129,8 +134,9 @@
 
 	<MiuProduce
 		target={produceTarget}
+		{theoremQuery}
 		queryMaxNodes={queryMaxNodes}
-		witnessOpen={witnessTarget === produceTarget.trim() && witnessPath !== null}
+		witnessOpen={witnessTarget === trimmedProduceTarget && witnessPath !== null}
 		onUpdateTarget={updateTarget}
 		onUpdateMaxNodes={setQueryMaxNodes}
 		onToggleWitness={toggleShortestWitness}
