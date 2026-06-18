@@ -42,10 +42,6 @@
 				})
 			: null
 	);
-	// "What you produced this session": the distinct strings the derivation has
-	// passed through, each carrying its own description length in Movement 3.
-	const sessionStrings = $derived(Array.from(new Set(draft.trace.steps.map((step) => step.value))));
-
 	onMount(() => {
 		if (!browser) {
 			return;
@@ -201,7 +197,7 @@
 		Thus <span class="m">K_MIU(s)</span> is a description length relative to this rewrite system.
 	</p>
 
-	<MiuBridge {sessionStrings} />
+	<MiuBridge />
 
 	<div class="coda">
 		<p class="coda__altitude">→ the next machine</p>

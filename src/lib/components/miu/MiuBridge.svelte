@@ -6,30 +6,14 @@
 	/**
 	 * Movement 3 — description length. Shortest derivation length is a description
 	 * length: a derivation is a program, K_MIU(s) its shortest. Fixed specimen
-	 * strings carry the compressible-vs-incompressible split; session strings
-	 * can be compared against them.
+	 * strings carry the compressible-vs-incompressible split.
 	 */
-	let { sessionStrings }: { sessionStrings: string[] } = $props();
-
 	const specimenRows = $derived(
 		DESCRIPTION_LENGTH_EXAMPLES.map((example) => ({
 			...rowFor(example.value),
 			reading: example.reading,
 			note: example.note
 		}))
-	);
-
-	const sessionRows = $derived(
-		sessionStrings
-			.filter((value) => value !== 'MI' && !DESCRIPTION_LENGTH_EXAMPLES.some((example) => example.value === value))
-			.map((value) => {
-				const row = rowFor(value);
-				return {
-					...row,
-					reading: readingFor(row.len, row.k),
-					note: 'from the current derivation'
-				};
-			})
 	);
 
 	function rowFor(value: string) {
@@ -59,18 +43,6 @@
 			case 'delete-uu':
 				return 'R4';
 		}
-	}
-
-	function readingFor(len: number, k: number | null): string {
-		if (k === null) {
-			return 'beyond bound';
-		}
-
-		if (k * 2 <= len) {
-			return 'compressible';
-		}
-
-		return k >= len ? 'as long as itself' : 'near length';
 	}
 
 	function shown(value: string): string {
@@ -115,35 +87,6 @@ K_MIU(s)      the fewest moves in any derivation MI ⇒ s</div>
 		{/each}
 	</tbody>
 </table>
-
-{#if sessionRows.length > 0}
-	<p class="worksheet__label">From this derivation</p>
-	<table class="ait-table">
-		<thead>
-			<tr>
-				<th>string</th>
-				<th class="num">|s|</th>
-				<th class="num">K_MIU</th>
-				<th>&nbsp;</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each sessionRows as row (row.value)}
-				<tr>
-					<td>{shown(row.value)}</td>
-					<td class="num">{row.len}</td>
-					{#if row.k !== null}
-						<td class="num" class:ratio-low={row.k * 2 <= row.len}>{row.k}</td>
-						<td class="note">{row.reading}</td>
-					{:else}
-						<td class="num">&gt; {row.bound}</td>
-						<td class="note">beyond the search bound</td>
-					{/if}
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-{/if}
 
 <p class="observation">
 	The comparison is relative to this rewrite system. <code>MIIIUIU</code> is short as a string
