@@ -216,6 +216,7 @@ The active docs set is intentionally small:
 - `README.md` for project overview and current build posture
 - `docs/strange-loops-vision.md` for the vision and build reference (the dependency graph, the four arcs, the conceptual move)
 - `docs/bridge-ledger.md` for the record of the connection gate: every candidate bridge, its gate class, its status, and rejections kept as verified negatives
+- `docs/research-directions-review.md` for the July 2026 advisory assessment and candidate next directions; accepted decisions move into the vision or bridge ledger
 - `docs/module-1-postmortem.md` for the Module 1 build postmortem and the binding design law
 - `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
 - `docs/agent-behavior.md` for the current dialogue/agent contract
