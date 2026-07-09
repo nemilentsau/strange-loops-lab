@@ -1,15 +1,11 @@
 @import 'tailwindcss';
 
-/*
- * Graphite & parchment. One material everywhere: warm paper, graphite ink,
- * hairline rules. A single accent — oxblood — and it means exactly one thing:
- * "you can act here." It never carries epistemic status.
- *
- * The three epistemic registers are carried by FORM, never by hue, so they
- * survive grayscale and colorblindness:
- *   verified  → solid graphite rule/frame + ✓/✗ stamps, upright text
- *   computed  → dashed pencil-gray rules
- *   coaching  → dotted rules + italic serif (a margin note); never a stamp
+/* Graphite and parchment. One oxblood accent marks actions only.
+ * Epistemic register is carried by form:
+ * verified -> solid rule/frame and proof stamps
+ * measured -> dashed rule plus run configuration
+ * coaching -> dotted rule and margin-note typography
+ * Deterministic transforms inherit the register of their inputs.
  */
 
 :root {
@@ -544,8 +540,7 @@ select {
  * of it. No phase chrome.
  * ════════════════════════════════════════════════════════════════════════ */
 
-/* ── Movement 3: the derivation read as a program. The reframe is displayed;
- * the horizon note is computed/coaching register (dotted, italic). ── */
+/* ── Movement 3: the derivation read as a program. ── */
 .bridge__def {
 	margin: 0 0 var(--space-lg);
 	padding: 12px 16px;
@@ -1041,9 +1036,26 @@ select {
 }
 
 .inv-rules__why {
+	display: flex;
+	gap: 8px;
+	align-items: baseline;
 	font-family: var(--sans);
 	font-size: 0.88rem;
 	color: var(--muted);
+}
+
+.certificate-line {
+	display: inline-flex;
+	gap: 9px;
+	align-items: baseline;
+}
+
+.certificate-stamp {
+	flex: 0 0 auto;
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 0.82rem;
+	font-weight: 700;
 }
 
 .nontheorems {
@@ -1073,6 +1085,131 @@ select {
 	color: var(--muted);
 	font-size: 0.95rem;
 	line-height: 1.65;
+}
+
+.characters {
+	margin: 0 0 var(--space-xl);
+	border-top: 1px solid var(--ink);
+	border-bottom: 1px solid var(--ink);
+	background: var(--panel);
+}
+
+.characters__head {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--space-lg);
+	align-items: baseline;
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--line-strong);
+}
+
+.characters__head h3,
+.characters__head p {
+	margin: 0;
+}
+
+.characters__head h3 {
+	font-family: var(--serif);
+	font-size: 1.18rem;
+}
+
+.characters__head p {
+	color: var(--muted);
+	font-size: 0.86rem;
+}
+
+.characters__grid {
+	display: grid;
+	grid-template-columns: minmax(18rem, 0.9fr) minmax(17rem, 1fr) minmax(18rem, 1.1fr);
+}
+
+.characters__part {
+	min-width: 0;
+	padding: 17px 18px 20px;
+}
+
+.characters__part + .characters__part {
+	border-left: 1px solid var(--line-strong);
+}
+
+.characters__formula,
+.characters__identity,
+.characters__values,
+.characters__note {
+	margin: 0;
+	line-height: 1.65;
+}
+
+.characters__formula + .characters__formula,
+.characters__values,
+.characters__note {
+	margin-top: 9px;
+}
+
+.characters__formula,
+.characters__identity {
+	font-family: var(--serif);
+	font-size: 0.96rem;
+}
+
+.characters__values,
+.characters__note {
+	color: var(--muted);
+	font-size: 0.84rem;
+}
+
+.character-table-wrap {
+	overflow-x: auto;
+}
+
+.character-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: var(--mono);
+	font-size: 0.82rem;
+}
+
+.character-table th,
+.character-table td {
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--line);
+	text-align: center;
+}
+
+.character-table th:first-child {
+	text-align: left;
+}
+
+.character-table thead th {
+	color: var(--faint);
+	font-size: 0.66rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+}
+
+@media (max-width: 860px) {
+	.characters__grid {
+		grid-template-columns: 1fr;
+	}
+
+	.characters__part + .characters__part {
+		border-left: 0;
+		border-top: 1px solid var(--line-strong);
+	}
+}
+
+@media (max-width: 640px) {
+	.characters__head {
+		display: block;
+	}
+
+	.characters__head p {
+		margin-top: 6px;
+	}
+
+	.character-table {
+		min-width: 300px;
+	}
 }
 
 .candidates {
