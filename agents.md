@@ -19,8 +19,8 @@ read three ways:
 - see the wall (the residue wheel on ℤ/3; MU rejected by the invariant — a
   verified negative, not a search limit);
 - read the derivation as a program (K_MIU, the shortest-derivation length:
-  compressible vs. incompressible, with Kolmogorov complexity and Chaitin named
-  as the next instrument, not claimed by this one).
+  description length relative to the fixed MIU machine, with Kolmogorov
+  complexity and Chaitin named as later destinations, not claimed by this one).
 
 See `docs/strange-loops-vision.md` for the direction and
 `docs/module-1-postmortem.md` for the build this replaced and the binding design
@@ -38,18 +38,22 @@ Current focus:
   invariant, template, or reduction — the connection gate is the method, not
   just a guardrail. Gate results are recorded in `docs/bridge-ledger.md`
   (candidates, gate classes, statuses, rejections kept as verified negatives).
-  First built bridge: MIU ↔ Kolmogorov complexity (a derivation is a program;
-  K_MIU is its shortest length). Next: pq ↔ grokking — characters of ℤ/p from a
-  one-layer transformer set against the residue wheel; the first measured
-  surface — then invariant ↔ expressivity via the Minsky–Papert
-  group-invariance theorem.
+  First built bridge: MIU derivation programs ↔ description length relative to
+  a fixed machine. The active time-box completes MIU theoremhood, separates
+  `K_steps` from executable-code `K_bits`, constructs the characters of ℤ/3,
+  and finishes the three-register cleanup. Next: pq ↔ grokking — characters of
+  ℤ/p from a one-layer transformer set against the explicit ℤ/3 character
+  table; the first measured surface — then invariant ↔ expressivity via the
+  Minsky–Papert group-invariance theorem. Do not add another MIU extension
+  before pq tests the method on a second site.
 - the epistemic contract now has three registers: verified, measured (results
   of an empirical run, reproducible from their configuration, never promoted to
   verified), and coaching.
 - persistence/artifact/notebook model and the verifier-vs-LLM boundary, kept
-  dormant until an instrument re-earns them; the identified dialogue re-entry
-  is the LLM as derivation proposer under the generation-against-verification
-  bridge, not the coaching surface.
+  dormant until an instrument re-earns them. The only identified MIU proposer
+  work is an unscheduled bounded search-versus-checking experiment; MIU
+  theoremhood is decidable, so this is not the r.e.-versus-recursive
+  figure/ground obstruction.
 
 ## Primary references
 

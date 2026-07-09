@@ -20,13 +20,13 @@ below is preserved as the intended behavior for when a future instrument
 re-earns coaching and re-wires it; until then no coaching is surfaced and the
 agent runs nowhere.
 
-A second re-entry path, distinct from coaching, is recorded in
-`docs/bridge-ledger.md` (generation against verification): the LLM as a
-derivation **proposer**, where the deterministic layer checks every proposed
-step, only checked derivations are reported as results, and found lengths sit
-against K_MIU from exhaustive search. In that role the LLM is a search
-heuristic inside a verified pipeline, not a coach; nothing it produces reaches
-the reader unchecked, so the contract below does not govern it.
+A separate candidate experiment is recorded in `docs/bridge-ledger.md`: under a
+fixed target set and search budget, an LLM may propose MIU derivations while the
+deterministic layer checks every step. This is an unscheduled comparison of
+search against checking. It does not instantiate the
+recursively-enumerable-versus-recursive figure/ground obstruction because MIU
+theoremhood is decidable. No unchecked proposal may reach the reader as a
+witness.
 
 Last updated: July 9, 2026.
 
@@ -72,7 +72,8 @@ deterministic layer rather than improvising confidence.
 
 ## 3. Epistemic contract
 
-The product must maintain a strict boundary between:
+The product must maintain a strict boundary between three registers. The
+current coaching contract directly uses two of them:
 
 ### Verified results
 Deterministic outputs from the formal layer.
@@ -96,6 +97,17 @@ Examples:
 The agent may talk about verified outputs, but it should do so as an interpreter
 of those outputs, not as their source.
 
+### Measured results
+
+Empirical outputs such as training curves, trained weights, or structure
+extracted from those weights are observations with a reproducible
+configuration. The agent may question their interpretation but may not promote
+them to verified claims.
+
+A deterministic transform inherits the register of its inputs. Checked
+analysis of verified formal state remains verified; deterministic analysis of
+trained weights remains measured.
+
 ---
 
 ## 4. Context the agent should receive
@@ -107,7 +119,8 @@ context such as:
   steps that produced it),
 - the current invariant candidate,
 - the reachability readout for the target the user is testing,
-- the K_MIU readout (the shortest-derivation measure) for the current string,
+- the theoremhood decision, one constructive witness when it exists, and the
+  separately bounded `K_steps` and `K_bits` optimization results,
 - relevant saved artifacts,
 - and the user’s current explanation or question.
 

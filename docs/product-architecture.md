@@ -41,7 +41,8 @@ Responsibilities:
 - the single MIU instrument at the root route `/`,
 - composition of the three readings of one object — the derivation,
 - local draft/session state and its continuity across reloads,
-- and preserving the visual distinction between verified, computed, and coaching surfaces.
+- and preserving the visual distinction between verified, measured, and
+  coaching claims.
 
 The phase-based interaction layer (Explore / Map / Prove / Reflect and its
 lab-desk components) is deleted. The app is now a single instrument:
@@ -140,58 +141,39 @@ verifier status.
 
 ---
 
-## 3. Output classes
+## 3. Epistemic registers
 
-The architecture must preserve four distinct output classes:
+The architecture preserves three registers:
 
 ### Verified
-Mechanically checked results from the formal layer.
 
-Examples:
-
-- legal MIU moves,
-- derivation transitions,
-- bounded graph edges,
-- supported invariant preservation results.
-
-### Computed
-Deterministic but model-like outputs that summarize or restructure verified
-state rather than asserting new formal truth.
-
-Examples:
-
-- bounded graph views,
-- node/path summaries,
-- the residue and shortest-derivation readouts derived from current state.
+Mechanically checked claims from the formal layer, including legal MIU moves,
+derivation transitions, theoremhood decisions, constructive witnesses, bounded
+optimization results with explicit horizons, and supported invariant results.
 
 ### Measured
-Results of an empirical run, reported as observations with the configuration
-that produced them. Reproducible from that configuration; never promoted to
-verified claims. No instrument produces measured output today; the pq ↔
-grokking bridge (see `docs/bridge-ledger.md`) is the first that will.
 
-Examples:
-
-- a training curve,
-- weights of a trained model and the structure extracted from them
-  (e.g. Fourier components of a network trained on modular addition),
-- a compression ratio from a predictor-driven arithmetic coder.
-
-Measured artifacts are precomputed offline and shipped as static assets;
-nothing in this class justifies a training service or runtime compute
-boundary (see §7.1).
+Observations from an empirical run, reported with the configuration that
+produced them and never promoted to theorems. Training curves, trained weights,
+extracted Fourier components, and empirical compression ratios belong here. The
+pq ↔ grokking instrument is the first planned measured surface. Its artifacts
+are precomputed offline and shipped as static assets; this does not justify a
+runtime training service.
 
 ### Coaching
-LLM-driven questioning, reflection, and proof-sharpening.
 
-Examples:
+LLM-generated questioning, reflection, and proof-sharpening. Coaching may
+interpret verified or measured results but does not create either kind of
+claim.
 
-- explain-back prompts,
-- dialogue follow-ups,
-- clarification of a likely weak step.
+A deterministic transform inherits the register of its inputs. A transform of
+verified formal state remains verified when the transform and claim are
+checked. A deterministic analysis of trained weights remains measured because
+the weights are empirical artifacts.
 
-The UI should never flatten these into one undifferentiated “assistant”
-channel.
+Provenance such as a named algorithm or checked decoder is displayed where it
+matters, but provenance does not create a fourth register. The UI must not
+flatten the three registers into one undifferentiated assistant channel.
 
 ---
 
@@ -206,9 +188,9 @@ channel.
 4. On change, the page writes a continuity subset of the draft to localStorage
    (`writeModule1Draft`) and reads it back on load (`readModule1Draft`), so a
    reload restores the trace in progress.
-5. The verified, computed, and coaching distinction is preserved in the UI, but
-   only verified and computed surfaces are live; the instrument produces no
-   coaching output today.
+5. Every live result is verified formal state or a checked deterministic
+   transform of it. The instrument currently produces no measured or coaching
+   output.
 
 The persistence and dialogue routes (§2.4, §2.5) still exist and still work,
 but the instrument does not call them; continuity is localStorage-only. Any new
@@ -255,19 +237,26 @@ The project is no longer just scaffolding. The current architecture supports:
 - and a dormant persistence and dialogue stack kept whole behind the API
   routes, not wired to the instrument.
 
-The instrument is built. The next work is the next architectural pressure, not
-expansion of the current one:
+The instrument is built. One bounded exactness pass precedes the next
+architectural pressure:
 
-- the next candidate bridge — pq ↔ grokking (`docs/bridge-ledger.md`) — whose
+- complete MIU theoremhood independently of bounded search, add a constructive
+  witness, separate `K_steps` from executable-code `K_bits`, construct the
+  characters of ℤ/3, and finish the three-register source-of-truth cleanup;
+- then build pq ↔ grokking (`docs/bridge-ledger.md`), whose
   measured surface introduces the first static-asset question: precomputed
   weights and extracted components shipped with the app, no runtime training,
 - whether a second instrument (pq, tq) can share enough structure to extract a
   boundary without bending the single-object shape,
 - and whether and when to re-wire persistence (and, after it, dialogue) to the
   instrument, or to let localStorage continuity stand until a second instrument
-  forces the question. The identified dialogue re-entry is the
-  generation-against-verification bridge — the LLM as derivation proposer whose
-  every step the deterministic layer checks — not the coaching surface.
+  forces the question. A possible non-coaching re-entry is a bounded MIU search
+  experiment in which an LLM proposes derivations and the deterministic layer
+  checks every step. This tests search against checking; it is not the
+  recursively-enumerable-versus-recursive obstruction and is unscheduled.
+
+No further MIU extension is scheduled until pq has tested the bridge method on
+a second site.
 
 ---
 
@@ -293,7 +282,9 @@ reflection notes over fine-grained behavioral exhaust.
 
 ### 7.4 Keep epistemic separation visible
 If future modules add richer search, encoders, evaluators, or proof scaffolds,
-the architecture should still keep deterministic truth and coaching visibly distinct.
+the architecture should still keep verified, measured, and coaching claims
+visibly distinct. Deterministic post-processing retains the provenance of its
+inputs rather than becoming a separate output class.
 
 ---
 

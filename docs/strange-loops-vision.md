@@ -32,8 +32,8 @@ graphs sit on top of each other:
   mathematics or ML/AI.
 
 The two do not coincide. Some bridges are **vertical**: reachable from a single
-concept, early, with nothing else assembled — the shortest description of a
-string under a rewriting system already reaches Kolmogorov complexity. Others
+concept, early, with nothing else assembled — an executable derivation code is
+already a description relative to its fixed rewriting machine. Others
 need a whole arc in place — a Löbian self-trust argument needs encoding,
 self-reference, and a provability predicate first.
 
@@ -92,21 +92,17 @@ capture meaning"; the contrast is what makes the question real.
   isomorphic to addition; sound and complete) · tq and figure/ground (recursively
   enumerable against recursive; the negative space) · consistency (when an
   interpretation coheres).
-- **Bridges:** MIU's derivation length ↔ Kolmogorov complexity (a derivation is a
-  program; its shortest length is a description length — **built**, the first
-  bridge) · pq ↔ grokking — the construction that earns it is identified: a
-  one-layer transformer trained on addition mod p learns the characters of ℤ/p
-  (the Fourier features of Nanda et al. 2023), and the residue wheel already
-  draws the characters of ℤ/3, so the gate class is shared construction; it
-  enters the main flow when built · invariants ↔ expressivity walls, with the
-  far side pinned to the Minsky–Papert group-invariance theorem so the proof
-  template matches exactly (see the ledger) · derivation length ↔ chain of
-  thought as a resource (t steps of intermediate decoding simulate t-time
-  computation — Merrill–Sabharwal; the shortest derivation is the least budget
-  that reaches the target) · figure/ground ↔ generation against verification,
-  with its construction identified: an LLM proposes derivations, the verifier
-  checks every step, and found lengths are compared against K_MIU from
-  exhaustive search.
+- **Bridges:** MIU derivation programs ↔ description length relative to a fixed
+  machine (**built**; the executable bit code is the active exactness pass) ·
+  pq ↔ grokking through characters of cyclic groups (**next**, conditional on
+  constructing the characters of ℤ/3 rather than inferring them from the
+  residue display) · invariants ↔ expressivity walls, with the far side pinned
+  to the Minsky–Papert group-invariance theorem so the proof template matches
+  exactly. Derivation length ↔ chain of thought remains a sidebar analogy: a
+  complexity measure is not a preserved quantity. An LLM proposer for MIU is a
+  separate bounded search-versus-checking experiment; MIU theoremhood is
+  decidable, so it does not instantiate the recursively-enumerable-versus-
+  recursive figure/ground obstruction.
 - **Hinge out:** figure/ground introduces enumeration and the complement problem,
   which sets up diagonalization.
 
@@ -178,6 +174,11 @@ The product separates three kinds of claim and never blurs them.
 The app must not present LLM output as a proof check, and must not present a
 measurement as a theorem. Correctness is claimed only where correctness is
 mechanically established.
+
+A deterministic transform inherits the register of its inputs. A transform of
+verified formal state remains verified when the transform and claim are
+checked. A deterministic analysis of trained weights remains measured because
+the weights are empirical artifacts.
 
 ## 5. The connection gate
 
@@ -292,16 +293,19 @@ into place:
   method; Chaitin incompleteness; Ω.
 - **Machine learning.** Compression as prediction; expressivity bounds on fixed
   architectures; verification hardness (Rice); fixed-point dynamics in models
-  trained on their own output; Löbian self-trust in self-reasoning agents.
+  trained on their own output; Löbian self-trust in self-reasoning agents;
+  sparse coding and superposition; interactive proofs and scalable oversight.
 - **Off the logic spine (ML-side anchors).** GEB is the bridge, not the
   boundary, and this list should not stay confined to logic and its suburbs. A
   bridge may be anchored from the ML side, with the mathematics as the
   destination: representation theory of finite groups ↔ grokked modular
   arithmetic (characters of ℤ/p; Arc 1) · tropical geometry ↔ ReLU networks (a
   ReLU network is a tropical rational function — Zhang–Naitzat–Lim; shared
-  construction, buildable small) · singular learning theory (the real log
-  canonical threshold as effective parameter count — deferred until a small
-  worked example exists) · random-matrix spectra of trained weights
+  construction, buildable small) · singular learning theory (Cullen et al.,
+  *A Basin-Selection Perspective on Grokking via Singular Learning Theory*,
+  arXiv:2603.01192v3 — deferred until its shallow-network calculation and
+  empirical trajectory are reproduced at this project's scale) · random-matrix
+  spectra of trained weights
   (Marchenko–Pastur — an observation, not a template; sidebar unless a
   construction earns more). Gate status for each is in the ledger.
 
@@ -311,41 +315,29 @@ makes them structural.
 
 ## 11. Where to start — and what is built
 
-The first instrument is built: the **MIU site with its bridge to Kolmogorov
-complexity**. The derivation is manipulated directly (the four rules always on
-screen, each with the reason it cannot fire when it cannot); the invariant
-#I mod 3 is the wall that excludes MU; and the derivation is then read as a
-program, where K_MIU — the length of the shortest derivation — makes
-descriptional complexity tangible in the sandbox: a doubled I-run compresses to a
-few instructions, an irregular string of the same length does not. Kolmogorov
-complexity and Chaitin are named as the next instrument, not claimed by this one.
-This is the strongest vertical bridge from §1, built first because both sides are
-proofs about the same object.
+The first instrument is built: the **MIU site with its bridge to description
+length relative to a fixed machine**. The derivation is manipulated directly;
+the invariant `#I mod 3` excludes MU; and the same derivation is read as a
+program. The remaining exactness pass separates three questions that the
+initial surface conflated: theoremhood, construction of one witness, and
+bounded minimization of a witness. It also fixes an executable bit code and
+constructs the dual group of ℤ/3 explicitly.
 
-Next candidates, in order of bridge strength and what each buys:
+The binding build order is:
 
-1. **pq ↔ grokking** — the pq site built together with its bridge: a one-layer
-   transformer trained on addition mod p, its Fourier components extracted and
-   set against the residue wheel's characters of ℤ/3. Shared construction —
-   characters of a cyclic group, built in two settings. This does double duty
-   (it builds the Arc 1 contrast set and the strongest ML bridge in the arc) and
-   it is the first instrument with a measured surface, where the outcome of the
-   run is not known to the builder in advance. Precompute the run; ship weights
-   and extracted components as artifacts.
-2. **Invariant ↔ expressivity wall** — the MU invariant against the
-   Minsky–Papert group-invariance theorem: a bounded-order perceptron cannot
-   compute parity, proved by symmetrizing over the input-permutation group and
-   bounding the degree of the resulting univariate polynomial. That proof is
-   invariant-shaped, so the shared template is exact. Continuity and Lipschitz
-   limit arguments (soft-attention bounds) do not share the template and would
-   fail the gate; the ledger records this.
-3. **Extensions of the built K_MIU instrument**, each small: derivation length ↔
-   chain of thought as a resource (Merrill–Sabharwal) · generation against
-   verification (an LLM proposes derivations, the verifier checks every step,
-   found lengths sit against exhaustive-search K_MIU — the identified re-entry
-   path for the dormant dialogue layer, as proposer rather than coach) · the
-   language model as compressor, in two stages: first a deterministic
-   predictor (n-gram/PPM) driving an arithmetic coder, mechanically checkable;
-   then an LLM as the predictor, reported in the measured register.
+1. **MIU exactness.** Add the complete theoremhood decision and constructive
+   witness, distinguish `K_steps` from minimum executable code length `K_bits`,
+   construct the characters of ℤ/3, and collapse deterministic computation into
+   input provenance under the three-register epistemic contract.
+2. **pq ↔ grokking.** Build the pq site and a shallow modular-addition model,
+   extract the measured Fourier circuit from shipped weights, and compare the
+   same character construction on both sides.
+3. **Hold the MIU boundary.** Do not add another MIU extension until pq has
+   tested the connection-gate method on a second site.
 
-Each new site is built only as far as the bridge it tests requires.
+Invariant ↔ expressivity remains identified after pq. Language-model
+compression, sparse coding / superposition, and interactive proofs / scalable
+oversight remain identified candidates. Derivation length / chain of thought is
+a sidebar. The MIU proposer/verifier experiment is narrowed to bounded search
+against deterministic checking. The ledger contains the exact claims,
+falsifiers, and status of each candidate.

@@ -84,8 +84,9 @@ you manipulate, inspect, and reason with it directly.
 
 ## Current focus
 
-The first built bridge is **MIU ↔ Kolmogorov complexity**, shipped as a single
-MIU instrument at the root route. One object — the derivation — read three ways:
+The first built bridge is **MIU derivation programs ↔ description length
+relative to a fixed machine**, shipped as a single MIU instrument at the root
+route. One object — the derivation — read three ways:
 
 - **Manipulate** (the worksheet): the derivation spine, the current string with
   its rule sites in the string itself, and the four MIU rules always on screen,
@@ -94,13 +95,21 @@ MIU instrument at the root route. One object — the derivation — read three w
   rejected by the invariant `#I ≡ 0 (mod 3)` — a verified negative, distinct
   from a search-bound limit.
 - **The bridge**: the derivation read as a program. `K_MIU(s)` is the
-  shortest-derivation length, computed by a bounded BFS; the instrument shows
-  compressible against incompressible strings. Kolmogorov complexity and Chaitin
-  are named as the next instrument, explicitly not claimed by this one (the four
-  MIU rules are a fixed, non-universal machine).
+  shortest-derivation length, calculated by a bounded BFS. The exactness pass
+  adds a fixed executable bit code before making any compression comparison.
+  Kolmogorov complexity and Chaitin are named as later destinations, explicitly
+  not claimed by this instrument (the four MIU rules are a fixed, non-universal
+  machine).
 
 This is the Arc 1 minimal case: a wall exposed by an invariant, carried through
 to a descriptional-complexity reading of the same derivations.
+
+The active time-box is an MIU exactness pass. It separates theoremhood from
+witness construction and bounded minimization, distinguishes shortest move
+count `K_steps` from minimum executable code length `K_bits`, constructs the
+characters of ℤ/3 explicitly, and removes the obsolete fourth “computed”
+register. Then the project moves to pq / modular addition / grokking. No further
+MIU extension is scheduled before that second site tests the bridge method.
 
 ---
 
@@ -179,6 +188,9 @@ This project distinguishes between:
 
 The app should never pretend a language model has formally verified something
 when it has not, and should never present a measurement as a theorem.
+Deterministic transforms inherit the register of their inputs: checked
+transforms of formal state remain verified, while deterministic analysis of
+trained weights remains measured.
 
 ---
 
@@ -216,7 +228,6 @@ The active docs set is intentionally small:
 - `README.md` for project overview and current build posture
 - `docs/strange-loops-vision.md` for the vision and build reference (the dependency graph, the four arcs, the conceptual move)
 - `docs/bridge-ledger.md` for the record of the connection gate: every candidate bridge, its gate class, its status, and rejections kept as verified negatives
-- `docs/research-directions-review.md` for the July 2026 advisory assessment and candidate next directions; accepted decisions move into the vision or bridge ledger
 - `docs/module-1-postmortem.md` for the Module 1 build postmortem and the binding design law
 - `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
 - `docs/agent-behavior.md` for the current dialogue/agent contract
@@ -243,21 +254,22 @@ It is aimed at making difficult ideas more tangible.
 - [x] build the MIU instrument: the three readings of one derivation
 - [x] reach the first bridge — `K_MIU` as descriptional complexity over a fixed
       machine, with Kolmogorov and Chaitin named as the next instrument
+- [ ] complete the MIU exactness pass: decide theoremhood constructively, expose
+      `K_steps` and executable-code `K_bits` separately, construct the
+      characters of ℤ/3, and finish the three-register cleanup
 - [ ] build the next Arc 1 bridge: pq ↔ grokking — the pq site together with a
       one-layer transformer trained on addition mod p, its Fourier components
-      set against the residue wheel's characters of ℤ/3 (the first measured
+      set against the explicit character table of ℤ/3 (the first measured
       surface; also the Arc 1 contrast set)
 - [ ] build invariant ↔ expressivity wall, with the far side pinned to the
       Minsky–Papert group-invariance theorem (parity for bounded-order
       perceptrons) so the proof template matches exactly
-- [ ] extend the K_MIU instrument: chain of thought as a derivation-length
-      resource; generation against verification (an LLM proposes, the verifier
-      checks, lengths sit against K_MIU); the predictor-driven arithmetic coder
-      (deterministic first, LLM second)
+- [ ] revisit the identified language-model compression, sparse-coding /
+      superposition, and interactive-proof candidates after the Arc 1 builds;
+      keep derivation length / chain of thought as a sidebar analogy
 - [ ] decide whether and where to wire the dormant persistence and dialogue
-      layers back in — the identified dialogue re-entry is the
-      generation-against-verification bridge, the LLM as proposer rather than
-      coach
+      layers back in; the only identified MIU proposer experiment is a bounded
+      search-versus-checking comparison, not a computability obstruction
 
 ---
 
