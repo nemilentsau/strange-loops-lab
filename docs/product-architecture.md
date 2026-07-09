@@ -48,31 +48,34 @@ The phase-based interaction layer (Explore / Map / Prove / Reflect and its
 lab-desk components) is deleted. The app is now a single instrument:
 `src/routes/+page.svelte` at `/`, wrapped by a minimal
 `src/routes/+layout.svelte` (no site topbar, no module navigation). The page
-holds one object — the derivation — and reads it three ways with three
+holds one object — the derivation — and reads it three ways with focused
 components under `src/lib/components/miu`:
 
-- `MiuSheet.svelte` — manipulate. The page is the derivation: a numbered
-  spine, the current string written large with its rule sites as in-string
-  click targets, and the four rules always on screen with the exact reason any
-  rule cannot fire. It carries `MiuInvariant` in its margin.
-- `MiuInvariant.svelte` — the wall. The residue wheel on ℤ/3 with reachability;
-  MU is rejected by the invariant (#I ≡ 0 mod 3), a verified negative held
-  distinct from a search-bound limit.
-- `MiuBridge.svelte` — the bridge. The derivation read as a program, with
-  K_MIU as the shortest-derivation length and the compressible/incompressible
-  contrast; Kolmogorov and Chaitin are named as the next instrument, not
-  claimed here.
+- `MiuProduce.svelte` — theorem query. It displays the complete membership
+  decision, one constructive witness, and the separate bounded `K_steps`
+  optimization result.
+- `MiuSheet.svelte` — manipulate. The page is the derivation: a numbered spine,
+  the current string written large with its rule sites as in-string click
+  targets, and the four rules always on screen with the exact reason any rule
+  cannot fire. Constructed and shortest witnesses are labeled independently.
+- `MiuInvariant.svelte` and `MiuCharacters.svelte` — the wall and its finite
+  harmonic analysis. The I-count certificate rejects residue zero; the
+  character table, rule pullbacks, and Fourier indicator construct the explicit
+  ℤ/3 object needed by the pq bridge.
+- `MiuBridge.svelte` — the derivation read as a program. It displays `K_steps`,
+  `K_bits`, literal code length, and one minimum-bit instruction sequence under
+  the stated executable code. Kolmogorov complexity and Chaitin are later
+  destinations, not claims made here.
 
-This is a presentational and compositional change, not a boundary move: no
-state-shape, persistence, dialogue, or MIU-logic boundary shifted. The
+The exactness pass extended the deterministic formal layer without moving its
+boundary: no state-shape, persistence, or dialogue responsibility shifted. The
 phase-based build is superseded as a direction (see
 `docs/strange-loops-vision.md` for the architecture going forward and
 `docs/module-1-postmortem.md` for the build it replaces and the binding design
 law).
 
 ### 2.2 Deterministic formal layer
-Owned by TypeScript library modules under `src/lib/miu`: `core.ts`, `graph.ts`,
-`invariants.ts`, and `complexity.ts`.
+Owned by TypeScript library modules under `src/lib/miu`.
 
 Responsibilities:
 
@@ -80,11 +83,17 @@ Responsibilities:
 - derivation trace behavior (`core.ts`),
 - bounded reachability exploration (`graph.ts`),
 - invariant analysis for supported candidates (`invariants.ts`),
-- shortest-derivation / descriptional complexity (`complexity.ts`):
-  `shortestDerivation` computes K_MIU by bounded BFS over the rewrite graph and
-  returns one of three outcomes — `found` with the shortest path,
-  `unreachable-invariant` as a verified negative, or `exhausted` as an honest
-  search horizon tagged with which bound stopped it (`depth` or `nodes`),
+- the complete theoremhood characterization and a constructive witness for
+  every theorem (`theoremhood.ts`),
+- shortest move count by bounded BFS (`complexity.ts`):
+  `shortestTheoremDerivation` accepts theorem targets and returns `found` or an
+  honest `exhausted` horizon tagged by depth or node bound,
+- the executable prefix code and gamma-length-prefixed literal baseline
+  (`coding.ts`),
+- minimum encoded program length by bounded Dijkstra search
+  (`bitComplexity.ts`),
+- the character table of ℤ/3, pullback under doubling, and forbidden-residue
+  identity (`characters.ts`),
 - and explicit rejection of invalid user proposals.
 
 This layer is the current verifier boundary. If the UI says something is a
@@ -182,9 +191,11 @@ flatten the three registers into one undifferentiated assistant channel.
 1. The user manipulates the derivation in the instrument: applies a rule at a
    site, jumps to a step, or sets the reachability target.
 2. Page state updates the local draft (`Module1Draft`).
-3. Deterministic MIU logic runs in-process: `core.ts` for legality and trace,
-   `invariants.ts` for the residue, `complexity.ts` for the shortest
-   derivation. Each reading renders directly from that result.
+3. Deterministic MIU logic runs in-process: `theoremhood.ts` decides and
+   constructs, `complexity.ts` and `bitComplexity.ts` perform the two bounded
+   optimizations, `coding.ts` fixes their units, and `invariants.ts` plus
+   `characters.ts` supply the wall and its Fourier form. Each reading renders
+   directly from those results.
 4. On change, the page writes a continuity subset of the draft to localStorage
    (`writeModule1Draft`) and reads it back on load (`readModule1Draft`), so a
    reload restores the trace in progress.
@@ -232,18 +243,17 @@ The project is no longer just scaffolding. The current architecture supports:
 
 - a single MIU instrument at `/` — the derivation read three ways
   (manipulate / wall / bridge),
-- a functioning formal engine, now including shortest-derivation / K_MIU,
+- a functioning formal engine with complete theoremhood, constructive
+  witnesses, bounded `K_steps`, bounded executable-code `K_bits`, and the
+  characters of ℤ/3,
 - localStorage continuity for the trace in progress,
 - and a dormant persistence and dialogue stack kept whole behind the API
   routes, not wired to the instrument.
 
-The instrument is built. One bounded exactness pass precedes the next
-architectural pressure:
+The MIU exactness pass is complete. The next architectural pressure is the
+second site:
 
-- complete MIU theoremhood independently of bounded search, add a constructive
-  witness, separate `K_steps` from executable-code `K_bits`, construct the
-  characters of ℤ/3, and finish the three-register source-of-truth cleanup;
-- then build pq ↔ grokking (`docs/bridge-ledger.md`), whose
+- build pq ↔ grokking (`docs/bridge-ledger.md`), whose
   measured surface introduces the first static-asset question: precomputed
   weights and extracted components shipped with the app, no runtime training,
 - whether a second instrument (pq, tq) can share enough structure to extract a

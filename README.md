@@ -90,26 +90,27 @@ route. One object — the derivation — read three ways:
 
 - **Manipulate** (the worksheet): the derivation spine, the current string with
   its rule sites in the string itself, and the four MIU rules always on screen,
-  each showing the exact reason it cannot fire when it cannot.
-- **The wall**: the residue wheel on ℤ/3 plus a reachability check. MU is
-  rejected by the invariant `#I ≡ 0 (mod 3)` — a verified negative, distinct
-  from a search-bound limit.
-- **The bridge**: the derivation read as a program. `K_MIU(s)` is the
-  shortest-derivation length, calculated by a bounded BFS. The exactness pass
-  adds a fixed executable bit code before making any compression comparison.
-  Kolmogorov complexity and Chaitin are named as later destinations, explicitly
-  not claimed by this instrument (the four MIU rules are a fixed, non-universal
-  machine).
+  each showing the exact reason it cannot fire when it cannot. The theorem
+  query decides membership by the complete I-count characterization, constructs
+  a witness for every theorem, and keeps bounded shortest-witness search
+  separate.
+- **The wall**: the invariant `#I ≢ 0 (mod 3)` rejects MU and every residue-zero
+  target. The proof now constructs all three characters of ℤ/3, their rule
+  pullbacks, and the Fourier indicator of the forbidden residue.
+- **The bridge**: the derivation read as a program under a fixed executable
+  prefix code. `K_steps` is minimum rewrite-move count by bounded BFS; `K_bits`
+  is minimum encoded length by bounded Dijkstra search. Both searches report an
+  honest exhaustion horizon. Compression is asserted only by comparing
+  `K_bits` with the gamma-length-prefixed literal code.
 
 This is the Arc 1 minimal case: a wall exposed by an invariant, carried through
 to a descriptional-complexity reading of the same derivations.
 
-The active time-box is an MIU exactness pass. It separates theoremhood from
-witness construction and bounded minimization, distinguishes shortest move
-count `K_steps` from minimum executable code length `K_bits`, constructs the
-characters of ℤ/3 explicitly, and removes the obsolete fourth “computed”
-register. Then the project moves to pq / modular addition / grokking. No further
-MIU extension is scheduled before that second site tests the bridge method.
+The MIU exactness pass is complete. Deterministic transforms inherit the
+register of their inputs; the binding registers are verified, measured, and
+coaching. The next instrument is pq / modular addition / grokking, using the
+built ℤ/3 character object as the formal-side prerequisite. No further MIU
+extension is scheduled before that second site tests the bridge method.
 
 ---
 
@@ -196,15 +197,17 @@ trained weights remains measured.
 
 ## Status
 
-The MIU instrument is built: the worksheet, the residue-wheel wall, and the
-`K_MIU` bridge, over the deterministic MIU layer.
+The MIU instrument is built: the worksheet, complete theoremhood decision,
+constructive witnesses, invariant certificate, character construction, and two
+explicit description-length costs.
 
 Built now:
 - the deterministic MIU layer: rule engine and derivation trace (`core`),
   reachability/rewrite graph (`graph`), the `#I (mod 3)` invariant
-  (`invariants`), and the `K_MIU` shortest-derivation engine — a bounded BFS
-  that reports `found`, the verified invariant negative, or an honest search
-  horizon (`complexity`)
+  (`invariants`), the complete membership decision and constructor
+  (`theoremhood`), bounded `K_steps` optimization (`complexity`), the executable
+  prefix code (`coding`), bounded `K_bits` optimization (`bitComplexity`), and
+  the character table and pullbacks of ℤ/3 (`characters`)
 - the single-route instrument: the three readings of one derivation, with the
   object itself as the interface
 
@@ -250,11 +253,12 @@ It is aimed at making difficult ideas more tangible.
 
 ## Near-term roadmap
 
-- [x] build the deterministic MIU layer (engine, graph, invariant, `K_MIU`)
+- [x] build the deterministic MIU layer (engine, graph, invariant)
 - [x] build the MIU instrument: the three readings of one derivation
-- [x] reach the first bridge — `K_MIU` as descriptional complexity over a fixed
-      machine, with Kolmogorov and Chaitin named as the next instrument
-- [ ] complete the MIU exactness pass: decide theoremhood constructively, expose
+- [x] reach the first bridge — executable MIU programs as descriptional
+      complexity over a fixed machine, with Kolmogorov and Chaitin named as
+      later destinations
+- [x] complete the MIU exactness pass: decide theoremhood constructively, expose
       `K_steps` and executable-code `K_bits` separately, construct the
       characters of ℤ/3, and finish the three-register cleanup
 - [ ] build the next Arc 1 bridge: pq ↔ grokking — the pq site together with a

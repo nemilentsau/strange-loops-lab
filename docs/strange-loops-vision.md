@@ -93,16 +93,16 @@ capture meaning"; the contrast is what makes the question real.
   enumerable against recursive; the negative space) · consistency (when an
   interpretation coheres).
 - **Bridges:** MIU derivation programs ↔ description length relative to a fixed
-  machine (**built**; the executable bit code is the active exactness pass) ·
-  pq ↔ grokking through characters of cyclic groups (**next**, conditional on
-  constructing the characters of ℤ/3 rather than inferring them from the
-  residue display) · invariants ↔ expressivity walls, with the far side pinned
-  to the Minsky–Papert group-invariance theorem so the proof template matches
-  exactly. Derivation length ↔ chain of thought remains a sidebar analogy: a
-  complexity measure is not a preserved quantity. An LLM proposer for MIU is a
-  separate bounded search-versus-checking experiment; MIU theoremhood is
-  decidable, so it does not instantiate the recursively-enumerable-versus-
-  recursive figure/ground obstruction.
+  machine (**built**, with separate `K_steps`, `K_bits`, and literal units) · pq
+  ↔ grokking through characters of cyclic groups (**next**; the ℤ/3 character
+  table, pullbacks, and forbidden indicator are now built on the formal side) ·
+  invariants ↔ expressivity walls, with the far side pinned to the
+  Minsky–Papert group-invariance theorem so the proof template matches exactly.
+  Derivation length ↔ chain of thought remains a sidebar analogy: a complexity
+  measure is not a preserved quantity. An LLM proposer for MIU is a separate
+  bounded search-versus-checking experiment; MIU theoremhood is decidable, so
+  it does not instantiate the recursively-enumerable-versus-recursive
+  figure/ground obstruction.
 - **Hinge out:** figure/ground introduces enumeration and the complement problem,
   which sets up diagonalization.
 
@@ -316,19 +316,19 @@ makes them structural.
 ## 11. Where to start — and what is built
 
 The first instrument is built: the **MIU site with its bridge to description
-length relative to a fixed machine**. The derivation is manipulated directly;
-the invariant `#I mod 3` excludes MU; and the same derivation is read as a
-program. The remaining exactness pass separates three questions that the
-initial surface conflated: theoremhood, construction of one witness, and
-bounded minimization of a witness. It also fixes an executable bit code and
-constructs the dual group of ℤ/3 explicitly.
+length relative to a fixed machine**. The derivation is manipulated directly.
+The complete I-count characterization decides theoremhood and constructs one
+witness for every theorem. Bounded BFS separately minimizes rewrite moves as
+`K_steps`; bounded Dijkstra search minimizes executable code length as `K_bits`.
+The invariant certificate excludes residue zero, and the same surface
+constructs the character table of ℤ/3, the rule pullbacks, and the Fourier
+indicator of the forbidden residue.
 
 The binding build order is:
 
-1. **MIU exactness.** Add the complete theoremhood decision and constructive
-   witness, distinguish `K_steps` from minimum executable code length `K_bits`,
-   construct the characters of ℤ/3, and collapse deterministic computation into
-   input provenance under the three-register epistemic contract.
+1. **MIU exactness — complete.** Theoremhood, constructive witnesses,
+   `K_steps`, `K_bits`, ℤ/3 characters, and the three-register provenance rule
+   are built.
 2. **pq ↔ grokking.** Build the pq site and a shallow modular-addition model,
    extract the measured Fourier circuit from shipped weights, and compare the
    same character construction on both sides.

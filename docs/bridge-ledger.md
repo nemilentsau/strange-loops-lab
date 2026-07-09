@@ -24,10 +24,10 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
   `K_bits` with a literal code for the same string.
 - **Falsifier:** The encoded instruction sequence cannot be decoded and replayed
   to the target, or the claimed minimum is taken under an unspecified code.
-- **Evidence:** `src/lib/miu/core.ts`, `src/lib/miu/complexity.ts`, and the MIU
-  exactness implementation specified in
-  `docs/superpowers/plans/2026-07-09-miu-exactness-foundations.md`.
-- **Status:** built; the `K_bits` extension is the active exactness pass.
+- **Evidence:** `src/lib/miu/theoremhood.ts`, `complexity.ts`, `coding.ts`, and
+  `bitComplexity.ts`, with executable-path and minimum-cost tests in their
+  adjacent specifications and the live comparison in `MiuBridge.svelte`.
+- **Status:** built.
 
 ## Next
 
@@ -38,16 +38,17 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
   Fourier circuit.
 - **Gate class:** construction.
 - **Shared object:** The character table of ℤ/p and its Fourier coefficients.
-- **Smallest build:** Construct the characters of ℤ/3 on the MIU side, then
+- **Smallest build:** Use the built characters of ℤ/3 on the formal side, then
   train one shallow model on addition modulo p and extract its Fourier
   components from shipped weights.
 - **Falsifier:** The trained model does not use a character-basis circuit, or
   the two displays only share periodic appearance without sharing characters.
 - **Evidence:** Nanda et al., [*Progress measures for grokking via mechanistic
   interpretability*](https://arxiv.org/abs/2301.05217), and
-  `src/lib/miu/characters.ts` once the prerequisite construction ships.
-- **Status:** next; blocked on the explicit ℤ/3 character construction in the
-  MIU exactness pass.
+  `src/lib/miu/characters.ts`, `characters.spec.ts`, and
+  `src/lib/components/miu/MiuCharacters.svelte` for the shipped prerequisite.
+- **Status:** next; the formal-side prerequisite is built. No modular-addition
+  model or measured Fourier extraction has been run in this project.
 
 ## Identified
 
@@ -138,7 +139,7 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
 - **Falsifier:** The experiment treats unchecked text as a witness, or claims a
   recursively-enumerable-versus-recursive obstruction even though MIU
   theoremhood is decidable.
-- **Evidence:** `src/lib/miu/core.ts`, the complete characterization planned for
+- **Evidence:** `src/lib/miu/core.ts`, the complete characterization in
   `src/lib/miu/theoremhood.ts`, and the dormant boundary described in
   `docs/agent-behavior.md`.
 - **Status:** identified; this is a search-versus-checking experiment, not a
@@ -222,10 +223,11 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
 
 ### The residue display already constructs characters of ℤ/3
 
-- **Failed test:** The shipped surface contains residues and rule actions but no
-  dual group or character table.
-- **Disposition:** Rejected as a claim about the current build. The pq bridge
-  remains next, conditional on constructing the characters.
+- **Failed test:** At the time of the claim, the shipped surface contained
+  residues and rule actions but no dual group or character table.
+- **Disposition:** Rejected as a claim about that surface. The later exactness
+  pass constructed the characters explicitly; it did not retroactively make
+  the residue display a character construction.
 
 ### Derivation length and chain of thought share an invariant
 

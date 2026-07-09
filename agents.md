@@ -16,19 +16,21 @@ read three ways:
 
 - manipulate it (the worksheet: the four rules always on screen, each with the
   exact reason it cannot fire when it cannot);
-- see the wall (the residue wheel on ℤ/3; MU rejected by the invariant — a
-  verified negative, not a search limit);
-- read the derivation as a program (K_MIU, the shortest-derivation length:
-  description length relative to the fixed MIU machine, with Kolmogorov
-  complexity and Chaitin named as later destinations, not claimed by this one).
+- see the wall (MU rejected by the I-count invariant, followed by the character
+  table, rule pullbacks, and forbidden-residue indicator of ℤ/3);
+- read the derivation as a program (`K_steps` by bounded BFS and `K_bits` by
+  bounded Dijkstra search under the executable prefix code, compared with a
+  gamma-length-prefixed literal). Kolmogorov complexity and Chaitin are later
+  destinations, not claims made by this fixed machine.
 
 See `docs/strange-loops-vision.md` for the direction and
 `docs/module-1-postmortem.md` for the build this replaced and the binding design
 law it produced.
 
-The deterministic layer stays and grew a descriptional-complexity module
-(`src/lib/miu/complexity.ts`). The persistence and dialogue layers are kept but
-**dormant** — present in the repo, not wired to the instrument. Avoid
+The deterministic layer now includes complete theoremhood and construction,
+step and bit optimization, executable coding, and the characters of ℤ/3 under
+`src/lib/miu`. The persistence and dialogue layers are kept but **dormant** —
+present in the repo, not wired to the instrument. Avoid
 hard-coding assumptions from a conventional `frontend/` + `backend/` split
 unless the repo actually grows that structure.
 
@@ -39,13 +41,14 @@ Current focus:
   just a guardrail. Gate results are recorded in `docs/bridge-ledger.md`
   (candidates, gate classes, statuses, rejections kept as verified negatives).
   First built bridge: MIU derivation programs ↔ description length relative to
-  a fixed machine. The active time-box completes MIU theoremhood, separates
-  `K_steps` from executable-code `K_bits`, constructs the characters of ℤ/3,
-  and finishes the three-register cleanup. Next: pq ↔ grokking — characters of
-  ℤ/p from a one-layer transformer set against the explicit ℤ/3 character
-  table; the first measured surface — then invariant ↔ expressivity via the
-  Minsky–Papert group-invariance theorem. Do not add another MIU extension
-  before pq tests the method on a second site.
+  a fixed machine. The MIU exactness pass is complete: theoremhood is decided
+  constructively, `K_steps` and executable-code `K_bits` are separate bounded
+  optimizations, the characters of ℤ/3 are explicit, and deterministic
+  transforms follow input provenance under the three-register contract. Next:
+  pq ↔ grokking — characters of ℤ/p from a shallow transformer set against the
+  built ℤ/3 character table; the first measured surface — then invariant ↔
+  expressivity via the Minsky–Papert group-invariance theorem. Do not add
+  another MIU extension before pq tests the method on a second site.
 - the epistemic contract now has three registers: verified, measured (results
   of an empirical run, reproducible from their configuration, never promoted to
   verified), and coaching.

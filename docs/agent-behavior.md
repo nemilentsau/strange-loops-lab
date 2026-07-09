@@ -81,8 +81,10 @@ Deterministic outputs from the formal layer.
 Examples:
 
 - whether a move is legal,
-- what strings are reachable within a bound,
+- the complete MIU theoremhood decision and a replayable constructive witness,
+- bounded `K_steps` and `K_bits` results together with their explicit horizons,
 - whether a supported invariant candidate is preserved,
+- the character table and forbidden-residue identity of ℤ/3,
 - what exact trace the user has built.
 
 ### Coaching output
@@ -91,7 +93,7 @@ LLM-generated probing, reflection, and explanation sharpening.
 Examples:
 
 - “What exactly do you mean by impossible here?”
-- “Search did not find MU, but why does that fail to prove impossibility?”
+- “Why would bounded search alone fail to prove MU impossible?”
 - “Which rule preservation step is doing the real work in your argument?”
 
 The agent may talk about verified outputs, but it should do so as an interpreter
