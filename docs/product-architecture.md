@@ -8,7 +8,7 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: June 14, 2026.
+Last updated: July 9, 2026.
 
 ---
 
@@ -142,7 +142,7 @@ verifier status.
 
 ## 3. Output classes
 
-The architecture must preserve three distinct output classes:
+The architecture must preserve four distinct output classes:
 
 ### Verified
 Mechanically checked results from the formal layer.
@@ -163,6 +163,23 @@ Examples:
 - bounded graph views,
 - node/path summaries,
 - the residue and shortest-derivation readouts derived from current state.
+
+### Measured
+Results of an empirical run, reported as observations with the configuration
+that produced them. Reproducible from that configuration; never promoted to
+verified claims. No instrument produces measured output today; the pq ↔
+grokking bridge (see `docs/bridge-ledger.md`) is the first that will.
+
+Examples:
+
+- a training curve,
+- weights of a trained model and the structure extracted from them
+  (e.g. Fourier components of a network trained on modular addition),
+- a compression ratio from a predictor-driven arithmetic coder.
+
+Measured artifacts are precomputed offline and shipped as static assets;
+nothing in this class justifies a training service or runtime compute
+boundary (see §7.1).
 
 ### Coaching
 LLM-driven questioning, reflection, and proof-sharpening.
@@ -241,12 +258,16 @@ The project is no longer just scaffolding. The current architecture supports:
 The instrument is built. The next work is the next architectural pressure, not
 expansion of the current one:
 
-- the next candidate bridge — the invariant ↔ expressivity wall — and whether a
-  second instrument (pq, tq) can share enough structure to extract a boundary
-  without bending the single-object shape,
+- the next candidate bridge — pq ↔ grokking (`docs/bridge-ledger.md`) — whose
+  measured surface introduces the first static-asset question: precomputed
+  weights and extracted components shipped with the app, no runtime training,
+- whether a second instrument (pq, tq) can share enough structure to extract a
+  boundary without bending the single-object shape,
 - and whether and when to re-wire persistence (and, after it, dialogue) to the
   instrument, or to let localStorage continuity stand until a second instrument
-  forces the question.
+  forces the question. The identified dialogue re-entry is the
+  generation-against-verification bridge — the LLM as derivation proposer whose
+  every step the deterministic layer checks — not the coaching surface.
 
 ---
 
@@ -295,6 +316,7 @@ Use the docs as follows:
 
 - `README.md`: high-level project overview and current build posture
 - `docs/strange-loops-vision.md`: the vision and build reference (dependency graph, four arcs, the conceptual move)
+- `docs/bridge-ledger.md`: the connection-gate record — candidates, gate classes, statuses, rejections
 - `docs/module-1-postmortem.md`: the Module 1 build postmortem and binding design law
 - `docs/agent-behavior.md`: current agent role, boundaries, and prompt contract
 

@@ -36,17 +36,27 @@ Current focus:
 - the GEB → modern-math / ML bridge investigation, with the builder as the
   learner: build both sides of a candidate bridge and check for a shared
   invariant, template, or reduction — the connection gate is the method, not
-  just a guardrail. First built bridge: MIU ↔ Kolmogorov complexity (a
-  derivation is a program; K_MIU is its shortest length). Next candidate:
-  invariant ↔ expressivity wall.
+  just a guardrail. Gate results are recorded in `docs/bridge-ledger.md`
+  (candidates, gate classes, statuses, rejections kept as verified negatives).
+  First built bridge: MIU ↔ Kolmogorov complexity (a derivation is a program;
+  K_MIU is its shortest length). Next: pq ↔ grokking — characters of ℤ/p from a
+  one-layer transformer set against the residue wheel; the first measured
+  surface — then invariant ↔ expressivity via the Minsky–Papert
+  group-invariance theorem.
+- the epistemic contract now has three registers: verified, measured (results
+  of an empirical run, reproducible from their configuration, never promoted to
+  verified), and coaching.
 - persistence/artifact/notebook model and the verifier-vs-LLM boundary, kept
-  dormant until an instrument re-earns them.
+  dormant until an instrument re-earns them; the identified dialogue re-entry
+  is the LLM as derivation proposer under the generation-against-verification
+  bridge, not the coaching surface.
 
 ## Primary references
 
 Read only the files relevant to the task:
 
 - Product vision: `README.md`, `docs/strange-loops-vision.md`
+- Bridge ledger (connection-gate record): `docs/bridge-ledger.md`
 - Architecture: `docs/product-architecture.md`
 - Agent behavior: `docs/agent-behavior.md`
 - Module 1 build postmortem and binding design law: `docs/module-1-postmortem.md`
@@ -59,7 +69,7 @@ corresponding docs in the same pass.
 
 - Keep setup conservative. Prefer decisions that preserve fast iteration for Module 1.
 - Do not assume a separate Python service or a separate frontend app already exists just because the architecture doc allows for one later.
-- Preserve the epistemic contract: mechanically checked results and LLM coaching must stay clearly separated.
+- Preserve the epistemic contract: mechanically checked results, measured (empirical) results, and LLM coaching must stay clearly separated.
 - Add new local skills only when a workflow becomes repeated, specialized, and hard to recover from repo context alone.
 - Keep the repo clean: no stale docs, no obsolete writings. Working artifacts (mockups, screenshots, scratch output) are gitignored, never committed, and deleted as soon as the build they served ships. When state changes, fix the affected docs in the same pass.
 

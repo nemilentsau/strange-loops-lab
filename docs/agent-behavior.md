@@ -20,7 +20,15 @@ below is preserved as the intended behavior for when a future instrument
 re-earns coaching and re-wires it; until then no coaching is surfaced and the
 agent runs nowhere.
 
-Last updated: June 14, 2026.
+A second re-entry path, distinct from coaching, is recorded in
+`docs/bridge-ledger.md` (generation against verification): the LLM as a
+derivation **proposer**, where the deterministic layer checks every proposed
+step, only checked derivations are reported as results, and found lengths sit
+against K_MIU from exhaustive search. In that role the LLM is a search
+heuristic inside a verified pipeline, not a coach; nothing it produces reaches
+the reader unchecked, so the contract below does not govern it.
+
+Last updated: July 9, 2026.
 
 ---
 

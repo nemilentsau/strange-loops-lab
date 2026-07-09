@@ -149,8 +149,13 @@ math and computer science, including:
 - proof theory and reflection
 - Rice’s theorem and undecidability
 - Kolmogorov complexity and MDL
+- representation theory of finite groups (characters of ℤ/p in grokked
+  modular arithmetic)
+- tropical geometry (a ReLU network as a tropical rational function)
 
-These are included only when they clarify the same underlying structure.
+These are included only when they clarify the same underlying structure; the
+last two are anchored from the ML side, with the mathematics as the
+destination.
 
 ---
 
@@ -162,12 +167,18 @@ This project distinguishes between:
   Rule application, derivation validity, evaluator/reducer behavior, and other
   mechanically checkable claims.
 
+- **Measured results**  
+  Outputs of an empirical run — a training curve, extracted weights and the
+  structure found in them, a compression ratio. Reported with the
+  configuration that produced them and reproducible from it; never promoted to
+  verified claims.
+
 - **LLM coaching**  
   Socratic dialogue, explain-back prompts, conceptual nudges, gap detection,
   and feedback on reasoning structure.
 
 The app should never pretend a language model has formally verified something
-when it has not.
+when it has not, and should never present a measurement as a theorem.
 
 ---
 
@@ -204,6 +215,7 @@ The active docs set is intentionally small:
 
 - `README.md` for project overview and current build posture
 - `docs/strange-loops-vision.md` for the vision and build reference (the dependency graph, the four arcs, the conceptual move)
+- `docs/bridge-ledger.md` for the record of the connection gate: every candidate bridge, its gate class, its status, and rejections kept as verified negatives
 - `docs/module-1-postmortem.md` for the Module 1 build postmortem and the binding design law
 - `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
 - `docs/agent-behavior.md` for the current dialogue/agent contract
@@ -230,11 +242,21 @@ It is aimed at making difficult ideas more tangible.
 - [x] build the MIU instrument: the three readings of one derivation
 - [x] reach the first bridge — `K_MIU` as descriptional complexity over a fixed
       machine, with Kolmogorov and Chaitin named as the next instrument
-- [ ] build the next Arc 1 bridge: invariant ↔ expressivity wall (a function a
-      fixed architecture provably cannot compute)
-- [ ] extend Arc 1 to its contrast set: pq's coherence against MIU's wall
+- [ ] build the next Arc 1 bridge: pq ↔ grokking — the pq site together with a
+      one-layer transformer trained on addition mod p, its Fourier components
+      set against the residue wheel's characters of ℤ/3 (the first measured
+      surface; also the Arc 1 contrast set)
+- [ ] build invariant ↔ expressivity wall, with the far side pinned to the
+      Minsky–Papert group-invariance theorem (parity for bounded-order
+      perceptrons) so the proof template matches exactly
+- [ ] extend the K_MIU instrument: chain of thought as a derivation-length
+      resource; generation against verification (an LLM proposes, the verifier
+      checks, lengths sit against K_MIU); the predictor-driven arithmetic coder
+      (deterministic first, LLM second)
 - [ ] decide whether and where to wire the dormant persistence and dialogue
-      layers back in
+      layers back in — the identified dialogue re-entry is the
+      generation-against-verification bridge, the LLM as proposer rather than
+      coach
 
 ---
 

@@ -94,11 +94,19 @@ capture meaning"; the contrast is what makes the question real.
   interpretation coheres).
 - **Bridges:** MIU's derivation length ↔ Kolmogorov complexity (a derivation is a
   program; its shortest length is a description length — **built**, the first
-  bridge) · invariants ↔ expressivity walls (functions a fixed architecture
-  provably cannot compute) · figure/ground ↔ generation against verification. pq ↔
-  grokking — a network finding the group structure of modular arithmetic — is
-  suggestive but stays a labeled analogy until a buildable construction earns it
-  (§5).
+  bridge) · pq ↔ grokking — the construction that earns it is identified: a
+  one-layer transformer trained on addition mod p learns the characters of ℤ/p
+  (the Fourier features of Nanda et al. 2023), and the residue wheel already
+  draws the characters of ℤ/3, so the gate class is shared construction; it
+  enters the main flow when built · invariants ↔ expressivity walls, with the
+  far side pinned to the Minsky–Papert group-invariance theorem so the proof
+  template matches exactly (see the ledger) · derivation length ↔ chain of
+  thought as a resource (t steps of intermediate decoding simulate t-time
+  computation — Merrill–Sabharwal; the shortest derivation is the least budget
+  that reaches the target) · figure/ground ↔ generation against verification,
+  with its construction identified: an LLM proposes derivations, the verifier
+  checks every step, and found lengths are compared against K_MIU from
+  exhaustive search.
 - **Hinge out:** figure/ground introduces enumeration and the complement problem,
   which sets up diagonalization.
 
@@ -151,17 +159,25 @@ test (§5) is strict.
 
 ## 4. The epistemic contract
 
-The product separates two kinds of claim and never blurs them.
+The product separates three kinds of claim and never blurs them.
 
 - **Verified.** Mechanically checkable claims — rule application, derivation
   validity, reduction steps, invariant preservation, parser and encoder behavior
   — may be asserted as correct, with the check standing behind them.
+- **Measured.** Results of an empirical run — a training curve, weights and the
+  structure extracted from them, a compression ratio. Reported as observations
+  together with the configuration that produced them, reproducible from that
+  configuration, and never promoted to verified claims. This register exists
+  because several bridges have an experiment on the far side; it is also where
+  the builder's own learning signal is strongest, since the outcome of a run is
+  not known in advance (the postmortem's validation limit does not apply to it).
 - **Coaching.** Anything an LLM produces is questioning and commentary: surfacing
   confusion, probing an explanation, suggesting where a gap may be. It is never
   presented as formal verification.
 
-The app must not present LLM output as a proof check. Correctness is claimed only
-where correctness is mechanically established.
+The app must not present LLM output as a proof check, and must not present a
+measurement as a theorem. Correctness is claimed only where correctness is
+mechanically established.
 
 ## 5. The connection gate
 
@@ -182,6 +198,16 @@ an **analogy** (a clearly labeled sidebar, suggestive but not binding).
 construction — arithmetic coding that runs, a reduction that is exhibited — not a
 named theorem attached to a slogan. If the mapping cannot be stated crisply with a
 small worked example, it is deferred.
+
+A construction may be empirical: a training run whose extracted structure is set
+against the formal side. Its results live in the measured register (§4), and the
+bridge is structural only when the same object — an invariant, a character, a
+proof template — appears on both sides, not when the curves look alike.
+
+The gate's output is recorded in `docs/bridge-ledger.md`: every candidate, the
+gate class it claims, its status, and every rejection with the test it failed. A
+rejected bridge is a verified negative of the investigation and is kept, not
+deleted.
 
 ML/AI is the destination of the project and also the easiest place to ship hype,
 so the gate applies there at full strength. Banned regardless of framing: the
@@ -267,6 +293,17 @@ into place:
 - **Machine learning.** Compression as prediction; expressivity bounds on fixed
   architectures; verification hardness (Rice); fixed-point dynamics in models
   trained on their own output; Löbian self-trust in self-reasoning agents.
+- **Off the logic spine (ML-side anchors).** GEB is the bridge, not the
+  boundary, and this list should not stay confined to logic and its suburbs. A
+  bridge may be anchored from the ML side, with the mathematics as the
+  destination: representation theory of finite groups ↔ grokked modular
+  arithmetic (characters of ℤ/p; Arc 1) · tropical geometry ↔ ReLU networks (a
+  ReLU network is a tropical rational function — Zhang–Naitzat–Lim; shared
+  construction, buildable small) · singular learning theory (the real log
+  canonical threshold as effective parameter count — deferred until a small
+  worked example exists) · random-matrix spectra of trained weights
+  (Marchenko–Pastur — an observation, not a template; sidebar unless a
+  construction earns more). Gate status for each is in the ledger.
 
 Connections that are easy to overstate — physics-and-observer analogies,
 Gödel-to-minds arguments — stay in labeled sidebars unless a real construction
@@ -285,9 +322,30 @@ complexity and Chaitin are named as the next instrument, not claimed by this one
 This is the strongest vertical bridge from §1, built first because both sides are
 proofs about the same object.
 
-Next candidates, in rough order of how cleanly each side can be built: the
-**invariant ↔ expressivity wall** (the MU invariant against a fixed
-architecture's provable inability to compute a function — the same
-impossibility-by-conserved-property argument on both sides), then the **pq
-contrast** (form capturing meaning exactly, set against MIU's wall). Each new
-site is built only as far as the bridge it tests requires.
+Next candidates, in order of bridge strength and what each buys:
+
+1. **pq ↔ grokking** — the pq site built together with its bridge: a one-layer
+   transformer trained on addition mod p, its Fourier components extracted and
+   set against the residue wheel's characters of ℤ/3. Shared construction —
+   characters of a cyclic group, built in two settings. This does double duty
+   (it builds the Arc 1 contrast set and the strongest ML bridge in the arc) and
+   it is the first instrument with a measured surface, where the outcome of the
+   run is not known to the builder in advance. Precompute the run; ship weights
+   and extracted components as artifacts.
+2. **Invariant ↔ expressivity wall** — the MU invariant against the
+   Minsky–Papert group-invariance theorem: a bounded-order perceptron cannot
+   compute parity, proved by symmetrizing over the input-permutation group and
+   bounding the degree of the resulting univariate polynomial. That proof is
+   invariant-shaped, so the shared template is exact. Continuity and Lipschitz
+   limit arguments (soft-attention bounds) do not share the template and would
+   fail the gate; the ledger records this.
+3. **Extensions of the built K_MIU instrument**, each small: derivation length ↔
+   chain of thought as a resource (Merrill–Sabharwal) · generation against
+   verification (an LLM proposes derivations, the verifier checks every step,
+   found lengths sit against exhaustive-search K_MIU — the identified re-entry
+   path for the dormant dialogue layer, as proposer rather than coach) · the
+   language model as compressor, in two stages: first a deterministic
+   predictor (n-gram/PPM) driving an arithmetic coder, mechanically checkable;
+   then an LLM as the predictor, reported in the measured register.
+
+Each new site is built only as far as the bridge it tests requires.
