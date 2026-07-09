@@ -142,7 +142,8 @@
 						<span class="query-verdict__result-label">Minimum</span>
 						<span>
 							K<sub>steps</sub>({trimmed}) not determined within {shortest.maxNodes.toLocaleString()}
-							strings; theoremhood follows from the characterization.
+							{shortest.maxNodes === 1 ? 'string' : 'strings'}; theoremhood follows from the
+							characterization.
 							{#if shortest.stoppedBy === 'nodes' && nextNodeBound}
 								<button
 									class="query-verdict__witness"
