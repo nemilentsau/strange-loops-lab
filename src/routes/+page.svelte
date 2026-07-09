@@ -175,28 +175,14 @@
 	</div>
 
 	<div class="claim">
-		<p class="claim__head">
-			<b>Claim.</b> For the fixed MIU system, theoremhood is decidable; for theorems,
-			shortest derivation length is computable.
-		</p>
-		<ol class="claim__list">
-			<li>
-				<b>Theoremhood is decidable.</b> #I mod 3 is invariant under the four rules and separates
-				MU (residue 0) from every theorem (residue 1 or 2).
-			</li>
-			<li>
-				<b>K_MIU(s) is computable for theorems.</b> Once <span class="m">s &isin; Th(MIU)</span>,
-				breadth-first search over derivations ordered by length returns a shortest derivation.
-			</li>
-		</ol>
+		<p class="claim__head"><b>Claim.</b></p>
+		<div class="claim__display">
+			<span>For <span class="m">s &isin; Th(MIU)</span>:</span>
+			<span><span class="m">K_steps(s)</span> is computable by breadth-first enumeration.</span>
+			<span><span class="m">K_bits(s)</span> is computable by cost-ordered enumeration under the fixed code.</span>
+			<span>Both quantities are relative to the four-rule MIU machine and the stated code.</span>
+		</div>
 	</div>
-
-	<p class="lede">
-		<span class="m">K_MIU(s)</span> is the length of the shortest derivation of
-		<span class="m">s</span>. A derivation can be read as a program: <span class="m">MI</span> is
-		the input, each rule-and-site choice is an instruction, and the final string is the output.
-		Thus <span class="m">K_MIU(s)</span> is a description length relative to this rewrite system.
-	</p>
 
 	<MiuBridge />
 

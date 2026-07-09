@@ -576,28 +576,16 @@ select {
 	color: var(--ink);
 }
 
-.claim__list {
-	margin: 0;
-	padding-left: 1.6em;
+.claim__display {
+	display: grid;
+	gap: 5px;
+	color: var(--muted);
 	font-size: 0.92rem;
 	line-height: 1.65;
-	color: var(--muted);
-	list-style: decimal outside;
 }
 
-.claim__list li + li {
-	margin-top: 8px;
-}
-
-.claim__list li::marker {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: 0.8rem;
-}
-
-.claim__list b {
-	font-family: var(--sans);
-	font-weight: 600;
+.claim__display span:first-child,
+.claim__display span:last-child {
 	color: var(--ink);
 }
 
@@ -1151,6 +1139,10 @@ select {
 	font-size: 0.84rem;
 }
 
+.ait-table-wrap {
+	overflow-x: auto;
+}
+
 .ait-table th {
 	padding: 0 18px 8px 0;
 	border-bottom: 1px solid var(--line-strong);
@@ -1205,25 +1197,8 @@ select {
 	font-weight: 600;
 }
 
-.ait-table .ratio-low {
-	color: var(--act);
-}
-
-.observation {
-	margin: 0 0 var(--space-lg);
-	color: var(--muted);
-	font-size: 0.9rem;
-	line-height: 1.65;
-}
-
-.observation code {
-	color: var(--ink);
-	font-family: var(--mono);
-}
-
 @media (max-width: 780px) {
 	.ait-table {
-		display: block;
-		overflow-x: auto;
+		min-width: 720px;
 	}
 }

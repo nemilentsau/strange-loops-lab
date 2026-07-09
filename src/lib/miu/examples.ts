@@ -9,17 +9,17 @@ export const THEOREM_TARGETS = [
 export const DESCRIPTION_LENGTH_EXAMPLES = [
 	{
 		value: 'MIIIUIU',
-		reading: 'as long as itself',
-		note: 'Seven symbols; the shortest derivation has eight moves.'
+		reading: 'literal code is shorter',
+		note: '35 program bits; 12 literal bits.'
 	},
 	{
 		value: 'MIUIIIIIUIIII',
-		reading: 'compressible',
-		note: 'Thirteen symbols; a five-move derivation produces the repeated I-runs.'
+		reading: 'literal code is shorter',
+		note: 'Five moves, but 22 program bits against 20 literal bits.'
 	},
 	{
 		value: 'MIUIUIUIU',
-		reading: 'compressible',
-		note: 'Nine symbols; one append and two doublings produce four IU blocks.'
+		reading: 'MIU program is shorter',
+		note: '13 program bits against 16 literal bits.'
 	}
 ] as const;

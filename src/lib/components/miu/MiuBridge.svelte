@@ -1,95 +1,63 @@
 <script lang="ts">
-	import { MIU_QUERY_BOUNDS, shortestDerivation } from '$lib/miu/complexity';
+	import { shortestBitProgram } from '$lib/miu/bitComplexity';
+	import { encodeDerivation, literalMiuBitLength } from '$lib/miu/coding';
+	import { MIU_QUERY_BOUNDS, shortestTheoremDerivation } from '$lib/miu/complexity';
 	import { DESCRIPTION_LENGTH_EXAMPLES } from '$lib/miu/examples';
-	import type { MiuMove } from '$lib/miu/core';
 
-	/**
-	 * Movement 3 — description length. Shortest derivation length is a description
-	 * length: a derivation is a program, K_MIU(s) its shortest. Fixed specimen
-	 * strings carry the compressible-vs-incompressible split.
-	 */
-	const specimenRows = $derived(
-		DESCRIPTION_LENGTH_EXAMPLES.map((example) => ({
-			...rowFor(example.value),
-			reading: example.reading,
-			note: example.note
-		}))
-	);
-
-	function rowFor(value: string) {
-		const result = shortestDerivation(value, MIU_QUERY_BOUNDS);
+	const specimenRows = DESCRIPTION_LENGTH_EXAMPLES.map((example) => {
+		const stepResult = shortestTheoremDerivation(example.value, MIU_QUERY_BOUNDS);
+		const bitResult = shortestBitProgram(example.value, {
+			maxNodes: MIU_QUERY_BOUNDS.maxNodes
+		});
+		const program =
+			bitResult.outcome === 'found'
+				? encodeDerivation(bitResult.path)
+						.instructions.map((instruction) => instruction.display)
+						.join(' ') || 'halt'
+				: `not determined within ${bitResult.maxNodes.toLocaleString()} strings`;
 
 		return {
-			value,
-			len: value.length,
-			k: result.outcome === 'found' ? result.length : null,
-			bound: result.maxDepth,
-			program: result.path ? programFor(result.path) : 'not found within bound'
+			...example,
+			literalBits: literalMiuBitLength(example.value),
+			stepLength: stepResult.outcome === 'found' ? stepResult.length : null,
+			bitLength: bitResult.bitLength,
+			program
 		};
-	}
-
-	function programFor(path: MiuMove[]): string {
-		return path.length === 0 ? 'axiom' : path.map((move) => ruleName(move.ruleId)).join(' ');
-	}
-
-	function ruleName(ruleId: MiuMove['ruleId']): string {
-		switch (ruleId) {
-			case 'append-u':
-				return 'R1';
-			case 'double-tail':
-				return 'R2';
-			case 'replace-iii':
-				return 'R3';
-			case 'delete-uu':
-				return 'R4';
-		}
-	}
-
-	function shown(value: string): string {
-		return value.length > 30 ? value.slice(0, 29) + '…' : value;
-	}
+	});
 </script>
 
-<div class="bridge__def">input         MI
-instructions  ⟨rule, site⟩ at each step
-output        the string
-K_MIU(s)      the fewest moves in any derivation MI ⇒ s</div>
+<div class="bridge__def">program       0 · encoded ⟨rule, site⟩ instructions · 000
+K_steps(s)    minimum number of rewrite moves MI ⇒ s
+K_bits(s)     minimum program length under the code above
+L_literal(s)  1 + |γ(|tail(s)|)| + |tail(s)| bits</div>
 
 <p class="worksheet__label">Specimen strings</p>
-<table class="ait-table">
-	<thead>
-		<tr>
-			<th>string</th>
-			<th class="num">|s|</th>
-			<th class="num">K_MIU</th>
-			<th>one shortest derivation</th>
-			<th>&nbsp;</th>
-		</tr>
-	</thead>
-	<tbody>
-		{#each specimenRows as row (row.value)}
+<div class="ait-table-wrap">
+	<table class="ait-table">
+		<thead>
 			<tr>
-				<td>{shown(row.value)}</td>
-				<td class="num">{row.len}</td>
-				{#if row.k !== null}
-					<td class="num" class:ratio-low={row.k * 2 <= row.len}>{row.k}</td>
+				<th>string</th>
+				<th class="num">L_literal</th>
+				<th class="num">K_steps</th>
+				<th class="num">K_bits</th>
+				<th>one minimum-bit program</th>
+				<th>reading</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each specimenRows as row (row.value)}
+				<tr>
+					<td>{row.value}</td>
+					<td class="num">{row.literalBits}</td>
+					<td class="num">{row.stepLength ?? '—'}</td>
+					<td class="num">{row.bitLength ?? '—'}</td>
 					<td class="program">{row.program}</td>
 					<td class="note note--reading">
 						<b>{row.reading}</b>
 						<span>{row.note}</span>
 					</td>
-				{:else}
-					<td class="num">&gt; {row.bound}</td>
-					<td class="program">{row.program}</td>
-					<td class="note">beyond the search bound</td>
-				{/if}
-			</tr>
-		{/each}
-	</tbody>
-</table>
-
-<p class="observation">
-	The comparison is relative to this rewrite system. <code>MIIIUIU</code> is short as a string
-	but has no shorter MIU description; <code>MIUIIIIIUIIII</code> is longer as a string but has
-	a shorter derivation.
-</p>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+</div>
