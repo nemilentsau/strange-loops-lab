@@ -1,5 +1,5 @@
-import { MIU_INITIAL_STRING, enumerateMiuMoves, isValidMiuString, type MiuMove } from './core';
-import { countI } from './invariants';
+import { MIU_INITIAL_STRING, enumerateMiuMoves, type MiuMove } from './core';
+import { decideMiuTheorem } from './theoremhood';
 
 /**
  * Descriptional complexity for MIU. A derivation is read as a program: the
@@ -10,7 +10,7 @@ import { countI } from './invariants';
  * turns this into Kolmogorov complexity; that step is not taken here.
  */
 
-export type ShortestDerivationOutcome = 'found' | 'unreachable-invariant' | 'exhausted';
+export type ShortestDerivationOutcome = 'found' | 'exhausted';
 
 export interface ShortestDerivation {
 	target: string;
@@ -51,24 +51,22 @@ export function queryMaxNodesForTarget(target: string, currentMaxNodes: number):
 }
 
 /**
- * The shortest derivation of `target` from MI, or the honest reason there is
- * none to report. Three outcomes, kept distinct:
+ * The shortest derivation of a theorem target from MI, or the honest reason
+ * the bounded optimization has no witness to report. Two outcomes:
  *
  *  - `found` — BFS over the rewrite graph; first arrival is a shortest path
  *    because every move is one edge.
- *  - `unreachable-invariant` — a VERIFIED negative. Every rule preserves
- *    #I (mod 3) and MI has #I = 1, so any target with #I ≡ 0 (mod 3) is
- *    unreachable from MI. This is the MU wall, and it is not a search limit.
  *  - `exhausted` — the search hit its depth or node bound first. An honest
- *    horizon: the target may still be reachable beyond it. Never reported as
- *    a negative.
+ *    optimization horizon. Theoremhood was decided independently and remains
+ *    true beyond this search bound.
  */
-export function shortestDerivation(
+export function shortestTheoremDerivation(
 	target: string,
 	options: ShortestDerivationOptions = {}
 ): ShortestDerivation {
-	if (!isValidMiuString(target)) {
-		throw new Error(`Invalid MIU target: ${target}`);
+	const decision = decideMiuTheorem(target);
+	if (decision.outcome !== 'theorem') {
+		throw new Error(`Expected theorem target, got ${decision.outcome}: ${target}`);
 	}
 
 	const maxDepth = clampBound(
@@ -82,11 +80,6 @@ export function shortestDerivation(
 		MIU_QUERY_LIMITS.maxNodes
 	);
 	const base = { target, maxDepth, maxNodes };
-
-	// Verified negative: the I-count invariant excludes residue 0 (mod 3).
-	if (countI(target) % 3 === 0) {
-		return { ...base, outcome: 'unreachable-invariant', length: null, path: null, stoppedBy: null };
-	}
 
 	if (target === MIU_INITIAL_STRING) {
 		return { ...base, outcome: 'found', length: 0, path: [], stoppedBy: null };

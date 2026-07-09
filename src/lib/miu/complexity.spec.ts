@@ -6,7 +6,7 @@ import {
 	MIU_QUERY_NODE_BOUNDS,
 	nextMiuQueryNodeBound,
 	queryMaxNodesForTarget,
-	shortestDerivation
+	shortestTheoremDerivation
 } from './complexity';
 
 /** Replay a derivation from MI: every move must be legal at its step. */
@@ -14,16 +14,16 @@ function replay(path: MiuMove[]): string {
 	return path.reduce((value, move) => applyMiuMove(value, move), MIU_INITIAL_STRING);
 }
 
-describe('shortestDerivation (K_MIU)', () => {
+describe('shortestTheoremDerivation (K_steps)', () => {
 	it('uses the theorem-query horizon by default', () => {
-		const result = shortestDerivation('MUI');
+		const result = shortestTheoremDerivation('MUI');
 
 		expect(result.maxDepth).toBe(MIU_QUERY_BOUNDS.maxDepth);
 		expect(result.maxNodes).toBe(200_000);
 	});
 
 	it('caps manually raised horizons at the instrument limit', () => {
-		const result = shortestDerivation('MI', { maxDepth: 99, maxNodes: 99_000_000 });
+		const result = shortestTheoremDerivation('MI', { maxDepth: 99, maxNodes: 99_000_000 });
 
 		expect(result.maxDepth).toBe(MIU_QUERY_LIMITS.maxDepth);
 		expect(result.maxNodes).toBe(MIU_QUERY_LIMITS.maxNodes);
@@ -45,7 +45,7 @@ describe('shortestDerivation (K_MIU)', () => {
 	});
 
 	it('returns an empty derivation for the axiom MI', () => {
-		const result = shortestDerivation('MI');
+		const result = shortestTheoremDerivation('MI');
 
 		expect(result.outcome).toBe('found');
 		expect(result.length).toBe(0);
@@ -53,7 +53,7 @@ describe('shortestDerivation (K_MIU)', () => {
 	});
 
 	it('finds the one-move derivation of MII', () => {
-		const result = shortestDerivation('MII');
+		const result = shortestTheoremDerivation('MII');
 
 		expect(result.outcome).toBe('found');
 		expect(result.length).toBe(1);
@@ -65,7 +65,7 @@ describe('shortestDerivation (K_MIU)', () => {
 	it('measures K_MIU of a doubled I-run as the number of doublings', () => {
 		// M followed by 2^3 I's: three applications of R2, and that is minimal —
 		// a pure I-run can only be grown by doubling.
-		const result = shortestDerivation('M' + 'I'.repeat(8));
+		const result = shortestTheoremDerivation('M' + 'I'.repeat(8));
 
 		expect(result.outcome).toBe('found');
 		expect(result.length).toBe(3);
@@ -75,35 +75,33 @@ describe('shortestDerivation (K_MIU)', () => {
 	it('finds the shortest derivation of MUI at length three', () => {
 		// MI → MII → MIIII → MUI (R3 on the leading III). No shorter route exists,
 		// so K_MIU(MUI) = 3 = |MUI|: incompressible at this length.
-		const result = shortestDerivation('MUI');
+		const result = shortestTheoremDerivation('MUI');
 
 		expect(result.outcome).toBe('found');
 		expect(result.length).toBe(3);
 		expect(replay(result.path!)).toBe('MUI');
 	});
 
-	it('reports MU as unreachable by the I-count invariant, not as a search limit', () => {
-		const result = shortestDerivation('MU');
-
-		expect(result.outcome).toBe('unreachable-invariant');
-		expect(result.length).toBeNull();
-		expect(result.path).toBeNull();
+	it('refuses to optimize a non-theorem', () => {
+		expect(() => shortestTheoremDerivation('MU')).toThrow(
+			'Expected theorem target, got non-theorem: MU'
+		);
 	});
 
 	it('reports a target past the depth bound as an honest horizon', () => {
 		// MIIII sits at depth 2 (two doublings).
-		const beyond = shortestDerivation('MIIII', { maxDepth: 1 });
+		const beyond = shortestTheoremDerivation('MIIII', { maxDepth: 1 });
 		expect(beyond.outcome).toBe('exhausted');
 		expect(beyond.stoppedBy).toBe('depth');
 		expect(beyond.length).toBeNull();
 
-		const within = shortestDerivation('MIIII', { maxDepth: 2 });
+		const within = shortestTheoremDerivation('MIIII', { maxDepth: 2 });
 		expect(within.outcome).toBe('found');
 		expect(within.length).toBe(2);
 	});
 
 	it('reports a target past the node budget as an honest horizon', () => {
-		const result = shortestDerivation('MUI', { maxNodes: 2 });
+		const result = shortestTheoremDerivation('MUI', { maxNodes: 2 });
 
 		expect(result.outcome).toBe('exhausted');
 		expect(result.stoppedBy).toBe('nodes');
@@ -111,8 +109,8 @@ describe('shortestDerivation (K_MIU)', () => {
 	});
 
 	it('throws on a target that is not a MIU string', () => {
-		expect(() => shortestDerivation('M')).toThrow();
-		expect(() => shortestDerivation('MX')).toThrow();
-		expect(() => shortestDerivation('I')).toThrow();
+		expect(() => shortestTheoremDerivation('M')).toThrow();
+		expect(() => shortestTheoremDerivation('MX')).toThrow();
+		expect(() => shortestTheoremDerivation('I')).toThrow();
 	});
 });

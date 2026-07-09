@@ -5,7 +5,7 @@ import {
 	enumerateMiuMoves,
 	type DerivationTrace
 } from './core';
-import { MIU_QUERY_BOUNDS, shortestDerivation } from './complexity';
+import { MIU_QUERY_BOUNDS, shortestTheoremDerivation } from './complexity';
 import { nextWitnessStep, witnessValues } from './witness';
 
 function traceThrough(values: string[]): DerivationTrace {
@@ -27,7 +27,7 @@ function traceThrough(values: string[]): DerivationTrace {
 }
 
 describe('shortest-witness anchoring', () => {
-	const path = shortestDerivation('MUI', MIU_QUERY_BOUNDS).path!;
+	const path = shortestTheoremDerivation('MUI', MIU_QUERY_BOUNDS).path!;
 
 	it('replays the witness values from MI to the target', () => {
 		expect(witnessValues(path)).toEqual(['MI', 'MII', 'MIIII', 'MUI']);
