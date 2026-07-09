@@ -11,7 +11,12 @@
 		jumpToTraceStep,
 		type MiuMove
 	} from '$lib/miu/core';
-	import { MIU_QUERY_BOUNDS, queryMaxNodesForTarget, shortestDerivation } from '$lib/miu/complexity';
+	import {
+		MIU_QUERY_BOUNDS,
+		queryMaxNodesForTarget,
+		shortestTheoremDerivation
+	} from '$lib/miu/complexity';
+	import { constructMiuDerivation, decideMiuTheorem } from '$lib/miu/theoremhood';
 	import {
 		createModule1Draft,
 		readModule1Draft,
@@ -23,8 +28,8 @@
 	let draft = $state(createModule1Draft());
 	let hydrated = $state(false);
 	let produceTarget = $state('MUI');
-	let witnessTarget = $state<string | null>(null);
-	let witnessPath = $state<MiuMove[] | null>(null);
+	type WitnessKind = 'constructed' | 'shortest';
+	let witnessKind = $state<WitnessKind | null>(null);
 	let queryMaxNodes = $state<number>(MIU_QUERY_BOUNDS.maxNodes);
 
 	const currentStep = $derived(
@@ -34,13 +39,26 @@
 	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
 	const trimmedProduceTarget = $derived(produceTarget.trim());
 	const validProduceTarget = $derived(isValidMiuString(trimmedProduceTarget));
-	const theoremQuery = $derived(
-		validProduceTarget
-			? shortestDerivation(trimmedProduceTarget, {
+	const theoremDecision = $derived(
+		validProduceTarget ? decideMiuTheorem(trimmedProduceTarget) : decideMiuTheorem('')
+	);
+	const constructedPath = $derived(
+		theoremDecision.outcome === 'theorem' ? constructMiuDerivation(trimmedProduceTarget) : null
+	);
+	const shortestStepResult = $derived(
+		theoremDecision.outcome === 'theorem'
+			? shortestTheoremDerivation(trimmedProduceTarget, {
 					maxDepth: MIU_QUERY_BOUNDS.maxDepth,
 					maxNodes: queryMaxNodes
 				})
 			: null
+	);
+	const witnessPath = $derived(
+		witnessKind === 'constructed'
+			? constructedPath
+			: witnessKind === 'shortest' && shortestStepResult?.outcome === 'found'
+				? shortestStepResult.path
+				: null
 	);
 	onMount(() => {
 		if (!browser) {
@@ -72,41 +90,21 @@
 	function updateTarget(nextTarget: string) {
 		produceTarget = nextTarget;
 		queryMaxNodes = queryMaxNodesForTarget(nextTarget, queryMaxNodes);
-		if (nextTarget.trim() !== witnessTarget) {
-			witnessTarget = null;
-			witnessPath = null;
-		}
+		witnessKind = null;
 	}
 
 	function setQueryMaxNodes(maxNodes: number) {
 		queryMaxNodes = maxNodes;
 	}
 
-	function toggleShortestWitness() {
-		if (!validProduceTarget) {
-			return;
-		}
-
-		if (witnessTarget === trimmedProduceTarget && witnessPath) {
-			witnessTarget = null;
-			witnessPath = null;
-			return;
-		}
-
-		if (theoremQuery?.outcome !== 'found' || !theoremQuery.path) {
-			witnessTarget = null;
-			witnessPath = null;
-			return;
-		}
-		witnessTarget = trimmedProduceTarget;
-		witnessPath = theoremQuery.path;
+	function toggleWitness(kind: WitnessKind) {
+		witnessKind = witnessKind === kind ? null : kind;
 	}
 
 	function resetSession() {
 		const fresh = createModule1Draft();
 		draft = { ...fresh, lastEditedAt: new Date().toISOString() };
-		witnessTarget = null;
-		witnessPath = null;
+		witnessKind = null;
 		if (browser) {
 			writeModule1Draft(window.localStorage, draft);
 		}
@@ -130,12 +128,14 @@
 
 	<MiuProduce
 		target={produceTarget}
-		{theoremQuery}
+		decision={theoremDecision}
+		constructedLength={constructedPath?.length ?? null}
+		shortest={shortestStepResult}
 		queryMaxNodes={queryMaxNodes}
-		witnessOpen={witnessTarget === trimmedProduceTarget && witnessPath !== null}
+		{witnessKind}
 		onUpdateTarget={updateTarget}
 		onUpdateMaxNodes={setQueryMaxNodes}
-		onToggleWitness={toggleShortestWitness}
+		onShowWitness={toggleWitness}
 	/>
 
 	<MiuSheet
@@ -143,8 +143,9 @@
 		{currentString}
 		{ruleAvailability}
 		target={produceTarget}
-		{witnessTarget}
+		witnessTarget={witnessKind ? trimmedProduceTarget : null}
 		{witnessPath}
+		{witnessKind}
 		onApplyMove={applyMove}
 		onJumpToStep={jumpToStep}
 		onReset={resetSession}

@@ -23,6 +23,7 @@
 		target,
 		witnessTarget,
 		witnessPath,
+		witnessKind,
 		onApplyMove,
 		onJumpToStep,
 		onReset
@@ -33,6 +34,7 @@
 		target: string;
 		witnessTarget: string | null;
 		witnessPath: MiuMove[] | null;
+		witnessKind: 'constructed' | 'shortest' | null;
 		onApplyMove: (move: MiuMove) => void;
 		onJumpToStep: (index: number) => void;
 		onReset: () => void;
@@ -158,7 +160,10 @@
 {#snippet witnessMenu(index: number)}
 	{#if activeWitness && activeWitness.anchorIndex === index}
 		<div class="witness-menu" data-state={activeWitness.status}>
-			<p class="witness-menu__label">shortest derivation for {ellipsizeMiddle(witnessTarget ?? trimmedTarget)}</p>
+			<p class="witness-menu__label">
+				{witnessKind === 'shortest' ? 'shortest derivation' : 'constructed derivation'}
+				for {ellipsizeMiddle(witnessTarget ?? trimmedTarget)}
+			</p>
 			{#if activeWitness.status === 'complete'}
 				<p class="witness-menu__next">target reached along this derivation.</p>
 			{:else if activeWitness.nextMove}

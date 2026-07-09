@@ -1,31 +1,37 @@
 <script lang="ts">
-	import { isValidMiuString, normalizeMiuTailInput } from '$lib/miu/core';
+	import { normalizeMiuTailInput } from '$lib/miu/core';
 	import { THEOREM_TARGETS } from '$lib/miu/examples';
 	import { nextMiuQueryNodeBound, type ShortestDerivation } from '$lib/miu/complexity';
 	import { countI } from '$lib/miu/invariants';
+	import type { MiuTheoremDecision } from '$lib/miu/theoremhood';
+
+	type WitnessKind = 'constructed' | 'shortest';
 
 	let {
 		target,
-		theoremQuery,
+		decision,
+		constructedLength,
+		shortest,
 		queryMaxNodes,
-		witnessOpen,
+		witnessKind,
 		onUpdateTarget,
 		onUpdateMaxNodes,
-		onToggleWitness
+		onShowWitness
 	}: {
 		target: string;
-		theoremQuery: ShortestDerivation | null;
+		decision: MiuTheoremDecision;
+		constructedLength: number | null;
+		shortest: ShortestDerivation | null;
 		queryMaxNodes: number;
-		witnessOpen: boolean;
+		witnessKind: WitnessKind | null;
 		onUpdateTarget: (target: string) => void;
 		onUpdateMaxNodes: (maxNodes: number) => void;
-		onToggleWitness: () => void;
+		onShowWitness: (kind: WitnessKind) => void;
 	} = $props();
 
 	const trimmed = $derived(target.trim());
 	const targetTail = $derived(trimmed.startsWith('M') ? trimmed.slice(1) : '');
-	const valid = $derived(isValidMiuString(trimmed));
-	const targetICount = $derived(valid ? countI(trimmed) : 0);
+	const targetICount = $derived(decision.outcome === 'invalid' ? 0 : countI(trimmed));
 	const nextNodeBound = $derived(nextMiuQueryNodeBound(queryMaxNodes));
 
 	function updateTail(event: Event) {
@@ -82,53 +88,74 @@
 	</div>
 
 	<div class="query-verdict" aria-live="polite">
-		{#if !valid}
+		{#if decision.outcome === 'invalid'}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">?</span>
-				<span>{trimmed} ∉ M{'{'}I,U{'}'}<sup>+</sup></span>
+				<span>{trimmed} is not a MIU string.</span>
 			</div>
-			<p class="query-verdict__fact">the tail after M must be nonempty and contain only I and U.</p>
-		{:else if theoremQuery?.outcome === 'unreachable-invariant'}
+			<p class="query-verdict__fact">The tail after M must be nonempty and contain only I and U.</p>
+		{:else if decision.outcome === 'non-theorem'}
 			<div class="query-verdict__line">
 				<span class="stamp" aria-hidden="true">✗</span>
-				<span>{trimmed} ∉ Th(MIU)</span>
+				<span>{trimmed} ∉ Th(MIU).</span>
 			</div>
 			<p class="query-verdict__fact">
 				I({trimmed}) = {targetICount} ≡ 0 (mod 3); the invariant excludes it.
 			</p>
-		{:else if theoremQuery?.outcome === 'found'}
-			<div class="query-verdict__line">
-				<span class="stamp" aria-hidden="true">✓</span>
-				<span>{trimmed} ∈ Th(MIU)</span>
-			</div>
-			<p class="query-verdict__fact">
-				K_MIU({trimmed}) = {theoremQuery.length}
-				{#if (theoremQuery.length ?? 0) > 0}
-					<button class="query-verdict__witness" type="button" onclick={onToggleWitness}>
-						{witnessOpen ? 'hide shortest derivation' : 'show shortest derivation'}
-					</button>
-				{/if}
-			</p>
 		{:else}
 			<div class="query-verdict__line">
-				<span class="stamp" aria-hidden="true">…</span>
-				<span>{trimmed}: no derivation found within the bound</span>
+				<span class="stamp" aria-hidden="true">✓</span>
+				<span>{trimmed} ∈ Th(MIU).</span>
 			</div>
-			<p class="query-verdict__fact">
-				bound: {theoremQuery?.stoppedBy === 'depth'
-					? `depth ${theoremQuery.maxDepth}`
-					: `${theoremQuery?.maxNodes} strings`}; absence within this bound is not a proof of
-				non-theoremhood.
-				{#if theoremQuery?.stoppedBy === 'nodes' && nextNodeBound}
-					<button
-						class="query-verdict__witness"
-						type="button"
-						onclick={() => onUpdateMaxNodes(nextNodeBound)}
-					>
-						increase bound to {formatNodeBound(nextNodeBound)}
-					</button>
+
+			<div class="query-verdict__results">
+				<div class="query-verdict__result">
+					<span class="query-verdict__result-label">Witness</span>
+					<span>
+						constructed derivation: {constructedLength} moves
+						<button
+							class="query-verdict__witness"
+							type="button"
+							onclick={() => onShowWitness('constructed')}
+						>
+							{witnessKind === 'constructed' ? 'hide construction' : 'show construction'}
+						</button>
+					</span>
+				</div>
+
+				{#if shortest?.outcome === 'found'}
+					<div class="query-verdict__result">
+						<span class="query-verdict__result-label">Minimum</span>
+						<span>
+							K<sub>steps</sub>({trimmed}) = {shortest.length}
+							<button
+								class="query-verdict__witness"
+								type="button"
+								onclick={() => onShowWitness('shortest')}
+							>
+								{witnessKind === 'shortest' ? 'hide shortest derivation' : 'show shortest derivation'}
+							</button>
+						</span>
+					</div>
+				{:else if shortest?.outcome === 'exhausted'}
+					<div class="query-verdict__result">
+						<span class="query-verdict__result-label">Minimum</span>
+						<span>
+							K<sub>steps</sub>({trimmed}) not determined within {shortest.maxNodes.toLocaleString()}
+							strings; theoremhood follows from the characterization.
+							{#if shortest.stoppedBy === 'nodes' && nextNodeBound}
+								<button
+									class="query-verdict__witness"
+									type="button"
+									onclick={() => onUpdateMaxNodes(nextNodeBound)}
+								>
+									increase bound to {formatNodeBound(nextNodeBound)}
+								</button>
+							{/if}
+						</span>
+					</div>
 				{/if}
-			</p>
+			</div>
 		{/if}
 	</div>
 </div>

@@ -822,6 +822,31 @@ select {
 	line-height: 1.55;
 }
 
+.query-verdict__results {
+	display: grid;
+	gap: 7px;
+	margin-top: 10px;
+	padding-top: 9px;
+	border-top: 1px solid var(--line);
+	font-family: var(--mono);
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+
+.query-verdict__result {
+	display: grid;
+	grid-template-columns: 7.5em minmax(0, 1fr);
+	gap: 10px;
+}
+
+.query-verdict__result-label {
+	color: var(--faint);
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
 .query-verdict__witness {
 	display: inline;
 	margin-left: 10px;
@@ -911,6 +936,11 @@ select {
 @media (max-width: 640px) {
 	.witness-menu {
 		margin-left: 0;
+	}
+
+	.query-verdict__result {
+		grid-template-columns: 1fr;
+		gap: 2px;
 	}
 }
 
