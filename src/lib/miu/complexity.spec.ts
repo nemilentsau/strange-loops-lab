@@ -50,6 +50,7 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(result.outcome).toBe('found');
 		expect(result.length).toBe(0);
 		expect(result.path).toEqual([]);
+		expect(result.completedDepth).toBeNull();
 	});
 
 	it('finds the one-move derivation of MII', () => {
@@ -80,6 +81,7 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(result.outcome).toBe('found');
 		expect(result.length).toBe(3);
 		expect(replay(result.path!)).toBe('MUI');
+		expect(result.completedDepth).toBeNull();
 	});
 
 	it('refuses to optimize a non-theorem', () => {
@@ -94,6 +96,9 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(beyond.outcome).toBe('exhausted');
 		expect(beyond.stoppedBy).toBe('depth');
 		expect(beyond.length).toBeNull();
+		// Depth exhaustion enumerates every string of at most maxDepth moves,
+		// so the proven bound is K_steps(MIIII) > 1.
+		expect(beyond.completedDepth).toBe(1);
 
 		const within = shortestTheoremDerivation('MIIII', { maxDepth: 2 });
 		expect(within.outcome).toBe('found');
@@ -106,6 +111,20 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(result.outcome).toBe('exhausted');
 		expect(result.stoppedBy).toBe('nodes');
 		expect(result.length).toBeNull();
+		// The budget dies while the root is still being expanded: no layer past
+		// depth 0 is complete, so only K_steps(MUI) > 0 is proven.
+		expect(result.completedDepth).toBe(0);
+	});
+
+	it('proves the lower bound of the deepest fully enumerated layer', () => {
+		// With a five-node budget the search completes depth 1 (MIU, MII) and is
+		// interrupted among their children, so K_steps(MUI) > 1 is proven — sound,
+		// since K_steps(MUI) = 3.
+		const result = shortestTheoremDerivation('MUI', { maxNodes: 5 });
+
+		expect(result.outcome).toBe('exhausted');
+		expect(result.stoppedBy).toBe('nodes');
+		expect(result.completedDepth).toBe(1);
 	});
 
 	it('throws on a target that is not a MIU string', () => {
