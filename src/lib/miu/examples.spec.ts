@@ -33,19 +33,24 @@ describe('MIU theorem target examples', () => {
 		});
 
 		expect(rows).toEqual([
-			['MIIIUIU', 12, 8, 35],
-			['MIUIIIIIUIIII', 20, 5, 22],
-			['MIUIUIUIU', 16, 3, 13]
+			['MI', 3, 0, 4],
+			['MIU', 6, 1, 7],
+			['MUI', 6, 3, 14],
+			['MIIIIIIIIIIIIIIII', 26, 4, 16]
 		]);
 		expect(rows.some(([, literal, , bits]) => bits! < literal!)).toBe(true);
 		expect(rows.some(([, literal, , bits]) => bits! >= literal!)).toBe(true);
 	});
 
-	it('pins the description-length specimen rows', () => {
-		expect(DESCRIPTION_LENGTH_EXAMPLES.map((example) => [example.value, example.reading])).toEqual([
-			['MIIIUIU', 'literal code is shorter'],
-			['MIUIIIIIUIIII', 'literal code is shorter'],
-			['MIUIUIUIU', 'MIU program is shorter']
+	it('runs the specimens from the axiom to a compressible string', () => {
+		expect(DESCRIPTION_LENGTH_EXAMPLES.map((example) => example.value)).toEqual([
+			'MI',
+			'MIU',
+			'MUI',
+			'MIIIIIIIIIIIIIIII'
 		]);
+		for (const example of DESCRIPTION_LENGTH_EXAMPLES) {
+			expect(example.reading.length).toBeGreaterThan(0);
+		}
 	});
 });

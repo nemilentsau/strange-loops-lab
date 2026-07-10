@@ -14,7 +14,7 @@
 				? encodeDerivation(bitResult.path)
 						.instructions.map((instruction) => instruction.display)
 						.join(' ') || 'halt'
-				: `not determined within ${bitResult.maxNodes.toLocaleString()} strings`;
+				: 'unresolved at this search bound';
 
 		return {
 			...example,
@@ -26,20 +26,84 @@
 	});
 </script>
 
-<div class="bridge__def">program       0 · encoded ⟨rule, site⟩ instructions · 000
-K_steps(s)    minimum number of rewrite moves MI ⇒ s
-K_bits(s)     minimum program length under the code above
-L_literal(s)  1 + |γ(|tail(s)|)| + |tail(s)| bits</div>
+<div class="defs">
+	<div class="defs__cols">
+		<div class="defs__col">
+			<div class="defs__row">
+				<span class="defs__term">the machine</span>
+				<span>start <span class="o">MI</span>; rules R1–R4.</span>
+			</div>
+			<div class="defs__row">
+				<span class="defs__term">a program</span>
+				<div>
+					<span class="o">0</span> · <span class="mv">op</span><sub>1</sub>
+					<span class="mv">site</span><sub>1</sub> ⋯ <span class="mv">op</span><sub>n</sub>
+					<span class="mv">site</span><sub>n</sub> · <span class="o">000</span>
+					<p class="defs__gloss">
+						flag <span class="o">0</span>: a derivation follows. Each <span class="mv">op</span>
+						is a 3-bit rule code; each <span class="mv">site</span> is ⌈log₂
+						<span class="mv">m</span>⌉ bits choosing among the <span class="mv">m</span> legal
+						sites, empty when <span class="mv">m</span> = 1. <span class="o">000</span> halts.
+					</p>
+				</div>
+			</div>
+			<div class="defs__row">
+				<span class="defs__term">a literal</span>
+				<div>
+					<span class="o">1</span> · <span class="mv">γ</span>(|<span class="mv">t</span>|) ·
+					<span class="mv">t</span>
+					<p class="defs__gloss">
+						flag <span class="o">1</span>: the string itself follows. <span class="mv">t</span>
+						is the tail after <span class="o">M</span>, one bit per symbol;
+						<span class="mv">γ</span> is the Elias gamma code.
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="defs__col defs__col--measures">
+			<div class="defs__row">
+				<span class="defs__term"
+					><span class="mv">K</span><sub>steps</sub>(<span class="mv">s</span>)</span
+				>
+				<span
+					>the least <span class="mv">n</span> with <span class="o">MI</span>
+					<span class="mv">⇒</span><sup><span class="mv">n</span></sup>
+					<span class="mv">s</span>.</span
+				>
+			</div>
+			<div class="defs__row">
+				<span class="defs__term"
+					><span class="mv">K</span><sub>bits</sub>(<span class="mv">s</span>)</span
+				>
+				<span
+					>the least |<span class="mv">p</span>| over programs <span class="mv">p</span> printing
+					<span class="mv">s</span>.</span
+				>
+			</div>
+			<div class="defs__row">
+				<span class="defs__term"
+					><span class="mv">L</span><sub>literal</sub>(<span class="mv">s</span>)</span
+				>
+				<span
+					>1 + |<span class="mv">γ</span>(|<span class="mv">t</span>|)| + |<span class="mv"
+						>t</span
+					>| — the cost of writing <span class="mv">s</span> down.</span
+				>
+			</div>
+			<p class="defs__rel">Both minima are relative to this machine and this code.</p>
+		</div>
+	</div>
+</div>
 
-<p class="worksheet__label">Specimen strings</p>
+<p class="microlabel">Specimen strings</p>
 <div class="ait-table-wrap">
 	<table class="ait-table">
 		<thead>
 			<tr>
 				<th>string</th>
-				<th class="num">L_literal</th>
-				<th class="num">K_steps</th>
-				<th class="num">K_bits</th>
+				<th class="num">L<sub>literal</sub></th>
+				<th class="num">K<sub>steps</sub></th>
+				<th class="num">K<sub>bits</sub></th>
 				<th>one minimum-bit program</th>
 				<th>reading</th>
 			</tr>
@@ -47,15 +111,12 @@ L_literal(s)  1 + |γ(|tail(s)|)| + |tail(s)| bits</div>
 		<tbody>
 			{#each specimenRows as row (row.value)}
 				<tr>
-					<td>{row.value}</td>
+					<td class="o">{row.value}</td>
 					<td class="num">{row.literalBits}</td>
 					<td class="num">{row.stepLength ?? '—'}</td>
 					<td class="num">{row.bitLength ?? '—'}</td>
 					<td class="program">{row.program}</td>
-					<td class="note note--reading">
-						<b>{row.reading}</b>
-						<span>{row.note}</span>
-					</td>
+					<td class="reading">{row.reading}</td>
 				</tr>
 			{/each}
 		</tbody>

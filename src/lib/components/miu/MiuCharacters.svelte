@@ -22,53 +22,68 @@
 <div class="characters">
 	<div class="characters__head">
 		<h3>Characters of ℤ/3</h3>
-		<p><span class="m">χ<sub>k</sub>(n) = ω<sup>kn</sup></span>, <span class="m">ω³ = 1</span>, <span class="m">1 + ω + ω² = 0</span></p>
+		<p>
+			<span class="mv">χ<sub>k</sub>(n)</span> = <span class="mv">ω<sup>kn</sup></span>,
+			<span class="mv">ω</span> = <span class="mv">e</span><sup>2π<span class="mv">i</span>/3</sup>
+		</p>
 	</div>
-
-	<div class="characters__grid">
-		<div class="characters__part">
-			<p class="worksheet__label">character table</p>
-			<div class="character-table-wrap">
-				<table class="character-table">
-					<thead>
-						<tr><th></th>{#each RESIDUES as residue}<th>n={residue}</th>{/each}</tr>
-					</thead>
-					<tbody>
-						{#each CHARACTERS as character}
-							<tr>
-								<th>χ<sub>{character}</sub></th>
-								{#each Z3_CHARACTER_TABLE[character] as exponent}
-									<td>{omegaPower(exponent)}</td>
-								{/each}
-							</tr>
-						{/each}
-					</tbody>
-				</table>
+	<div class="characters__body">
+		<p class="characters__lede">
+			The invariant takes values in ℤ/3, and the rules act on the residue: R2 doubles it; R1, R3,
+			R4 fix it. The characters of ℤ/3 diagonalize this action — R2 pulls
+			<span class="mv">χ<sub>k</sub></span> back to <span class="mv">χ<sub>2k</sub></span> — and
+			the indicator of the forbidden residue expands as <span class="mv">δ<sub>0</sub></span> =
+			(<span class="mv">χ<sub>0</sub></span> + <span class="mv">χ<sub>1</sub></span> +
+			<span class="mv">χ<sub>2</sub></span>)/3. This is the Fourier basis in which networks
+			trained on modular arithmetic represent the task; the table here is the fixed object that
+			measurement will be set against.
+		</p>
+		<div class="characters__grid">
+			<div class="characters__part">
+				<p class="microlabel">Character table</p>
+				<div class="character-table-wrap">
+					<table class="character-table">
+						<thead>
+							<tr><th></th>{#each RESIDUES as residue}<th>n={residue}</th>{/each}</tr>
+						</thead>
+						<tbody>
+							{#each CHARACTERS as character}
+								<tr>
+									<th><span class="mv">χ<sub>{character}</sub></span></th>
+									{#each Z3_CHARACTER_TABLE[character] as exponent}
+										<td>{omegaPower(exponent)}</td>
+									{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
 			</div>
-		</div>
 
-		<div class="characters__part">
-			<p class="worksheet__label">rule pullbacks</p>
-			<p class="characters__formula">
-				<span class="m">R2*: χ<sub>k</sub> ↦ χ<sub>2k</sub></span>; hence
-				<span class="m">χ<sub>{R2_PULLBACK[2]}</sub> ↔ χ<sub>{R2_PULLBACK[1]}</sub></span>.
-			</p>
-			<p class="characters__formula">
-				<span class="m">R1*, R3*, R4*</span> fix every character.
-			</p>
-		</div>
+			<div class="characters__part">
+				<p class="microlabel">Rule pullbacks</p>
+				<p>
+					<span class="mv">R2*</span>: <span class="mv">χ<sub>k</sub></span> ↦
+					<span class="mv">χ<sub>2k</sub></span>, so
+					<span class="mv">χ<sub>{R2_PULLBACK[2]}</sub></span> ↔
+					<span class="mv">χ<sub>{R2_PULLBACK[1]}</sub></span>.
+				</p>
+				<p>
+					<span class="mv">R1*</span>, <span class="mv">R3*</span>, <span class="mv">R4*</span>
+					fix every character.
+				</p>
+			</div>
 
-		<div class="characters__part">
-			<p class="worksheet__label">forbidden indicator</p>
-			<p class="characters__identity">
-				<span class="m">δ<sub>0</sub>(n) = (χ<sub>0</sub>(n) + χ<sub>1</sub>(n) + χ<sub>2</sub>(n)) / 3</span>.
-			</p>
-			<p class="characters__values">
-				<span class="m">δ<sub>0</sub>(0,1,2) = ({FORBIDDEN_INDICATOR.join(', ')})</span>.
-			</p>
-			<p class="characters__note">
-				The forbidden residue is visible in the Fourier basis used by the modular-addition experiment.
-			</p>
+			<div class="characters__part characters__part--indicator">
+				<p class="microlabel">Forbidden indicator</p>
+				<p>
+					<span class="mv">δ<sub>0</sub>(n)</span> = (<span class="mv">χ<sub>0</sub>(n)</span> +
+					<span class="mv">χ<sub>1</sub>(n)</span> +
+					<span class="mv">χ<sub>2</sub>(n)</span>)/3, so
+					<span class="mv">δ<sub>0</sub></span>(0, 1, 2) = ({FORBIDDEN_INDICATOR.join(', ')})
+					<span class="characters__aside">— exactly the residue the invariant forbids.</span>
+				</p>
+			</div>
 		</div>
 	</div>
 </div>

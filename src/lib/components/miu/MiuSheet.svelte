@@ -194,7 +194,7 @@
 
 <div class="worksheet">
 	<div class="worksheet__head">
-		<p class="worksheet__label">Derivation toward {trimmedTarget}</p>
+		<p class="microlabel">Derivation toward {trimmedTarget}</p>
 		<button class="worksheet-reset" type="button" onclick={onReset}>Reset to MI</button>
 	</div>
 
@@ -288,7 +288,7 @@
 		</div>
 
 		<aside class="rules-rail">
-			<p class="worksheet__label">Rules</p>
+			<p class="microlabel">Rules</p>
 			<div class="rules-ledger">
 				{#each ruleAvailability as row (row.ruleId)}
 					<div

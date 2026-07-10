@@ -33,6 +33,7 @@
 	const targetTail = $derived(trimmed.startsWith('M') ? trimmed.slice(1) : '');
 	const targetICount = $derived(decision.outcome === 'invalid' ? 0 : countI(trimmed));
 	const nextNodeBound = $derived(nextMiuQueryNodeBound(queryMaxNodes));
+	const longTail = $derived(targetTail.length > 14);
 
 	function updateTail(event: Event) {
 		const input = event.currentTarget as HTMLInputElement;
@@ -42,22 +43,12 @@
 		}
 		onUpdateTarget(`M${normalizedTail}`);
 	}
-
-	function formatNodeBound(value: number): string {
-		if (value >= 1_000_000) {
-			return `${value / 1_000_000}M`;
-		}
-		if (value >= 1_000) {
-			return `${value / 1_000}K`;
-		}
-		return value.toLocaleString();
-	}
 </script>
 
 <div class="theorem-query">
 	<div class="theorem-query__target">
-		<div class="query-label" id="produce-target-label">target string</div>
-		<div class="target-editor" aria-labelledby="produce-target-label">
+		<div class="microlabel" id="produce-target-label">target string</div>
+		<div class="target-editor" class:target-editor--long={longTail} aria-labelledby="produce-target-label">
 			<span class="target-editor__prefix" aria-hidden="true">M</span>
 			<input
 				id="produce-target"
@@ -87,34 +78,37 @@
 		</div>
 	</div>
 
-	<div class="query-verdict" aria-live="polite">
+	<div class="verdict" aria-live="polite">
 		{#if decision.outcome === 'invalid'}
-			<div class="query-verdict__line">
+			<p class="verdict__line">
 				<span class="stamp" aria-hidden="true">?</span>
-				<span>{trimmed} is not a MIU string.</span>
-			</div>
-			<p class="query-verdict__fact">The tail after M must be nonempty and contain only I and U.</p>
+				<span class="verdict__subject"><span class="o">{trimmed}</span> is not a MIU string</span>
+			</p>
+			<p class="verdict__fact">
+				The tail after <span class="o">M</span> must be nonempty, over {'{'}<span class="o">I</span>,
+				<span class="o">U</span>{'}'}.
+			</p>
 		{:else if decision.outcome === 'non-theorem'}
-			<div class="query-verdict__line">
+			<p class="verdict__line">
 				<span class="stamp" aria-hidden="true">✗</span>
-				<span>{trimmed} ∉ Th(MIU).</span>
-			</div>
-			<p class="query-verdict__fact">
-				I({trimmed}) = {targetICount} ≡ 0 (mod 3); the invariant excludes it.
+				<span class="verdict__subject"><span class="o">{trimmed}</span> <span class="mv">∉</span> Th(MIU)</span>
+			</p>
+			<p class="verdict__fact">
+				<span class="mv">I</span> = {targetICount} ≡ 0 (mod 3); the invariant below excludes it.
 			</p>
 		{:else}
-			<div class="query-verdict__line">
+			<p class="verdict__line">
 				<span class="stamp" aria-hidden="true">✓</span>
-				<span>{trimmed} ∈ Th(MIU).</span>
-			</div>
+				<span class="verdict__subject"><span class="o">{trimmed}</span> <span class="mv">∈</span> Th(MIU)</span>
+			</p>
 
-			<div class="query-verdict__results">
-				<div class="query-verdict__result">
-					<span class="query-verdict__result-label">Witness</span>
+			<div class="verdict__rows">
+				<div class="verdict__row">
+					<span class="verdict__row-label">Witness</span>
 					<span>
-						constructed derivation: {constructedLength} moves
-						<button
-							class="query-verdict__witness"
+						{constructedLength}
+						{constructedLength === 1 ? 'move' : 'moves'}, constructed — not claimed minimal<button
+							class="reveal"
 							type="button"
 							onclick={() => onShowWitness('constructed')}
 						>
@@ -124,12 +118,11 @@
 				</div>
 
 				{#if shortest?.outcome === 'found'}
-					<div class="query-verdict__result">
-						<span class="query-verdict__result-label">Minimum</span>
+					<div class="verdict__row">
+						<span class="verdict__row-label">Minimum</span>
 						<span>
-							K<sub>steps</sub>({trimmed}) = {shortest.length}
-							<button
-								class="query-verdict__witness"
+							<span class="mv">K</span><sub>steps</sub> = {shortest.length}<button
+								class="reveal"
 								type="button"
 								onclick={() => onShowWitness('shortest')}
 							>
@@ -138,21 +131,18 @@
 						</span>
 					</div>
 				{:else if shortest?.outcome === 'exhausted'}
-					<div class="query-verdict__result">
-						<span class="query-verdict__result-label">Minimum</span>
+					<div class="verdict__row">
+						<span class="verdict__row-label">Minimum</span>
 						<span>
-							K<sub>steps</sub>({trimmed}) not determined within {shortest.maxNodes.toLocaleString()}
-							{shortest.maxNodes === 1 ? 'string' : 'strings'}; theoremhood follows from the
-							characterization.
-							{#if shortest.stoppedBy === 'nodes' && nextNodeBound}
-								<button
-									class="query-verdict__witness"
+							<span class="mv">K</span><sub>steps</sub> &gt; {shortest.completedDepth} — every
+							derivation of at most {shortest.completedDepth}
+							{shortest.completedDepth === 1 ? 'move' : 'moves'} enumerated{#if shortest.stoppedBy === 'nodes' && nextNodeBound}<br /><button
+									class="compute"
 									type="button"
 									onclick={() => onUpdateMaxNodes(nextNodeBound)}
 								>
-									increase bound to {formatNodeBound(nextNodeBound)}
-								</button>
-							{/if}
+									search deeper
+								</button>{/if}
 						</span>
 					</div>
 				{/if}

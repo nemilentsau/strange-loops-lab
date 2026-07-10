@@ -152,18 +152,11 @@
 	/>
 </section>
 
-<section class="movement movement--invariant">
+<section class="movement">
 	<div class="movement__head">
 		<h2 class="movement__title">Invariant certificate</h2>
 		<span class="movement__altitude">about the system</span>
 	</div>
-	<p class="lede">
-		To prove <span class="m">s &isin; Th(MIU)</span>, give a derivation
-		<span class="m">MI &rArr; s</span>. To prove <span class="m">s &notin; Th(MIU)</span>, give a
-		certificate: a property that holds at <span class="m">MI</span>, is preserved by
-		<span class="m">R1</span>–<span class="m">R4</span>, and fails for <span class="m">s</span>.
-		For <span class="m">MU</span>, the certificate is the count of <b>I</b>'s modulo 3.
-	</p>
 
 	<MiuInvariant />
 </section>
@@ -174,26 +167,18 @@
 		<span class="movement__altitude">about all such systems</span>
 	</div>
 
-	<div class="claim">
-		<p class="claim__head"><b>Claim.</b></p>
-		<div class="claim__display">
-			<span>For <span class="m">s &isin; Th(MIU)</span>:</span>
-			<span><span class="m">K_steps(s)</span> is computable by breadth-first enumeration.</span>
-			<span><span class="m">K_bits(s)</span> is computable by cost-ordered enumeration under the fixed code.</span>
-			<span>Both quantities are relative to the four-rule MIU machine and the stated code.</span>
-		</div>
-	</div>
-
 	<MiuBridge />
 
 	<div class="coda">
-		<p class="coda__altitude">→ the next machine</p>
+		<p class="microlabel">→ the next machine</p>
 		<p class="coda__body">
 			What changes next is the machine. With a universal machine, shortest descriptions become
-			<b>Kolmogorov complexity</b> K, and producibility becomes the halting question. In formal
-			systems strong enough to reason about those descriptions, <b>Chaitin</b> obtains
-			incompleteness from a ceiling on provable lower bounds: each sound system fixes a constant
-			c beyond which it proves no bound K(s) &gt; c — though infinitely many such bounds are true.
+			<b>Kolmogorov complexity</b> <span class="mv">K</span>, and producibility becomes the
+			halting question. In formal systems strong enough to reason about those descriptions,
+			<b>Chaitin</b> obtains incompleteness from a ceiling on provable lower bounds: each sound
+			system fixes a constant <span class="mv">c</span> beyond which it proves no bound
+			<span class="mv">K(s)</span> &gt; <span class="mv">c</span> — though infinitely many such
+			bounds are true.
 		</p>
 		<p class="coda__note">Those are the next constructions, named here, not claimed by MIU.</p>
 	</div>
