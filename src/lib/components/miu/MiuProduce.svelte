@@ -142,18 +142,29 @@
 							{witnessKind === 'constructed' ? 'hide construction' : 'show construction'}
 						</button>
 					</p>
-					{#if shortest?.outcome === 'exhausted'}
-						<p class="verdict__row">
-							None of the derivations of at most {shortest.completedDepth}
-							{shortest.completedDepth === 1 ? 'move' : 'moves'} reaches it, so
-							<span class="mv">K</span><sub>steps</sub> &gt; {shortest.completedDepth}.{#if shortest.stoppedBy === 'nodes' && nextNodeBound}<button
-									class="compute"
-									type="button"
-									onclick={() => onUpdateMaxNodes(nextNodeBound)}
-								>
-									search deeper
-								</button>{/if}
-						</p>
+					{#if shortest?.outcome === 'exhausted' && shortest.completedDepth !== null}
+						{@const bound = shortest.completedDepth}
+						{#if constructedLength === bound + 1}
+							<p class="verdict__row">
+								None of the derivations of at most {bound}
+								{bound === 1 ? 'move' : 'moves'} reaches it, so
+								<span class="mv">K</span><sub>steps</sub> = {constructedLength}: the
+								construction above is minimal.
+							</p>
+						{:else}
+							<p class="verdict__row">
+								None of the derivations of at most {bound}
+								{bound === 1 ? 'move' : 'moves'} reaches it, so {bound} &lt;
+								<span class="mv">K</span><sub>steps</sub> ≤ {constructedLength} — the exact
+								minimum is still open.{#if shortest.stoppedBy === 'nodes' && nextNodeBound}<button
+										class="compute"
+										type="button"
+										onclick={() => onUpdateMaxNodes(nextNodeBound)}
+									>
+										search deeper
+									</button>{/if}
+							</p>
+						{/if}
 					{/if}
 				{/if}
 			</div>
