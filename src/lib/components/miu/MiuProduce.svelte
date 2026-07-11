@@ -103,6 +103,10 @@
 				<span class="stamp" aria-hidden="true">✓</span>
 				<span class="verdict__subject"><span class="o">{trimmed}</span> <span class="mv">∈</span> Th(MIU)</span>
 			</p>
+			<p class="verdict__fact">
+				It has {targetICount} <span class="o">I</span>{targetICount === 1 ? '' : `'s`}, and
+				{targetICount} ≢ 0 (mod 3): the characterization below decides it — no search.
+			</p>
 
 			<div class="verdict__rows">
 				{#if constructedLength === 0}

@@ -178,7 +178,10 @@
 			<b>Chaitin</b> obtains incompleteness from a ceiling on provable lower bounds: each sound
 			system fixes a constant <span class="mv">c</span> beyond which it proves no bound
 			<span class="mv">K(s)</span> &gt; <span class="mv">c</span> — though infinitely many such
-			bounds are true.
+			bounds are true. Both legs of the instrument above break at that machine: the residue that
+			decided membership has no analogue once producibility is the halting question, and the
+			exhaustion that proved bounds like <span class="mv">K</span><sub>steps</sub> &gt; 10 cannot
+			terminate — which is exactly the ceiling on provable lower bounds.
 		</p>
 		<p class="coda__note">Those are the next constructions, named here, not claimed by MIU.</p>
 	</div>

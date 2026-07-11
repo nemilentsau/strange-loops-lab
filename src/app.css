@@ -946,12 +946,28 @@ select {
 	font-size: var(--t-caption);
 }
 
-.ruledout__note {
-	margin: 8px 0 0;
+/* The movement's culminating displayed theorem: the iff, with the proof
+ * pointers beside it. Both directions are established above it. */
+.characterization {
+	display: grid;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	gap: 40px;
+	align-items: start;
+	margin: var(--space-xl) 0 0;
+	padding: 16px 20px;
+	border-left: 3px solid var(--ink);
+	background: var(--panel-meta);
+}
+
+.characterization p {
+	margin: 0;
+	line-height: 1.65;
+}
+
+.characterization__gloss {
 	color: var(--muted);
 	font-size: var(--t-caption);
-	line-height: 1.65;
-	max-width: 62ch;
+	max-width: var(--measure);
 }
 
 .candidates {
@@ -1254,6 +1270,11 @@ select {
 	.cert-side {
 		border-left: none;
 		padding-left: 0;
+	}
+
+	.characterization {
+		grid-template-columns: 1fr;
+		gap: 12px;
 	}
 
 	.characters__body {

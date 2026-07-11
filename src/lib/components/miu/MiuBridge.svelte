@@ -26,6 +26,13 @@
 	});
 </script>
 
+<p class="lede">
+	A derivation is a program for this machine, and the verdict above already ran both halves of a
+	description-length argument: exhibiting one program bounds the minimum from above; ruling out
+	every shorter one bounds it from below. Upper bounds cost one witness. Lower bounds cost
+	exhaustion — and on this four-rule machine the exhaustion terminates, so they are provable.
+</p>
+
 <div class="defs">
 	<div class="defs__cols">
 		<div class="defs__col">
@@ -68,7 +75,7 @@
 				<span
 					>the least <span class="mv">n</span> with <span class="o">MI</span>
 					<span class="mv">⇒</span><sup><span class="mv">n</span></sup>
-					<span class="mv">s</span>.</span
+					<span class="mv">s</span> — the quantity the verdict above brackets.</span
 				>
 			</div>
 			<div class="defs__row">

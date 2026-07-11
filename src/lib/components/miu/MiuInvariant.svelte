@@ -125,13 +125,6 @@
 				If <span class="mv">I(s)</span> ≡ 0 (mod 3), then <span class="mv">s</span>
 				<span class="mv">∉</span> Th(MIU).
 			</p>
-			<p class="ruledout__note">
-				Among strings of the form <span class="o">M{'{'}I,U{'}'}</span><sup>+</sup>, the converse
-				also holds: a constructive witness expands each target <span class="o">U</span> to
-				<span class="o">III</span>, grows a compatible power-of-two <span class="o">I</span>-run,
-				removes excess triples and <span class="o">U</span>-pairs, and contracts the target
-				triples.
-			</p>
 		</div>
 
 		<div>
@@ -149,6 +142,22 @@
 			</div>
 		</div>
 	</div>
+</div>
+
+<div class="characterization">
+	<p>
+		<span class="leadin"><b>Characterization.</b></span> <span class="mv">s</span>
+		<span class="mv">∈</span> Th(MIU) ⟺ <span class="mv">s</span> has the form
+		<span class="o">M{'{'}I,U{'}'}</span><sup>+</sup> and <span class="mv">I(s)</span> ≢ 0 (mod 3).
+	</p>
+	<p class="characterization__gloss">
+		Non-membership is the invariant; membership is the construction: expand each target
+		<span class="o">U</span> to <span class="o">III</span>, grow a power-of-two
+		<span class="o">I</span>-run by doubling, drop excess triples and
+		<span class="o">U</span>-pairs, contract. This decides theoremhood outright — the verdict
+		above never searches — and hands every theorem an explicit derivation: existence and an upper
+		bound on <span class="mv">K</span><sub>steps</sub>, with no claim of minimality.
+	</p>
 </div>
 
 <MiuCharacters />
