@@ -18,7 +18,7 @@ read three ways:
   exact reason it cannot fire when it cannot);
 - see the wall (MU rejected by the I-count invariant, followed by the character
   table, rule pullbacks, and forbidden-residue indicator of ℤ/3);
-- read the derivation as a program (`K_steps` by bounded BFS and `K_bits` by
+- read the derivation as a program (`K_steps` by bounded bidirectional BFS and `K_bits` by
   bounded Dijkstra search under the executable prefix code, compared with a
   gamma-length-prefixed literal). Kolmogorov complexity and Chaitin are later
   destinations, not claims made by this fixed machine.

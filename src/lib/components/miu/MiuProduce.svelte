@@ -12,6 +12,8 @@
 		decision,
 		constructedLength,
 		shortest,
+		searchRunning,
+		searchRuledOut,
 		queryMaxNodes,
 		witnessKind,
 		onUpdateTarget,
@@ -22,6 +24,8 @@
 		decision: MiuTheoremDecision;
 		constructedLength: number | null;
 		shortest: ShortestDerivation | null;
+		searchRunning: boolean;
+		searchRuledOut: number | null;
 		queryMaxNodes: number;
 		witnessKind: WitnessKind | null;
 		onUpdateTarget: (target: string) => void;
@@ -146,7 +150,17 @@
 							{witnessKind === 'constructed' ? 'hide construction' : 'show construction'}
 						</button>
 					</p>
-					{#if shortest?.outcome === 'exhausted' && shortest.completedDepth !== null}
+					{#if searchRunning}
+						<p class="verdict__row">
+							{#if searchRuledOut !== null && searchRuledOut > 0}
+								None of the derivations of at most {searchRuledOut}
+								{searchRuledOut === 1 ? 'move' : 'moves'} reaches it; the bounded search for
+								<span class="mv">K</span><sub>steps</sub> is still running.
+							{:else}
+								The bounded search for <span class="mv">K</span><sub>steps</sub> is running.
+							{/if}
+						</p>
+					{:else if shortest?.outcome === 'exhausted' && shortest.completedDepth !== null}
 						{@const bound = shortest.completedDepth}
 						{#if constructedLength === bound + 1}
 							<p class="verdict__row">
@@ -160,14 +174,27 @@
 								None of the derivations of at most {bound}
 								{bound === 1 ? 'move' : 'moves'} reaches it, so {bound} &lt;
 								<span class="mv">K</span><sub>steps</sub> ≤ {constructedLength} — the exact
-								minimum is still open.{#if shortest.stoppedBy === 'nodes' && nextNodeBound}<button
-										class="compute"
-										type="button"
-										onclick={() => onUpdateMaxNodes(nextNodeBound)}
-									>
-										search deeper
-									</button>{/if}
+								minimum is still open.
 							</p>
+							{#if shortest.stoppedBy === 'nodes'}
+								<p class="verdict__row">
+									The search stopped at its memory limit of
+									{shortest.maxNodes.toLocaleString('en-US')} stored
+									strings{#if !nextNodeBound}, the largest available{/if}; ruling out
+									derivations of {bound + 1} moves needs more.{#if nextNodeBound}<button
+											class="compute"
+											type="button"
+											onclick={() => onUpdateMaxNodes(nextNodeBound)}
+										>
+											search deeper
+										</button>{/if}
+								</p>
+							{:else}
+								<p class="verdict__row">
+									The search stopped at its {shortest.maxDepth}-move depth cap; the memory
+									limit was not reached.
+								</p>
+							{/if}
 						{/if}
 					{/if}
 				{/if}

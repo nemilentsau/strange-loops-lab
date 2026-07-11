@@ -6,7 +6,9 @@ import {
 	applyMiuMove,
 	applyMoveToTrace,
 	createDerivationTrace,
+	doublingsToReach,
 	enumerateMiuMoves,
+	enumerateMiuPredecessors,
 	isDeadBranch,
 	isValidMiuString,
 	normalizeMiuTailInput,
@@ -51,6 +53,89 @@ describe('isDeadBranch', () => {
 			expect(isDeadBranch(doubled.result)).toBe(true);
 			expect(enumerateMiuMoves(value)).toHaveLength(1);
 		}
+	});
+});
+
+describe('doublingsToReach', () => {
+	it('returns 0 when the target is the current string', () => {
+		expect(doublingsToReach('MIUIUIUIU', 'MIUIUIUIU')).toBe(0);
+	});
+
+	it('counts the doublings when the target is the tail repeated 2^k times', () => {
+		expect(doublingsToReach('MIU', 'MIUIU')).toBe(1);
+		expect(doublingsToReach('MIU', 'MIUIUIUIU')).toBe(2);
+	});
+
+	it('returns null when the target length is not the tail length times 2^k', () => {
+		expect(doublingsToReach('MIU', 'MIUIUIU')).toBeNull();
+	});
+
+	it('returns null when the length matches but the content is not the doubled tail', () => {
+		expect(doublingsToReach('MIU', 'MIUUI')).toBeNull();
+		expect(doublingsToReach('MIU', 'MUI')).toBeNull();
+	});
+
+	it('returns null rather than throwing on a malformed target', () => {
+		expect(doublingsToReach('MIU', 'M')).toBeNull();
+		expect(doublingsToReach('MIU', '')).toBeNull();
+	});
+});
+
+describe('enumerateMiuPredecessors', () => {
+	it('lists the exact inverse image of MIU under the four rules', () => {
+		// R1⁻¹ strips the trailing U (MIU ends in IU); R3⁻¹ expands the U at
+		// position 1 back to III; R4⁻¹ inserts UU at each tail position, where
+		// the two rightmost insertions coincide as MIUUU. R2⁻¹ fails: the tail
+		// IU is not a doubled word.
+		expect(new Set(enumerateMiuPredecessors('MIU'))).toEqual(
+			new Set(['MI', 'MIIII', 'MUUIU', 'MIUUU'])
+		);
+	});
+
+	it('inverts doubling exactly when the tail is a doubled word', () => {
+		expect(enumerateMiuPredecessors('MIIII')).toContain('MII');
+		expect(enumerateMiuPredecessors('MIUIU')).toContain('MIU');
+		// Tail IIIU has even length but II ≠ IU, so no R2 predecessor exists.
+		expect(
+			enumerateMiuPredecessors('MIIIU').filter((p) => 'M' + p.slice(1) + p.slice(1) === 'MIIIU')
+		).toEqual([]);
+	});
+
+	it('is sound and complete against the forward rules on the depth-5 universe', () => {
+		// Enumerate every string within five moves of MI, then check both
+		// directions of the inverse-image claim:
+		//   soundness — each listed predecessor has a forward move to t;
+		//   completeness — each forward move s → t lists s among t's predecessors.
+		const universe = new Set<string>(['MI']);
+		let frontier = ['MI'];
+		for (let depth = 0; depth < 5; depth += 1) {
+			const next: string[] = [];
+			for (const value of frontier) {
+				for (const move of enumerateMiuMoves(value)) {
+					if (universe.has(move.result)) continue;
+					universe.add(move.result);
+					next.push(move.result);
+				}
+			}
+			frontier = next;
+		}
+
+		for (const t of universe) {
+			for (const p of enumerateMiuPredecessors(t)) {
+				expect(enumerateMiuMoves(p).some((move) => move.result === t)).toBe(true);
+			}
+		}
+
+		for (const s of universe) {
+			for (const move of enumerateMiuMoves(s)) {
+				expect(enumerateMiuPredecessors(move.result)).toContain(s);
+			}
+		}
+	});
+
+	it('throws on strings outside the MIU state space', () => {
+		expect(() => enumerateMiuPredecessors('M')).toThrow();
+		expect(() => enumerateMiuPredecessors('IX')).toThrow();
 	});
 });
 

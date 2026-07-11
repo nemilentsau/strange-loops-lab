@@ -1,4 +1,9 @@
-import { MIU_INITIAL_STRING, enumerateMiuMoves, type MiuMove } from './core';
+import {
+	MIU_INITIAL_STRING,
+	enumerateMiuMoves,
+	enumerateMiuPredecessors,
+	type MiuMove
+} from './core';
 import { decideMiuTheorem } from './theoremhood';
 
 /**
@@ -22,9 +27,12 @@ export interface ShortestDerivation {
 	/** Which bound halted the search; only set for an 'exhausted' result. */
 	stoppedBy: 'depth' | 'nodes' | null;
 	/**
-	 * Deepest layer the exhausted search fully enumerated: every string of at
-	 * most completedDepth moves was generated and checked, so the proven bound
-	 * is K_steps(target) > completedDepth. Null unless 'exhausted'.
+	 * Largest derivation length the halted search ruled out. The forward
+	 * frontier was completed to some depth d_f and the backward frontier to
+	 * d_b with no string in common; any derivation of length at most d_f + d_b
+	 * would put its (d_f)-th string in both frontiers, so none exists and the
+	 * proven bound is K_steps(target) > completedDepth = d_f + d_b. Null
+	 * unless 'exhausted'.
 	 */
 	completedDepth: number | null;
 	maxDepth: number;
@@ -34,6 +42,13 @@ export interface ShortestDerivation {
 export interface ShortestDerivationOptions {
 	maxDepth?: number;
 	maxNodes?: number;
+	/**
+	 * Called after each frontier layer completes, with the derivation lengths
+	 * ruled out so far (the sum of the completed forward and backward depths).
+	 * The values are exactly the completedDepth an exhaustion at that moment
+	 * would report; the sequence increases by 1 per call.
+	 */
+	onLayerComplete?: (completedDepth: number) => void;
 }
 
 export const MIU_QUERY_NODE_BOUNDS = [200_000, 1_000_000, 2_000_000, 5_000_000] as const;
@@ -60,11 +75,21 @@ export function queryMaxNodesForTarget(target: string, currentMaxNodes: number):
  * The shortest derivation of a theorem target from MI, or the honest reason
  * the bounded optimization has no witness to report. Two outcomes:
  *
- *  - `found` — BFS over the rewrite graph; first arrival is a shortest path
- *    because every move is one edge.
+ *  - `found` — bidirectional BFS: one frontier grows forward from MI under
+ *    the rules, the other backward from the target under their exact
+ *    inverses, always expanding the smaller side. When a string first
+ *    appears in both, gluing the two half-derivations at it is minimal: had
+ *    a shorter derivation existed, its middle string would have been shared
+ *    by frontiers already completed and checked.
  *  - `exhausted` — the search hit its depth or node bound first. An honest
- *    optimization horizon. Theoremhood was decided independently and remains
- *    true beyond this search bound.
+ *    optimization horizon: `completedDepth` records the derivation lengths
+ *    ruled out. Theoremhood was decided independently and remains true
+ *    beyond this search bound.
+ *
+ * Meeting in the middle is what makes ten-move targets decidable interactively:
+ * the layers of the rewrite graph grow by better than an order of magnitude
+ * per move past depth 8, so two half-depth frontiers are smaller than one
+ * full-depth frontier by a factor that grows with the target's distance.
  */
 export function shortestTheoremDerivation(
 	target: string,
@@ -91,90 +116,120 @@ export function shortestTheoremDerivation(
 		return { ...base, outcome: 'found', length: 0, path: [], stoppedBy: null, completedDepth: null };
 	}
 
-	// Breadth-first from MI. `discovery` records the edge a string was first
-	// reached by; first discovery is along a shortest derivation.
-	const visited = new Set<string>([MIU_INITIAL_STRING]);
-	const discovery = new Map<string, { from: string; move: MiuMove }>();
-	const queue: Array<{ value: string; depth: number }> = [{ value: MIU_INITIAL_STRING, depth: 0 }];
-	let head = 0;
-	let stoppedBy: 'depth' | 'nodes' | null = null;
-	// BFS expands whole layers in order, so when the node budget interrupts an
-	// expansion at depth d, every string of at most d moves has already been
-	// generated and checked against the target.
-	let expandingDepth = 0;
+	// Each map sends a discovered string to the string it was discovered from:
+	// its parent toward MI on the forward side, toward the target on the
+	// backward side. First discovery is at true distance, so parent chains are
+	// shortest half-derivations.
+	const forward = new Map<string, string | null>([[MIU_INITIAL_STRING, null]]);
+	const backward = new Map<string, string | null>([[target, null]]);
+	let forwardFrontier = [MIU_INITIAL_STRING];
+	let backwardFrontier = [target];
+	let forwardDepth = 0;
+	let backwardDepth = 0;
+	// Both endpoints are held from the start, so the two seeds spend budget too.
+	let nodeCount = 2;
 
-	while (head < queue.length) {
-		const current = queue[head++]!;
-
-		if (current.depth >= maxDepth) {
-			stoppedBy ??= 'depth';
-			continue;
+	while (true) {
+		if (forwardDepth + backwardDepth >= maxDepth) {
+			return exhausted(base, 'depth', maxDepth);
 		}
 
-		expandingDepth = current.depth;
+		const expandForward = forwardFrontier.length <= backwardFrontier.length;
+		const same = expandForward ? forward : backward;
+		const other = expandForward ? backward : forward;
+		const frontier = expandForward ? forwardFrontier : backwardFrontier;
+		const nextLayer: string[] = [];
 
-		for (const move of enumerateMiuMoves(current.value)) {
-			const next = move.result;
+		for (const value of frontier) {
+			const neighbors = expandForward
+				? enumerateMiuMoves(value).map((move) => move.result)
+				: enumerateMiuPredecessors(value);
 
-			if (next === target) {
-				discovery.set(next, { from: current.value, move });
-				const path = reconstructPath(discovery, next);
-				return {
-					...base,
-					outcome: 'found',
-					length: path.length,
-					path,
-					stoppedBy: null,
-					completedDepth: null
-				};
+			for (const next of neighbors) {
+				if (same.has(next)) {
+					continue;
+				}
+
+				if (other.has(next)) {
+					same.set(next, value);
+					return found(base, forward, backward, next);
+				}
+
+				if (nodeCount >= maxNodes) {
+					return exhausted(base, 'nodes', forwardDepth + backwardDepth);
+				}
+
+				same.set(next, value);
+				nodeCount += 1;
+				nextLayer.push(next);
 			}
-
-			if (visited.has(next)) {
-				continue;
-			}
-
-			if (visited.size >= maxNodes) {
-				stoppedBy = 'nodes';
-				queue.length = head; // drop the rest of the frontier; the budget is spent
-				break;
-			}
-
-			visited.add(next);
-			discovery.set(next, { from: current.value, move });
-			queue.push({ value: next, depth: current.depth + 1 });
 		}
+
+		if (nextLayer.length === 0) {
+			// A theorem target keeps both frontiers alive: the forward search can
+			// only exhaust the reachable set after meeting the target, which sits
+			// in the backward map from the start (and symmetrically for MI).
+			throw new Error(`Search frontier emptied without reaching theorem ${target}`);
+		}
+
+		if (expandForward) {
+			forwardFrontier = nextLayer;
+			forwardDepth += 1;
+		} else {
+			backwardFrontier = nextLayer;
+			backwardDepth += 1;
+		}
+
+		options.onLayerComplete?.(forwardDepth + backwardDepth);
 	}
-
-	const finalStop = stoppedBy ?? 'nodes';
-	return {
-		...base,
-		outcome: 'exhausted',
-		length: null,
-		path: null,
-		stoppedBy: finalStop,
-		completedDepth: finalStop === 'nodes' ? expandingDepth : maxDepth
-	};
 }
 
-function reconstructPath(
-	discovery: Map<string, { from: string; move: MiuMove }>,
-	target: string
-): MiuMove[] {
-	const moves: MiuMove[] = [];
-	let cursor = target;
+function exhausted(
+	base: { target: string; maxDepth: number; maxNodes: number },
+	stoppedBy: 'depth' | 'nodes',
+	completedDepth: number
+): ShortestDerivation {
+	return { ...base, outcome: 'exhausted', length: null, path: null, stoppedBy, completedDepth };
+}
 
-	while (cursor !== MIU_INITIAL_STRING) {
-		const link = discovery.get(cursor);
+/**
+ * Glue the two half-derivations at the meeting string and re-derive the moves.
+ * Both maps store only parent strings, so each consecutive pair is mapped back
+ * to the legal move connecting it; the backward side's parents were generated
+ * as exact rule preimages, so the forward move always exists.
+ */
+function found(
+	base: { target: string; maxDepth: number; maxNodes: number },
+	forward: Map<string, string | null>,
+	backward: Map<string, string | null>,
+	meet: string
+): ShortestDerivation {
+	const sequence: string[] = [];
 
-		if (!link) {
-			throw new Error(`Broken derivation chain at ${cursor}`);
-		}
+	for (let cursor: string | null | undefined = meet; cursor != null; cursor = forward.get(cursor)) {
+		sequence.push(cursor);
+	}
+	sequence.reverse();
 
-		moves.push(link.move);
-		cursor = link.from;
+	for (let cursor = backward.get(meet); cursor != null; cursor = backward.get(cursor)) {
+		sequence.push(cursor);
 	}
 
-	return moves.reverse();
+	const path: MiuMove[] = [];
+
+	for (let index = 0; index + 1 < sequence.length; index += 1) {
+		const move = enumerateMiuMoves(sequence[index]!).find(
+			(candidate) => candidate.result === sequence[index + 1]
+		);
+
+		if (!move) {
+			throw new Error(`Broken derivation chain at ${sequence[index]}`);
+		}
+
+		path.push(move);
+	}
+
+	return { ...base, outcome: 'found', length: path.length, path, stoppedBy: null, completedDepth: null };
 }
 
 function clampBound(value: number, min: number, max: number): number {
