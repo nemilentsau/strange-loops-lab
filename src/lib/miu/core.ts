@@ -25,6 +25,35 @@ export interface DerivationTrace {
 	currentIndex: number;
 }
 
+export interface MiuProposalRuleCheck {
+	ruleId: MiuRuleId;
+	ruleLabel: string;
+	status: 'matches' | 'different-result' | 'unavailable';
+	explanation: string;
+	legalResults: string[];
+	matchingMoves: MiuMove[];
+}
+
+export interface MiuProposalAnalysis {
+	source: string;
+	proposed: string;
+	syntaxValid: boolean;
+	exactMatches: MiuMove[];
+	ruleChecks: MiuProposalRuleCheck[];
+	summary: string;
+}
+
+export interface MiuRuleAvailability {
+	ruleId: MiuRuleId;
+	ruleLabel: string;
+	pattern: string;
+	status: 'available' | 'unavailable';
+	/** Concrete legal moves (sites) for this rule; empty when unavailable. */
+	moves: MiuMove[];
+	/** Learner-facing reason the rule cannot fire; null when available. */
+	reason: string | null;
+}
+
 export function enumerateMiuMoves(source: string): MiuMove[] {
 	assertValidMiuString(source);
 
@@ -46,6 +75,92 @@ export function applyMiuMove(source: string, move: MiuMove): string {
 	}
 
 	return legalMove.result;
+}
+
+export function analyzeMiuProposal(source: string, proposedInput: string): MiuProposalAnalysis {
+	assertValidMiuString(source);
+
+	const proposed = proposedInput.trim();
+
+	if (!isValidMiuString(proposed)) {
+		return {
+			source,
+			proposed,
+			syntaxValid: false,
+			exactMatches: [],
+			ruleChecks: [],
+			summary: 'Not a valid MIU string. States must start with M followed by at least one I or U.'
+		};
+	}
+
+	const legalMoves = enumerateMiuMoves(source);
+	const exactMatches = legalMoves.filter((move) => move.result === proposed);
+	const ruleChecks = MIU_RULES.map((ruleId) => inspectRuleProposal(proposed, ruleId, legalMoves));
+
+	return {
+		source,
+		proposed,
+		syntaxValid: true,
+		exactMatches,
+		ruleChecks,
+		summary:
+			exactMatches.length > 0
+				? summarizeExactMatches(exactMatches)
+				: `No legal MIU rule produces ${proposed} from ${source}.`
+	};
+}
+
+export function normalizeMiuTailInput(value: string): string {
+	return value.toUpperCase().replace(/[^IU]/g, '');
+}
+
+/**
+ * A dead branch: a state from which no rule other than R2 (doubling) will
+ * EVER apply again, however far you double.
+ *
+ * Proof of the closure. Let S = M·t with t starting in I, ending in U,
+ * containing no III and no UU. Then R1 (needs a final I), R3 (needs III)
+ * and R4 (needs UU) are all closed, and R2 gives M·tt where:
+ *   - tt still starts in I and ends in U;
+ *   - no III: t has none, and every 3-window crossing the seam contains
+ *     t's final U;
+ *   - no UU: t has none, and the seam pair is (U, I).
+ * So the condition is preserved forever. Conversely, if t starts with U,
+ * one doubling creates UU at the seam and R4 reopens — such states are NOT
+ * flagged. The detector claims exactly what the induction proves.
+ */
+export function isDeadBranch(value: string): boolean {
+	const tail = value.slice(1);
+
+	return (
+		tail.startsWith('I') &&
+		tail.endsWith('U') &&
+		!tail.includes('III') &&
+		!tail.includes('UU')
+	);
+}
+
+/**
+ * Per-rule availability for the rules ledger: every rule, in fixed order,
+ * with either its concrete sites (built on `enumerateMiuMoves`, never
+ * re-derived) or the exact learner-facing reason it cannot fire.
+ */
+export function analyzeMiuRuleAvailability(current: string): MiuRuleAvailability[] {
+	const legalMoves = enumerateMiuMoves(current);
+
+	return MIU_RULES.map((ruleId) => {
+		const moves = legalMoves.filter((move) => move.ruleId === ruleId);
+		const available = moves.length > 0;
+
+		return {
+			ruleId,
+			ruleLabel: labelForRule(ruleId),
+			pattern: patternForRule(ruleId),
+			status: available ? 'available' : 'unavailable',
+			moves,
+			reason: available ? null : availabilityReason(ruleId)
+		};
+	});
 }
 
 export function createDerivationTrace(initialValue = MIU_INITIAL_STRING): DerivationTrace {
@@ -198,6 +313,45 @@ function normalizeMove(input: unknown, result: string): MiuMove | null {
 	};
 }
 
+function inspectRuleProposal(proposed: string, ruleId: MiuRuleId, legalMoves: MiuMove[]): MiuProposalRuleCheck {
+	const ruleMoves = legalMoves.filter((move) => move.ruleId === ruleId);
+	const matchingMoves = ruleMoves.filter((move) => move.result === proposed);
+
+	if (matchingMoves.length > 0) {
+		return {
+			ruleId,
+			ruleLabel: matchingMoves[0]!.ruleLabel,
+			status: 'matches',
+			explanation:
+				matchingMoves.length === 1
+					? `${matchingMoves[0]!.ruleLabel} matches at span ${matchingMoves[0]!.start + 1}-${matchingMoves[0]!.end}.`
+					: `${matchingMoves[0]!.ruleLabel} matches in ${matchingMoves.length} different spans.`,
+			legalResults: uniqueResults(ruleMoves),
+			matchingMoves
+		};
+	}
+
+	if (ruleMoves.length === 0) {
+		return {
+			ruleId,
+			ruleLabel: labelForRule(ruleId),
+			status: 'unavailable',
+			explanation: unavailableRuleExplanation(ruleId),
+			legalResults: [],
+			matchingMoves: []
+		};
+	}
+
+	return {
+		ruleId,
+		ruleLabel: labelForRule(ruleId),
+		status: 'different-result',
+		explanation: differentResultExplanation(ruleId, proposed, ruleMoves),
+		legalResults: uniqueResults(ruleMoves),
+		matchingMoves: []
+	};
+}
+
 function appendUMoves(source: string): MiuMove[] {
 	if (!source.endsWith('I')) {
 		return [];
@@ -283,12 +437,94 @@ function createMove(move: Omit<MiuMove, 'key'>): MiuMove {
 	};
 }
 
+function summarizeExactMatches(moves: MiuMove[]): string {
+	if (moves.length === 1) {
+		return `Legal next step via ${moves[0]!.ruleLabel}.`;
+	}
+
+	const labels = Array.from(new Set(moves.map((move) => move.ruleLabel))).join(' and ');
+	return `Legal next step via ${labels}.`;
+}
+
+function differentResultExplanation(ruleId: MiuRuleId, proposed: string, ruleMoves: MiuMove[]): string {
+	const legalResults = uniqueResults(ruleMoves);
+	const preview = legalResults.slice(0, 3).join(', ');
+	const suffix = legalResults.length > 3 ? ', ...' : '';
+
+	if (legalResults.length === 1) {
+		return `${labelForRule(ruleId)} is applicable here, but it would produce ${legalResults[0]}, not ${proposed}.`;
+	}
+
+	return `${labelForRule(ruleId)} is applicable here, but it can only produce ${preview}${suffix}, not ${proposed}.`;
+}
+
+function unavailableRuleExplanation(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return 'Rule 1 is unavailable because the current string does not end in I.';
+		case 'double-tail':
+			return 'Rule 2 is unavailable only when the current string is not a valid MIU state.';
+		case 'replace-iii':
+			return 'Rule 3 is unavailable because the current string has no III span.';
+		case 'delete-uu':
+			return 'Rule 4 is unavailable because the current string has no UU span.';
+	}
+}
+
+function patternForRule(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return 'xI → xIU';
+		case 'double-tail':
+			return 'Mx → Mxx';
+		case 'replace-iii':
+			return 'III → U';
+		case 'delete-uu':
+			return 'UU → ∅';
+	}
+}
+
+/**
+ * Why a rule has no site right now, phrased for the learner. Rule 2 always
+ * applies to a valid MIU state (every state starts with M), so it never needs
+ * a reason; the fallback is unreachable in practice.
+ */
+function availabilityReason(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return "the string doesn't end in I";
+		case 'double-tail':
+			return 'the string does not start with M';
+		case 'replace-iii':
+			return 'no III in this string';
+		case 'delete-uu':
+			return 'no UU in this string';
+	}
+}
+
+function uniqueResults(moves: MiuMove[]): string[] {
+	return Array.from(new Set(moves.map((move) => move.result)));
+}
+
+function labelForRule(ruleId: MiuRuleId): string {
+	switch (ruleId) {
+		case 'append-u':
+			return 'Rule 1';
+		case 'double-tail':
+			return 'Rule 2';
+		case 'replace-iii':
+			return 'Rule 3';
+		case 'delete-uu':
+			return 'Rule 4';
+	}
+}
+
 function assertValidMiuString(value: string): void {
 	if (!isValidMiuString(value)) {
 		throw new Error(`Invalid MIU string: ${value}`);
 	}
 }
 
-function isValidMiuString(value: string): boolean {
-	return /^M[IU]*$/.test(value);
+export function isValidMiuString(value: string): boolean {
+	return /^M[IU]+$/.test(value);
 }

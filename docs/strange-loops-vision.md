@@ -1,651 +1,343 @@
-# Strange Loops Companion — Long-Term Vision
-
-## 1. What this project is
-
-**Strange Loops** is an interactive companion to *Gödel, Escher, Bach* for technically sophisticated readers who want to **build operational intuition**, not just passively absorb the book.
-
-This is **not** a summary of GEB and **not** a gamified education product.
-
-It is a set of interactive instruments for:
-- making abstract structures tangible,
-- exposing conceptual pinch points,
-- testing understanding through dialogue and construction,
-- and connecting GEB's core ideas to other parts of mathematics and computer science **only when the connection is structurally real**.
-
-The project starts as a personal reading companion and experimental laboratory:
-- build scaffolding,
-- build Module 1,
-- use it while reading,
-- observe what actually deepens understanding,
-- then decide what deserves expansion.
-
----
-
-## 2. Product philosophy
-
-### 2.1 Core goal
-Turn GEB's central moves into things that can be **manipulated, visualized, and reconstructed**:
-- formal systems,
-- meta/object distinctions,
-- invariants,
-- diagonalization,
-- encoding,
-- self-reference,
-- fixed points,
-- incompleteness,
-- undecidability,
-- compression-based limits.
-
-### 2.2 Design stance
-The app should feel like a **mathematical laboratory**, not a toy.
-
-Principles:
-- dense, serious, typographically clean,
-- interactive elements should feel like **instruments**,
-- exposition should be concise,
-- the reward is understanding, not points.
-
-### 2.3 Audience
-Readers with comfort in:
-- formal notation,
-- proof structure,
-- abstract reasoning,
-- graduate-level math / physics / CS style thinking.
-
-The app should not flatten the content. It should make it more tangible.
-
----
-
-## 3. Operating principles
-
-### 3.1 Build one module at a time
-The long-term vision matters, but build order is governed by actual learning value.
-
-For now:
-- scaffolding first,
-- Module 1 first,
-- feedback first.
-
-Every future module should earn its existence through observed value.
-
-### 3.2 Preserve the distinction between the vision and the build plan
-Keep two layers of planning:
-
-**Vision layer**
-- long-term conceptual map,
-- possible modules,
-- possible connections,
-- design philosophy.
-
-**Build layer**
-- current module only,
-- current interactive primitives,
-- acceptance criteria,
-- explicit non-goals.
-
-### 3.3 Artifacts over scores
-The app should store evidence of understanding, not pretend to measure it with fake precision.
-
-Persist:
-- derivation traces,
-- invariants tested,
-- dialogue transcripts,
-- explanations the user attempted,
-- notes on conceptual confusions,
-- links between object-level and meta-level reasoning.
-
-Optional:
-- user-entered confidence level with a short note.
-
-Avoid:
-- points,
-- badges,
-- gamified achievement systems,
-- opaque “understanding scores”.
-
----
-
-## 4. Epistemic contract
-
-This needs to be explicit throughout the product.
-
-### 4.1 What the app may claim
-The app may claim correctness **only** when correctness is mechanically established.
-
-Examples of mechanically checkable domains:
-- MIU rule application,
-- derivation validity,
-- toy language execution,
-- lambda-calculus reduction steps,
-- parser/encoder correctness.
-
-### 4.2 What the LLM is allowed to be
-LLM functionality should be framed as:
-
-- **Socratic Partner**  
-  surfaces confusion, pushes on ambiguities, asks good questions.
-
-- **Proof Coach**  
-  checks structure, missing assumptions, unclear steps, likely gaps.
-
-- **Explain-Back Examiner**  
-  probes the user's explanation to reveal weak understanding.
-
-### 4.3 What the LLM is not
-The LLM is **not** a formal proof checker unless backed by a real verifier.
-
-Do not label LLM-only behavior as “proof checker” if it is not actually verifying formal correctness.
-
----
-
-## 5. Connection policy: only include what is real
-
-A major goal of the project is to connect GEB material to other parts of mathematics and computer science. This is valuable **only** when the connection is structural rather than decorative.
-
-### 5.1 Connection quality gate
-A connection should be included in the main flow only if it passes at least one of the following tests:
-
-- **Shared Template**  
-  The same proof or construction template appears in both domains  
-  (for example: invariant, diagonalization, fixed point, reduction, reflection).
-
-- **Shared Construction**  
-  The same kind of object is being built and reinterpreted in different settings.
-
-- **Shared Obstruction**  
-  The same impossibility mechanism is doing the work  
-  (for example: self-reference, undecidability, undefinability, compression limits).
-
-- **Shared Invariant**  
-  The reasoning depends on the same invariant or algebraic preservation law.
-
-### 5.2 Two connection classes
-Use two classes in the UI:
-
-**Structural Connection**
-- theorem-level or proof-template-level relation,
-- safe to include in the main flow.
-
-**Analogy / Intuition Pump**
-- suggestive but not binding,
-- useful only as a clearly labeled sidebar.
-
-### 5.3 Rule for speculative connections
-If a connection cannot be explained with:
-- a crisp mapping,
-- a small worked example,
-- and a clear reason it is not superficial,
-
-then it should be deferred or excluded.
-
----
-
-## 6. Reusable conceptual templates
-
-These are the project's deep organizing patterns. Modules should expose them directly.
-
-### 6.1 Invariant template
-A system evolves according to local rules, but some quantity or structure is preserved.
-
-Typical shape:
-1. Define transformation rules.
-2. Propose a candidate invariant.
-3. Check preservation under each rule.
-4. Use the invariant to prove reachability or non-reachability facts.
-
-### 6.2 Diagonalization template
-Assume a complete listing / decider / prover exists. Build an object that differs from the nth object at the nth place. Contradiction.
-
-Typical shape:
-1. Assume enumeration or decision mechanism exists.
-2. Construct a diagonal object.
-3. Show it cannot be in the list / cannot be decided by the decider.
-4. Conclude incompleteness / uncountability / undecidability / hierarchy separation.
-
-### 6.3 Fixed-point / self-reference template
-Build an object that, by indirection, successfully refers to itself.
-
-Typical shape:
-1. Encode syntax or programs as data.
-2. Build a transformation that consumes such data.
-3. Use a fixed-point / diagonal lemma / recursion theorem.
-4. Obtain a self-referential sentence or program.
-
-### 6.4 Reduction template
-Show that solving problem B would solve problem A. If A is impossible, B is impossible.
-
-Typical shape:
-1. Start with a known hard / impossible problem.
-2. Encode it as an instance of a target problem.
-3. Show a solution to the target would transfer back.
-4. Conclude hardness or undecidability.
-
-### 6.5 Reflection / provability template
-Formalize statements about proof, truth, or consistency inside the system itself.
-
-Typical shape:
-1. Represent syntax arithmetically.
-2. Define a provability predicate.
-3. Reflect statements about proofs back into the system.
-4. Encounter incompleteness / limits of self-certification.
-
----
-
-## 7. Long-term module map
-
-## Module 1 — Formal Systems & Their Walls
-**GEB alignment:** early formal systems chapters, MIU puzzle  
-**Core instrument:** MIU sandbox + derivation graph + invariant explorer
-
-### Core learning goal
-Feel the difference between:
-- operating **inside** a formal system,
-- reasoning **about** the system from outside.
-
-### Structural connections
-- term rewriting systems / semi-Thue systems,
-- graph search and state-space explosion,
-- invariants as algebraic mappings,
-- automata-friendly predicates and regular structure where applicable.
-
-### Why these connections are real
-- MIU is literally a string rewriting system.
-- The derivation tree is literally a state graph.
-- The invariant proof is literally preservation reasoning.
-- Modular arithmetic here is not an analogy; it is the proof.
-
----
-
-## Module 2 — Cantor’s Diagonal: The Ur-Trick
-**GEB alignment:** recursion / self-reference background, diagonal method foundations  
-**Core instrument:** diagonalization machine
-
-### Core learning goal
-Internalize diagonalization as a reusable engine rather than a one-off clever proof.
-
-### Structural connections
-- Cantor’s uncountability argument,
-- Russell-style anti-enumeration moves,
-- halting-problem diagonalization,
-- Gödelian anti-provability construction,
-- complexity-theoretic diagonalization and hierarchy arguments.
-
-### Why these connections are real
-These are not just philosophically similar. They reuse the same proof skeleton:
-- assume listing / decider / prover,
-- construct the diagonal counterexample,
-- contradiction.
-
----
-
-## Module 3 — Gödel Numbering: When Syntax Becomes Arithmetic
-**GEB alignment:** encoding and arithmeticization  
-**Core instrument:** encoder / decoder / meta-move visualizer
-
-### Core learning goal
-Understand how a statement about symbols becomes a statement about numbers.
-
-### Structural connections
-- parsing and abstract syntax trees,
-- serialization / encoding theory,
-- compilers and code-as-data,
-- primitive recursive encodings,
-- meta-programming.
-
-### Why these connections are real
-Gödel numbering is not a cute trick. It is a representational bridge:
-syntax becomes arithmetic, which allows arithmetic to reason about syntax.
-
----
-
-## Module 4 — Self-Reference & Fixed Points
-**GEB alignment:** diagonal lemma territory, core strange loop material  
-**Core instrument:** quine workshop + fixed-point visualizers
-
-### Core learning goal
-See how self-reference is constructed without mystical circularity.
-
-### Structural connections
-- lambda-calculus fixed points,
-- Y combinator,
-- quines,
-- diagonal lemma,
-- Kleene recursion theorem,
-- metacircular interpretation.
-
-### Why these connections are real
-These are all fixed-point constructions under different formal clothes.
-
----
-
-## Module 5 — The Incompleteness Theorems
-**GEB alignment:** first and second incompleteness  
-**Core instrument:** structured proof builder
-
-### Core learning goal
-Assemble encoding, provability, and self-reference into a full incompleteness proof.
-
-### Structural connections
-- provability logic,
-- reflection principles,
-- consistency statements,
-- proof-theoretic strength ladders,
-- semantic truth vs syntactic provability,
-- model theory contrast with completeness.
-
-### Why these connections are real
-These are direct formal consequences and nearby results, not decorative references.
-
----
-
-## Module 6 — The Halting Problem: Incompleteness in Code
-**GEB alignment:** computation-side diagonalization  
-**Core instrument:** toy-language halting sandbox
-
-### Core learning goal
-Understand undecidability as the computational face of the same deep structure.
-
-### Structural connections
-- halting problem,
-- reductions,
-- Rice’s theorem,
-- program properties,
-- restricted deciders and their limits,
-- other undecidable encodings (for later: PCP, tilings).
-
-### Why these connections are real
-This is the same diagonal engine plus reductions.
-
----
-
-## Module 7 — Chaitin & Information-Theoretic Incompleteness
-**GEB alignment:** beyond GEB, but deeply aligned  
-**Core instrument:** compression sandbox + complexity explorer
-
-### Core learning goal
-See incompleteness through description length and algorithmic information.
-
-### Structural connections
-- Kolmogorov complexity,
-- Berry-style paradoxes,
-- Chaitin’s incompleteness,
-- Ω,
-- incompressibility method,
-- MDL / compression-as-induction links (with care).
-
-### Why these connections are real
-These are theorem-level bridges between compression, randomness, and formal limits.
-
----
-
-## Module 8 — Beyond Gödel: Löb, Rosser, Tarski, Goodstein
-**GEB alignment:** advanced landscape beyond the main arc  
-**Core instrument:** comparison-based theorem explorer
-
-### Core learning goal
-Situate incompleteness among related results rather than treating it as isolated magic.
-
-### Structural connections
-- Löb’s theorem,
-- Rosser’s strengthening,
-- Tarski undefinability,
-- natural independent statements,
-- Goodstein sequences,
-- ordinal-growth intuition.
-
-### Why these connections are real
-These are direct neighboring results in the same terrain of provability and undefinability.
-
----
-
-## 8. Connection backlog: interesting math and CS areas worth linking
-
-This section is a curated backlog of worthwhile structural connections. These should only enter modules when the prerequisites are in place.
-
-### 8.1 Formal languages and rewriting
-- Semi-Thue systems
-- term rewriting systems
-- normalization / confluence (only if genuinely useful later)
-- automata-theoretic views of string predicates
-- algebraic invariants on syntactic systems
-
-### 8.2 Computability and recursion theory
-- diagonalization
-- halting
-- Rice’s theorem
-- recursion theorem
-- index/self-reference constructions
-- reducibility as the main transport mechanism
-
-### 8.3 Programming languages
-- lambda calculus
-- fixed-point combinators
-- quines
-- ASTs and parsers
-- interpreters and meta-circularity
-- code as data / homoiconicity where appropriate
-
-### 8.4 Logic, proof theory, and model theory
-- formal provability
-- reflection principles
-- consistency
-- completeness vs incompleteness
-- undefinability of truth
-- relative strength of formal systems
-
-### 8.5 Complexity theory
-- diagonalization under resource bounds
-- hierarchy theorems
-- limits of pure diagonalization for big open problems (if this is included, it must be carefully framed)
-
-### 8.6 Algorithmic information theory
-- Kolmogorov complexity
-- incompressibility method
-- Chaitin incompleteness
-- Ω
-- randomness via compressibility
-
-### 8.7 Natural independence phenomena
-- Goodstein’s theorem
-- Paris–Harrington (future possibility)
-- concrete statements true but unprovable in weaker systems
-
----
-
-## 9. Connections that require caution
-
-These may be valid, but they are easy to overstate and should be handled as sidebars unless the mapping is very tight.
-
-### 9.1 Physics and self-reference
-Possible topic:
-- observer-in-system analogies,
-- measurement and self-description,
-- computability of physical law.
-
-Use only if:
-- clearly marked as analogy unless formal content is real,
-- no exaggerated claims are made,
-- no mystical reading is smuggled in.
-
-### 9.2 Penrose-style arguments from Gödel to minds
-Potentially interesting, but:
-- philosophically loaded,
-- often overstated,
-- easy to make sloppy.
-
-Good for a debate module or misconception debugger, not for the central teaching path.
-
-### 9.3 AI / LLM claims derived from incompleteness
-Use only in “what this does **not** imply” contexts unless an argument is very carefully scoped.
-
----
-
-## 10. Product architecture (high-level)
-
-### 10.1 Front-end
-A single-page interactive application with:
-- typographically serious presentation,
-- strong support for notation,
-- dense but navigable layout,
-- reusable interaction primitives.
-
-### 10.2 Reusable primitives
-The project should be built around reusable instruments rather than bespoke one-off widgets.
-
-Likely primitives:
-- graph explorer,
-- trace viewer,
-- stepper/reducer,
-- structured encoder view,
-- proof skeleton builder,
-- connection map,
-- dialogue pane,
-- artifact log.
-
-### 10.3 Persistence
-Persist:
-- module progress,
-- sandbox state snapshots,
-- artifacts,
-- dialogue history,
-- concept notes.
-
-### 10.4 LLM integration
-Use LLM support selectively, and always under the epistemic contract.
-
-Modes:
-- Socratic partner,
-- Proof coach,
-- Explain-back examiner.
-
-The LLM should be context-aware at the module level, not a generic chatbot bolted onto the side.
-
----
-
-## 11. UX requirements across modules
-
-### 11.1 Always expose the level distinction when relevant
-Whenever a module crosses from object-level work to meta-level reasoning, the UI should make that visible.
-
-Examples:
-- “inside the system”
-- “about the system”
-- “syntax”
-- “encoding”
-- “arithmetic about syntax”
-- “program”
-- “program about programs”
-
-### 11.2 Connection sidebars should be earned
-A connection panel should answer:
-- what is the shared template?
-- what maps to what?
-- why is this not superficial?
-
-### 11.3 Interactions should produce stable artifacts
-The user should be able to come back to:
-- the derivation they built,
-- the explanation they gave,
-- the question that exposed confusion,
-- the invariant they discovered.
-
----
-
-## 12. Iteration roadmap
-
-### Phase 1 — Scaffolding + Module 1
-Build:
-- navigation shell,
-- artifact persistence,
-- graph explorer primitive,
-- trace viewer,
-- invariant test harness,
-- one dialogue mode.
-
-Goal:
-- confirm that the product actually helps while reading.
-
-### Phase 2 — Module 2
-Build:
-- diagonalization instrument,
-- reusable template-mapping UI.
-
-Goal:
-- establish diagonalization as a central reusable engine.
-
-### Phase 3 — Module 3
-Build:
-- encoding/decoding scaffolding,
-- syntax-to-data bridge.
-
-Goal:
-- make Gödel numbering tangible without drowning in formal overhead.
-
-### Phase 4 — Modules 4 and 5
-Build:
-- fixed-point instrumentation,
-- proof assembly workflow.
-
-Goal:
-- reach the core GEB payoff.
-
-### Phase 5 — Modules 6–8
-Expand into:
-- computation,
-- information theory,
-- advanced surrounding landscape.
-
----
-
-## 13. Risks and anti-goals
-
-### 13.1 Main risks
-- overbuilding before learning what actually helps,
-- using an LLM as fake authority,
-- bloated interactions that feel clever but teach little,
-- speculative connections masquerading as deep truths,
-- drowning the user in formalism before intuition is built.
-
-### 13.2 Anti-goals
-This project should not become:
-- a generic chatbot with GEB branding,
-- a gamified learning app,
-- a proof assistant clone,
-- a giant theorem encyclopedia,
-- a pile of disconnected visual toys.
-
----
-
-## 14. Open questions
-
-### 14.1 Escher and music
-Possible to include visual/audio self-reference components, but only if they genuinely deepen the same structural ideas.
-
-### 14.2 Exercises vs exploration
-Likely a mix:
-- sandbox exploration,
-- then guided reconstruction,
-- then explain-back / proof coaching.
-
-### 14.3 Social features
-Not a priority. They should be deferred unless user-generated artifacts prove worth sharing.
-
-### 14.4 Ordering
-Modules should be sequentially coherent but allow non-destructive jumping by concept and by current reading location.
-
----
-
-## 15. Immediate next-step interpretation
-
-Right now, the project should be treated as:
-- a long-term conceptual program,
-- a short-term build of scaffolding + Module 1,
-- and a disciplined experiment in what kinds of interactions genuinely clarify GEB.
-
-The immediate target is not “build the whole product.”
-
-It is:
-1. build the reusable shell,
-2. build a real Module 1,
-3. use it while reading,
-4. learn what deserves to exist next.
+# Strange Loops Lab — Vision and Build Reference
+
+Strange Loops Lab is a set of interactive instruments that use the structural
+ideas of *Gödel, Escher, Bach* as a bridge from formal systems to modern
+mathematics and machine learning.
+
+It is not a summary of GEB and not a gamified learning product. The audience is a
+graduate-level mathematical reader. The goal is operational intuition built by
+construction and manipulation — derivations you run, interpretations you test,
+proofs you assemble — rather than intuition absorbed by reading.
+
+GEB supplies the spine: formal systems, invariants, interpretation,
+diagonalization, encoding, self-reference, fixed points, incompleteness,
+computability, compression. The destination is the far side of each idea, in
+applied mathematics and in ML/AI. GEB is the bridge, not the boundary. A
+connection to another field enters the work only when it is structurally real
+(§5).
+
+## 1. The project is a graph, not a syllabus
+
+GEB is a book, so it follows one linear path through its material. The material
+underneath is not linear: it is a dependency graph. Incompleteness requires
+encoding and self-reference; diagonalization requires enumeration; reflection
+requires a provability predicate. These prerequisites are fixed. The order in
+which we visit them is not.
+
+So the project keeps the dependency order and chooses its own traversal. Two
+graphs sit on top of each other:
+
+- the **concept-dependency graph** — what must be understood before what;
+- the **bridge graph** — each concept joined to its counterpart in modern
+  mathematics or ML/AI.
+
+The two do not coincide. Some bridges are **vertical**: reachable from a single
+concept, early, with nothing else assembled — an executable derivation code is
+already a description relative to its fixed rewriting machine. Others
+need a whole arc in place — a Löbian self-trust argument needs encoding,
+self-reference, and a provability predicate first.
+
+Build order follows bridge strength and where understanding actually forms, not
+chapter order. A strong vertical bridge may be previewed early to motivate the
+work that formalizes it later.
+
+## 2. The method is one move, run as an investigation
+
+This is a research instrument for one reader — the builder — to find out whether
+the structural ideas of GEB have real counterparts in modern mathematics and
+ML/AI. The audience is not a stranger to be taught; it is the builder, who does
+not yet know which bridges are real. That is what makes the builder's own
+engagement a valid signal: the unknown lives on the far side of each idea, not in
+the formal system itself.
+
+The instruments share one move, used as a method of investigation, not a lesson
+to be delivered:
+
+```
+move:  manipulate inside a system
+       → interpret the system
+       → characterize the form/meaning relationship
+```
+
+The first two steps are constant. The third is the question each instrument
+exists to answer, and its answer differs by system:
+
+```
+coheres      form captures meaning exactly        (sound and complete)
+wall         a true fact is unreachable           (an invariant excludes it)
+asymmetry    the figure is generable, the ground may not be
+contingent   coherence depends on the interpretation
+```
+
+A formal system is a **site** where the move is run, not a self-contained
+module. The third step is the connection gate (§5) run live: "characterize the
+relationship" is "decide which structural connection to modern math or ML is real
+here, and build both sides to find out." It is a hypothesis tested by
+construction, not an assumption — and with no external reader, the gate is the
+discipline that separates a real bridge from one the builder merely wants.
+
+## 3. The four arcs
+
+Each arc carries a question, a set of GEB sites, the ML/AI bridges it reaches, and
+a hinge to the next. The arcs are paths through small instruments; they are not
+four large modules.
+
+An arc's question is comparative, so an arc is a **contrast set** of systems, not
+one system. A single system can exhibit only one answer to "when does form
+capture meaning"; the contrast is what makes the question real.
+
+### Arc 1 — Form and meaning ↔ representation and expressivity
+- **Question:** when does a system's form capture a truth, and where is the gap?
+- **GEB sites:** MIU (a wall exposed by an invariant) · pq (an interpretation
+  isomorphic to addition; sound and complete) · tq and figure/ground (recursively
+  enumerable against recursive; the negative space) · consistency (when an
+  interpretation coheres).
+- **Bridges:** MIU derivation programs ↔ description length relative to a fixed
+  machine (**built**, with separate `K_steps`, `K_bits`, and literal units) · pq
+  ↔ grokking through characters of cyclic groups (**next**; the ℤ/3 character
+  table, pullbacks, and forbidden indicator are now built on the formal side) ·
+  invariants ↔ expressivity walls, with the far side pinned to the
+  Minsky–Papert group-invariance theorem so the proof template matches exactly.
+  Derivation length ↔ chain of thought remains a sidebar analogy: a complexity
+  measure is not a preserved quantity. An LLM proposer for MIU is a separate
+  bounded search-versus-checking experiment; MIU theoremhood is decidable, so
+  it does not instantiate the recursively-enumerable-versus-recursive
+  figure/ground obstruction.
+- **Hinge out:** figure/ground introduces enumeration and the complement problem,
+  which sets up diagonalization.
+
+### Arc 2 — Self-reference ↔ self-training and fixed points
+- **Question:** how does a system come to refer to itself, and what happens at the
+  fixed point?
+- **GEB sites:** recursion (recursive transition networks, recursive definitions)
+  · diagonalization as a construction · quines · fixed points.
+- **Bridges:** fixed points ↔ training on a model's own output and model collapse
+  · quines ↔ self-replicating prompts · in-context learning as iterated inference.
+- **Hinge out:** diagonalization together with the need to encode syntax leads to
+  Gödel numbering.
+- The arc is constructive: build an object that refers to itself.
+
+### Arc 3 — Reflection and incompleteness ↔ self-modeling and self-trust
+- **Question:** what happens when a system that can describe itself reasons about
+  its own provability?
+- **GEB sites:** Gödel numbering · the diagonal lemma applied to a provability
+  predicate · the incompleteness theorems · Löb · Tarski. Consistency, defined in
+  Arc 1, becomes the hypothesis here.
+- **Bridges:** Löb ↔ self-trust in agents that reason about themselves · Tarski ↔
+  a model cannot fully hold its own truth predicate · reflection ↔ models
+  reasoning about their own verifiers.
+- The arc is metatheoretic, and it combines Arc 1 (the form/meaning gap) with Arc
+  2 (self-reference): a system that encodes itself and applies the fixed-point
+  construction to its own provability predicate. This is the strange loop.
+
+### Arc 4 — Limits of computation and information ↔ undecidable properties and compression
+- **Question:** what is fundamentally uncomputable or incompressible, and what
+  does that say about prediction?
+- **GEB and adjacent:** the halting problem · Rice's theorem · reductions ·
+  Kolmogorov complexity · Chaitin · Ω.
+- **Bridges:** Rice ↔ verification hardness for learned models · Kolmogorov ↔
+  compression equals prediction ↔ a language model as a lossless compressor ↔
+  Solomonoff induction as the ideal predictor.
+
+Arc 4 is a **destination plane, not a sequential arc.** Its results are reached
+from several earlier arcs as their bridges mature, rather than visited once in
+order. It carries the highest risk of decorative connection, so its admission
+test (§5) is strict.
+
+### Seams
+- **Consistency | recursion** is a hinge, not a wall. Consistency closes Arc 1:
+  when does an interpretation cohere with the system? Recursion opens Arc 2: how
+  does a system fold structure back into itself?
+- **Arc 2 and Arc 3 stay separate.** Constructing self-reference and reasoning
+  about provability are related but experientially different — one builds a
+  self-referential object, the other studies what such a system can and cannot
+  prove about itself.
+
+## 4. The epistemic contract
+
+The product separates three kinds of claim and never blurs them.
+
+- **Verified.** Mechanically checkable claims — rule application, derivation
+  validity, reduction steps, invariant preservation, parser and encoder behavior
+  — may be asserted as correct, with the check standing behind them.
+- **Measured.** Results of an empirical run — a training curve, weights and the
+  structure extracted from them, a compression ratio. Reported as observations
+  together with the configuration that produced them, reproducible from that
+  configuration, and never promoted to verified claims. This register exists
+  because several bridges have an experiment on the far side; it is also where
+  the builder's own learning signal is strongest, since the outcome of a run is
+  not known in advance (the postmortem's validation limit does not apply to it).
+- **Coaching.** Anything an LLM produces is questioning and commentary: surfacing
+  confusion, probing an explanation, suggesting where a gap may be. It is never
+  presented as formal verification.
+
+The app must not present LLM output as a proof check, and must not present a
+measurement as a theorem. Correctness is claimed only where correctness is
+mechanically established.
+
+A deterministic transform inherits the register of its inputs. A transform of
+verified formal state remains verified when the transform and claim are
+checked. A deterministic analysis of trained weights remains measured because
+the weights are empirical artifacts.
+
+## 5. The connection gate
+
+A connection to another field enters the main flow only if it passes at least one
+structural test:
+
+- **shared template** — the same proof or construction (invariant,
+  diagonalization, fixed point, reduction, reflection) appears in both;
+- **shared construction** — the same object is built and reinterpreted in two
+  settings;
+- **shared obstruction** — the same impossibility mechanism does the work;
+- **shared invariant** — the reasoning depends on the same preserved quantity.
+
+Two classes appear in the interface: a **structural connection** (main flow) and
+an **analogy** (a clearly labeled sidebar, suggestive but not binding).
+
+**Admission test.** A connection enters the main flow only through a buildable
+construction — arithmetic coding that runs, a reduction that is exhibited — not a
+named theorem attached to a slogan. If the mapping cannot be stated crisply with a
+small worked example, it is deferred.
+
+A construction may be empirical: a training run whose extracted structure is set
+against the formal side. Its results live in the measured register (§4), and the
+bridge is structural only when the same object — an invariant, a character, a
+proof template — appears on both sides, not when the curves look alike.
+
+The gate's output is recorded in `docs/bridge-ledger.md`: every candidate, the
+gate class it claims, its status, and every rejection with the test it failed. A
+rejected bridge is a verified negative of the investigation and is kept, not
+deleted.
+
+ML/AI is the destination of the project and also the easiest place to ship hype,
+so the gate applies there at full strength. Banned regardless of framing: the
+claim that incompleteness shows an AI cannot do some thing. Self-reference about
+AI has a formal home (Löb, Arc 3); the slogan does not.
+
+## 6. Reusable structural templates
+
+These are the deep patterns the dependency graph is built from. Instruments
+should expose them directly.
+
+- **Invariant.** Local rules evolve a system; some quantity is preserved; the
+  preserved quantity decides reachability.
+- **Diagonalization.** Assume a listing or decider exists; build an object that
+  differs from the nth at the nth place; contradiction.
+- **Fixed point / self-reference.** Encode programs as data; build a
+  transformation on such data; obtain an object that refers to itself.
+- **Reduction.** Encode a known-hard problem as an instance of a target; a
+  solution to the target would transfer back; conclude hardness.
+- **Reflection.** Represent syntax arithmetically; define a provability
+  predicate; reflect statements about proofs into the system.
+
+## 7. Build principles
+
+- **Instruments, not dashboards.** Each instrument is small and sharp and teaches
+  one move. The interface is the mathematical object itself — the string, the
+  term, the tree — not chrome describing it.
+- **Contrast sets.** A comparative question needs at least two systems — for Arc
+  1, MIU's wall against pq's coherence. The contrast is a goal of the arc, built
+  once the strongest single-site bridges (§11) are in hand.
+- **Shape each instrument by its bridge.** An instrument is shaped first by the
+  bridge it tests, not forced into a shared cross-site template. Where sites
+  happen to share an interaction shape — manipulate the object, interpret it,
+  read off the relationship — that makes "same move, different outcome" legible,
+  but it is a convenience, not a constraint to design toward.
+- **Earn abstractions from instances.** Build two or three concrete sites before
+  extracting any shared framework, or the framework overfits the first system.
+- **Artifacts over scores.** Persist derivations, interpretations tested, proofs
+  attempted, explanations given. No points, badges, or understanding scores.
+- **Design for the grown state.** These systems generate large objects; every
+  surface is judged mid-session, with long state, not on the fresh page.
+
+The binding tactical rules for interface, copy, and pedagogy — and the record of
+why they exist — are in the Module 1 postmortem (`docs/module-1-postmortem.md`)
+and the prose skill (`.agents/skills/prose/SKILL.md`).
+
+## 8. Audience and register
+
+The reader is comfortable with formal notation, proof structure, and abstract
+reasoning. The product does not flatten the material; it makes it tangible.
+
+Register is plain. Formal content — a definition, a rule check, a proof — is
+displayed as it would appear in lecture notes. Motivation is written as precise
+prose. The real mathematics is named directly: structural induction, recursive
+enumerability, soundness, Post's word problem, Kolmogorov complexity.
+
+## 9. Anti-goals
+
+The project should not become a chatbot with GEB branding, a gamified app, a
+proof-assistant clone, a theorem encyclopedia, or a collection of disconnected
+visual toys.
+
+The standing risks are decorative connections presented as deep (held off by §5),
+the LLM used as authority (held off by §4), and overbuilding before learning what
+helps (held off by §7 and by building one arc at a time, validated by use).
+
+## 10. Connection backlog
+
+Structurally real connections to draw on as prerequisites and a construction come
+into place:
+
+- **Rewriting and formal languages.** Semi-Thue and term rewriting systems; the
+  word problem and its decidability boundary; automata views of string
+  predicates; algebraic invariants on syntactic systems.
+- **Computability and recursion theory.** Diagonalization; halting; Rice's
+  theorem; the recursion theorem; reducibility as the transport mechanism.
+- **Programming languages.** Lambda calculus; fixed-point combinators; quines;
+  interpreters and metacircularity; code as data.
+- **Logic and proof theory.** Provability; reflection; consistency; completeness
+  against incompleteness; undefinability of truth.
+- **Algorithmic information theory.** Kolmogorov complexity; the incompressibility
+  method; Chaitin incompleteness; Ω.
+- **Machine learning.** Compression as prediction; expressivity bounds on fixed
+  architectures; verification hardness (Rice); fixed-point dynamics in models
+  trained on their own output; Löbian self-trust in self-reasoning agents;
+  sparse coding and superposition; interactive proofs and scalable oversight.
+- **Off the logic spine (ML-side anchors).** GEB is the bridge, not the
+  boundary, and this list should not stay confined to logic and its suburbs. A
+  bridge may be anchored from the ML side, with the mathematics as the
+  destination: representation theory of finite groups ↔ grokked modular
+  arithmetic (characters of ℤ/p; Arc 1) · tropical geometry ↔ ReLU networks (a
+  ReLU network is a tropical rational function — Zhang–Naitzat–Lim; shared
+  construction, buildable small) · singular learning theory (Cullen et al.,
+  *A Basin-Selection Perspective on Grokking via Singular Learning Theory*,
+  arXiv:2603.01192v3 — deferred until its shallow-network calculation and
+  empirical trajectory are reproduced at this project's scale) · random-matrix
+  spectra of trained weights
+  (Marchenko–Pastur — an observation, not a template; sidebar unless a
+  construction earns more). Gate status for each is in the ledger.
+
+Connections that are easy to overstate — physics-and-observer analogies,
+Gödel-to-minds arguments — stay in labeled sidebars unless a real construction
+makes them structural.
+
+## 11. Where to start — and what is built
+
+The first instrument is built: the **MIU site with its bridge to description
+length relative to a fixed machine**. The derivation is manipulated directly.
+The complete I-count characterization decides theoremhood and constructs one
+witness for every theorem. Bounded BFS separately minimizes rewrite moves as
+`K_steps`; bounded Dijkstra search minimizes executable code length as `K_bits`.
+The invariant certificate excludes residue zero, and the same surface
+constructs the character table of ℤ/3, the rule pullbacks, and the Fourier
+indicator of the forbidden residue.
+
+The binding build order is:
+
+1. **MIU exactness — complete.** Theoremhood, constructive witnesses,
+   `K_steps`, `K_bits`, ℤ/3 characters, and the three-register provenance rule
+   are built.
+2. **pq ↔ grokking.** Build the pq site and a shallow modular-addition model,
+   extract the measured Fourier circuit from shipped weights, and compare the
+   same character construction on both sides.
+3. **Hold the MIU boundary.** Do not add another MIU extension until pq has
+   tested the connection-gate method on a second site.
+
+Invariant ↔ expressivity remains identified after pq. Language-model
+compression, sparse coding / superposition, and interactive proofs / scalable
+oversight remain identified candidates. Derivation length / chain of thought is
+a sidebar. The MIU proposer/verifier experiment is narrowed to bounded search
+against deterministic checking. The ledger contains the exact claims,
+falsifiers, and status of each candidate.

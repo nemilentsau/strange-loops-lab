@@ -1,84 +1,188 @@
 <script lang="ts">
-	import ModuleCard from '$lib/components/ModuleCard.svelte';
-	import { modules } from '$lib/content/modules';
+	import { browser } from '$app/environment';
+	import MiuProduce from '$lib/components/miu/MiuProduce.svelte';
+	import MiuSheet from '$lib/components/miu/MiuSheet.svelte';
+	import MiuInvariant from '$lib/components/miu/MiuInvariant.svelte';
+	import MiuBridge from '$lib/components/miu/MiuBridge.svelte';
+	import {
+		analyzeMiuRuleAvailability,
+		applyMoveToTrace,
+		isValidMiuString,
+		jumpToTraceStep,
+		type MiuMove
+	} from '$lib/miu/core';
+	import {
+		MIU_QUERY_BOUNDS,
+		queryMaxNodesForTarget,
+		shortestTheoremDerivation
+	} from '$lib/miu/complexity';
+	import { constructMiuDerivation, decideMiuTheorem } from '$lib/miu/theoremhood';
+	import {
+		createModule1Draft,
+		readModule1Draft,
+		writeModule1Draft,
+		type Module1Draft
+	} from '$lib/state/module1';
+	import { onMount } from 'svelte';
 
-	const principles = [
-		{
-			title: 'Verifier before vibe',
-			body: 'If the system can check a claim deterministically, the UI should surface that fact explicitly instead of laundering it through language.'
-		},
-		{
-			title: 'Module-aware guidance',
-			body: 'The agent belongs inside the active instrument and must respond to the learner’s current state, not as a detached chat box.'
-		},
-		{
-			title: 'Artifacts over noise',
-			body: 'Persistence should preserve traces, notes, candidate invariants, and reflection, not an undifferentiated event log.'
+	let draft = $state(createModule1Draft());
+	let hydrated = $state(false);
+	let produceTarget = $state('MUI');
+	type WitnessKind = 'constructed' | 'shortest';
+	let witnessKind = $state<WitnessKind | null>(null);
+	let queryMaxNodes = $state<number>(MIU_QUERY_BOUNDS.maxNodes);
+
+	const currentStep = $derived(
+		draft.trace.steps[draft.trace.currentIndex] ?? draft.trace.steps[0] ?? draft.trace.steps.at(-1)!
+	);
+	const currentString = $derived(currentStep.value);
+	const ruleAvailability = $derived(analyzeMiuRuleAvailability(currentString));
+	const trimmedProduceTarget = $derived(produceTarget.trim());
+	const validProduceTarget = $derived(isValidMiuString(trimmedProduceTarget));
+	const theoremDecision = $derived(
+		validProduceTarget ? decideMiuTheorem(trimmedProduceTarget) : decideMiuTheorem('')
+	);
+	const constructedPath = $derived(
+		theoremDecision.outcome === 'theorem' ? constructMiuDerivation(trimmedProduceTarget) : null
+	);
+	const shortestStepResult = $derived(
+		theoremDecision.outcome === 'theorem'
+			? shortestTheoremDerivation(trimmedProduceTarget, {
+					maxDepth: MIU_QUERY_BOUNDS.maxDepth,
+					maxNodes: queryMaxNodes
+				})
+			: null
+	);
+	const witnessPath = $derived(
+		witnessKind === 'constructed'
+			? constructedPath
+			: witnessKind === 'shortest' && shortestStepResult?.outcome === 'found'
+				? shortestStepResult.path
+				: null
+	);
+	onMount(() => {
+		if (!browser) {
+			return;
 		}
-	];
+		draft = readModule1Draft(window.localStorage);
+		hydrated = true;
+	});
+
+	$effect(() => {
+		if (!browser || !hydrated) {
+			return;
+		}
+		writeModule1Draft(window.localStorage, draft);
+	});
+
+	function patchDraft(next: Partial<Module1Draft>) {
+		draft = { ...draft, ...next, lastEditedAt: new Date().toISOString() };
+	}
+
+	function applyMove(move: MiuMove) {
+		patchDraft({ trace: applyMoveToTrace(draft.trace, move) });
+	}
+
+	function jumpToStep(index: number) {
+		patchDraft({ trace: jumpToTraceStep(draft.trace, index) });
+	}
+
+	function updateTarget(nextTarget: string) {
+		produceTarget = nextTarget;
+		queryMaxNodes = queryMaxNodesForTarget(nextTarget, queryMaxNodes);
+		witnessKind = null;
+	}
+
+	function setQueryMaxNodes(maxNodes: number) {
+		queryMaxNodes = maxNodes;
+	}
+
+	function toggleWitness(kind: WitnessKind) {
+		witnessKind = witnessKind === kind ? null : kind;
+	}
+
+	function resetSession() {
+		const fresh = createModule1Draft();
+		draft = { ...fresh, lastEditedAt: new Date().toISOString() };
+		witnessKind = null;
+		if (browser) {
+			writeModule1Draft(window.localStorage, draft);
+		}
+	}
 </script>
 
 <svelte:head>
-	<title>Strange Loops Lab | Overview</title>
+	<title>Strange Loops Lab | MIU</title>
 </svelte:head>
 
-<section class="hero">
-	<div class="hero__copy">
-		<p class="eyebrow">Scaffolded for Module 1</p>
-		<h1>Build the shell first. Let the formal system teach the architecture.</h1>
-		<p class="hero__lede">
-			The first pass stays narrow on purpose: a stable SvelteKit application shell, module-aware
-			routing, local artifact persistence, and a serious landing point for the MIU laboratory.
+<header class="instrument-header">
+	<h1>MIU system</h1>
+	<p>One derivation, read as theoremhood, invariant, and description length.</p>
+</header>
+
+<section class="movement">
+	<div class="movement__head">
+		<h2 class="movement__title">Theoremhood</h2>
+		<span class="movement__altitude">in the system</span>
+	</div>
+
+	<MiuProduce
+		target={produceTarget}
+		decision={theoremDecision}
+		constructedLength={constructedPath?.length ?? null}
+		shortest={shortestStepResult}
+		queryMaxNodes={queryMaxNodes}
+		{witnessKind}
+		onUpdateTarget={updateTarget}
+		onUpdateMaxNodes={setQueryMaxNodes}
+		onShowWitness={toggleWitness}
+	/>
+
+	<MiuSheet
+		trace={draft.trace}
+		{currentString}
+		{ruleAvailability}
+		target={produceTarget}
+		witnessTarget={witnessKind ? trimmedProduceTarget : null}
+		{witnessPath}
+		{witnessKind}
+		onApplyMove={applyMove}
+		onJumpToStep={jumpToStep}
+		onReset={resetSession}
+	/>
+</section>
+
+<section class="movement">
+	<div class="movement__head">
+		<h2 class="movement__title">Invariant certificate</h2>
+		<span class="movement__altitude">about the system</span>
+	</div>
+
+	<MiuInvariant />
+</section>
+
+<section class="movement">
+	<div class="movement__head">
+		<h2 class="movement__title">Description length</h2>
+		<span class="movement__altitude">about all such systems</span>
+	</div>
+
+	<MiuBridge />
+
+	<div class="coda">
+		<p class="microlabel">→ the next machine</p>
+		<p class="coda__body">
+			What changes next is the machine. With a universal machine, shortest descriptions become
+			<b>Kolmogorov complexity</b> <span class="mv">K</span>, and producibility becomes the
+			halting question. In formal systems strong enough to reason about those descriptions,
+			<b>Chaitin</b> obtains incompleteness from a ceiling on provable lower bounds: each sound
+			system fixes a constant <span class="mv">c</span> beyond which it proves no bound
+			<span class="mv">K(s)</span> &gt; <span class="mv">c</span> — though infinitely many such
+			bounds are true. Both legs of the instrument above break at that machine: the residue that
+			decided membership has no analogue once producibility is the halting question, and the
+			exhaustion that proved bounds like <span class="mv">K</span><sub>steps</sub> &gt; 10 cannot
+			terminate — which is exactly the ceiling on provable lower bounds.
 		</p>
-
-		<div class="hero__actions">
-			<a class="button button--primary" href="/modules/module-1">Enter Module 1</a>
-			<span class="button button--ghost">Root scaffold in place</span>
-		</div>
+		<p class="coda__note">Those are the next constructions, named here, not claimed by MIU.</p>
 	</div>
-
-	<div class="hero__frame">
-		<p class="hero__label">Current shell</p>
-		<ul class="metric-list">
-			<li>
-				<strong>Root app</strong>
-				<span>SvelteKit + TypeScript</span>
-			</li>
-			<li>
-				<strong>Persistence</strong>
-				<span>Local notebook state for Module 1</span>
-			</li>
-			<li>
-				<strong>Boundary</strong>
-				<span>Verified, computed, and coaching surfaces stay distinct</span>
-			</li>
-		</ul>
-	</div>
-</section>
-
-<section class="panel-grid panel-grid--three">
-	{#each principles as principle}
-		<article class="panel panel--soft">
-			<p class="eyebrow">Operating rule</p>
-			<h2>{principle.title}</h2>
-			<p>{principle.body}</p>
-		</article>
-	{/each}
-</section>
-
-<section class="section-header">
-	<div>
-		<p class="eyebrow">Module registry</p>
-		<h2>Live now, planned next</h2>
-	</div>
-	<p class="section-header__copy">
-		The shell is ready for multiple modules, but only Module 1 is implemented as an active work
-		surface.
-	</p>
-</section>
-
-<section class="module-grid">
-	{#each modules as module}
-		<ModuleCard {module} />
-	{/each}
 </section>

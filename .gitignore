@@ -26,3 +26,12 @@ vite.config.ts.timestamp-*
 data/*.db
 data/*.db-shm
 data/*.db-wal
+
+# Visual brainstorming sessions
+.superpowers/
+
+# Playwright MCP screenshot/snapshot scratch output
+.playwright-mcp/
+
+# Phase mockups are ephemeral: local-only, deleted once their phase ships
+docs/mockups/

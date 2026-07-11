@@ -30,6 +30,10 @@ npm run test
 npm run build
 ```
 
+`npm run check` includes a dead-CSS gate (any class defined in `src/app.css`
+but referenced nowhere in `src/` fails the check; standalone:
+`npm run check:dead-css`).
+
 SQLite persistence is created automatically at `data/strange-loops.db`.
 
 Dialogue smoke test against a running app server:
@@ -54,8 +58,13 @@ CLAUDE_DIALOGUE_EFFORT=low
 
 ## What this is
 
-**Strange Loops Lab** is a multi-module interactive learning environment built
-around the core ideas in GEB:
+**Strange Loops Lab** is a research instrument for testing whether the
+constructions in GEB have real counterparts in modern mathematics and in
+ML/AI. The method is to build both sides of a candidate bridge and check for a
+shared invariant, proof template, or reduction — the connection gate decides
+whether the bridge is real or decorative.
+
+The GEB ideas it draws on:
 
 - formal systems
 - meta-level vs object-level reasoning
@@ -67,31 +76,41 @@ around the core ideas in GEB:
 - computability
 - information-theoretic limits
 
-Each module is designed as an **instrument**, not a toy:
-something you can manipulate, inspect, and reason with.
+Each construction is built as an **instrument**, not a toy: the mathematical
+object itself — the string, the derivation, the residue — is the interface, and
+you manipulate, inspect, and reason with it directly.
 
 ---
 
 ## Current focus
 
-This project is being built iteratively while reading GEB.
+The first built bridge is **MIU derivation programs ↔ description length
+relative to a fixed machine**, shipped as a single MIU instrument at the root
+route. One object — the derivation — read three ways:
 
-### Phase 1
-Scaffolding + **Module 1: Formal Systems & Their Walls**
+- **Manipulate** (the worksheet): the derivation spine, the current string with
+  its rule sites in the string itself, and the four MIU rules always on screen,
+  each showing the exact reason it cannot fire when it cannot. The theorem
+  query decides membership by the complete I-count characterization, constructs
+  a witness for every theorem, and keeps bounded shortest-witness search
+  separate.
+- **The wall**: the invariant `#I ≢ 0 (mod 3)` rejects MU and every residue-zero
+  target. The proof now constructs all three characters of ℤ/3, their rule
+  pullbacks, and the Fourier indicator of the forbidden residue.
+- **The bridge**: the derivation read as a program under a fixed executable
+  prefix code. `K_steps` is minimum rewrite-move count by bounded BFS; `K_bits`
+  is minimum encoded length by bounded Dijkstra search. Both searches report an
+  honest exhaustion horizon. Compression is asserted only by comparing
+  `K_bits` with the gamma-length-prefixed literal code.
 
-Initial module goals:
+This is the Arc 1 minimal case: a wall exposed by an invariant, carried through
+to a descriptional-complexity reading of the same derivations.
 
-- MIU-system sandbox
-- derivation tree / reachability graph explorer
-- invariant explorer
-- explicit object-level vs meta-level framing
-- one dialogue mode for conceptual feedback
-
-The purpose of Module 1 is not just to “solve the MU puzzle,” but to make
-one foundational idea intuitive:
-
-> Sometimes you cannot understand the limits of a formal system from inside
-> the system alone. You need to step outside it.
+The MIU exactness pass is complete. Deterministic transforms inherit the
+register of their inputs; the binding registers are verified, measured, and
+coaching. The next instrument is pq / modular addition / grokking, using the
+built ℤ/3 character object as the formal-side prerequisite. No further MIU
+extension is scheduled before that second site tests the bridge method.
 
 ---
 
@@ -114,31 +133,15 @@ No badges. No streaks. No gamified fluff.
 
 ---
 
-## Planned modules
+## The bridge program
 
-### Module 1 — Formal Systems & Their Walls
-MIU system, derivation graphs, invariants, unreachable targets.
-
-### Module 2 — Diagonalization
-Cantor, halting, Russell, and Gödel through a shared structural template.
-
-### Module 3 — Gödel Numbering
-Encoding syntax as arithmetic; making “math talking about math” tangible.
-
-### Module 4 — Self-Reference & Fixed Points
-Quines, lambda calculus, diagonal lemma, recursion theorem.
-
-### Module 5 — Incompleteness
-Interactive construction of the incompleteness theorems.
-
-### Module 6 — Halting & Undecidability
-Programs, reductions, Rice’s theorem, impossibility in code.
-
-### Module 7 — Chaitin & Information
-Compression, Kolmogorov complexity, Ω, and incompleteness via information.
-
-### Module 8 — Beyond GEB
-Löb, Rosser, Tarski, Goodstein, and the broader landscape.
+The project is organized as a dependency graph of small instruments, not a
+linear syllabus, grouped into four arcs that carry it from formal systems to
+ML/AI. Each arc poses a comparative question over a contrast set of systems and
+names the ML/AI bridges it reaches. The full program — the concept-dependency
+graph, the four arcs, and the recurring form→meaning move they share — is in
+`docs/strange-loops-vision.md`. The MIU instrument is the first built bridge of
+Arc 1 (form and meaning ↔ representation and expressivity).
 
 ---
 
@@ -156,8 +159,13 @@ math and computer science, including:
 - proof theory and reflection
 - Rice’s theorem and undecidability
 - Kolmogorov complexity and MDL
+- representation theory of finite groups (characters of ℤ/p in grokked
+  modular arithmetic)
+- tropical geometry (a ReLU network as a tropical rational function)
 
-These are included only when they clarify the same underlying structure.
+These are included only when they clarify the same underlying structure; the
+last two are anchored from the ML side, with the mathematics as the
+destination.
 
 ---
 
@@ -169,29 +177,66 @@ This project distinguishes between:
   Rule application, derivation validity, evaluator/reducer behavior, and other
   mechanically checkable claims.
 
+- **Measured results**  
+  Outputs of an empirical run — a training curve, extracted weights and the
+  structure found in them, a compression ratio. Reported with the
+  configuration that produced them and reproducible from it; never promoted to
+  verified claims.
+
 - **LLM coaching**  
   Socratic dialogue, explain-back prompts, conceptual nudges, gap detection,
   and feedback on reasoning structure.
 
 The app should never pretend a language model has formally verified something
-when it has not.
+when it has not, and should never present a measurement as a theorem.
+Deterministic transforms inherit the register of their inputs: checked
+transforms of formal state remain verified, while deterministic analysis of
+trained weights remains measured.
 
 ---
 
 ## Status
 
-Early build with the application shell in place.
+The MIU instrument is built: the worksheet, complete theoremhood decision,
+constructive witnesses, invariant certificate, character construction, and two
+explicit description-length costs.
 
-The current work is focused on:
-- shared scaffolding
-- MIU rule engine and derivation trace core
-- bounded reachability explorer
-- invariant explorer for MU non-reachability
-- SQLite-backed snapshots and saved artifacts
-- Claude Code agent-team dialogue mode
-- state persistence
-- Module 1 interaction design
-- testing whether the interactions actually deepen understanding
+Built now:
+- the deterministic MIU layer: rule engine and derivation trace (`core`),
+  reachability/rewrite graph (`graph`), the `#I (mod 3)` invariant
+  (`invariants`), the complete membership decision and constructor
+  (`theoremhood`), bounded `K_steps` optimization (`complexity`), the executable
+  prefix code (`coding`), bounded `K_bits` optimization (`bitComplexity`), and
+  the character table and pullbacks of ℤ/3 (`characters`)
+- the single-route instrument: the three readings of one derivation, with the
+  object itself as the interface
+
+Present but dormant (in the repo, not wired to the instrument):
+- persistence: SQLite at `data/strange-loops.db`, the
+  `/api/modules/[slug]/{snapshot,artifacts}` routes, and the client API
+- dialogue: the Claude Code path under `src/lib/server/dialogue` and its API
+  route
+
+These layers are kept against later instruments rather than removed; they do not
+back the MIU instrument as it stands.
+
+The build direction is in `docs/strange-loops-vision.md`; the retired
+phase-based Module 1 build that preceded this instrument, and the binding design
+law it produced, are in `docs/module-1-postmortem.md`.
+
+## Current docs
+
+The active docs set is intentionally small:
+
+- `README.md` for project overview and current build posture
+- `docs/strange-loops-vision.md` for the vision and build reference (the dependency graph, the four arcs, the conceptual move)
+- `docs/bridge-ledger.md` for the record of the connection gate: every candidate bridge, its gate class, its status, and rejections kept as verified negatives
+- `docs/module-1-postmortem.md` for the Module 1 build postmortem and the binding design law
+- `docs/product-architecture.md` for the current implementation architecture and subsystem boundaries
+- `docs/agent-behavior.md` for the current dialogue/agent contract
+
+Older first-pass implementation specs and duplicate agent-behavior docs have
+been retired so the current state lives in fewer places.
 
 ---
 
@@ -208,13 +253,27 @@ It is aimed at making difficult ideas more tangible.
 
 ## Near-term roadmap
 
-- [x] establish project scaffolding
-- [x] build Module 1 MIU sandbox
-- [x] build derivation graph explorer
-- [x] build invariant explorer
-- [x] add artifact persistence
-- [x] add first dialogue mode
-- [ ] evaluate what actually helped and revise before Module 2
+- [x] build the deterministic MIU layer (engine, graph, invariant)
+- [x] build the MIU instrument: the three readings of one derivation
+- [x] reach the first bridge — executable MIU programs as descriptional
+      complexity over a fixed machine, with Kolmogorov and Chaitin named as
+      later destinations
+- [x] complete the MIU exactness pass: decide theoremhood constructively, expose
+      `K_steps` and executable-code `K_bits` separately, construct the
+      characters of ℤ/3, and finish the three-register cleanup
+- [ ] build the next Arc 1 bridge: pq ↔ grokking — the pq site together with a
+      one-layer transformer trained on addition mod p, its Fourier components
+      set against the explicit character table of ℤ/3 (the first measured
+      surface; also the Arc 1 contrast set)
+- [ ] build invariant ↔ expressivity wall, with the far side pinned to the
+      Minsky–Papert group-invariance theorem (parity for bounded-order
+      perceptrons) so the proof template matches exactly
+- [ ] revisit the identified language-model compression, sparse-coding /
+      superposition, and interactive-proof candidates after the Arc 1 builds;
+      keep derivation length / chain of thought as a sidebar analogy
+- [ ] decide whether and where to wire the dormant persistence and dialogue
+      layers back in; the only identified MIU proposer experiment is a bounded
+      search-versus-checking comparison, not a computability obstruction
 
 ---
 
@@ -224,7 +283,7 @@ It is aimed at making difficult ideas more tangible.
 - arbitrary code execution
 - social/community features
 - overextended physics analogies
-- broad content coverage before Module 1 is genuinely useful
+- broad coverage before a single arc proves durable value
 
 ---
 

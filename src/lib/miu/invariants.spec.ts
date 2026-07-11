@@ -50,6 +50,21 @@ describe('MIU invariants', () => {
 		expect(failingRule?.witness?.result).toBe('MII');
 	});
 
+	it('matches the four learner-visible modulus verdicts', () => {
+		const forms = [
+			'count(I) mod 2 != 0',
+			'count(I) mod 4 != 0',
+			'count(I) mod 5 != 0',
+			'count(I) mod 3 != 0'
+		];
+		const verdicts = forms.map((form) => {
+			const analysis = analyzeInvariantCandidate(form, 'MI');
+			return analysis.kind === 'supported' && analysis.currentSatisfied && analysis.preserved;
+		});
+
+		expect(verdicts).toEqual([false, false, false, true]);
+	});
+
 	it('reports unsupported input cleanly', () => {
 		const analysis = analyzeInvariantCandidate('count(U) mod 2 = 0', 'MI');
 

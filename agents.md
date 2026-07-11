@@ -10,27 +10,63 @@
 
 ## Current stage
 
-This repository is still in the specification and scaffolding phase.
+The phase-based Module 1 (Explore / Map / Prove / Reflect) is retired. The app
+is now a single MIU instrument at the root route — one object, the derivation,
+read three ways:
 
-Treat the docs as the source of truth for product direction, and avoid
+- manipulate it (the worksheet: the four rules always on screen, each with the
+  exact reason it cannot fire when it cannot);
+- see the wall (MU rejected by the I-count invariant, followed by the character
+  table, rule pullbacks, and forbidden-residue indicator of ℤ/3);
+- read the derivation as a program (`K_steps` by bounded BFS and `K_bits` by
+  bounded Dijkstra search under the executable prefix code, compared with a
+  gamma-length-prefixed literal). Kolmogorov complexity and Chaitin are later
+  destinations, not claims made by this fixed machine.
+
+See `docs/strange-loops-vision.md` for the direction and
+`docs/module-1-postmortem.md` for the build this replaced and the binding design
+law it produced.
+
+The deterministic layer now includes complete theoremhood and construction,
+step and bit optimization, executable coding, and the characters of ℤ/3 under
+`src/lib/miu`. The persistence and dialogue layers are kept but **dormant** —
+present in the repo, not wired to the instrument. Avoid
 hard-coding assumptions from a conventional `frontend/` + `backend/` split
 unless the repo actually grows that structure.
 
-Current implementation focus:
-- project scaffolding
-- Module 1 (`MIU`) interaction design
-- persistence/artifact model
-- verifier vs. LLM boundary
+Current focus:
+- the GEB → modern-math / ML bridge investigation, with the builder as the
+  learner: build both sides of a candidate bridge and check for a shared
+  invariant, template, or reduction — the connection gate is the method, not
+  just a guardrail. Gate results are recorded in `docs/bridge-ledger.md`
+  (candidates, gate classes, statuses, rejections kept as verified negatives).
+  First built bridge: MIU derivation programs ↔ description length relative to
+  a fixed machine. The MIU exactness pass is complete: theoremhood is decided
+  constructively, `K_steps` and executable-code `K_bits` are separate bounded
+  optimizations, the characters of ℤ/3 are explicit, and deterministic
+  transforms follow input provenance under the three-register contract. Next:
+  pq ↔ grokking — characters of ℤ/p from a shallow transformer set against the
+  built ℤ/3 character table; the first measured surface — then invariant ↔
+  expressivity via the Minsky–Papert group-invariance theorem. Do not add
+  another MIU extension before pq tests the method on a second site.
+- the epistemic contract now has three registers: verified, measured (results
+  of an empirical run, reproducible from their configuration, never promoted to
+  verified), and coaching.
+- persistence/artifact/notebook model and the verifier-vs-LLM boundary, kept
+  dormant until an instrument re-earns them. The only identified MIU proposer
+  work is an unscheduled bounded search-versus-checking experiment; MIU
+  theoremhood is decidable, so this is not the r.e.-versus-recursive
+  figure/ground obstruction.
 
 ## Primary references
 
 Read only the files relevant to the task:
 
 - Product vision: `README.md`, `docs/strange-loops-vision.md`
+- Bridge ledger (connection-gate record): `docs/bridge-ledger.md`
 - Architecture: `docs/product-architecture.md`
-- Agent behavior: `docs/spec.md`, `docs/agents-prompt.md`
-- Module 1 scope: `docs/strange-loops-module-1.md`
-- Build requirements for the first implementation pass: `docs/strange-loops-coding-spec.md`
+- Agent behavior: `docs/agent-behavior.md`
+- Module 1 build postmortem and binding design law: `docs/module-1-postmortem.md`
 - Guidance on keeping agent instructions lean: `coding-agents-guide.md`
 
 If you change architecture, module scope, or agent responsibilities, update the
@@ -40,8 +76,36 @@ corresponding docs in the same pass.
 
 - Keep setup conservative. Prefer decisions that preserve fast iteration for Module 1.
 - Do not assume a separate Python service or a separate frontend app already exists just because the architecture doc allows for one later.
-- Preserve the epistemic contract: mechanically checked results and LLM coaching must stay clearly separated.
+- Preserve the epistemic contract: mechanically checked results, measured (empirical) results, and LLM coaching must stay clearly separated.
 - Add new local skills only when a workflow becomes repeated, specialized, and hard to recover from repo context alone.
+- Keep the repo clean: no stale docs, no obsolete writings. Working artifacts (mockups, screenshots, scratch output) are gitignored, never committed, and deleted as soon as the build they served ships. When state changes, fix the affected docs in the same pass.
+
+## Design law (binding for all learner-facing work)
+
+The audience is a graduate-level mathematical reader; this is a laboratory,
+not an education game. The binding rules are the design law in
+`docs/module-1-postmortem.md` — read them before any UI, copy, or pedagogy
+change. The ones violated most often:
+
+- no gamification vocabulary or chrome; write like a serious textbook
+- every element must name the mathematical fact it teaches, or be deleted
+- no lede may explain control use; if prose is needed to operate a control,
+  redesign the control. Ledes may state definitions, scope, or motivation;
+  labels, verdicts, actions, and captions carry interaction.
+- mockups must show played states (mid-session, completed, expanded,
+  rejection), not just the fresh page
+- copy is written per case, never templated from engine data shapes
+- name the real mathematics (rewriting systems, reachability, invariants)
+  when the connection is structurally real
+
+Critically re-derive the design at every step: ask what the element teaches
+and whether a mathematician would respect it. Do not default to cards,
+checklists, or friendly-app idioms; that is the documented failure mode this
+law exists to stop.
+
+Before writing or editing any reader-facing copy, read
+`.agents/skills/prose/SKILL.md` — the plain-register rules and the banned
+faux-profound / friendly-app tics.
 
 ## Dependencies and commands
 
@@ -49,7 +113,7 @@ The current scaffold is a root SvelteKit app managed with `npm`.
 
 - Install dependencies: `npm install`
 - Run the app: `npm run dev`
-- Run frontend checks: `npm run check`
+- Run frontend checks: `npm run check` (includes the dead-CSS gate; standalone: `npm run check:dead-css`)
 - Run unit tests: `npm run test`
 - Build production output: `npm run build`
 - Run the full smoke suite against a running server: `npm run smoke:all -- http://127.0.0.1:4175`
@@ -69,6 +133,7 @@ Current repo-local skills worth keeping:
 
 - `.agents/skills/testing/SKILL.md` — read before adding or restructuring tests
 - `.agents/skills/ux-design/SKILL.md` — use for distinctive UI work when building the module experience
+- `.agents/skills/prose/SKILL.md` — read before writing or editing any reader-facing copy; the plain-register rules and the banned faux-profound / friendly-app tics
 
 Removed or avoid-for-now categories:
 - data-analysis / dashboard-specific skills from the old project

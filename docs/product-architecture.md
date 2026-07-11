@@ -1,513 +1,324 @@
-# product-architecture.md
+# Strange Loops Lab — Product Architecture
 
-## Purpose
+## Document status
 
-This document defines the product architecture for **Strange Loops**.
+This document describes the **current architecture** of the project and the
+constraints that should guide the next refinement passes.
 
-It is a system-boundary document, not a low-level implementation guide.
-The goal is to make component ownership, data flow, and architectural
-constraints explicit early, so the project can grow without collapsing into
-either:
-- an overengineered backend-heavy application, or
-- a UI-heavy prototype with no clean path to deeper formal machinery.
+It is not a speculative service map. It should match the repo as it exists now
+while keeping room for later expansion only where there is a clear reason.
 
-This architecture is designed for iterative development:
-start with scaffolding and Module 1, then expand only when the product proves
-where complexity is justified.
+Last updated: July 9, 2026.
 
 ---
 
-## 1. Architectural stance
+## 1. Current architectural stance
 
-The recommended architecture is:
+The product is currently a **single SvelteKit application** running one MIU
+instrument, with:
 
-- **SvelteKit as the application shell**
-- **A separate Python computation engine**
-- **A persistence layer for user state and artifacts**
-- **A mechanical verifier / rule engine for checkable claims**
-- **An AI agent layer for dialogue and conceptual guidance**
+- a TypeScript deterministic formal layer for MIU logic,
+- Svelte components and page state for the instrument (the derivation read
+  three ways),
+- localStorage for trace continuity,
+- and a dormant persistence/dialogue stack — server routes, SQLite, and a
+  Claude Code-backed coaching path — present in the repo but not wired to the
+  instrument.
 
-### Core principle
-The project is an **interactive product first**, not a generic theorem API,
-and not a chatbot with some widgets attached.
-
-That means:
-- SvelteKit owns the product experience,
-- Python owns computation that genuinely benefits from Python,
-- the verifier owns deterministic correctness checks,
-- and the AI agent owns guidance, not formal truth.
+There is **no separate Python service** in the current implementation.
+Future computation boundaries should be earned by concrete complexity pressure,
+not introduced because the architecture once imagined them.
 
 ---
 
-## 2. High-level subsystem map
+## 2. Current subsystem map
 
-The system should be thought of as five cooperating layers.
-
-### 2.1 Application layer
-**Owned by:** SvelteKit
+### 2.1 Application shell
+Owned by the SvelteKit app.
 
 Responsibilities:
-- routing and page/module structure,
-- layouts and navigation,
-- rendering expository content,
-- rendering interactive instruments,
-- coordinating user actions,
-- managing session-aware product behavior,
-- exposing app-facing endpoints,
-- integrating persistence and backend services,
-- and presenting verifier / agent outputs coherently.
 
-This is the product shell. It should remain the center of gravity.
+- the single MIU instrument at the root route `/`,
+- composition of the three readings of one object — the derivation,
+- local draft/session state and its continuity across reloads,
+- and preserving the visual distinction between verified, measured, and
+  coaching claims.
 
----
+The phase-based interaction layer (Explore / Map / Prove / Reflect and its
+lab-desk components) is deleted. The app is now a single instrument:
+`src/routes/+page.svelte` at `/`, wrapped by a minimal
+`src/routes/+layout.svelte` (no site topbar, no module navigation). The page
+holds one object — the derivation — and reads it three ways with focused
+components under `src/lib/components/miu`:
 
-### 2.2 Computation engine
-**Owned by:** Python service
+- `MiuProduce.svelte` — theorem query. It displays the complete membership
+  decision, one constructive witness, and the separate bounded `K_steps`
+  optimization result.
+- `MiuSheet.svelte` — manipulate. The page is the derivation: a numbered spine,
+  the current string written large with its rule sites as in-string click
+  targets, and the four rules always on screen with the exact reason any rule
+  cannot fire. Constructed and shortest witnesses are labeled independently.
+- `MiuInvariant.svelte` and `MiuCharacters.svelte` — the wall and its finite
+  harmonic analysis. The I-count certificate rejects residue zero; the
+  character table, rule pullbacks, and Fourier indicator construct the explicit
+  ℤ/3 object needed by the pq bridge.
+- `MiuBridge.svelte` — the derivation read as a program. It displays `K_steps`,
+  `K_bits`, literal code length, and one minimum-bit instruction sequence under
+  the stated executable code. Kolmogorov complexity and Chaitin are later
+  destinations, not claims made here.
 
-Responsibilities:
-- symbolic or formal computations that are more natural in Python,
-- graph/search tasks once they become nontrivial,
-- parser/transform utilities,
-- encoding/decoding logic for later modules,
-- evaluator/reducer helpers for formal systems,
-- and other computation-heavy logic that benefits from Python libraries.
+The exactness pass extended the deterministic formal layer without moving its
+boundary: no state-shape, persistence, or dialogue responsibility shifted. The
+phase-based build is superseded as a direction (see
+`docs/strange-loops-vision.md` for the architecture going forward and
+`docs/module-1-postmortem.md` for the build it replaces and the binding design
+law).
 
-The Python service is **not** the entire backend.
-It is a specialized engine.
-
-It should expose narrow, purposeful capabilities rather than generic CRUD ownership.
-
----
-
-### 2.3 Verifier / deterministic formal layer
-**Owned by:** mechanical engine, wherever most appropriate
-
-Responsibilities:
-- rule application validation,
-- derivation-step validation,
-- deterministic evaluator/reducer stepping,
-- invariant-preservation checking when algorithmically defined,
-- and any claim the system can check without heuristic language modeling.
-
-This layer exists to protect epistemic integrity.
-If something can be mechanically checked, it should be.
-
-For Module 1, this layer is especially important because:
-- MIU rule validity is fully checkable,
-- derivation correctness is fully checkable,
-- and candidate invariant testing can be explicit.
-
----
-
-### 2.4 Agent layer
-**Owned by:** AI service / orchestration layer
+### 2.2 Deterministic formal layer
+Owned by TypeScript library modules under `src/lib/miu`.
 
 Responsibilities:
-- Socratic questioning,
-- explain-back probing,
-- proof coaching,
-- artifact-aware reflection,
-- and structurally justified cross-domain connections.
 
-The agent is a guide, not a verifier.
+- MIU rule legality and move enumeration (`core.ts`),
+- derivation trace behavior (`core.ts`),
+- bounded reachability exploration (`graph.ts`),
+- invariant analysis for supported candidates (`invariants.ts`),
+- the complete theoremhood characterization and a constructive witness for
+  every theorem (`theoremhood.ts`),
+- shortest move count by bounded BFS (`complexity.ts`):
+  `shortestTheoremDerivation` accepts theorem targets and returns `found` or an
+  honest `exhausted` horizon tagged by depth or node bound,
+- the executable prefix code and gamma-length-prefixed literal baseline
+  (`coding.ts`),
+- minimum encoded program length by bounded Dijkstra search
+  (`bitComplexity.ts`),
+- the character table of ℤ/3, pullback under doubling, and forbidden-residue
+  identity (`characters.ts`),
+- and explicit rejection of invalid user proposals.
 
-It should receive structured runtime context from the application layer and,
-where appropriate, verifier outputs so it can reason within explicit boundaries.
+This layer is the current verifier boundary. If the UI says something is a
+legal MIU move or a preserved supported invariant, this layer should be the
+reason that claim is trustworthy.
 
----
+### 2.3 Client API layer (dormant)
+Owned by TypeScript modules under `src/lib/client` (`module1Api.ts`). Present
+in the repo but not wired to the instrument.
 
-### 2.5 Persistence layer
-**Owned by:** app infrastructure
+Responsibilities (as built):
 
-Responsibilities:
-- user progress,
-- module completion / visitation state,
-- sandbox states,
-- dialogue transcripts,
+- wrapping each server API call (snapshot GET/PUT, artifacts GET/POST, dialogue POST) in a small typed helper that takes `fetch` as a parameter,
+- normalizing API responses into domain types via the existing `normalizeModule1Draft` / `normalizeModule1Artifact(s)` functions,
+- and signalling success or failure with typed discriminated-union results so a caller can map them to status strings without embedding fetch logic inline.
+
+This layer does not set UI status strings or contain reactive state. The
+instrument does not call it today; it persists continuity through localStorage
+(see §4).
+
+### 2.4 Persistence layer (dormant)
+Owned by server-side TypeScript under `src/lib/server` (`persistence.ts`) and
+the API routes `src/routes/api/modules/[slug]/{snapshot,artifacts}`, backed by
+SQLite at `data/strange-loops.db`. The state shim is
+`src/lib/state/module1Artifacts.ts`. Present in the repo but not wired to the
+instrument.
+
+Responsibilities (as built):
+
+- SQLite-backed draft snapshots,
 - saved artifacts,
-- user notes,
-- self-assessed confidence if included,
-- and lightweight configuration state.
+- artifact listing and creation,
+- and restoring saved work into a Module 1 surface.
 
-Persistence should support continuity without forcing a heavyweight data model too early.
+The persistence model is intentionally artifact-first rather than event-log
+heavy. The goal is continuity of thinking, not exhaustive telemetry. When it is
+re-wired (see §6), it should keep that posture.
+
+### 2.5 Dialogue layer (dormant)
+Owned by server-side orchestration around local Claude Code under
+`src/lib/server/dialogue` (`team.ts`), reached through
+`src/routes/api/modules/[slug]/dialogue`. Present in the repo but not wired to
+the instrument.
+
+Responsibilities (as built):
+
+- collect structured Module 1 context,
+- run the coaching flow,
+- persist dialogue transcripts as artifacts,
+- and return coaching output clearly separated from verifier-backed results.
+
+This layer is pedagogical, not authoritative. It must not silently claim
+verifier status.
 
 ---
 
-## 3. Ownership rules
+## 3. Epistemic registers
 
-These rules are important because the project can otherwise drift into messy responsibility overlap.
+The architecture preserves three registers:
 
-### 3.1 SvelteKit owns the product
-SvelteKit should own:
+### Verified
+
+Mechanically checked claims from the formal layer, including legal MIU moves,
+derivation transitions, theoremhood decisions, constructive witnesses, bounded
+optimization results with explicit horizons, and supported invariant results.
+
+### Measured
+
+Observations from an empirical run, reported with the configuration that
+produced them and never promoted to theorems. Training curves, trained weights,
+extracted Fourier components, and empirical compression ratios belong here. The
+pq ↔ grokking instrument is the first planned measured surface. Its artifacts
+are precomputed offline and shipped as static assets; this does not justify a
+runtime training service.
+
+### Coaching
+
+LLM-generated questioning, reflection, and proof-sharpening. Coaching may
+interpret verified or measured results but does not create either kind of
+claim.
+
+A deterministic transform inherits the register of its inputs. A transform of
+verified formal state remains verified when the transform and claim are
+checked. A deterministic analysis of trained weights remains measured because
+the weights are empirical artifacts.
+
+Provenance such as a named algorithm or checked decoder is displayed where it
+matters, but provenance does not create a fourth register. The UI must not
+flatten the three registers into one undifferentiated assistant channel.
+
+---
+
+## 4. Current data flow
+
+1. The user manipulates the derivation in the instrument: applies a rule at a
+   site, jumps to a step, or sets the reachability target.
+2. Page state updates the local draft (`Module1Draft`).
+3. Deterministic MIU logic runs in-process: `theoremhood.ts` decides and
+   constructs, `complexity.ts` and `bitComplexity.ts` perform the two bounded
+   optimizations, `coding.ts` fixes their units, and `invariants.ts` plus
+   `characters.ts` supply the wall and its Fourier form. Each reading renders
+   directly from those results.
+4. On change, the page writes a continuity subset of the draft to localStorage
+   (`writeModule1Draft`) and reads it back on load (`readModule1Draft`), so a
+   reload restores the trace in progress.
+5. Every live result is verified formal state or a checked deterministic
+   transform of it. The instrument currently produces no measured or coaching
+   output.
+
+The persistence and dialogue routes (§2.4, §2.5) still exist and still work,
+but the instrument does not call them; continuity is localStorage-only. Any new
+boundary should make this flow clearer or more reliable, not merely more
+“architectural.”
+
+---
+
+## 5. Ownership rules
+
+### 5.1 The app shell owns product flow
+SvelteKit should remain the center of gravity for:
+
 - route structure,
 - page composition,
-- interaction orchestration,
-- user-facing APIs,
-- session-level behavior,
-- and the integration point between instruments, persistence, verifier, and agent.
+- instrument composition,
+- API endpoints,
+- and user-facing orchestration.
 
-It should not become a thin display wrapper around a monolithic backend.
+It should not become a thin wrapper around a speculative backend split.
 
-### 3.2 Python owns specialized computation
-Python should own logic when at least one of the following is true:
-- the computation materially benefits from Python libraries,
-- the logic is formal/symbolic and likely to grow in complexity,
-- the engine will be reused across modules,
-- or the computation deserves its own boundary for clarity.
+### 5.2 The formal layer owns checkable truth
+Any claim that can be checked mechanically should live in deterministic code,
+not in the dialogue layer.
 
-Python should not automatically own every feature just because it is powerful.
+### 5.3 Persistence owns continuity, not pedagogy
+Persistence should retain meaningful artifacts and drafts. It should not decide
+what the proof means or which explanation is correct.
 
-### 3.3 The verifier owns correctness checks
-Any claim that can be checked deterministically should be owned by the verifier layer.
-The AI agent must not silently assume verifier authority.
-
-### 3.4 The agent owns interpretation and pedagogy
-The agent should own:
-- questions,
-- conceptual feedback,
-- explanation sharpening,
-- and connection surfacing under the connection-quality gate.
-
-The agent should not own:
-- formal validity,
-- persistence logic,
-- or broad orchestration of product state.
+### 5.4 Dialogue owns probing and reflection
+Dialogue may question, summarize, or sharpen reasoning. It does not certify
+proofs or define the formal rules of the module.
 
 ---
 
-## 4. Why this architecture instead of the alternatives
+## 6. Current implementation posture
 
-### 4.1 Why not SvelteKit-only?
-A pure SvelteKit architecture is simpler in the short term, but risks pain later if:
-- symbolic computation grows,
-- graph/search tooling deepens,
-- proof-related utilities expand,
-- or you want to leverage Python’s math/logic ecosystem.
+The project is no longer just scaffolding. The current architecture supports:
 
-The project vision points toward at least some meaningful Python-backed capabilities.
-Ignoring that now would create migration friction later.
+- a single MIU instrument at `/` — the derivation read three ways
+  (manipulate / wall / bridge),
+- a functioning formal engine with complete theoremhood, constructive
+  witnesses, bounded `K_steps`, bounded executable-code `K_bits`, and the
+  characters of ℤ/3,
+- localStorage continuity for the trace in progress,
+- and a dormant persistence and dialogue stack kept whole behind the API
+  routes, not wired to the instrument.
 
-### 4.2 Why not full Svelte frontend + FastAPI backend from day one?
-That architecture is cleaner for a conventional product, but too heavy for the current exploratory phase.
+The MIU exactness pass is complete. The next architectural pressure is the
+second site:
 
-Risks:
-- backend-first overdesign,
-- unnecessary CRUD/API ceremony,
-- blurred ownership between app shell and backend,
-- slower iteration on module UX,
-- and premature infrastructure complexity.
+- build pq ↔ grokking (`docs/bridge-ledger.md`), whose
+  measured surface introduces the first static-asset question: precomputed
+  weights and extracted components shipped with the app, no runtime training,
+- whether a second instrument (pq, tq) can share enough structure to extract a
+  boundary without bending the single-object shape,
+- and whether and when to re-wire persistence (and, after it, dialogue) to the
+  instrument, or to let localStorage continuity stand until a second instrument
+  forces the question. A possible non-coaching re-entry is a bounded MIU search
+  experiment in which an LLM proposes derivations and the deterministic layer
+  checks every step. This tests search against checking; it is not the
+  recursively-enumerable-versus-recursive obstruction and is unscheduled.
 
-The project does not need “a backend” so much as it needs:
-- a coherent app shell,
-- and a clean computation boundary.
-
-### 4.3 Why the hybrid is the right fit
-This architecture preserves:
-- **fast iteration now**,
-- **room for formal depth later**,
-- **clear product ownership**,
-- and **epistemic separation between guidance and correctness**.
+No further MIU extension is scheduled until pq has tested the bridge method on
+a second site.
 
 ---
 
-## 5. Request and data flow
+## 7. Rules for future expansion
 
-### 5.1 User interaction flow
-1. The user interacts with a module instrument in the UI.
-2. The application layer updates the local interaction state.
-3. If deterministic validation is needed, the application invokes the verifier/mechanical layer.
-4. If deeper computation is needed, the application calls the Python engine.
-5. If dialogue support is needed, the application assembles structured context and calls the AI agent.
-6. Results are rendered back into the module experience with explicit distinction between:
-   - verified outputs,
-   - computed outputs,
-   - and AI guidance.
-7. Relevant artifacts or progress may be persisted.
+### 7.1 Do not add a separate computation service by default
+Introduce a Python or other external computation boundary only if at least one
+of the following becomes true:
 
-### 5.2 Important distinction
-The UI should never flatten these different output types into one undifferentiated response channel.
+- the deterministic formal logic becomes materially harder to maintain in TypeScript,
+- the project needs a library ecosystem that TypeScript cannot provide cleanly,
+- the computation cost or isolation need clearly exceeds in-process execution,
+- or multiple modules start sharing a formal engine that deserves its own boundary.
 
-The product should make it visually and conceptually clear whether the user is seeing:
-- a mechanically checked fact,
-- a computed transformation/result,
-- or a coaching response from the agent.
+### 7.2 Let current instruments force architecture
+Architecture changes should solve observed pressure from the current MIU
+instrument or the next Arc 1 instrument. Future module ideas do not justify
+premature service decomposition.
 
----
+### 7.3 Preserve artifact-first persistence
+If persistence grows, it should still privilege reusable artifacts, drafts, and
+reflection notes over fine-grained behavioral exhaust.
 
-## 6. Context passed to the agent
-
-The agent should not be given raw chat alone.
-It should receive structured context such as:
-
-- current module identifier,
-- current subview / instrument,
-- recent user actions,
-- current sandbox summary,
-- relevant verifier outputs,
-- relevant saved artifacts,
-- active dialogue mode,
-- and the user’s current question or explanation.
-
-This improves grounding and reduces generic tutoring behavior.
+### 7.4 Keep epistemic separation visible
+If future modules add richer search, encoders, evaluators, or proof scaffolds,
+the architecture should still keep verified, measured, and coaching claims
+visibly distinct. Deterministic post-processing retains the provenance of its
+inputs rather than becoming a separate output class.
 
 ---
 
-## 7. Module 1 architecture implications
+## 8. Architectural non-goals
 
-Module 1 should shape the first version of the architecture.
+For the current stage, avoid:
 
-### Module 1 requires:
-- an MIU state model,
-- rule application validation,
-- derivation graph exploration,
-- invariant testing support,
-- one agent mode,
-- and artifact persistence.
-
-### Likely ownership for Module 1
-**Application layer / SvelteKit**
-- page structure,
-- MIU UI,
-- derivation graph presentation,
-- artifact UX,
-- mode switching,
-- persistence orchestration.
-
-**Verifier / formal layer**
-- whether a rule application is valid,
-- derivation-step correctness,
-- candidate transformation legality.
-
-**Python engine**
-Optional for the earliest cut, but useful if you want:
-- search strategies,
-- reusable graph analysis,
-- or clean separation of formal state-space exploration logic.
-
-**AI agent**
-- explain-back or Socratic guidance,
-- grounded in actual user exploration state.
-
-### Important note
-Module 1 does **not** require a fully developed Python-heavy backend.
-The architecture should allow Python to exist without forcing everything through it.
+- backend-heavy decomposition for its own sake,
+- a generic theorem API,
+- a Python service that becomes the political center of the app,
+- collapsing verifier and dialogue responsibilities,
+- treating artifact persistence as analytics infrastructure,
+- or adding infrastructure for future modules before an instrument earns it.
 
 ---
 
-## 8. Persistence model guidance
+## 9. Active document map
 
-Persistence should focus on meaningful continuity.
+Use the docs as follows:
 
-Recommended persisted categories:
-- module progress,
-- last-opened state per module,
-- sandbox snapshots,
-- derivation traces,
-- saved user explanations,
-- confusion notes,
-- dialogue transcripts or summaries,
-- and lightweight preferences.
+- `README.md`: high-level project overview and current build posture
+- `docs/strange-loops-vision.md`: the vision and build reference (dependency graph, four arcs, the conceptual move)
+- `docs/bridge-ledger.md`: the connection-gate record — candidates, gate classes, statuses, rejections
+- `docs/module-1-postmortem.md`: the Module 1 build postmortem and binding design law
+- `docs/agent-behavior.md`: current agent role, boundaries, and prompt contract
 
-### Persistence design principle
-Persist **artifacts**, not noise.
-
-The system should prefer saving:
-- a refined explanation,
-- a useful derivation trace,
-- a marked confusion,
-- or an insight note
-
-over storing every tiny transient event forever.
-
----
-
-## 9. Verifier design guidance
-
-The verifier is a conceptual role even if implemented across multiple pieces.
-
-### Verifier responsibilities should include:
-- exact rule legality,
-- exact transition legality,
-- formal syntax constraints where relevant,
-- deterministic evaluator semantics,
-- and any unambiguous finite check the system can perform.
-
-### Verifier design principle
-If the system labels something as valid, it should be valid for a precise reason.
-
-For Module 1, verifier-backed guarantees should be especially visible.
-This sets the intellectual tone for the whole project.
-
----
-
-## 10. Python engine design guidance
-
-The Python engine should be narrow and purposeful.
-
-### Good early candidates for Python ownership
-- graph expansion/search helpers,
-- invariant search experimentation,
-- symbolic transformations,
-- encoding helpers for future modules,
-- structured formal-object utilities,
-- and reusable engines that are awkward or brittle in TypeScript.
-
-### Anti-pattern to avoid
-Do not turn the Python service into:
-- the owner of user/session state,
-- a giant generic REST surface,
-- or the place where all logic gets dumped by default.
-
-The Python service should feel like a computation engine, not the app’s political center.
-
----
-
-## 11. Agent integration guidance
-
-The agent should be invoked as part of the module experience, not as a detached global chat.
-
-### Good invocation pattern
-The application layer collects:
-- current module context,
-- recent user actions,
-- verifier outputs,
-- artifact summaries,
-- and current dialogue mode,
-
-then passes this to the agent.
-
-### Agent design principle
-The agent should respond to **what the user is doing now**, not to an abstract imagined learner.
-
-### UI requirement
-Agent responses should visually reflect their mode:
-- Socratic,
-- Explain-back,
-- Proof coach,
-- Connection.
-
-This makes the interaction legible and prevents “one blob of AI text” syndrome.
-
----
-
-## 12. Connection architecture
-
-Because the project explicitly wants non-gimmicky links to mathematics and computer science,
-the architecture should support structured connections.
-
-### Suggested model
-Connections should be represented with metadata such as:
-- source module,
-- target domain/topic,
-- connection type,
-- mapping summary,
-- strength classification,
-- and unlock conditions.
-
-### Connection types
-- shared invariant,
-- shared proof template,
-- shared fixed-point construction,
-- reduction,
-- direct theorem relation,
-- weak analogy.
-
-Only the strong types should appear in core module flow.
-Weak analogy belongs in a clearly labeled sidebar or optional note.
-
----
-
-## 13. UI architecture principles
-
-### 13.1 Make epistemic status visible
-The product should make it easy to tell:
-- what is verified,
-- what is computed,
-- what is explanatory,
-- and what is speculative.
-
-### 13.2 The instrument should remain primary
-The user should be interacting with the mathematical object or formal process,
-not just reading explanations.
-
-### 13.3 Dense but readable
-The design can be typographically rich and serious, but the interaction must remain legible.
-A mathematically mature aesthetic is good; obscurity is not.
-
-### 13.4 Artifacts matter
-The UI should let users retain the outputs of their thinking:
-- explanations,
-- derivations,
-- notes,
-- and conceptual distinctions.
-
----
-
-## 14. Deployment and scaling stance
-
-This project should begin with a deployment posture optimized for iteration.
-
-### Early-stage priorities
-- simplicity,
-- observability,
-- low-friction updates,
-- and preserving clean boundaries.
-
-### Scaling principle
-Scale the Python engine and formal machinery when module demands justify it,
-not because the architecture is trying to look impressive from day one.
-
----
-
-## 15. Architectural non-goals
-
-For the early phases, the architecture should explicitly avoid:
-
-- backend-heavy abstraction for its own sake,
-- turning the AI agent into the source of formal truth,
-- coupling all logic to one service boundary,
-- premature theorem prover integration,
-- arbitrary code execution infrastructure,
-- and social/product complexity that does not improve the learning experience.
-
----
-
-## 16. Acceptance criteria
-
-The architecture is successful if:
-
-1. The product still feels like a coherent interactive application rather than a stitched-together collection of services.
-
-2. It is clear which subsystem owns:
-   - product flow,
-   - deterministic correctness,
-   - specialized computation,
-   - dialogue,
-   - and persistence.
-
-3. Module 1 can be built without unnecessary infrastructure drag.
-
-4. The system has a clean path to later modules involving encoding, fixed points, incompleteness, and information theory.
-
-5. The agent and verifier remain epistemically distinct.
-
-6. Python can be added where it helps without swallowing the whole product.
-
-7. The architecture supports iterative learning from real usage rather than enforcing a rigid backend-first design.
-
----
-
-## 17. Recommended near-term implementation posture
-
-For the next phase, the practical posture should be:
-
-- build the product shell in SvelteKit,
-- define a narrow computation boundary for Python,
-- make verifier-backed checks explicit,
-- wire in one dialogue mode with structured context,
-- persist a small number of meaningful artifacts,
-- and let Module 1 teach you what the next architectural pressure points actually are.
-
-This keeps the architecture honest.
-
-The project should earn its complexity.
+This architecture doc should stay synchronized with that smaller current set.
