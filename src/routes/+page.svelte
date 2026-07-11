@@ -14,8 +14,10 @@
 	import {
 		MIU_QUERY_BOUNDS,
 		queryMaxNodesForTarget,
-		shortestTheoremDerivation
+		type ShortestDerivation
 	} from '$lib/miu/complexity';
+	import SearchWorker from '$lib/miu/searchWorker?worker';
+	import type { SearchResponse } from '$lib/miu/searchWorker';
 	import { constructMiuDerivation, decideMiuTheorem } from '$lib/miu/theoremhood';
 	import {
 		createModule1Draft,
@@ -45,14 +47,50 @@
 	const constructedPath = $derived(
 		theoremDecision.outcome === 'theorem' ? constructMiuDerivation(trimmedProduceTarget) : null
 	);
-	const shortestStepResult = $derived(
-		theoremDecision.outcome === 'theorem'
-			? shortestTheoremDerivation(trimmedProduceTarget, {
-					maxDepth: MIU_QUERY_BOUNDS.maxDepth,
-					maxNodes: queryMaxNodes
-				})
-			: null
-	);
+	// The K_steps search runs in a worker so typing never blocks the page: each
+	// query spawns a fresh worker, and the effect cleanup terminates it, which
+	// cancels the search the moment the target or budget changes. `searchRuledOut`
+	// mirrors the search's completed frontier layers while it runs.
+	let shortestStepResult = $state<ShortestDerivation | null>(null);
+	let searchRunning = $state(false);
+	let searchRuledOut = $state<number | null>(null);
+
+	$effect(() => {
+		const searchTarget = trimmedProduceTarget;
+		const maxNodes = queryMaxNodes;
+
+		if (!browser || theoremDecision.outcome !== 'theorem') {
+			shortestStepResult = null;
+			searchRunning = false;
+			searchRuledOut = null;
+			return;
+		}
+
+		shortestStepResult = null;
+		searchRunning = true;
+		searchRuledOut = null;
+
+		const worker = new SearchWorker();
+		worker.onmessage = (event: MessageEvent<SearchResponse>) => {
+			const message = event.data;
+			if (message.kind === 'progress') {
+				searchRuledOut = message.completedDepth;
+			} else if (message.kind === 'result') {
+				shortestStepResult = message.result;
+				searchRunning = false;
+			} else {
+				console.error(`K_steps search failed for ${searchTarget}: ${message.message}`);
+				searchRunning = false;
+			}
+		};
+		worker.postMessage({
+			target: searchTarget,
+			maxDepth: MIU_QUERY_BOUNDS.maxDepth,
+			maxNodes
+		});
+
+		return () => worker.terminate();
+	});
 	const witnessPath = $derived(
 		witnessKind === 'constructed'
 			? constructedPath
@@ -131,6 +169,8 @@
 		decision={theoremDecision}
 		constructedLength={constructedPath?.length ?? null}
 		shortest={shortestStepResult}
+		{searchRunning}
+		{searchRuledOut}
 		queryMaxNodes={queryMaxNodes}
 		{witnessKind}
 		onUpdateTarget={updateTarget}

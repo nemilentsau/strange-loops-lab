@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MIU_INITIAL_STRING, applyMiuMove, type MiuMove } from './core';
+import { MIU_INITIAL_STRING, applyMiuMove, enumerateMiuMoves, type MiuMove } from './core';
 import {
 	MIU_QUERY_BOUNDS,
 	MIU_QUERY_LIMITS,
@@ -84,6 +84,68 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(result.completedDepth).toBeNull();
 	});
 
+	it('finds a ten-move theorem within the default node budget', () => {
+		// K_steps(MUUI) = 10. The forward rewrite graph alone holds ~3.8 million
+		// strings at depth 10, far past the default budget; meeting in the middle
+		// keeps both frontiers small enough to decide this within 200k nodes.
+		const result = shortestTheoremDerivation('MUUI');
+
+		expect(result.outcome).toBe('found');
+		expect(result.length).toBe(10);
+		expect(replay(result.path!)).toBe('MUUI');
+	});
+
+	it('agrees with exhaustive enumeration on every theorem within five moves', () => {
+		// Ground truth: exact K_steps for the whole depth-5 ball around MI,
+		// computed by plain layered enumeration. The production search must
+		// report the same minimum for each of these theorems.
+		const depthOf = new Map<string, number>([[MIU_INITIAL_STRING, 0]]);
+		let frontier = [MIU_INITIAL_STRING];
+		for (let depth = 1; depth <= 5; depth += 1) {
+			const next: string[] = [];
+			for (const value of frontier) {
+				for (const move of enumerateMiuMoves(value)) {
+					if (depthOf.has(move.result)) continue;
+					depthOf.set(move.result, depth);
+					next.push(move.result);
+				}
+			}
+			frontier = next;
+		}
+
+		for (const [value, depth] of depthOf) {
+			const result = shortestTheoremDerivation(value);
+			expect(result.outcome).toBe('found');
+			expect(result.length).toBe(depth);
+			expect(replay(result.path!)).toBe(value);
+		}
+	});
+
+	it('reports each completed frontier layer while searching', () => {
+		// MUI meets at total depth 3: the forward layer completes (bound 1), then
+		// the backward layer (bound 2), and the meet interrupts the third
+		// expansion, so no bound 3 is ever reported.
+		const bounds: number[] = [];
+		const result = shortestTheoremDerivation('MUI', {
+			onLayerComplete: (completedDepth) => bounds.push(completedDepth)
+		});
+
+		expect(result.outcome).toBe('found');
+		expect(bounds).toEqual([1, 2]);
+	});
+
+	it('stops reporting layers when the node budget interrupts one', () => {
+		// The five-node budget completes only the first forward layer before
+		// dying inside the first backward layer.
+		const bounds: number[] = [];
+		shortestTheoremDerivation('MUI', {
+			maxNodes: 5,
+			onLayerComplete: (completedDepth) => bounds.push(completedDepth)
+		});
+
+		expect(bounds).toEqual([1]);
+	});
+
 	it('refuses to optimize a non-theorem', () => {
 		expect(() => shortestTheoremDerivation('MU')).toThrow(
 			'Expected theorem target, got non-theorem: MU'
@@ -96,8 +158,8 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(beyond.outcome).toBe('exhausted');
 		expect(beyond.stoppedBy).toBe('depth');
 		expect(beyond.length).toBeNull();
-		// Depth exhaustion enumerates every string of at most maxDepth moves,
-		// so the proven bound is K_steps(MIIII) > 1.
+		// Depth exhaustion means the completed frontier depths sum to maxDepth
+		// with no meeting string, so the proven bound is K_steps(MIIII) > 1.
 		expect(beyond.completedDepth).toBe(1);
 
 		const within = shortestTheoremDerivation('MIIII', { maxDepth: 2 });
@@ -111,14 +173,15 @@ describe('shortestTheoremDerivation (K_steps)', () => {
 		expect(result.outcome).toBe('exhausted');
 		expect(result.stoppedBy).toBe('nodes');
 		expect(result.length).toBeNull();
-		// The budget dies while the root is still being expanded: no layer past
-		// depth 0 is complete, so only K_steps(MUI) > 0 is proven.
+		// The two seeds MI and MUI already fill the budget: neither frontier
+		// completes a layer, so only K_steps(MUI) > 0 is proven.
 		expect(result.completedDepth).toBe(0);
 	});
 
-	it('proves the lower bound of the deepest fully enumerated layer', () => {
-		// With a five-node budget the search completes depth 1 (MIU, MII) and is
-		// interrupted among their children, so K_steps(MUI) > 1 is proven — sound,
+	it('proves the lower bound of the deepest fully completed layers', () => {
+		// With a five-node budget the forward frontier completes depth 1
+		// (MIU, MII) and the budget dies inside the first backward layer, so the
+		// completed depths are 1 + 0 and K_steps(MUI) > 1 is proven — sound,
 		// since K_steps(MUI) = 3.
 		const result = shortestTheoremDerivation('MUI', { maxNodes: 5 });
 

@@ -65,6 +65,89 @@ export function enumerateMiuMoves(source: string): MiuMove[] {
 	];
 }
 
+/**
+ * The number of R2 applications carrying `value` to `target`, or null when no
+ * chain of doublings does: doubling is deterministic (M·t → M·tt), so the
+ * strings reachable from M·t by R2 alone are exactly M·t^(2^k), and the count
+ * is unique when it exists. On a dead branch (isDeadBranch) R2 is the only
+ * rule that will ever apply, so there this decides target reachability
+ * outright. Returns 0 when value equals target. Malformed targets (mid-typing
+ * input) simply fail the comparison and yield null.
+ */
+export function doublingsToReach(value: string, target: string): number | null {
+	if (value === target) {
+		return 0;
+	}
+
+	if (!target.startsWith('M')) {
+		return null;
+	}
+
+	let tail = value.slice(1);
+	const targetTail = target.slice(1);
+	let doublings = 0;
+
+	while (tail.length < targetTail.length) {
+		tail += tail;
+		doublings += 1;
+
+		if (tail === targetTail) {
+			return doublings;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * The exact inverse image of a state under the four rules: every string s with
+ * a legal move s → value, each listed once. Rule by rule —
+ *
+ *  - R1⁻¹ (xI → xIU): value ends in IU exactly when some xI produced it by
+ *    appending U; the predecessor is value without the trailing U.
+ *  - R2⁻¹ (Mx → Mxx): the tail splits as xx for exactly one x when it does at
+ *    all, so doubling has at most one preimage, M·x.
+ *  - R3⁻¹ (III → U): each U in the tail could have been written by
+ *    contracting III at that position; expand it back.
+ *  - R4⁻¹ (UU → ε): the deleted UU could have sat at any of the |value|−1
+ *    tail positions, including the end; insert it back at each. Insertions
+ *    into a run of U's coincide, hence the dedup.
+ *
+ * All four inverses stay inside the state space M[IU]+: the M prefix is never
+ * touched and no inverse empties the tail. Exactness (s ∈ predecessors(t) iff
+ * enumerateMiuMoves(s) reaches t) is checked property-style in the spec.
+ */
+export function enumerateMiuPredecessors(value: string): string[] {
+	assertValidMiuString(value);
+
+	const predecessors = new Set<string>();
+	const tail = value.slice(1);
+
+	if (value.endsWith('IU')) {
+		predecessors.add(value.slice(0, -1));
+	}
+
+	if (tail.length % 2 === 0) {
+		const half = tail.slice(0, tail.length / 2);
+
+		if (tail.endsWith(half)) {
+			predecessors.add(`M${half}`);
+		}
+	}
+
+	for (let index = 1; index < value.length; index += 1) {
+		if (value[index] === 'U') {
+			predecessors.add(`${value.slice(0, index)}III${value.slice(index + 1)}`);
+		}
+	}
+
+	for (let index = 1; index <= value.length; index += 1) {
+		predecessors.add(`${value.slice(0, index)}UU${value.slice(index)}`);
+	}
+
+	return [...predecessors];
+}
+
 export function applyMiuMove(source: string, move: MiuMove): string {
 	assertValidMiuString(source);
 

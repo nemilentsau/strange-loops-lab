@@ -318,7 +318,7 @@ makes them structural.
 The first instrument is built: the **MIU site with its bridge to description
 length relative to a fixed machine**. The derivation is manipulated directly.
 The complete I-count characterization decides theoremhood and constructs one
-witness for every theorem. Bounded BFS separately minimizes rewrite moves as
+witness for every theorem. Bounded bidirectional BFS separately minimizes rewrite moves as
 `K_steps`; bounded Dijkstra search minimizes executable code length as `K_bits`.
 The invariant certificate excludes residue zero, and the same surface
 constructs the character table of ℤ/3, the rule pullbacks, and the Fourier

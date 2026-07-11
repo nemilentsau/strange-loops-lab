@@ -98,7 +98,8 @@ route. One object — the derivation — read three ways:
   target. The proof now constructs all three characters of ℤ/3, their rule
   pullbacks, and the Fourier indicator of the forbidden residue.
 - **The bridge**: the derivation read as a program under a fixed executable
-  prefix code. `K_steps` is minimum rewrite-move count by bounded BFS; `K_bits`
+  prefix code. `K_steps` is minimum rewrite-move count by bounded bidirectional
+  BFS (forward from MI, backward from the target under the inverse rules); `K_bits`
   is minimum encoded length by bounded Dijkstra search. Both searches report an
   honest exhaustion horizon. Compression is asserted only by comparing
   `K_bits` with the gamma-length-prefixed literal code.

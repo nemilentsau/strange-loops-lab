@@ -6,6 +6,7 @@
 		MiuRuleAvailability,
 		MiuRuleId
 	} from '$lib/miu/core';
+	import { doublingsToReach } from '$lib/miu/core';
 	import { currentDeadBranchStart, traceRevisitIndices } from '$lib/state/module1Exercises';
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
@@ -127,6 +128,11 @@
 	const aheadSteps = $derived(trace.steps.length - 1 - trace.currentIndex);
 	const deadBranchStart = $derived(currentDeadBranchStart(trace));
 	const trimmedTarget = $derived(target.trim());
+	// On a closed branch only R2 ever applies, so the target is reachable from
+	// here exactly when it is this tail doubled some number of times. 0 means
+	// the target is reached (the notice has nothing left to steer); ≥ 1 means
+	// the target sits further along this branch; null means it does not.
+	const doublingsToTarget = $derived(doublingsToReach(currentString, trimmedTarget));
 	const reachedTarget = $derived(trimmedTarget !== '' && currentString === trimmedTarget);
 	const activeWitness = $derived.by(() => {
 		if (!witnessPath || !witnessTarget || witnessTarget !== trimmedTarget) {
@@ -269,12 +275,15 @@
 		{/if}
 			</div>
 
-			{#if deadBranchStart !== null}
+			{#if deadBranchStart !== null && doublingsToTarget !== 0}
 				<div class="dead-branch">
 					<strong>This branch is closed.</strong> Only R2 applies, and doubling this tail can never
 					create III, UU, or a final I — the other rules will never reopen from here, however far
 					you double.
-					{#if deadBranchStart > 0}
+					{#if doublingsToTarget !== null}
+						The target sits on this branch: {doublingsToTarget} more
+						{doublingsToTarget === 1 ? 'doubling reaches' : 'doublings reach'} it.
+					{:else if deadBranchStart > 0}
 						<button
 							class="dead-branch__jump"
 							type="button"

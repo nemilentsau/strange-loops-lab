@@ -85,9 +85,15 @@ Responsibilities:
 - invariant analysis for supported candidates (`invariants.ts`),
 - the complete theoremhood characterization and a constructive witness for
   every theorem (`theoremhood.ts`),
-- shortest move count by bounded BFS (`complexity.ts`):
-  `shortestTheoremDerivation` accepts theorem targets and returns `found` or an
-  honest `exhausted` horizon tagged by depth or node bound,
+- shortest move count by bounded bidirectional BFS (`complexity.ts`):
+  `shortestTheoremDerivation` meets a forward frontier from MI with a backward
+  frontier from the target under the exact rule inverses
+  (`enumerateMiuPredecessors` in `core.ts`) and returns `found` or an honest
+  `exhausted` horizon tagged by depth or node bound; `completedDepth` is the
+  sum of the completed frontier depths. The instrument runs this search in a
+  Web Worker (`searchWorker.ts`) so the page never blocks: each query owns one
+  worker, termination is cancellation, and the search reports each completed
+  layer so the UI can display the lower bound as it rises,
 - the executable prefix code and gamma-length-prefixed literal baseline
   (`coding.ts`),
 - minimum encoded program length by bounded Dijkstra search
