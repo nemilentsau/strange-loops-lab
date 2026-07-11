@@ -376,22 +376,12 @@ select {
 	border-top: 1px solid var(--line);
 }
 
+/* Each row is a full statement about one derivation, never a label:value
+ * fragment; the panel is read as prose. */
 .verdict__row {
-	display: grid;
-	grid-template-columns: 5.4em minmax(0, 1fr);
-	gap: 12px;
-	align-items: baseline;
+	margin: 0;
 	font-size: var(--t-caption);
-	line-height: 1.55;
-}
-
-.verdict__row-label {
-	color: var(--faint);
-	font-family: var(--mono);
-	font-size: var(--t-micro);
-	font-weight: 700;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
+	line-height: 1.6;
 }
 
 /* A reveal-action shows something already computed: inline link. */
@@ -414,7 +404,7 @@ select {
 /* A compute-action spends search budget: a bordered control, not prose. */
 .compute {
 	display: inline-block;
-	margin-top: 6px;
+	margin: 2px 0 0 10px;
 	padding: 3px 10px;
 	border: 1px solid var(--act);
 	border-radius: var(--radius);
@@ -1346,11 +1336,6 @@ select {
 
 	.witness-menu {
 		margin-left: 0;
-	}
-
-	.verdict__row {
-		grid-template-columns: 1fr;
-		gap: 2px;
 	}
 
 	.characters__head {

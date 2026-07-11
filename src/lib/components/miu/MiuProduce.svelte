@@ -85,8 +85,8 @@
 				<span class="verdict__subject"><span class="o">{trimmed}</span> is not a MIU string</span>
 			</p>
 			<p class="verdict__fact">
-				The tail after <span class="o">M</span> must be nonempty, over {'{'}<span class="o">I</span>,
-				<span class="o">U</span>{'}'}.
+				The tail after <span class="o">M</span> must be nonempty and contain only
+				<span class="o">I</span> and <span class="o">U</span>.
 			</p>
 		{:else if decision.outcome === 'non-theorem'}
 			<p class="verdict__line">
@@ -94,7 +94,9 @@
 				<span class="verdict__subject"><span class="o">{trimmed}</span> <span class="mv">∉</span> Th(MIU)</span>
 			</p>
 			<p class="verdict__fact">
-				<span class="mv">I</span> = {targetICount} ≡ 0 (mod 3); the invariant below excludes it.
+				It has {targetICount === 0 ? 'no' : targetICount}
+				<span class="o">I</span>'s, and {targetICount} ≡ 0 (mod 3): the invariant below excludes
+				it.
 			</p>
 		{:else}
 			<p class="verdict__line">
@@ -103,48 +105,56 @@
 			</p>
 
 			<div class="verdict__rows">
-				<div class="verdict__row">
-					<span class="verdict__row-label">Witness</span>
-					<span>
-						{constructedLength}
-						{constructedLength === 1 ? 'move' : 'moves'}, constructed — not claimed minimal<button
+				{#if constructedLength === 0}
+					<p class="verdict__row">
+						<span class="o">MI</span> is the axiom: <span class="mv">K</span><sub>steps</sub> = 0
+						(the empty derivation).
+					</p>
+				{:else if shortest?.outcome === 'found'}
+					<p class="verdict__row">
+						The shortest derivation from <span class="o">MI</span> takes {shortest.length}
+						{shortest.length === 1 ? 'move' : 'moves'}: <span class="mv">K</span><sub>steps</sub>
+						= {shortest.length}.<button
+							class="reveal"
+							type="button"
+							onclick={() => onShowWitness('shortest')}
+						>
+							{witnessKind === 'shortest' ? 'hide shortest derivation' : 'show shortest derivation'}
+						</button>
+					</p>
+					<p class="verdict__row">
+						The general expand–double–contract construction takes {constructedLength}.<button
 							class="reveal"
 							type="button"
 							onclick={() => onShowWitness('constructed')}
 						>
 							{witnessKind === 'constructed' ? 'hide construction' : 'show construction'}
 						</button>
-					</span>
-				</div>
-
-				{#if shortest?.outcome === 'found'}
-					<div class="verdict__row">
-						<span class="verdict__row-label">Minimum</span>
-						<span>
-							<span class="mv">K</span><sub>steps</sub> = {shortest.length}<button
-								class="reveal"
-								type="button"
-								onclick={() => onShowWitness('shortest')}
-							>
-								{witnessKind === 'shortest' ? 'hide shortest derivation' : 'show shortest derivation'}
-							</button>
-						</span>
-					</div>
-				{:else if shortest?.outcome === 'exhausted'}
-					<div class="verdict__row">
-						<span class="verdict__row-label">Minimum</span>
-						<span>
-							<span class="mv">K</span><sub>steps</sub> &gt; {shortest.completedDepth} — every
-							derivation of at most {shortest.completedDepth}
-							{shortest.completedDepth === 1 ? 'move' : 'moves'} enumerated{#if shortest.stoppedBy === 'nodes' && nextNodeBound}<br /><button
+					</p>
+				{:else}
+					<p class="verdict__row">
+						The general expand–double–contract construction derives it in {constructedLength}
+						{constructedLength === 1 ? 'move' : 'moves'}.<button
+							class="reveal"
+							type="button"
+							onclick={() => onShowWitness('constructed')}
+						>
+							{witnessKind === 'constructed' ? 'hide construction' : 'show construction'}
+						</button>
+					</p>
+					{#if shortest?.outcome === 'exhausted'}
+						<p class="verdict__row">
+							None of the derivations of at most {shortest.completedDepth}
+							{shortest.completedDepth === 1 ? 'move' : 'moves'} reaches it, so
+							<span class="mv">K</span><sub>steps</sub> &gt; {shortest.completedDepth}.{#if shortest.stoppedBy === 'nodes' && nextNodeBound}<button
 									class="compute"
 									type="button"
 									onclick={() => onUpdateMaxNodes(nextNodeBound)}
 								>
 									search deeper
 								</button>{/if}
-						</span>
-					</div>
+						</p>
+					{/if}
 				{/if}
 			</div>
 		{/if}
