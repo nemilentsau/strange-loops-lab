@@ -6,8 +6,12 @@
 		MiuRuleAvailability,
 		MiuRuleId
 	} from '$lib/miu/core';
-	import { doublingsToReach } from '$lib/miu/core';
-	import { currentDeadBranchStart, traceRevisitIndices } from '$lib/state/module1Exercises';
+	import {
+		currentDeadBranchStart,
+		doublingsToReach,
+		ruleShortLabel,
+		traceRevisitIndices
+	} from '$lib/miu/core';
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
 
@@ -103,10 +107,6 @@
 			event.preventDefault();
 			applySite(move);
 		}
-	}
-
-	function shortRuleId(ruleLabel: string): string {
-		return ruleLabel.replace('Rule ', 'R');
 	}
 
 	function ruleNote(via: MiuMove | null): string {
@@ -242,7 +242,7 @@
 						{:else if hoverMove && activeRule}
 							<p class="site-preview">
 								<span class="site-preview__chip">
-									apply {shortRuleId(activeRule.ruleLabel)} here → {ellipsizeMiddle(hoverMove.result)}
+									apply {ruleShortLabel(activeRule.ruleId)} here → {ellipsizeMiddle(hoverMove.result)}
 								</span>
 							</p>
 						{:else if activeRule && activeRule.moves.length > 1}
@@ -314,7 +314,7 @@
 						}}
 					>
 						<div class="ledger-row__head">
-							<span class="ledger-row__id">{shortRuleId(row.ruleLabel)}</span>
+							<span class="ledger-row__id">{ruleShortLabel(row.ruleId)}</span>
 							<span class="ledger-row__pattern">{row.pattern}</span>
 							{#if row.status === 'available' && row.moves.length > 1}
 								<span class="ledger-row__count">{row.moves.length} sites</span>

@@ -67,14 +67,13 @@ Read only the files relevant to the task:
 - Architecture: `docs/product-architecture.md`
 - Agent behavior: `docs/agent-behavior.md`
 - Module 1 build postmortem and binding design law: `docs/module-1-postmortem.md`
-- Guidance on keeping agent instructions lean: `coding-agents-guide.md`
 
 If you change architecture, module scope, or agent responsibilities, update the
 corresponding docs in the same pass.
 
 ## Working rules
 
-- Keep setup conservative. Prefer decisions that preserve fast iteration for Module 1.
+- Keep setup conservative. Prefer decisions that preserve fast iteration on the instrument.
 - Do not assume a separate Python service or a separate frontend app already exists just because the architecture doc allows for one later.
 - Preserve the epistemic contract: mechanically checked results, measured (empirical) results, and LLM coaching must stay clearly separated.
 - Add new local skills only when a workflow becomes repeated, specialized, and hard to recover from repo context alone.

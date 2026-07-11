@@ -101,7 +101,8 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
   assumptions.
 - **Evidence:** Delétang et al., [*Language Modeling Is
   Compression*](https://arxiv.org/abs/2309.10668), and the fixed-code discipline
-  in `docs/superpowers/plans/2026-07-09-miu-exactness-foundations.md`.
+  built in `src/lib/miu/coding.ts` (the executable prefix code both `K_bits`
+  and the literal baseline are measured against).
 - **Status:** identified.
 
 ### Sparse coding / superposition

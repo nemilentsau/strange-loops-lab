@@ -7,7 +7,8 @@ This document is the single current reference for:
 - the product role of the dialogue agent,
 - the epistemic boundary between coaching and verification,
 - the context the agent should receive,
-- and the runtime behavior expected in Module 1.
+- and the runtime behavior expected when the layer is re-wired to an
+  instrument.
 
 It replaces the older split between `docs/spec.md` and
 `docs/agents-prompt.md`.
@@ -179,7 +180,8 @@ When building the runtime prompt, the agent should be told, in substance:
 The agent behavior is in a good state when:
 
 1. users can tell they are receiving coaching rather than proof certification,
-2. the dialogue stays grounded in the current Module 1 state,
+2. the dialogue stays grounded in the current instrument state (the trace and
+   the verifier facts derived from it),
 3. the agent helps expose real misconceptions rather than restating the UI,
 4. transcripts are worth saving as artifacts,
 5. and the dialogue improves understanding more often than it adds noise.

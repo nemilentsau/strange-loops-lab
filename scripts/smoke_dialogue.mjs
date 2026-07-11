@@ -8,14 +8,6 @@ const payload = {
 	userInput:
 		'I think MU is unreachable because the number of I symbols never becomes divisible by 3, but I am not fully sure why doubling does not break that.',
 	draft: {
-		activeSurface: 'dialogue',
-		dialogueMode: 'Explain-Back Examiner',
-		dialogueInput:
-			'I think MU is unreachable because the number of I symbols never becomes divisible by 3, but I am not fully sure why doubling does not break that.',
-		lastDialogue: null,
-		workingQuestion: 'Can MI become MU, and what would count as evidence either way?',
-		invariantCandidate: 'count(I) mod 3 != 0',
-		notes: 'Smoke test payload',
 		trace: {
 			steps: [
 				{ value: 'MI', via: null },
@@ -35,10 +27,6 @@ const payload = {
 			],
 			currentIndex: 1
 		},
-		graphDepth: 3,
-		graphNodeLimit: 16,
-		selectedGraphNode: null,
-		visitedSurfaces: ['sandbox', 'trace', 'graph', 'invariants', 'dialogue', 'artifacts'],
 		lastEditedAt: '2026-03-09T14:39:00.000Z'
 	}
 };

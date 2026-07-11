@@ -131,8 +131,11 @@ construction admission test for connections — are carried in
 - Persistence, artifacts, and the notebook data model.
 - The epistemic contract and its form-based registers.
 - The graphite-and-parchment visual language with a single action accent.
-- The residue-wheel interaction for the algebra of the invariant — the one place
-  the build reached the structural mathematics and held attention.
+- The instinct behind the residue-wheel interaction — the one place the build
+  reached the structural mathematics and held attention. The wheel itself was
+  later replaced by the explicit ℤ/3 character table (`MiuCharacters.svelte`);
+  what stayed is the lesson that the algebra of the invariant is where
+  attention lives.
 - The desktop-first stance.
 
 ## Going forward

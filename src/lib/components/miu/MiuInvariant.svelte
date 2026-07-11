@@ -1,17 +1,19 @@
 <script lang="ts">
 	import MiuCharacters from './MiuCharacters.svelte';
 	import { analyzeInvariantCandidate, builtInInvariantAnalysis } from '$lib/miu/invariants';
-	import type { MiuRuleId } from '$lib/miu/core';
+	import { patternForRule, ruleNumber, type MiuRuleId } from '$lib/miu/core';
 
 	const certificate = builtInInvariantAnalysis('MI');
 	const certificateHolds =
 		certificate.kind === 'supported' && certificate.currentSatisfied && certificate.preserved;
 
-	const RULE_PROOF: Array<{ ruleId: MiuRuleId; pattern: string; why: string }> = [
-		{ ruleId: 'append-u', pattern: 'xI → xIU', why: 'I unchanged' },
-		{ ruleId: 'double-tail', pattern: 'Mx → Mxx', why: 'r doubles — residues 1 and 2 swap' },
-		{ ruleId: 'replace-iii', pattern: 'III → U', why: 'I drops by 3 — r unchanged' },
-		{ ruleId: 'delete-uu', pattern: 'UU → ∅', why: 'I unchanged' }
+	// The per-rule "why" is display copy written for this proof, not the
+	// engine's templated explanation strings.
+	const RULE_PROOF: Array<{ ruleId: MiuRuleId; why: string }> = [
+		{ ruleId: 'append-u', why: 'I unchanged' },
+		{ ruleId: 'double-tail', why: 'r doubles — residues 1 and 2 swap' },
+		{ ruleId: 'replace-iii', why: 'I drops by 3 — r unchanged' },
+		{ ruleId: 'delete-uu', why: 'I unchanged' }
 	];
 
 	const CANDIDATES = [
@@ -45,10 +47,6 @@
 
 	function rulePreserved(ruleId: MiuRuleId): boolean {
 		return certificate.ruleResults.find((result) => result.ruleId === ruleId)?.preserved ?? false;
-	}
-
-	function ruleNumber(ruleId: MiuRuleId): number {
-		return ['append-u', 'double-tail', 'replace-iii', 'delete-uu'].indexOf(ruleId) + 1;
 	}
 </script>
 
@@ -96,7 +94,7 @@
 				{#each RULE_PROOF as rule (rule.ruleId)}
 					<div>
 						<span class="mv">R{ruleNumber(rule.ruleId)}</span>
-						<span class="o">{rule.pattern}</span>
+						<span class="o">{patternForRule(rule.ruleId)}</span>
 						<span class="proof-why"
 							><span
 								class="stamp"

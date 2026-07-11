@@ -1,9 +1,9 @@
 import {
 	MIU_INITIAL_STRING,
-	MIU_RULES,
 	applyMiuMove,
 	enumerateMiuMoves,
 	isValidMiuString,
+	ruleShortLabel,
 	type MiuMove,
 	type MiuRuleId
 } from './core';
@@ -38,14 +38,14 @@ export function encodeMove(source: string, move: MiuMove): EncodedInstruction {
 	}
 	const width = sites.length <= 1 ? 0 : Math.ceil(Math.log2(sites.length));
 	const siteBits = width === 0 ? '' : siteOrdinal.toString(2).padStart(width, '0');
-	const ruleNumber = MIU_RULES.indexOf(move.ruleId) + 1;
+	const shortLabel = ruleShortLabel(move.ruleId);
 	return {
 		ruleId: move.ruleId,
 		opcode: OPCODES[move.ruleId],
 		siteOrdinal,
 		siteCount: sites.length,
 		siteBits,
-		display: sites.length === 1 ? `R${ruleNumber}` : `R${ruleNumber}@${siteOrdinal + 1}/${sites.length}`
+		display: sites.length === 1 ? shortLabel : `${shortLabel}@${siteOrdinal + 1}/${sites.length}`
 	};
 }
 

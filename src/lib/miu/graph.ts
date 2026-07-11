@@ -1,4 +1,4 @@
-import { MIU_INITIAL_STRING, enumerateMiuMoves, type DerivationTrace, type MiuMove } from './core';
+import { MIU_INITIAL_STRING, clampBound, enumerateMiuMoves, type MiuMove } from './core';
 
 export interface ReachabilityNode {
 	id: string;
@@ -26,87 +26,6 @@ export interface ReachabilityGraphOptions {
 	start?: string;
 	maxDepth: number;
 	maxNodes: number;
-}
-
-export interface ProvenanceStep {
-	nodeId: string;
-	value: string;
-	via: MiuMove | null;
-}
-
-export interface ReachabilitySummary {
-	/** Total distinct strings reached inside the explored region. */
-	nodeCount: number;
-	/** Total rule applications (directed edges) recorded in the explored region. */
-	edgeCount: number;
-	/** Count of reached strings indexed by depth, starting at depth 0 (the root). */
-	nodesByDepth: number[];
-	/** Deepest depth that holds at least one reached string. */
-	deepestDepth: number;
-	/** How many strings sit at the deepest reached depth — the growing edge of the search. */
-	frontierCount: number;
-	/**
-	 * Frontier size minus the count one depth shallower, i.e. how much the newest
-	 * layer grew. `null` when only the root has been reached (no previous depth).
-	 */
-	frontierGrowth: number | null;
-	/**
-	 * Rule applications that landed on a string already reached. Edges to strings
-	 * that were never added (the edge that tripped the node limit) are excluded,
-	 * so this only counts rediscoveries within the explored region.
-	 * The field means "edges landing on an already-reached string," not strictly
-	 * "two distinct paths met."
-	 */
-	repeatedDiscoveryCount: number;
-	/** Why the search stopped, mirrored from the graph; `null` means it ran to exhaustion. */
-	truncatedBy: ReachabilityGraph['truncatedBy'];
-	maxDepth: number;
-	maxNodes: number;
-}
-
-/**
- * Reduce an explored reachability graph to the computed facts the `Map` phase
- * reports: how far the search reached, how fast it grew, how often it circled
- * back, and which bound stopped it. Every field is a count, bound, or absence
- * about the explored region — never a claim about the full reachable set.
- *
- * The graph always contains at least the root (maxNodes clamps to ≥1), so
- * nodeCount ≥ 1 and deepestDepth ≥ 0 are invariants callers may rely on.
- */
-export function summarizeReachabilityGraph(graph: ReachabilityGraph): ReachabilitySummary {
-	const nodeIds = new Set(graph.nodes.map((node) => node.id));
-
-	const nodesByDepth: number[] = [];
-	for (const node of graph.nodes) {
-		nodesByDepth[node.depth] = (nodesByDepth[node.depth] ?? 0) + 1;
-	}
-	// BFS yields contiguous depths so the fill is defensive hardening only.
-	for (let depth = 0; depth < nodesByDepth.length; depth += 1) {
-		nodesByDepth[depth] ??= 0;
-	}
-
-	const deepestDepth = Math.max(0, nodesByDepth.length - 1);
-	const frontierCount = nodesByDepth[deepestDepth] ?? 0;
-	const frontierGrowth = deepestDepth === 0 ? null : frontierCount - (nodesByDepth[deepestDepth - 1] ?? 0);
-
-	// Every non-root node has exactly one discovery edge; any further incoming
-	// edge to a real node is a rediscovery. Edges into strings that were never
-	// added (node-limit overflow) point outside `nodeIds` and are skipped.
-	const edgesIntoReachedNodes = graph.edges.filter((edge) => nodeIds.has(edge.to)).length;
-	const repeatedDiscoveryCount = Math.max(0, edgesIntoReachedNodes - (graph.nodes.length - 1));
-
-	return {
-		nodeCount: graph.nodes.length,
-		edgeCount: graph.edges.length,
-		nodesByDepth,
-		deepestDepth,
-		frontierCount,
-		frontierGrowth,
-		repeatedDiscoveryCount,
-		truncatedBy: graph.truncatedBy,
-		maxDepth: graph.maxDepth,
-		maxNodes: graph.maxNodes
-	};
 }
 
 export function buildReachabilityGraph(options: ReachabilityGraphOptions): ReachabilityGraph {
@@ -166,98 +85,7 @@ export function buildReachabilityGraph(options: ReachabilityGraphOptions): Reach
 	};
 }
 
-export function tracePathToNode(graph: ReachabilityGraph, nodeId: string): ProvenanceStep[] {
-	const nodeMap = new Map(graph.nodes.map((node) => [node.id, node]));
-	const target = nodeMap.get(nodeId);
-
-	if (!target) {
-		throw new Error(`Node ${nodeId} is not part of the graph`);
-	}
-
-	const parentEdgeByNode = new Map<string, ReachabilityEdge>();
-
-	for (const edge of graph.edges) {
-		const targetNode = nodeMap.get(edge.to);
-
-		if (!targetNode || parentEdgeByNode.has(edge.to)) {
-			continue;
-		}
-
-		parentEdgeByNode.set(edge.to, edge);
-	}
-
-	const path: ProvenanceStep[] = [];
-	let cursor: ReachabilityNode | undefined = target;
-
-	while (cursor) {
-		const parentEdge: ReachabilityEdge | null = parentEdgeByNode.get(cursor.id) ?? null;
-
-		path.push({
-			nodeId: cursor.id,
-			value: cursor.value,
-			via: parentEdge?.move ?? null
-		});
-
-		if (cursor.id === graph.rootId) {
-			break;
-		}
-
-		cursor = parentEdge ? nodeMap.get(parentEdge.from) : undefined;
-	}
-
-	return path.reverse();
-}
-
-export function graphNodeExists(graph: ReachabilityGraph, nodeId: string | null | undefined): boolean {
-	if (!nodeId) {
-		return false;
-	}
-
-	return graph.nodes.some((node) => node.id === nodeId);
-}
-
-export interface TraceGraphPath {
-	/** Unique node ids of the active branch that exist inside the explored region. */
-	nodeIds: string[];
-	/** Edge ids for consecutive active-branch moves recorded in the explored region. */
-	edgeIds: string[];
-}
-
-/**
- * Map the learner's derivation (the trace's active branch, steps 0..current)
- * onto the explored graph: which drawn nodes and edges their derivation
- * walks. Steps whose strings lie outside the bounded region are skipped —
- * the drawing can only highlight what it shows. Built on the same edge
- * identity the graph records, never re-derived.
- */
-export function traceGraphPath(graph: ReachabilityGraph, trace: DerivationTrace): TraceGraphPath {
-	const knownNodes = new Set(graph.nodes.map((node) => node.id));
-	const knownEdges = new Set(graph.edges.map((edge) => edge.id));
-	const active = trace.steps.slice(0, trace.currentIndex + 1);
-
-	const nodeIds = new Set<string>();
-	const edgeIds: string[] = [];
-
-	for (const step of active) {
-		const id = nodeIdFor(step.value);
-
-		if (knownNodes.has(id)) {
-			nodeIds.add(id);
-		}
-
-		if (step.via) {
-			const edgeId = `${nodeIdFor(step.via.source)}->${id}:${step.via.key}`;
-
-			if (knownEdges.has(edgeId)) {
-				edgeIds.push(edgeId);
-			}
-		}
-	}
-
-	return { nodeIds: [...nodeIds], edgeIds };
-}
-
-export function nodeIdFor(value: string): string {
+function nodeIdFor(value: string): string {
 	return `state:${value}`;
 }
 
@@ -268,14 +96,6 @@ function createEdge(from: string, to: string, move: MiuMove): ReachabilityEdge {
 		to,
 		move
 	};
-}
-
-function clampBound(value: number, min: number, max: number): number {
-	if (!Number.isFinite(value)) {
-		return min;
-	}
-
-	return Math.min(max, Math.max(min, Math.trunc(value)));
 }
 
 function compareNodes(left: ReachabilityNode, right: ReachabilityNode): number {

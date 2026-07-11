@@ -6,13 +6,6 @@ const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS ?? 30000);
 const marker = `smoke-${Date.now()}`;
 
 const draft = {
-	activeSurface: 'artifacts',
-	dialogueMode: 'Explain-Back Examiner',
-	dialogueInput: '',
-	lastDialogue: null,
-	workingQuestion: `Persistence smoke ${marker}`,
-	invariantCandidate: 'count(I) mod 3 != 0',
-	notes: `Persistence smoke note ${marker}`,
 	trace: {
 		steps: [
 			{ value: 'MI', via: null },
@@ -32,10 +25,6 @@ const draft = {
 		],
 		currentIndex: 1
 	},
-	graphDepth: 2,
-	graphNodeLimit: 12,
-	selectedGraphNode: null,
-	visitedSurfaces: ['sandbox', 'trace', 'artifacts'],
 	lastEditedAt: new Date().toISOString()
 };
 
@@ -95,7 +84,12 @@ try {
 	const loadedSnapshot = await requestJson('/api/modules/module-1/snapshot', { method: 'GET' });
 	const loadedDraft = loadedSnapshot.snapshot?.payload;
 
-	if (!loadedDraft || loadedDraft.workingQuestion !== draft.workingQuestion || loadedDraft.notes !== draft.notes) {
+	if (
+		!loadedDraft ||
+		loadedDraft.lastEditedAt !== draft.lastEditedAt ||
+		loadedDraft.trace?.steps?.length !== draft.trace.steps.length ||
+		loadedDraft.trace?.steps?.at(-1)?.value !== 'MII'
+	) {
 		throw new Error('Snapshot smoke failed: GET response did not round-trip the saved draft.');
 	}
 

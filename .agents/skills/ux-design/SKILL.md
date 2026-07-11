@@ -14,8 +14,9 @@ everything below where they conflict:
   (worksheet / derivation tree / proof / notebook) — never a dashboard of
   cards. A box must earn its border; cards are the documented failure mode.
 - Epistemic registers are carried by form, never hue: verified = solid
-  graphite + stamps, computed = dashed pencil, coaching = dotted + italic
-  serif. One oxblood accent means exactly "you can act here."
+  graphite + stamps, measured = dashed rule + run configuration, coaching =
+  dotted + italic serif. Deterministic transforms inherit the register of
+  their inputs. One oxblood accent means exactly "you can act here."
 - Banned outright: gamified chrome (badges, checkbox quests, congratulation
   copy), cute or condescending text, engine vocabulary in learner copy.
 - Required before code: a mockup covering the played states (mid-session
