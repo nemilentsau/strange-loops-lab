@@ -27,9 +27,8 @@
 </script>
 
 <p class="lede">
-	A derivation is a program for this machine, and the verdict above already ran both halves of a
-	description-length argument: exhibiting one program bounds the minimum from above; ruling out
-	every shorter one bounds it from below. Upper bounds cost one witness. Lower bounds cost
+	Both minima are bounded the same way: exhibiting one program bounds from above; ruling out
+	every shorter one bounds from below. Upper bounds cost one witness. Lower bounds cost
 	exhaustion — and on this four-rule machine the exhaustion terminates, so they are provable.
 </p>
 

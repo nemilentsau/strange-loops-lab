@@ -194,6 +194,44 @@ select {
 	text-transform: uppercase;
 }
 
+/* Overture: epigraph beside the three-readings orientation. */
+.overture {
+	display: grid;
+	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+	gap: var(--space-2xl);
+	align-items: start;
+	padding-top: var(--space-sm);
+}
+
+.epigraph {
+	margin: 0;
+	max-width: 52ch;
+}
+
+.epigraph p {
+	margin: 0 0 var(--space-xs);
+	color: var(--muted);
+	font-style: italic;
+	line-height: 1.65;
+}
+
+.epigraph cite {
+	color: var(--faint);
+	font-size: var(--t-caption);
+	font-style: normal;
+}
+
+.overture__reading {
+	margin: 0;
+	max-width: var(--measure);
+	color: var(--muted);
+	line-height: 1.7;
+}
+
+.overture__reading .o {
+	color: var(--ink);
+}
+
 /* ════════════════════════════════════════════════════════════════════════
  * The MIU instrument — one object read three ways at rising altitude:
  * theoremhood (in the system) · invariant (about the system) · description
@@ -233,6 +271,18 @@ select {
 	letter-spacing: 0.16em;
 	text-transform: uppercase;
 	white-space: nowrap;
+}
+
+/* Turn: the seam sentence that carries a movement's altitude change. */
+.movement__turn {
+	margin: 0 0 var(--space-md);
+	color: var(--muted);
+	max-width: var(--measure);
+	line-height: 1.7;
+}
+
+.movement__turn .o {
+	color: var(--ink);
 }
 
 .lede {
@@ -1297,6 +1347,11 @@ select {
 }
 
 @media (max-width: 860px) {
+	.overture {
+		grid-template-columns: 1fr;
+		gap: var(--space-lg);
+	}
+
 	.worksheet__cols {
 		grid-template-columns: 1fr;
 		gap: var(--space-lg);

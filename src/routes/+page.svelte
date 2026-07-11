@@ -158,6 +158,26 @@
 	<p>One derivation, read as theoremhood, invariant, and description length.</p>
 </header>
 
+<div class="overture">
+	<blockquote class="epigraph">
+		<p>
+			It is an inherent property of intelligence that it can jump out of the task which it is
+			performing, and survey what it has done; it is always looking for, and often finding,
+			patterns.
+		</p>
+		<cite>— <i>Gödel, Escher, Bach</i>, chapter I</cite>
+	</blockquote>
+	<p class="overture__reading">
+		The object below is a single derivation in the MIU system, read three ways at rising
+		altitude. Inside the system it is a sequence of moves: the four rules act on a string, and
+		the worksheet records each application. About the system it is the subject of an
+		impossibility proof: no derivation reaches <span class="o">MU</span>, and the certificate is
+		a residue mod 3. About all such systems it is a program: a derivation is a finite record of
+		rule choices, the record can be coded in bits, and the length of the shortest code is a
+		description length relative to this machine.
+	</p>
+</div>
+
 <section class="movement">
 	<div class="movement__head">
 		<h2 class="movement__title">Theoremhood</h2>
@@ -198,6 +218,12 @@
 		<span class="movement__altitude">about the system</span>
 	</div>
 
+	<p class="movement__turn">
+		A derivation is a witness for membership; non-membership has no such witness. That no
+		derivation reaches <span class="o">MU</span> is a claim about every derivation at once, so
+		no finite search settles it — it is settled by a property the four rules preserve.
+	</p>
+
 	<MiuInvariant />
 </section>
 
@@ -206,6 +232,12 @@
 		<h2 class="movement__title">Description length</h2>
 		<span class="movement__altitude">about all such systems</span>
 	</div>
+
+	<p class="movement__turn">
+		Each worksheet step was a choice of rule and site, so a derivation carries two lengths: the
+		count of its choices, and the bits needed to write them down. Written in bits, a derivation
+		is a program for this machine — and the verdict above was already bounding the step count.
+	</p>
 
 	<MiuBridge />
 
