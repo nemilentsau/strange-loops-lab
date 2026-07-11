@@ -16,6 +16,17 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
 - **Exact claim:** A valid MIU derivation is an executable program for its
   terminal string, so minimum encoded derivation length is a description length
   relative to the fixed MIU machine.
+- **Sharpened claim (exhibit versus exhaust):** The bridge's load-bearing
+  asymmetry is proof cost. An upper bound on `K_steps` is exhibited by a single
+  witness — the expand–double–contract construction from the characterization —
+  while a lower bound is proved only by exhausting every shorter derivation,
+  an exhaustion that terminates because `Th(MIU)` is decidable and each
+  bounded layer of the rewrite graph is finite. The instrument states the pair
+  as a bracket, `d < K_steps ≤ c`, until the search closes it. On a universal
+  machine the same exhaustion would decide halting, so it cannot terminate;
+  Chaitin's ceiling on provable lower bounds is that loss. The
+  universal-machine side is named on the surface as a destination, not built
+  or claimed.
 - **Gate class:** construction.
 - **Shared object:** An instruction sequence interpreted both as a path in the
   MIU rewrite graph and as a code that outputs a string.
@@ -26,7 +37,11 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
   to the target, or the claimed minimum is taken under an unspecified code.
 - **Evidence:** `src/lib/miu/theoremhood.ts`, `complexity.ts`, `coding.ts`, and
   `bitComplexity.ts`, with executable-path and minimum-cost tests in their
-  adjacent specifications and the live comparison in `MiuBridge.svelte`.
+  adjacent specifications and the live comparison in `MiuBridge.svelte`. For
+  the sharpened claim: `completedDepth` in `complexity.ts` (the terminated
+  exhaustion, tested in `complexity.spec.ts`), the verdict bracket in
+  `MiuProduce.svelte`, and the threaded statements on the instrument (the
+  displayed characterization, the description-length lede, the coda).
 - **Status:** built.
 
 ## Next
