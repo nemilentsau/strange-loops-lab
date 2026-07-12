@@ -728,6 +728,7 @@ select {
 }
 
 .spine-line {
+	position: relative;
 	display: flex;
 	gap: 14px;
 	align-items: baseline;
@@ -771,12 +772,19 @@ select {
 }
 
 .spine-line__jump {
-	flex-shrink: 0;
+	position: absolute;
+	top: 50%;
+	right: 0;
+	z-index: 1;
+	padding: 2px 0 2px 14px;
+	transform: translateY(-50%);
+	background: var(--panel);
 	color: var(--act);
 	font-family: var(--sans);
 	font-size: 0.74rem;
 	white-space: nowrap;
 	opacity: 0;
+	pointer-events: none;
 	transition: opacity 120ms ease;
 }
 
@@ -801,7 +809,7 @@ select {
 	grid-template-columns: 3.5ch 9ch;
 	gap: 12px;
 	width: calc(12.5ch + 12px);
-	margin: 0 0 4px auto;
+	margin: 0 6px 4px auto;
 	color: var(--faint);
 	font-family: var(--mono);
 	font-size: var(--t-micro);
@@ -887,6 +895,7 @@ select {
 }
 
 .focal__reading {
+	margin-right: 6px;
 	padding-top: 0.45rem;
 }
 

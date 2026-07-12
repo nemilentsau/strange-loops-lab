@@ -180,7 +180,10 @@
 					>↩ same as step {revisits[index]}</span
 				>{/if}
 		</span>
-		<span class="spine-line__reading" aria-label={`Residue ${residueText(index)}`}>
+		<span
+			class="spine-line__reading"
+			aria-label={`Residue ${residueText(index)}; instruction ${instructionText(index)}`}
+		>
 			<span class="spine-line__residue">{residueText(index)}</span>
 			<span class="spine-line__instruction">{instructionText(index)}</span>
 		</span>
