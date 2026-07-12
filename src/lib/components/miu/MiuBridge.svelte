@@ -82,8 +82,8 @@
 					><span class="mv">K</span><sub>bits</sub>(<span class="mv">s</span>)</span
 				>
 				<span
-					>the least |<span class="mv">p</span>| over programs <span class="mv">p</span> printing
-					<span class="mv">s</span>.</span
+					>the least |<span class="mv">p</span>| among derivation programs
+					<span class="mv">p</span> printing <span class="mv">s</span>.</span
 				>
 			</div>
 			<div class="defs__row">
@@ -110,7 +110,7 @@
 				<th class="num">L<sub>literal</sub></th>
 				<th class="num">K<sub>steps</sub></th>
 				<th class="num">K<sub>bits</sub></th>
-				<th>one minimum-bit program</th>
+				<th>one minimum-bit derivation program</th>
 				<th>reading</th>
 			</tr>
 		</thead>

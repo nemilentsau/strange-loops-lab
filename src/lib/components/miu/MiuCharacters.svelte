@@ -28,17 +28,20 @@
 		</p>
 	</div>
 	<div class="characters__body">
-		<p class="characters__lede">
-			The certificate used one fact about the residue: {'{'}1, 2{'}'} is closed under the rule
-			action. The full action is stated in one line: R2 multiplies the residue by 2, and R1, R3,
-			R4 fix it. The characters of ℤ/3 diagonalize it — R2 pulls
-			<span class="mv">χ<sub>k</sub></span> back to <span class="mv">χ<sub>2k</sub></span> — and
-			the indicator of the forbidden residue expands as <span class="mv">δ<sub>0</sub></span> =
-			(<span class="mv">χ<sub>0</sub></span> + <span class="mv">χ<sub>1</sub></span> +
-			<span class="mv">χ<sub>2</sub></span>)/3. Networks trained on modular arithmetic converge
-			on this same Fourier basis; the table below is the fixed object those measurements will be
-			set against.
-		</p>
+		<div class="characters__lede">
+			<p>
+				The certificate used one fact about the residue: {'{'}1, 2{'}'} is closed under the rule
+				action. The full action is stated in one line: R2 multiplies the residue by 2, and R1,
+				R3, R4 fix it. The characters of ℤ/3 diagonalize it — R2 pulls
+				<span class="mv">χ<sub>k</sub></span> back to <span class="mv">χ<sub>2k</sub></span> — and
+				the indicator of the forbidden residue expands as <span class="mv">δ<sub>0</sub></span>
+				= (<span class="mv">χ<sub>0</sub></span> + <span class="mv">χ<sub>1</sub></span> +
+				<span class="mv">χ<sub>2</sub></span>)/3.
+			</p>
+			<a class="forward-reference" href="/form-and-meaning/pq"
+				>→ forward reference: pq and grokking</a
+			>
+		</div>
 		<div class="characters__grid">
 			<div class="characters__part">
 				<p class="microlabel">Character table</p>

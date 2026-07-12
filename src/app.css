@@ -1381,8 +1381,28 @@ select {
 	line-height: 1.7;
 }
 
+.characters__lede p {
+	margin: 0;
+}
+
 .characters__lede .mv {
 	color: var(--ink);
+}
+
+.forward-reference {
+	display: block;
+	width: fit-content;
+	margin-top: var(--space-md);
+	color: var(--act);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	font-weight: 600;
+	letter-spacing: 0.12em;
+}
+
+.forward-reference:hover,
+.forward-reference:focus-visible {
+	text-decoration: underline;
 }
 
 .characters__grid {

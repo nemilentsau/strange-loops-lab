@@ -238,7 +238,7 @@
 <section class="movement">
 	<div class="movement__head">
 		<h2 class="movement__title">Description length</h2>
-		<span class="movement__altitude">about all such systems</span>
+		<span class="movement__altitude">as a program</span>
 	</div>
 
 	<p class="movement__turn">
