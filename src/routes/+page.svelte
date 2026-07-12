@@ -57,7 +57,7 @@
 		</div>
 		<div class="arc-index__body">
 			<p class="arc-index__question">
-				How does a system come to refer to itself, and what happens at the fixed point?
+				How does a system refer to itself, and what happens at a fixed point?
 			</p>
 			<ul class="instrument-list">
 				<li><span class="instrument-name">recursion</span></li>
@@ -73,7 +73,7 @@
 		</div>
 		<div class="arc-index__body">
 			<p class="arc-index__question">
-				What happens when a system that can describe itself reasons about its own provability?
+				What happens when a system reasons about its own provability?
 			</p>
 			<ul class="instrument-list">
 				<li><span class="instrument-name">Gödel numbering</span></li>
@@ -90,8 +90,7 @@
 		</div>
 		<div class="arc-index__body">
 			<p class="arc-index__question">
-				What is fundamentally uncomputable or incompressible, and what does that say about
-				prediction?
+				What is uncomputable or incompressible, and what does that say about prediction?
 			</p>
 			<ul class="instrument-list">
 				<li><span class="instrument-name">halting problem</span></li>
