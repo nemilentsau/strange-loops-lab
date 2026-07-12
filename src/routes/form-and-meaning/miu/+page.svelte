@@ -163,7 +163,7 @@
 
 <header class="instrument-header">
 	<h1>MIU system</h1>
-	<p>One derivation, read as theoremhood, invariant, and description length.</p>
+	<p>One object, three readings: derivation, invariant, program.</p>
 </header>
 
 <div class="overture">
@@ -177,19 +177,19 @@
 	</blockquote>
 	<p class="overture__reading">
 		The object below is a single derivation in the MIU system, read three ways at rising
-		altitude. Inside the system it is a sequence of moves: the four rules act on a string, and
-		the worksheet records each application. About the system it is the subject of an
-		impossibility proof: no derivation reaches <span class="o">MU</span>, and the certificate is
-		a residue mod 3. The same derivation can be read as a program: it is a finite record of rule
-		choices, the record can be coded in bits, and the length of the shortest code is a description
-		length relative to this machine.
+		altitude. <b>As a derivation.</b> The four rules act on a string, and the worksheet records
+		each application. <b>As an invariant.</b> Each string carries its number of Is mod 3; the
+		four rules preserve nonzero residue, so every derivation from MI keeps it while
+		<span class="o">MU</span> has residue 0. <b>As a program.</b> The rule-and-site choices are a
+		finite record that can be coded in bits; the length of the shortest such code is a
+		description length relative to this fixed machine.
 	</p>
 </div>
 
 <section class="movement">
 	<div class="movement__head">
 		<h2 class="movement__title">Theoremhood</h2>
-		<span class="movement__altitude">in the system</span>
+		<span class="movement__altitude">as a derivation</span>
 	</div>
 
 	<MiuProduce
@@ -223,7 +223,7 @@
 <section class="movement">
 	<div class="movement__head">
 		<h2 class="movement__title">Invariant certificate</h2>
-		<span class="movement__altitude">about the system</span>
+		<span class="movement__altitude">across all derivations</span>
 	</div>
 
 	<p class="movement__turn">
