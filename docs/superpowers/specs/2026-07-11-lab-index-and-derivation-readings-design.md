@@ -1,6 +1,6 @@
 # Lab Index and Inline Derivation Readings
 
-**Date:** 2026-07-11  
+**Date:** 2026-07-11
 **Status:** Approved design; implementation not started
 
 ## Objective
