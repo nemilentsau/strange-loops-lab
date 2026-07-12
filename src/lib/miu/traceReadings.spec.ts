@@ -36,6 +36,12 @@ describe('MIU trace readings', () => {
 		expect(reading.activeProgram).toMatchObject({ bitString: '0000', bitLength: 4 });
 	});
 
+	it('rejects a trace constructed from a non-MI initial state', () => {
+		expect(() => readDerivationTrace(createDerivationTrace('MII'))).toThrow(
+			'Trace must start at MI'
+		);
+	});
+
 	it('keeps future rows while reading only the active derivation prefix', () => {
 		let trace = createDerivationTrace();
 		trace = take(trace, 'MII');

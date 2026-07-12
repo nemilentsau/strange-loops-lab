@@ -1,5 +1,10 @@
 import { encodeDerivation, type EncodedDerivation, type EncodedInstruction } from './coding';
-import { type DerivationStep, type DerivationTrace, type MiuMove } from './core';
+import {
+	MIU_INITIAL_STRING,
+	type DerivationStep,
+	type DerivationTrace,
+	type MiuMove
+} from './core';
 import { countI } from './invariants';
 
 export interface DerivationReadingRow {
@@ -27,6 +32,10 @@ function producingMoves(steps: DerivationStep[]): MiuMove[] {
 }
 
 export function readDerivationTrace(trace: DerivationTrace): DerivationTraceReading {
+	if (trace.steps[0]?.value !== MIU_INITIAL_STRING) {
+		throw new Error(`Trace must start at ${MIU_INITIAL_STRING}`);
+	}
+
 	const allMoves = producingMoves(trace.steps);
 	const allInstructions = encodeDerivation(allMoves).instructions;
 	const activeMoves = allMoves.slice(0, trace.currentIndex);
