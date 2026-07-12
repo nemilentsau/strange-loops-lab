@@ -180,9 +180,9 @@
 		altitude. Inside the system it is a sequence of moves: the four rules act on a string, and
 		the worksheet records each application. About the system it is the subject of an
 		impossibility proof: no derivation reaches <span class="o">MU</span>, and the certificate is
-		a residue mod 3. About all such systems it is a program: a derivation is a finite record of
-		rule choices, the record can be coded in bits, and the length of the shortest code is a
-		description length relative to this machine.
+		a residue mod 3. The same derivation can be read as a program: it is a finite record of rule
+		choices, the record can be coded in bits, and the length of the shortest code is a description
+		length relative to this machine.
 	</p>
 </div>
 

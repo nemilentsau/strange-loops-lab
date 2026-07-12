@@ -102,7 +102,7 @@ read three ways:
   `#I ≢ 0 (mod 3)` rejects MU and every residue-zero target. The proof
   constructs all three characters of ℤ/3, their rule pullbacks, and the
   Fourier indicator of the forbidden residue.
-- **Description length** (about all such systems — the bridge): the derivation
+- **Description length** (as a program — the bridge): the derivation
   read as a program under a fixed executable prefix code. `K_steps` is minimum
   rewrite-move count by bounded bidirectional BFS (forward from MI, backward
   from the target under the inverse rules); `K_bits` is minimum encoded length
