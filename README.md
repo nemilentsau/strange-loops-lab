@@ -85,15 +85,19 @@ you manipulate, inspect, and reason with it directly.
 ## Current focus
 
 The first built bridge is **MIU derivation programs ↔ description length
-relative to a fixed machine**, shipped as a single MIU instrument at the root
-route. One object — the derivation — read three ways:
+relative to a fixed machine**, built at `/form-and-meaning/miu`. The root route
+`/` is the editorial index of the four arcs. One object — the derivation — is
+read three ways:
 
 - **Theoremhood** (in the system — the worksheet): the derivation spine, the
   current string with its rule sites in the string itself, and the four MIU
   rules always on screen, each showing the exact reason it cannot fire when it
   cannot. The theorem query decides membership by the complete I-count
   characterization, constructs a witness for every theorem, and keeps bounded
-  shortest-witness search separate.
+  shortest-witness search separate. Each active trace is annotated in place
+  with its I-count residue and executable instruction code, so the same
+  derivation is visible in all three readings before later movements generalize
+  them.
 - **Invariant certificate** (about the system — the wall): the invariant
   `#I ≢ 0 (mod 3)` rejects MU and every residue-zero target. The proof
   constructs all three characters of ℤ/3, their rule pullbacks, and the
@@ -108,6 +112,12 @@ route. One object — the derivation — read three ways:
 
 The page opens with a GEB epigraph and an orientation stating the three
 readings; a turn sentence at each seam names the altitude change.
+
+Current reader routes:
+
+- `/` — the title and editorial index of the four arcs
+- `/form-and-meaning/miu` — the built MIU instrument
+- `/form-and-meaning/pq` — the empty destination for the next instrument
 
 This is the Arc 1 minimal case: a wall exposed by an invariant, carried through
 to a descriptional-complexity reading of the same derivations.
@@ -214,8 +224,8 @@ Built now:
   (`theoremhood`), bounded `K_steps` optimization (`complexity`), the executable
   prefix code (`coding`), bounded `K_bits` optimization (`bitComplexity`), and
   the character table and pullbacks of ℤ/3 (`characters`)
-- the single-route instrument: the three readings of one derivation, with the
-  object itself as the interface
+- the MIU instrument at `/form-and-meaning/miu`: the three readings of one
+  derivation, with the object itself as the interface
 
 Present but dormant (in the repo, not wired to the instrument):
 - persistence: SQLite at `data/strange-loops.db`, the
