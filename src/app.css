@@ -954,6 +954,103 @@ select {
 	line-height: 1.5;
 }
 
+/* ── The bit-count explainer: click the encoded-bit total to read out how the
+ * program code is framed — tag bit, one instruction per move, terminator. The
+ * count is a real result the reader can audit, so opening the audit is an
+ * action and earns the accent affordance. */
+.bit-explainer {
+	position: relative;
+	display: inline-block;
+}
+
+.bit-explainer__trigger {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	text-decoration: underline dashed var(--line-strong);
+	text-underline-offset: 3px;
+}
+
+.bit-explainer__trigger:hover,
+.bit-explainer__trigger[aria-expanded='true'] {
+	color: var(--act);
+	text-decoration-color: var(--act);
+}
+
+.bit-breakdown {
+	display: block;
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	z-index: 20;
+	width: max-content;
+	min-width: 260px;
+	max-width: min(560px, 92vw);
+	max-height: min(70vh, 620px);
+	overflow-y: auto;
+	padding: var(--space-md);
+	background: var(--panel);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius);
+	box-shadow: 0 8px 24px rgb(43 42 39 / 0.12);
+	text-align: left;
+	white-space: normal;
+}
+
+.bit-breakdown__rows {
+	margin: 0;
+	display: grid;
+	gap: 4px;
+}
+
+.bit-breakdown__row {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: var(--space-sm);
+	align-items: baseline;
+}
+
+.bit-breakdown__bits {
+	margin: 0;
+	font-size: 0.82rem;
+	color: var(--ink);
+	white-space: nowrap;
+}
+
+.bit-breakdown__note {
+	margin: 0;
+	color: var(--muted);
+	font-size: var(--t-caption);
+	line-height: 1.45;
+}
+
+.bit-breakdown__row--empty .bit-breakdown__note {
+	color: var(--faint);
+	font-style: italic;
+}
+
+.bit-breakdown__rule {
+	color: var(--ink);
+}
+
+.bit-breakdown__step {
+	color: var(--faint);
+	white-space: nowrap;
+}
+
+.bit-breakdown__total {
+	display: block;
+	margin: var(--space-sm) 0 0;
+	padding-top: var(--space-xs);
+	border-top: 1px solid var(--ink);
+	font-family: var(--mono);
+	font-size: 0.82rem;
+	color: var(--ink);
+}
+
 .derivation-readings__turn {
 	margin: var(--space-sm) 0 0;
 	color: var(--faint);
@@ -1104,6 +1201,15 @@ select {
 .ledger-result__value {
 	min-width: 0;
 	overflow-wrap: anywhere;
+}
+
+.ledger-more {
+	margin: 2px 0 0;
+	padding: 0 8px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	letter-spacing: 0.08em;
 }
 
 /* A revisited string is written on its line, not passed silently: the

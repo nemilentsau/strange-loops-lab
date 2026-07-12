@@ -9,10 +9,12 @@
 	import {
 		currentDeadBranchStart,
 		doublingsToReach,
+		patternForRule,
 		ruleShortLabel,
 		traceRevisitIndices
 	} from '$lib/miu/core';
 	import { readDerivationTrace } from '$lib/miu/traceReadings';
+	import { describeProgramEncoding } from '$lib/miu/programEncoding';
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
 
@@ -67,6 +69,34 @@
 		),
 		'000'
 	]);
+	const programBreakdown = $derived(describeProgramEncoding(traceReading.activeMoves));
+
+	// A rule can apply at many sites on a long string; listing every one floods the
+	// rail with near-identical results. Show a handful — any specific site is applied
+	// by clicking it in the string above — and count the rest.
+	const MAX_LEDGER_SITES = 6;
+
+	let showBitBreakdown = $state(false);
+
+	// The breakdown reads out the derivation at the current step; close it whenever
+	// that derivation changes so it can never display a stale bit count.
+	$effect(() => {
+		trace.currentIndex;
+		trace.steps.length;
+		showBitBreakdown = false;
+	});
+
+	function clickOutside(node: HTMLElement, onOutside: () => void) {
+		function handle(event: MouseEvent) {
+			if (!node.contains(event.target as Node)) onOutside();
+		}
+		document.addEventListener('click', handle, true);
+		return {
+			destroy() {
+				document.removeEventListener('click', handle, true);
+			}
+		};
+	}
 
 	interface StringSegment {
 		move: MiuMove | null;
@@ -165,6 +195,12 @@
 		return nextWitnessStep(trace, witnessPath);
 	});
 </script>
+
+<svelte:window
+	onkeydown={(event) => {
+		if (event.key === 'Escape' && showBitBreakdown) showBitBreakdown = false;
+	}}
+/>
 
 {#snippet spineLine(step: DerivationStep, index: number, ahead: boolean)}
 	<button
@@ -338,7 +374,66 @@
 					<span class="derivation-readings__claim">
 						{traceReading.activeMoves.length}
 						{traceReading.activeMoves.length === 1 ? ' step' : ' steps'} ·
-						{traceReading.activeProgram.bitLength} encoded bits
+						<span class="bit-explainer" use:clickOutside={() => (showBitBreakdown = false)}>
+							<button
+								type="button"
+								class="bit-explainer__trigger"
+								aria-expanded={showBitBreakdown}
+								aria-controls="bit-breakdown"
+								onclick={() => (showBitBreakdown = !showBitBreakdown)}
+							>
+								{traceReading.activeProgram.bitLength} encoded bits
+							</button>
+							{#if showBitBreakdown}
+								<span
+									class="bit-breakdown"
+									id="bit-breakdown"
+									role="group"
+									aria-label="How the encoded bits are counted"
+								>
+									<span class="microlabel">Bit breakdown</span>
+									<span class="bit-breakdown__rows">
+										<span class="bit-breakdown__row">
+											<span class="bit-breakdown__bits o">0</span>
+											<span class="bit-breakdown__note">tag bit · 0 = program, 1 = literal</span>
+										</span>
+										{#if programBreakdown.rows.length === 0}
+											<span class="bit-breakdown__row bit-breakdown__row--empty">
+												<span class="bit-breakdown__bits">—</span>
+												<span class="bit-breakdown__note">no moves — 0 steps</span>
+											</span>
+										{:else}
+											{#each programBreakdown.rows as { instruction, step } (step)}
+												<span class="bit-breakdown__row">
+													<span class="bit-breakdown__bits o">
+														{instruction.opcode}{instruction.siteBits
+															? ` ${instruction.siteBits}`
+															: ''}
+													</span>
+													<span class="bit-breakdown__note">
+														<span class="bit-breakdown__rule"
+															>{ruleShortLabel(instruction.ruleId)} · <span class="o"
+																>{patternForRule(instruction.ruleId)}</span
+															>{instruction.siteCount > 1
+																? ` @${instruction.siteOrdinal + 1}/${instruction.siteCount}`
+																: ''}</span
+														>
+														<span class="bit-breakdown__step">← step {step}</span>
+													</span>
+												</span>
+											{/each}
+										{/if}
+										<span class="bit-breakdown__row">
+											<span class="bit-breakdown__bits o">000</span>
+											<span class="bit-breakdown__note">terminator · end of instructions</span>
+										</span>
+									</span>
+									<span class="bit-breakdown__total">
+										1 + {programBreakdown.payloadBits} + 3 = {programBreakdown.total} bits
+									</span>
+								</span>
+							{/if}
+						</span>
 					</span>
 				</p>
 			</div>
@@ -397,7 +492,7 @@
 							<p class="ledger-row__status">— {row.reason}</p>
 						{:else}
 							<div class="ledger-results">
-								{#each row.moves as move (move.key)}
+								{#each row.moves.slice(0, MAX_LEDGER_SITES) as move (move.key)}
 									<button
 										class="ledger-result"
 										type="button"
@@ -421,6 +516,9 @@
 										<span class="ledger-result__value">{ellipsizeMiddle(move.result)}</span>
 									</button>
 								{/each}
+								{#if row.moves.length > MAX_LEDGER_SITES}
+									<p class="ledger-more">+{row.moves.length - MAX_LEDGER_SITES} more sites</p>
+								{/if}
 							</div>
 						{/if}
 					</div>
