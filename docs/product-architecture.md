@@ -8,7 +8,7 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: July 9, 2026.
+Last updated: July 11, 2026.
 
 ---
 
@@ -123,16 +123,18 @@ instrument does not call it today; it persists continuity through localStorage
 ### 2.4 Persistence layer (dormant)
 Owned by server-side TypeScript under `src/lib/server` (`persistence.ts`) and
 the API routes `src/routes/api/modules/[slug]/{snapshot,artifacts}`, backed by
-SQLite at `data/strange-loops.db`. The state shim is
-`src/lib/state/module1Artifacts.ts`. Present in the repo but not wired to the
+SQLite at `data/strange-loops.db`. Present in the repo but not wired to the
 instrument.
 
 Responsibilities (as built):
 
 - SQLite-backed draft snapshots,
 - saved artifacts,
-- artifact listing and creation,
-- and restoring saved work into a Module 1 surface.
+- and artifact listing and creation.
+
+The phase-era artifact builders and the restore-into-a-surface flow were
+deleted with the phase model; artifact payloads remain opaque JSON to this
+layer.
 
 The persistence model is intentionally artifact-first rather than event-log
 heavy. The goal is continuity of thinking, not exhaustive telemetry. When it is
@@ -146,7 +148,8 @@ the instrument.
 
 Responsibilities (as built):
 
-- collect structured Module 1 context,
+- collect structured instrument context (the trace and the verifier facts
+  derived from it),
 - run the coaching flow,
 - persist dialogue transcripts as artifacts,
 - and return coaching output clearly separated from verifier-backed results.
@@ -202,9 +205,10 @@ flatten the three registers into one undifferentiated assistant channel.
    optimizations, `coding.ts` fixes their units, and `invariants.ts` plus
    `characters.ts` supply the wall and its Fourier form. Each reading renders
    directly from those results.
-4. On change, the page writes a continuity subset of the draft to localStorage
-   (`writeModule1Draft`) and reads it back on load (`readModule1Draft`), so a
-   reload restores the trace in progress.
+4. On change, the page writes the draft — the trace and its edit stamp, which
+   is all the draft now holds — to localStorage (`writeModule1Draft`) and reads
+   it back on load (`readModule1Draft`), so a reload restores the trace in
+   progress.
 5. Every live result is verified formal state or a checked deterministic
    transform of it. The instrument currently produces no measured or coaching
    output.

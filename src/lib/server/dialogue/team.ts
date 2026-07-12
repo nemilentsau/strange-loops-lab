@@ -125,13 +125,9 @@ Constraints:
 
 Context:
 - module: Formal Systems & Their Walls
-- mode: ${draft.dialogueMode}
-- active_surface: ${draft.activeSurface}
 - current_string: ${currentString}
 - trace: ${traceValues}
-- invariant_candidate: ${draft.invariantCandidate}
 - built_in_invariant: ${invariant.consequence ?? 'none'}
-- user_notes: ${draft.notes || '(none)'}
 
 Learner input:
 ${userInput}`;

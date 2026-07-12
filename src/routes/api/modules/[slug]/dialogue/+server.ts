@@ -23,7 +23,6 @@ export const POST: RequestHandler = async ({ params, request }) => {
 		const dialogue = await runModule1Dialogue({ userInput, draft });
 		const artifact = getPersistenceStore().createArtifact(params.slug, 'dialogue', `Dialogue: ${userInput.slice(0, 40)}`, {
 			userInput,
-			mode: draft.dialogueMode,
 			dialogue
 		});
 

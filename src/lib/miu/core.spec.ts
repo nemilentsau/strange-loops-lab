@@ -6,6 +6,7 @@ import {
 	applyMiuMove,
 	applyMoveToTrace,
 	createDerivationTrace,
+	currentDeadBranchStart,
 	doublingsToReach,
 	enumerateMiuMoves,
 	enumerateMiuPredecessors,
@@ -15,8 +16,70 @@ import {
 	jumpToTraceStep,
 	normalizeTrace,
 	restartTrace,
-	stepBackTrace
+	stepBackTrace,
+	traceRevisitIndices,
+	type DerivationTrace
 } from './core';
+
+function deriveTrace(values: string[]): DerivationTrace {
+	let trace = createDerivationTrace();
+
+	for (const value of values) {
+		const move = enumerateMiuMoves(trace.steps[trace.currentIndex]!.value).find(
+			(candidate) => candidate.result === value
+		);
+
+		if (!move) {
+			throw new Error(`No legal move to ${value} in test setup`);
+		}
+
+		trace = applyMoveToTrace(trace, move);
+	}
+
+	return trace;
+}
+
+// Uses all four rules: R2, R2, R1, R3, R4 — and cycles back to the axiom.
+const ALL_RULES = ['MII', 'MIIII', 'MIIIIU', 'MIUU', 'MI'];
+
+describe('currentDeadBranchStart', () => {
+	it('returns null when the current string is not trapped', () => {
+		expect(currentDeadBranchStart(deriveTrace(['MII']))).toBeNull();
+	});
+
+	it('returns the first step of the contiguous trapped run', () => {
+		expect(currentDeadBranchStart(deriveTrace(['MIU', 'MIUIU', 'MIUIUIUIU']))).toBe(1);
+	});
+
+	it('returns null after jumping back out of the trap', () => {
+		const trace = deriveTrace(['MIU', 'MIUIU']);
+
+		expect(currentDeadBranchStart({ ...trace, currentIndex: 0 })).toBeNull();
+	});
+});
+
+describe('traceRevisitIndices', () => {
+	it('maps every step to null while all strings are distinct', () => {
+		expect(traceRevisitIndices(deriveTrace(['MII', 'MIIII']))).toEqual([null, null, null]);
+	});
+
+	it('maps a revisited string to the index of its first appearance', () => {
+		expect(traceRevisitIndices(deriveTrace(ALL_RULES))).toEqual([
+			null,
+			null,
+			null,
+			null,
+			null,
+			0
+		]);
+	});
+
+	it('maps a third occurrence to the first appearance, not the second', () => {
+		const twoCycles = deriveTrace([...ALL_RULES, ...ALL_RULES]);
+
+		expect(traceRevisitIndices(twoCycles)[10]).toBe(0);
+	});
+});
 
 describe('isDeadBranch', () => {
 	it('flags the alternating trap entered by R1 from MI', () => {

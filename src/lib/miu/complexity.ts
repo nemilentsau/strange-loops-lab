@@ -1,5 +1,6 @@
 import {
 	MIU_INITIAL_STRING,
+	clampBound,
 	enumerateMiuMoves,
 	enumerateMiuPredecessors,
 	type MiuMove
@@ -9,7 +10,7 @@ import { decideMiuTheorem } from './theoremhood';
 /**
  * Descriptional complexity for MIU. A derivation is read as a program: the
  * axiom MI is the input, the rule-and-site choice at each step is an
- * instruction, and the string is the output. K_MIU(s) is the length of the
+ * instruction, and the string is the output. K_steps(s) is the length of the
  * SHORTEST such program — description length against the four MIU rules, a
  * fixed (non-universal) machine. Replacing the rules with a universal machine
  * turns this into Kolmogorov complexity; that step is not taken here.
@@ -20,7 +21,7 @@ export type ShortestDerivationOutcome = 'found' | 'exhausted';
 export interface ShortestDerivation {
 	target: string;
 	outcome: ShortestDerivationOutcome;
-	/** K_MIU(target): moves in the shortest derivation from MI. Null unless found. */
+	/** K_steps(target): moves in the shortest derivation from MI. Null unless found. */
 	length: number | null;
 	/** The shortest derivation MI ⇒ target, in order. Empty for MI itself; null unless found. */
 	path: MiuMove[] | null;
@@ -230,12 +231,4 @@ function found(
 	}
 
 	return { ...base, outcome: 'found', length: path.length, path, stoppedBy: null, completedDepth: null };
-}
-
-function clampBound(value: number, min: number, max: number): number {
-	if (!Number.isFinite(value)) {
-		return min;
-	}
-
-	return Math.min(max, Math.max(min, Math.trunc(value)));
 }

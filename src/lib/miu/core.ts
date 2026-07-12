@@ -237,7 +237,7 @@ export function analyzeMiuRuleAvailability(current: string): MiuRuleAvailability
 
 		return {
 			ruleId,
-			ruleLabel: labelForRule(ruleId),
+			ruleLabel: ruleLabel(ruleId),
 			pattern: patternForRule(ruleId),
 			status: available ? 'available' : 'unavailable',
 			moves,
@@ -338,6 +338,58 @@ export function normalizeTrace(input: unknown): DerivationTrace {
 	return { steps, currentIndex };
 }
 
+/**
+ * When the CURRENT position sits inside a dead branch, the index of the
+ * first step of that contiguous trapped run — the live note's "this branch
+ * is closed" anchor; `start - 1` is the last open line to jump back to.
+ * Null when the current string is not trapped.
+ */
+export function currentDeadBranchStart(trace: DerivationTrace): number | null {
+	const current = trace.currentIndex;
+
+	if (!isDeadBranch(trace.steps[current]?.value ?? '')) {
+		return null;
+	}
+
+	let start = current;
+
+	while (start > 0 && isDeadBranch(trace.steps[start - 1]!.value)) {
+		start -= 1;
+	}
+
+	return start;
+}
+
+/**
+ * For each step, the index of the FIRST earlier step holding the same
+ * string, or null when the string is new to the trace. Drives the spine's
+ * revisit notes ("↩ same as step 5"): the system's degeneracy written on
+ * the page instead of passing silently.
+ */
+export function traceRevisitIndices(trace: DerivationTrace): (number | null)[] {
+	const firstSeen = new Map<string, number>();
+
+	return trace.steps.map((step, index) => {
+		const earlier = firstSeen.get(step.value);
+
+		if (earlier === undefined) {
+			firstSeen.set(step.value, index);
+			return null;
+		}
+
+		return earlier;
+	});
+}
+
+/** Truncate-and-clamp a search bound; non-finite input collapses to the minimum. */
+export function clampBound(value: number, min: number, max: number): number {
+	if (!Number.isFinite(value)) {
+		return min;
+	}
+
+	return Math.min(max, Math.max(min, Math.trunc(value)));
+}
+
 function normalizeStep(input: unknown): DerivationStep | null {
 	if (!input || typeof input !== 'object') {
 		return null;
@@ -417,7 +469,7 @@ function inspectRuleProposal(proposed: string, ruleId: MiuRuleId, legalMoves: Mi
 	if (ruleMoves.length === 0) {
 		return {
 			ruleId,
-			ruleLabel: labelForRule(ruleId),
+			ruleLabel: ruleLabel(ruleId),
 			status: 'unavailable',
 			explanation: unavailableRuleExplanation(ruleId),
 			legalResults: [],
@@ -427,7 +479,7 @@ function inspectRuleProposal(proposed: string, ruleId: MiuRuleId, legalMoves: Mi
 
 	return {
 		ruleId,
-		ruleLabel: labelForRule(ruleId),
+		ruleLabel: ruleLabel(ruleId),
 		status: 'different-result',
 		explanation: differentResultExplanation(ruleId, proposed, ruleMoves),
 		legalResults: uniqueResults(ruleMoves),
@@ -535,10 +587,10 @@ function differentResultExplanation(ruleId: MiuRuleId, proposed: string, ruleMov
 	const suffix = legalResults.length > 3 ? ', ...' : '';
 
 	if (legalResults.length === 1) {
-		return `${labelForRule(ruleId)} is applicable here, but it would produce ${legalResults[0]}, not ${proposed}.`;
+		return `${ruleLabel(ruleId)} is applicable here, but it would produce ${legalResults[0]}, not ${proposed}.`;
 	}
 
-	return `${labelForRule(ruleId)} is applicable here, but it can only produce ${preview}${suffix}, not ${proposed}.`;
+	return `${ruleLabel(ruleId)} is applicable here, but it can only produce ${preview}${suffix}, not ${proposed}.`;
 }
 
 function unavailableRuleExplanation(ruleId: MiuRuleId): string {
@@ -554,7 +606,20 @@ function unavailableRuleExplanation(ruleId: MiuRuleId): string {
 	}
 }
 
-function patternForRule(ruleId: MiuRuleId): string {
+/** 1-based ordinal of a rule in ledger order: R1–R4. */
+export function ruleNumber(ruleId: MiuRuleId): number {
+	return MIU_RULES.indexOf(ruleId) + 1;
+}
+
+export function ruleShortLabel(ruleId: MiuRuleId): string {
+	return `R${ruleNumber(ruleId)}`;
+}
+
+export function ruleLabel(ruleId: MiuRuleId): string {
+	return `Rule ${ruleNumber(ruleId)}`;
+}
+
+export function patternForRule(ruleId: MiuRuleId): string {
 	switch (ruleId) {
 		case 'append-u':
 			return 'xI → xIU';
@@ -587,19 +652,6 @@ function availabilityReason(ruleId: MiuRuleId): string {
 
 function uniqueResults(moves: MiuMove[]): string[] {
 	return Array.from(new Set(moves.map((move) => move.result)));
-}
-
-function labelForRule(ruleId: MiuRuleId): string {
-	switch (ruleId) {
-		case 'append-u':
-			return 'Rule 1';
-		case 'double-tail':
-			return 'Rule 2';
-		case 'replace-iii':
-			return 'Rule 3';
-		case 'delete-uu':
-			return 'Rule 4';
-	}
 }
 
 function assertValidMiuString(value: string): void {

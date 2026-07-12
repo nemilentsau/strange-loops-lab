@@ -1,4 +1,4 @@
-import { enumerateMiuMoves, type MiuMove, type MiuRuleId } from './core';
+import { MIU_RULES, enumerateMiuMoves, ruleLabel, type MiuMove, type MiuRuleId } from './core';
 import { buildReachabilityGraph } from './graph';
 
 export interface ParsedInvariantCandidate {
@@ -36,13 +36,6 @@ export interface InvariantAnalysis {
 	consequence: string | null;
 	unsupportedReason: string | null;
 }
-
-const RULE_LABELS: Record<MiuRuleId, string> = {
-	'append-u': 'Rule 1',
-	'double-tail': 'Rule 2',
-	'replace-iii': 'Rule 3',
-	'delete-uu': 'Rule 4'
-};
 
 const BUILT_IN_TEXT = 'count(I) mod 3 != 0';
 
@@ -120,13 +113,13 @@ export function parseInvariantCandidate(input: string): ParsedInvariantCandidate
 }
 
 function analyzeRules(candidate: ParsedInvariantCandidate): RuleInvariantResult[] {
-	return (['append-u', 'double-tail', 'replace-iii', 'delete-uu'] as const).map((ruleId) => {
+	return MIU_RULES.map((ruleId) => {
 		const witness = findInvariantWitness(candidate, ruleId);
 
 		if (witness === null) {
 			return {
 				ruleId,
-				ruleLabel: RULE_LABELS[ruleId],
+				ruleLabel: ruleLabel(ruleId),
 				preserved: true,
 				explanation: preservedExplanation(candidate, ruleId),
 				witness: null
@@ -135,7 +128,7 @@ function analyzeRules(candidate: ParsedInvariantCandidate): RuleInvariantResult[
 
 		return {
 			ruleId,
-			ruleLabel: RULE_LABELS[ruleId],
+			ruleLabel: ruleLabel(ruleId),
 			preserved: false,
 			explanation: `Fails on ${witness.source} -> ${witness.result}: the I-count moves from ${witness.iCountBefore} to ${witness.iCountAfter}.`,
 			witness

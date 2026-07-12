@@ -88,21 +88,26 @@ The first built bridge is **MIU derivation programs ↔ description length
 relative to a fixed machine**, shipped as a single MIU instrument at the root
 route. One object — the derivation — read three ways:
 
-- **Manipulate** (the worksheet): the derivation spine, the current string with
-  its rule sites in the string itself, and the four MIU rules always on screen,
-  each showing the exact reason it cannot fire when it cannot. The theorem
-  query decides membership by the complete I-count characterization, constructs
-  a witness for every theorem, and keeps bounded shortest-witness search
-  separate.
-- **The wall**: the invariant `#I ≢ 0 (mod 3)` rejects MU and every residue-zero
-  target. The proof now constructs all three characters of ℤ/3, their rule
-  pullbacks, and the Fourier indicator of the forbidden residue.
-- **The bridge**: the derivation read as a program under a fixed executable
-  prefix code. `K_steps` is minimum rewrite-move count by bounded bidirectional
-  BFS (forward from MI, backward from the target under the inverse rules); `K_bits`
-  is minimum encoded length by bounded Dijkstra search. Both searches report an
-  honest exhaustion horizon. Compression is asserted only by comparing
-  `K_bits` with the gamma-length-prefixed literal code.
+- **Theoremhood** (in the system — the worksheet): the derivation spine, the
+  current string with its rule sites in the string itself, and the four MIU
+  rules always on screen, each showing the exact reason it cannot fire when it
+  cannot. The theorem query decides membership by the complete I-count
+  characterization, constructs a witness for every theorem, and keeps bounded
+  shortest-witness search separate.
+- **Invariant certificate** (about the system — the wall): the invariant
+  `#I ≢ 0 (mod 3)` rejects MU and every residue-zero target. The proof
+  constructs all three characters of ℤ/3, their rule pullbacks, and the
+  Fourier indicator of the forbidden residue.
+- **Description length** (about all such systems — the bridge): the derivation
+  read as a program under a fixed executable prefix code. `K_steps` is minimum
+  rewrite-move count by bounded bidirectional BFS (forward from MI, backward
+  from the target under the inverse rules); `K_bits` is minimum encoded length
+  by bounded Dijkstra search. Both searches report an honest exhaustion
+  horizon. Compression is asserted only by comparing `K_bits` with the
+  gamma-length-prefixed literal code.
+
+The page opens with a GEB epigraph and an orientation stating the three
+readings; a turn sentence at each seam names the altitude change.
 
 This is the Arc 1 minimal case: a wall exposed by an invariant, carried through
 to a descriptional-complexity reading of the same derivations.

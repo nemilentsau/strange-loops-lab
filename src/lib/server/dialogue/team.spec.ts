@@ -8,7 +8,6 @@ describe('dialogue team runner', () => {
 		const draft = createModule1Draft();
 		const prompt = buildDialoguePrompt(draft, 'I think MU is unreachable because I cannot find it.');
 
-		expect(prompt).toContain('mode: Explain-Back Examiner');
 		expect(prompt).toContain('current_string: MI');
 		expect(prompt).toContain('Learner input');
 	});
