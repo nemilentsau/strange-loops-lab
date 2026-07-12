@@ -785,6 +785,41 @@ select {
 	opacity: 1;
 }
 
+.spine-line__reading,
+.focal__reading {
+	display: grid;
+	grid-template-columns: 3.5ch 9ch;
+	gap: 12px;
+	align-items: baseline;
+	flex: 0 0 auto;
+	font-family: var(--mono);
+	font-variant-numeric: tabular-nums;
+}
+
+.spine-reading-head {
+	display: grid;
+	grid-template-columns: 3.5ch 9ch;
+	gap: 12px;
+	width: calc(12.5ch + 12px);
+	margin: 0 0 4px auto;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.spine-line__residue {
+	font-weight: 700;
+	text-align: center;
+}
+
+.spine-line__instruction {
+	color: var(--muted);
+	white-space: nowrap;
+}
+
 /* Steps ahead of the current position (kept after a jump back, discarded on
  * branch) are dimmed but remain real jump targets. */
 .spine-line--ahead {
@@ -849,6 +884,72 @@ select {
 .focal__note--target {
 	color: var(--ink);
 	font-weight: 600;
+}
+
+.focal__reading {
+	padding-top: 0.45rem;
+}
+
+.focal__reading > div {
+	display: grid;
+	gap: 3px;
+}
+
+.focal__reading strong,
+.focal__reading code {
+	font-family: var(--mono);
+	font-size: 0.86rem;
+}
+
+.reading-column-label {
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.derivation-readings {
+	display: grid;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	gap: var(--space-xl);
+	margin-top: var(--space-lg);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--ink);
+}
+
+.derivation-readings p {
+	margin: 0;
+	min-width: 0;
+}
+
+.derivation-readings .microlabel {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.derivation-readings__sequence {
+	display: block;
+	font-family: var(--mono);
+	font-size: 0.78rem;
+	line-height: 1.65;
+	overflow-wrap: anywhere;
+}
+
+.derivation-readings__claim {
+	display: block;
+	margin-top: 5px;
+	color: var(--muted);
+	font-size: var(--t-caption);
+	line-height: 1.5;
+}
+
+.derivation-readings__turn {
+	margin: var(--space-sm) 0 0;
+	color: var(--faint);
+	font-size: var(--t-caption);
+	line-height: 1.55;
 }
 
 /* In-string rule sites. A site is typographically invisible — it is just
@@ -1490,6 +1591,10 @@ select {
 		padding-inline: 24px;
 	}
 
+	.spine-line__note {
+		white-space: normal;
+	}
+
 	.cert-grid {
 		grid-template-columns: 1fr;
 		row-gap: var(--space-xl);
@@ -1543,6 +1648,10 @@ select {
 		margin-top: var(--space-lg);
 		padding-top: var(--space-sm);
 		border-top: 1px solid var(--line-strong);
+	}
+
+	.derivation-readings {
+		grid-template-columns: 1fr;
 	}
 }
 

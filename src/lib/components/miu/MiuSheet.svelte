@@ -12,6 +12,7 @@
 		ruleShortLabel,
 		traceRevisitIndices
 	} from '$lib/miu/core';
+	import { readDerivationTrace } from '$lib/miu/traceReadings';
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
 
@@ -56,6 +57,16 @@
 	const activeMoves = $derived(activeRule?.moves ?? []);
 	const hoverMove = $derived(activeMoves.find((move) => move.key === hoverMoveKey) ?? null);
 	const revisits = $derived(traceRevisitIndices(trace));
+	const traceReading = $derived(readDerivationTrace(trace));
+	const activeProgramParts = $derived([
+		'0',
+		...traceReading.activeProgram.instructions.map((instruction) =>
+			instruction.siteBits
+				? `${instruction.opcode} ${instruction.siteBits}`
+				: instruction.opcode
+		),
+		'000'
+	]);
 
 	interface StringSegment {
 		move: MiuMove | null;
@@ -123,6 +134,18 @@
 		}
 	}
 
+	function instructionText(index: number): string {
+		const instruction = traceReading.rows[index]?.instruction;
+		if (!instruction) return '—';
+		return instruction.siteBits
+			? `${instruction.opcode} ${instruction.siteBits}`
+			: instruction.opcode;
+	}
+
+	function residueText(index: number): string {
+		return String(traceReading.rows[index]?.residue ?? '');
+	}
+
 	const currentStep = $derived(trace.steps[trace.currentIndex] ?? trace.steps[0]!);
 	const focalRevisit = $derived(revisits[trace.currentIndex] ?? null);
 	const aheadSteps = $derived(trace.steps.length - 1 - trace.currentIndex);
@@ -156,6 +179,10 @@
 			{ruleNote(step.via)}{#if revisits[index] !== null}{' · '}<span class="spine-line__again"
 					>↩ same as step {revisits[index]}</span
 				>{/if}
+		</span>
+		<span class="spine-line__reading" aria-label={`Residue ${residueText(index)}`}>
+			<span class="spine-line__residue">{residueText(index)}</span>
+			<span class="spine-line__instruction">{instructionText(index)}</span>
 		</span>
 		<span class="spine-line__jump" aria-hidden="true">
 			{ahead ? '↪ jump forward' : '↩ continue from here'}
@@ -207,16 +234,20 @@
 	<div class="worksheet__cols">
 		<div class="worksheet__main">
 			<div class="spine">
-		{#each trace.steps as step, index}
-			{#if index < trace.currentIndex}
-				{@render spineLine(step, index, false)}
-				{@render witnessMenu(index)}
-			{:else if index === trace.currentIndex}
-				<div class="focal">
-					<span class="focal__num">{index}</span>
-					<div class="focal__body">
-						<div class="focal__string">
-							{#each segments as segment (segment.start)}{#if segment.move}<span
+				<div class="spine-reading-head" aria-hidden="true">
+					<span>r(s)</span>
+					<span>instruction</span>
+				</div>
+				{#each trace.steps as step, index}
+					{#if index < trace.currentIndex}
+						{@render spineLine(step, index, false)}
+						{@render witnessMenu(index)}
+					{:else if index === trace.currentIndex}
+						<div class="focal">
+							<span class="focal__num">{index}</span>
+							<div class="focal__body">
+								<div class="focal__string">
+									{#each segments as segment (segment.start)}{#if segment.move}<span
 										class="string-site"
 										role="button"
 										tabindex="0"
@@ -235,45 +266,83 @@
 											class="string-char"
 											data-mark={markFor(segment.start + offset, false)}>{char}</span
 										>{/each}{/if}{/each}
+								</div>
+
+								{#if reachedTarget}
+									<p class="focal__note focal__note--target">= the target.</p>
+								{:else if hoverMove && activeRule}
+									<p class="site-preview">
+										<span class="site-preview__chip">
+											apply {ruleShortLabel(activeRule.ruleId)} here → {ellipsizeMiddle(hoverMove.result)}
+										</span>
+									</p>
+								{:else if activeRule && activeRule.moves.length > 1}
+									<p class="focal__hint">
+										{activeRule.ruleLabel} applies at {activeRule.moves.length} sites.
+									</p>
+								{:else}
+									<p class="focal__note">
+										{ruleNote(currentStep.via)}{#if focalRevisit !== null}{' · '}<span
+												class="spine-line__again">↩ same as step {focalRevisit}</span
+											>{/if}
+									</p>
+								{/if}
+							</div>
+							<div class="focal__reading">
+								<div>
+									<span class="reading-column-label">r(s)</span>
+									<strong>{residueText(trace.currentIndex)}</strong>
+								</div>
+								<div>
+									<span class="reading-column-label">instruction</span>
+									<code>{instructionText(trace.currentIndex)}</code>
+								</div>
+							</div>
 						</div>
+						{@render witnessMenu(index)}
+					{:else}
+						{@render spineLine(step, index, true)}
+						{@render witnessMenu(index)}
+					{/if}
+				{/each}
 
-						{#if reachedTarget}
-							<p class="focal__note focal__note--target">= the target.</p>
-						{:else if hoverMove && activeRule}
-							<p class="site-preview">
-								<span class="site-preview__chip">
-									apply {ruleShortLabel(activeRule.ruleId)} here → {ellipsizeMiddle(hoverMove.result)}
-								</span>
-							</p>
-						{:else if activeRule && activeRule.moves.length > 1}
-							<p class="focal__hint">
-								{activeRule.ruleLabel} applies at {activeRule.moves.length} sites.
-							</p>
-						{:else}
-							<p class="focal__note">
-								{ruleNote(currentStep.via)}{#if focalRevisit !== null}{' · '}<span
-										class="spine-line__again">↩ same as step {focalRevisit}</span
-									>{/if}
-							</p>
-						{/if}
-					</div>
-				</div>
-				{@render witnessMenu(index)}
-			{:else}
-				{@render spineLine(step, index, true)}
-				{@render witnessMenu(index)}
-			{/if}
-		{/each}
-
-		{#if aheadSteps > 0}
-			<p class="spine-ahead-note">
-				{aheadSteps === 1
-					? `step ${trace.steps.length - 1} stays`
-					: `steps ${trace.currentIndex + 1}–${trace.steps.length - 1} stay`} until you apply a move
-				from step {trace.currentIndex} — branching discards {aheadSteps === 1 ? 'it' : 'them'}.
-			</p>
-		{/if}
+				{#if aheadSteps > 0}
+					<p class="spine-ahead-note">
+						{aheadSteps === 1
+							? `step ${trace.steps.length - 1} stays`
+							: `steps ${trace.currentIndex + 1}–${trace.steps.length - 1} stay`} until you apply a move
+						from step {trace.currentIndex} — branching discards {aheadSteps === 1 ? 'it' : 'them'}.
+					</p>
+				{/if}
 			</div>
+
+			<div class="derivation-readings" aria-label="Two readings of the active derivation">
+				<p>
+					<span class="microlabel">Invariant reading</span>
+					<span class="derivation-readings__sequence">
+						{traceReading.activeResidues.join(' → ')}
+					</span>
+					<span class="derivation-readings__claim">
+						<span class="stamp" aria-hidden="true">✓</span>
+						every reached string remains in {'{'}1, 2{'}'}
+					</span>
+				</p>
+				<p>
+					<span class="microlabel">Program reading</span>
+					<span class="derivation-readings__sequence">
+						{activeProgramParts.join(' · ')}
+					</span>
+					<span class="derivation-readings__claim">
+						{traceReading.activeMoves.length}
+						{traceReading.activeMoves.length === 1 ? ' step' : ' steps'} ·
+						{traceReading.activeProgram.bitLength} encoded bits
+					</span>
+				</p>
+			</div>
+			<p class="derivation-readings__turn">
+				The invariant section proves why the residue column cannot reach 0. The
+				description-length section defines the instruction code and minimizes its length.
+			</p>
 
 			{#if deadBranchStart !== null && doublingsToTarget !== 0}
 				<div class="dead-branch">
