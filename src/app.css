@@ -165,6 +165,184 @@ select {
 	min-width: 0;
 }
 
+/* ── Laboratory index ──
+ * An editorial table of contents: title, comparative questions, and named
+ * instruments. Rules establish hierarchy; unbuilt entries remain plain text. */
+.lab-index__header {
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(24rem, 0.8fr);
+	gap: var(--space-2xl);
+	align-items: end;
+	padding: clamp(3rem, 9vh, 7rem) 0 var(--space-2xl);
+	border-bottom: 2px solid var(--ink);
+}
+
+.lab-index__masthead .microlabel {
+	margin-bottom: var(--space-md);
+}
+
+.lab-index__masthead h1 {
+	max-width: 12ch;
+	margin: 0;
+	font-size: clamp(3rem, 7vw, 6.7rem);
+	font-weight: 500;
+	letter-spacing: -0.045em;
+	line-height: 0.92;
+}
+
+.lab-index__introduction {
+	display: grid;
+	gap: var(--space-md);
+	max-width: 46rem;
+	padding-bottom: 0.25rem;
+}
+
+.lab-index__introduction > p {
+	margin: 0;
+	color: var(--muted);
+	font-size: 1.06rem;
+	line-height: 1.7;
+}
+
+.lab-index__introduction > p:first-child {
+	color: var(--ink);
+}
+
+.arc-index {
+	margin-top: var(--space-xl);
+}
+
+.arc-index__arc {
+	display: grid;
+	grid-template-columns: minmax(15rem, 0.75fr) minmax(0, 1.65fr);
+	gap: var(--space-2xl);
+	padding: var(--space-xl) 0;
+	border-bottom: 1px solid var(--line-strong);
+}
+
+.arc-index__identity h2 {
+	max-width: 16ch;
+	margin: 0;
+	font-size: var(--t-title);
+	font-weight: 600;
+	letter-spacing: -0.015em;
+	line-height: 1.2;
+}
+
+.arc-index__body {
+	min-width: 0;
+}
+
+.arc-index__question {
+	max-width: var(--measure);
+	margin: 0;
+	font-size: var(--t-sub);
+	font-style: italic;
+	line-height: 1.5;
+}
+
+.instrument-list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px var(--space-xl);
+	margin: var(--space-lg) 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.instrument-list li {
+	min-width: 0;
+	color: var(--muted);
+	line-height: 1.5;
+}
+
+.instrument-entry a {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--space-md);
+	width: 100%;
+	color: var(--ink);
+}
+
+.instrument-entry a .instrument-name {
+	text-decoration: underline;
+	text-decoration-color: var(--line-strong);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+}
+
+.instrument-entry a:hover .instrument-name,
+.instrument-entry a:focus-visible .instrument-name {
+	color: var(--act);
+	text-decoration-color: var(--act);
+}
+
+.instrument-status {
+	flex: 0 0 auto;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	letter-spacing: 0.08em;
+	text-transform: lowercase;
+}
+
+/* Instrument context is deliberately quieter than the document heading. */
+.instrument-breadcrumb {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	align-items: baseline;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	letter-spacing: 0.06em;
+}
+
+.instrument-breadcrumb a:hover,
+.instrument-breadcrumb a:focus-visible {
+	color: var(--act);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.instrument-breadcrumb [aria-current='page'] {
+	color: var(--muted);
+}
+
+.instrument-breadcrumb + .instrument-header {
+	margin-top: var(--space-sm);
+}
+
+.instrument-placeholder {
+	max-width: 48rem;
+	margin-top: clamp(4rem, 12vh, 9rem);
+	padding-top: var(--space-lg);
+	border-top: 2px solid var(--ink);
+}
+
+.instrument-placeholder h1 {
+	margin: 0;
+	font-size: clamp(2.8rem, 6vw, 5rem);
+	font-weight: 500;
+	letter-spacing: -0.035em;
+	line-height: 1;
+}
+
+.instrument-placeholder__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-lg);
+	margin-top: var(--space-xl);
+}
+
+.instrument-placeholder__links a {
+	color: var(--act);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+}
+
 .instrument-header {
 	display: flex;
 	align-items: baseline;
@@ -235,7 +413,7 @@ select {
 /* ════════════════════════════════════════════════════════════════════════
  * The MIU instrument — one object read three ways at rising altitude:
  * theoremhood (in the system) · invariant (about the system) · description
- * length (about all such systems). No phase chrome.
+ * length (as a program). No phase chrome.
  * ════════════════════════════════════════════════════════════════════════ */
 
 .movement {
@@ -550,6 +728,7 @@ select {
 }
 
 .spine-line {
+	position: relative;
 	display: flex;
 	gap: 14px;
 	align-items: baseline;
@@ -593,18 +772,60 @@ select {
 }
 
 .spine-line__jump {
-	flex-shrink: 0;
+	position: absolute;
+	top: 50%;
+	right: 0;
+	z-index: 1;
+	padding: 2px 0 2px 14px;
+	transform: translateY(-50%);
+	background: var(--panel);
 	color: var(--act);
 	font-family: var(--sans);
 	font-size: 0.74rem;
 	white-space: nowrap;
 	opacity: 0;
+	pointer-events: none;
 	transition: opacity 120ms ease;
 }
 
 .spine-line:hover .spine-line__jump,
 .spine-line:focus-visible .spine-line__jump {
 	opacity: 1;
+}
+
+.spine-line__reading,
+.focal__reading {
+	display: grid;
+	grid-template-columns: 3.5ch 9ch;
+	gap: 12px;
+	align-items: baseline;
+	flex: 0 0 auto;
+	font-family: var(--mono);
+	font-variant-numeric: tabular-nums;
+}
+
+.spine-reading-head {
+	display: grid;
+	grid-template-columns: 3.5ch 9ch;
+	gap: 12px;
+	width: calc(12.5ch + 12px);
+	margin: 0 6px 4px auto;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.spine-line__residue {
+	font-weight: 700;
+	text-align: center;
+}
+
+.spine-line__instruction {
+	color: var(--muted);
+	white-space: nowrap;
 }
 
 /* Steps ahead of the current position (kept after a jump back, discarded on
@@ -671,6 +892,73 @@ select {
 .focal__note--target {
 	color: var(--ink);
 	font-weight: 600;
+}
+
+.focal__reading {
+	margin-right: 6px;
+	padding-top: 0.45rem;
+}
+
+.focal__reading > div {
+	display: grid;
+	gap: 3px;
+}
+
+.focal__reading strong,
+.focal__reading code {
+	font-family: var(--mono);
+	font-size: 0.86rem;
+}
+
+.reading-column-label {
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.derivation-readings {
+	display: grid;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	gap: var(--space-xl);
+	margin-top: var(--space-lg);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--ink);
+}
+
+.derivation-readings p {
+	margin: 0;
+	min-width: 0;
+}
+
+.derivation-readings .microlabel {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.derivation-readings__sequence {
+	display: block;
+	font-family: var(--mono);
+	font-size: 0.78rem;
+	line-height: 1.65;
+	overflow-wrap: anywhere;
+}
+
+.derivation-readings__claim {
+	display: block;
+	margin-top: 5px;
+	color: var(--muted);
+	font-size: var(--t-caption);
+	line-height: 1.5;
+}
+
+.derivation-readings__turn {
+	margin: var(--space-sm) 0 0;
+	color: var(--faint);
+	font-size: var(--t-caption);
+	line-height: 1.55;
 }
 
 /* In-string rule sites. A site is typographically invisible — it is just
@@ -1093,8 +1381,28 @@ select {
 	line-height: 1.7;
 }
 
+.characters__lede p {
+	margin: 0;
+}
+
 .characters__lede .mv {
 	color: var(--ink);
+}
+
+.forward-reference {
+	display: block;
+	width: fit-content;
+	margin-top: var(--space-md);
+	color: var(--act);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	font-weight: 600;
+	letter-spacing: 0.12em;
+}
+
+.forward-reference:hover,
+.forward-reference:focus-visible {
+	text-decoration: underline;
 }
 
 .characters__grid {
@@ -1312,6 +1620,10 @@ select {
 		padding-inline: 24px;
 	}
 
+	.spine-line__note {
+		white-space: normal;
+	}
+
 	.cert-grid {
 		grid-template-columns: 1fr;
 		row-gap: var(--space-xl);
@@ -1366,9 +1678,27 @@ select {
 		padding-top: var(--space-sm);
 		border-top: 1px solid var(--line-strong);
 	}
+
+	.derivation-readings {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 780px) {
+	.lab-index__header,
+	.arc-index__arc {
+		grid-template-columns: 1fr;
+		gap: var(--space-lg);
+	}
+
+	.lab-index__header {
+		align-items: start;
+	}
+
+	.instrument-list {
+		grid-template-columns: 1fr;
+	}
+
 	.instrument-header {
 		display: block;
 	}

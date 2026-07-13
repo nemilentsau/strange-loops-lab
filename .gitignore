@@ -30,6 +30,9 @@ data/*.db-wal
 # Visual brainstorming sessions
 .superpowers/
 
+# Isolated implementation worktrees
+.worktrees/
+
 # Playwright MCP screenshot/snapshot scratch output
 .playwright-mcp/
 

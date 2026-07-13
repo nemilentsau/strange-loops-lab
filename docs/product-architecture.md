@@ -8,7 +8,7 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: July 11, 2026.
+Last updated: July 12, 2026.
 
 ---
 
@@ -38,18 +38,22 @@ Owned by the SvelteKit app.
 
 Responsibilities:
 
-- the single MIU instrument at the root route `/`,
+- the editorial index at `/`,
+- the built MIU instrument at `/form-and-meaning/miu`,
+- the empty pq destination at `/form-and-meaning/pq`, containing navigation but
+  no pq mathematics,
 - composition of the three readings of one object — the derivation,
 - local draft/session state and its continuity across reloads,
 - and preserving the visual distinction between verified, measured, and
   coaching claims.
 
 The phase-based interaction layer (Explore / Map / Prove / Reflect and its
-lab-desk components) is deleted. The app is now a single instrument:
-`src/routes/+page.svelte` at `/`, wrapped by a minimal
-`src/routes/+layout.svelte` (no site topbar, no module navigation). The page
-holds one object — the derivation — and reads it three ways with focused
-components under `src/lib/components/miu`:
+lab-desk components) is deleted. The app now has an editorial index at
+`src/routes/+page.svelte`, the MIU instrument at
+`src/routes/form-and-meaning/miu/+page.svelte`, and the empty pq destination at
+`src/routes/form-and-meaning/pq/+page.svelte`, all wrapped by the minimal
+`src/routes/+layout.svelte`. The MIU page holds one object — the derivation — and
+reads it three ways with focused components under `src/lib/components/miu`:
 
 - `MiuProduce.svelte` — theorem query. It displays the complete membership
   decision, one constructive witness, and the separate bounded `K_steps`
@@ -57,7 +61,10 @@ components under `src/lib/components/miu`:
 - `MiuSheet.svelte` — manipulate. The page is the derivation: a numbered spine,
   the current string written large with its rule sites as in-string click
   targets, and the four rules always on screen with the exact reason any rule
-  cannot fire. Constructed and shortest witnesses are labeled independently.
+  cannot fire. Each worksheet row carries deterministic I-count residue and
+  encoded instruction annotations derived from the same formal state.
+  Active-prefix summaries exclude retained future steps after a jump.
+  Constructed and shortest witnesses are labeled independently.
 - `MiuInvariant.svelte` and `MiuCharacters.svelte` — the wall and its finite
   harmonic analysis. The I-count certificate rejects residue zero; the
   character table, rule pullbacks, and Fourier indicator construct the explicit
@@ -251,8 +258,11 @@ proofs or define the formal rules of the module.
 
 The project is no longer just scaffolding. The current architecture supports:
 
-- a single MIU instrument at `/` — the derivation read three ways
-  (manipulate / wall / bridge),
+- the editorial index at `/`,
+- the built MIU instrument at `/form-and-meaning/miu` — the derivation read
+  three ways (manipulate / wall / bridge),
+- the empty pq destination at `/form-and-meaning/pq`, with navigation but no pq
+  mathematics,
 - a functioning formal engine with complete theoremhood, constructive
   witnesses, bounded `K_steps`, bounded executable-code `K_bits`, and the
   characters of ℤ/3,
