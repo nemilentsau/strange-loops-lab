@@ -1736,6 +1736,24 @@ select {
 	line-height: 1.75;
 }
 
+.notes-table {
+	margin: 4px 0 10px;
+	border-collapse: collapse;
+}
+
+.notes-table th,
+.notes-table td {
+	border: 1px solid var(--line-strong);
+	padding: 6px 18px;
+	text-align: center;
+	font-weight: 400;
+}
+
+.notes-table thead th {
+	color: var(--muted);
+	font-size: var(--t-caption);
+}
+
 @media (max-width: 1180px) {
 	.site-shell {
 		padding-inline: 24px;

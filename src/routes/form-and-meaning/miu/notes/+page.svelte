@@ -223,6 +223,151 @@ Stage C — contract.  Scan the target tail t left to right with a cursor. At ea
 
 	<section class="notes-section" id="invariant">
 		<h2>§2 The invariant and the characters of ℤ/3</h2>
+
+		<p class="lede">
+			One number decides everything about MIU. This section proves it, says why the modulus is
+			3 and not anything else, and re-derives the same fact in the language of characters —
+			the form that generalizes.
+		</p>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Definition 2.1</b> (residue).</span> <span class="mv">r(s)</span>
+				= <span class="mv">I(s)</span> mod 3 ∈ ℤ/3.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 2.2</b> (rule action on residues).</span> Each rule
+				induces a map on ℤ/3:
+			</p>
+			<pre class="displaybox">R1   xI  → xIU    I-count unchanged      n ↦ n
+R2   Mx  → Mxx    I-count doubles       n ↦ 2n
+R3   III → U      I-count drops by 3    n ↦ n − 3 ≡ n
+R4   UU  → ∅      I-count unchanged     n ↦ n</pre>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 2.3</b> (the invariant).</span> Every
+				<span class="mv">s</span> <span class="mv">∈</span> Th(MIU) has
+				<span class="mv">r(s)</span> ∈ {'{'}1, 2{'}'}; hence <span class="o">MU</span>
+				<span class="mv">∉</span> Th(MIU).
+			</p>
+			<p>
+				<span class="leadin">Proof.</span> Induction on derivation length.
+				<span class="mv">r(</span><span class="o">MI</span><span class="mv">)</span> = 1. By
+				2.2 each rule acts on residues as the identity or as <span class="mv">n</span> ↦
+				2<span class="mv">n</span>; 2 is a unit mod 3, and {'{'}1, 2{'}'} is the orbit of 1
+				under multiplication by 2 (1 ↦ 2 ↦ 4 ≡ 1), so {'{'}1, 2{'}'} is closed under both
+				maps. <span class="mv">r(</span><span class="o">MU</span><span class="mv">)</span> = 0
+				∉ {'{'}1, 2{'}'}. ∎
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin">Remark 2.4 (what an invariant is).</span> The proof used only: a
+				map from strings to a finite set, a compatible action of each rule on that set, and a
+				subset containing the image of <span class="o">MI</span>, closed under the actions,
+				missing the image of <span class="o">MU</span>. Reachability upstairs — infinitely
+				many strings — is settled by reachability downstairs — three residues, checked by
+				inspection. This is the general shape of a certificate for non-reachability, and the
+				shape the connection gate looks for elsewhere.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 2.5</b> (why modulus 3).</span> The same scheme
+				fails for the neighboring moduli: for each, some rule sends an admissible residue to
+				the forbidden one, with a reachable witness.
+			</p>
+			<pre class="displaybox">mod 2:  R2 doubles 1 to 0.       Witness MI ⇒ MII        (1 ↦ 2 ≡ 0).
+mod 4:  R2 doubles 2 to 0.       Witness MII ⇒ MIIII     (2 ↦ 4 ≡ 0).
+mod 5:  R3 sends 3 to 0.         Witness M I⁸ ⇒ M U I⁵   (8 ≡ 3 ↦ 5 ≡ 0).</pre>
+			<p>
+				(<span class="o">MII</span> is reachable by one doubling,
+				<span class="o">M I⁸</span> by three. Mod 2 also loses to R3: subtracting 3 flips
+				parity.)
+				Modulus 3 works because it is the modulus at which R3 acts trivially, and doubling
+				permutes {'{'}1, 2{'}'} because 2 is a unit mod 3. The instrument's "why modulus 3"
+				panel computes such witnesses for any candidate <span class="o">count(I) mod k</span>
+				invariant.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Definition 2.6</b> (characters of ℤ/3).</span>
+				<span class="mv">χ<sub>k</sub>(n)</span> = <span class="mv">ω<sup>kn</sup></span>,
+				<span class="mv">ω</span> = <span class="mv">e<sup>2πi/3</sup></span>,
+				<span class="mv">k</span> ∈ {'{'}0, 1, 2{'}'}. The characters form the dual group,
+				isomorphic to ℤ/3. The table of exponents of <span class="mv">ω</span>:
+			</p>
+			<table class="notes-table">
+				<thead>
+					<tr>
+						<th></th>
+						<th><span class="mv">n</span> = 0</th>
+						<th><span class="mv">n</span> = 1</th>
+						<th><span class="mv">n</span> = 2</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><th><span class="mv">χ₀</span></th><td>0</td><td>0</td><td>0</td></tr>
+					<tr><th><span class="mv">χ₁</span></th><td>0</td><td>1</td><td>2</td></tr>
+					<tr><th><span class="mv">χ₂</span></th><td>0</td><td>2</td><td>1</td></tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 2.7</b> (orthogonality and the indicator).</span>
+				(1/3) Σ<sub><span class="mv">n</span></sub> <span class="mv">χ<sub>k</sub>(n)</span> =
+				1 if <span class="mv">k</span> = 0, else 0 — a geometric sum of the cube roots of
+				unity. Consequently
+			</p>
+			<pre class="displaybox">δ₀(n)  =  (χ₀(n) + χ₁(n) + χ₂(n)) / 3</pre>
+			<p>
+				is 1 at <span class="mv">n</span> = 0 and 0 elsewhere: the indicator of the forbidden
+				residue is the uniform combination of characters. This is the identity the
+				instrument's indicator row computes.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 2.8</b> (pullback).</span> The doubling map
+				<span class="mv">d(n)</span> = 2<span class="mv">n</span> pulls characters back to
+				characters: <span class="mv">χ<sub>k</sub></span> ∘ <span class="mv">d</span> =
+				<span class="mv">χ<sub>2k</sub></span>, so <span class="mv">d</span>* fixes
+				<span class="mv">χ₀</span> and swaps <span class="mv">χ₁</span> ↔
+				<span class="mv">χ₂</span>; the other three rules pull back to the identity. Every
+				rule pullback permutes the character basis, and therefore fixes
+				<span class="mv">δ₀</span>:
+			</p>
+			<pre class="displaybox">δ₀ ∘ d  =  (1/3) Σ χ₂ₖ  =  δ₀</pre>
+			<p>
+				Theorem 2.3 restated: the forbidden-set indicator is character-uniform, and
+				character-uniform functions are invariant under every rule.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin">Remark 2.9 (why this machinery).</span> For a three-element group
+				everything above is checkable by hand, and the character formulation proves nothing
+				the induction did not. It is here because it is the form that scales: for a shallow
+				transformer trained on addition mod <span class="mv">p</span>, the measured Fourier
+				structure of the learned embeddings is an expansion in exactly these characters of
+				ℤ/<span class="mv">p</span> — a measured result of the grokking literature, not a
+				theorem. The <a href="/form-and-meaning/pq">pq instrument</a> will set that measured
+				table against this built one.
+			</p>
+		</div>
 	</section>
 
 	<section class="notes-section" id="programs">
