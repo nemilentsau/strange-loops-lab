@@ -50,7 +50,7 @@ export interface MiuRuleAvailability {
 	status: 'available' | 'unavailable';
 	/** Concrete legal moves (sites) for this rule; empty when unavailable. */
 	moves: MiuMove[];
-	/** Learner-facing reason the rule cannot fire; null when available. */
+	/** Reason the rule cannot fire; null when available. */
 	reason: string | null;
 }
 
@@ -226,7 +226,7 @@ export function isDeadBranch(value: string): boolean {
 /**
  * Per-rule availability for the rules ledger: every rule, in fixed order,
  * with either its concrete sites (built on `enumerateMiuMoves`, never
- * re-derived) or the exact learner-facing reason it cannot fire.
+ * re-derived) or the exact reason it cannot fire.
  */
 export function analyzeMiuRuleAvailability(current: string): MiuRuleAvailability[] {
 	const legalMoves = enumerateMiuMoves(current);
@@ -340,9 +340,8 @@ export function normalizeTrace(input: unknown): DerivationTrace {
 
 /**
  * When the CURRENT position sits inside a dead branch, the index of the
- * first step of that contiguous trapped run — the live note's "this branch
- * is closed" anchor; `start - 1` is the last open line to jump back to.
- * Null when the current string is not trapped.
+ * first step of that contiguous trapped run; `start - 1` is the last open
+ * line to jump back to. Null when the current string is not trapped.
  */
 export function currentDeadBranchStart(trace: DerivationTrace): number | null {
 	const current = trace.currentIndex;
@@ -362,9 +361,7 @@ export function currentDeadBranchStart(trace: DerivationTrace): number | null {
 
 /**
  * For each step, the index of the FIRST earlier step holding the same
- * string, or null when the string is new to the trace. Drives the spine's
- * revisit notes ("↩ same as step 5"): the system's degeneracy written on
- * the page instead of passing silently.
+ * string, or null when the string is new to the trace.
  */
 export function traceRevisitIndices(trace: DerivationTrace): (number | null)[] {
 	const firstSeen = new Map<string, number>();
@@ -633,7 +630,7 @@ export function patternForRule(ruleId: MiuRuleId): string {
 }
 
 /**
- * Why a rule has no site right now, phrased for the learner. Rule 2 always
+ * Why a rule has no site right now. Rule 2 always
  * applies to a valid MIU state (every state starts with M), so it never needs
  * a reason; the fallback is unreachable in practice.
  */
