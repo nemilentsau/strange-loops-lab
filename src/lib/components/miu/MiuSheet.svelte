@@ -18,12 +18,6 @@
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
 
-	/**
-	 * Movement 1 — the workspace. The page IS the derivation: a numbered spine,
-	 * the current string written large (its rule sites are click targets in the
-	 * string itself), and the four-rule ledger always on screen with the exact
-	 * reason any rule cannot fire. You build toward the target named above.
-	 */
 	let {
 		trace,
 		currentString,

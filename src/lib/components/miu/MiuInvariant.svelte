@@ -7,8 +7,6 @@
 	const certificateHolds =
 		certificate.kind === 'supported' && certificate.currentSatisfied && certificate.preserved;
 
-	// The per-rule "why" is display copy written for this proof, not the
-	// engine's templated explanation strings.
 	const RULE_PROOF: Array<{ ruleId: MiuRuleId; why: string }> = [
 		{ ruleId: 'append-u', why: 'I unchanged' },
 		{ ruleId: 'double-tail', why: 'r doubles — residues 1 and 2 swap' },

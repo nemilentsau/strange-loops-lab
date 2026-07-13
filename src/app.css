@@ -1,20 +1,5 @@
 @import 'tailwindcss';
 
-/* Graphite and parchment. One oxblood accent marks actions only.
- * Epistemic register is carried by form:
- * verified -> solid rule/frame and proof stamps
- * measured -> dashed rule plus run configuration
- * coaching -> dotted rule and margin-note typography
- * Deterministic transforms inherit the register of their inputs.
- *
- * Typeface carries language level, never register:
- * prose        -> serif (the page is a mathematical document)
- * meta-math    -> italic serif (.mv): s, I(s), r(s), K_steps, Th(MIU)
- * object language -> mono (.o): MIU strings, rule patterns, bit programs
- * controls     -> sans, and only controls
- * Micro-labels (mono small caps) mark data panels and kickers, never argument.
- */
-
 :root {
 	/* ground & surfaces */
 	--page: #f1efea;
@@ -27,7 +12,6 @@
 	--ink: #2b2a27;
 	--muted: #5f5b4e;
 	--faint: #85816f;
-	/* the one accent: actionable only */
 	--act: #8a3b2e;
 	--act-ink: #faf9f6; /* text on filled accent */
 	/* type */
@@ -43,11 +27,10 @@
 	--t-sub: 1.2rem;
 	--t-title: 1.65rem;
 
-	/* prose measure inside a column; width is used by parallel columns,
-	 * never by stretching lines */
+	/* prose measure inside a column */
 	--measure: 70ch;
 
-	/* spacing scale (geometry only, unchanged) */
+	/* spacing scale */
 	--space-2xs: 4px;
 	--space-xs: 8px;
 	--space-sm: 12px;
@@ -89,16 +72,11 @@ select {
 	font: inherit;
 }
 
-/* A single, consistent focus ring in the action accent. Never removed without
- * a visible replacement. */
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
 	outline: 2px solid var(--act);
 	outline-offset: 2px;
 }
 
-/* ── The four type roles ── */
-
-/* Meta-language mathematics: statements about the system. */
 .mv {
 	font-family: var(--serif);
 	font-style: italic;
@@ -111,7 +89,6 @@ select {
 	font-size: 0.7em;
 }
 
-/* Object language: tokens inside the system. */
 .o {
 	font-family: var(--mono);
 	font-style: normal;
@@ -119,7 +96,6 @@ select {
 	letter-spacing: 0.02em;
 }
 
-/* Kicker/data-panel label — never on argument. */
 .microlabel {
 	margin: 0 0 var(--space-xs);
 	color: var(--faint);
@@ -165,9 +141,6 @@ select {
 	min-width: 0;
 }
 
-/* ── Laboratory index ──
- * An editorial table of contents: title, comparative questions, and named
- * instruments. Rules establish hierarchy; unbuilt entries remain plain text. */
 .lab-index__header {
 	display: grid;
 	grid-template-columns: minmax(0, 1.2fr) minmax(24rem, 0.8fr);
@@ -287,7 +260,6 @@ select {
 	text-transform: lowercase;
 }
 
-/* Instrument context is deliberately quieter than the document heading. */
 .instrument-breadcrumb {
 	display: flex;
 	flex-wrap: wrap;
@@ -372,7 +344,6 @@ select {
 	text-transform: uppercase;
 }
 
-/* Overture: epigraph beside the three-readings orientation. */
 .overture {
 	display: grid;
 	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -410,12 +381,6 @@ select {
 	color: var(--ink);
 }
 
-/* ════════════════════════════════════════════════════════════════════════
- * The MIU instrument — one object read three ways at rising altitude:
- * theoremhood (in the system) · invariant (about the system) · description
- * length (as a program). No phase chrome.
- * ════════════════════════════════════════════════════════════════════════ */
-
 .movement {
 	margin-top: var(--space-2xl);
 }
@@ -451,11 +416,9 @@ select {
 	white-space: nowrap;
 }
 
-/* Turn: the seam sentence that carries a movement's altitude change. */
 .movement__turn {
 	margin: 0 0 var(--space-md);
 	color: var(--muted);
-	max-width: var(--measure);
 	line-height: 1.7;
 }
 
@@ -466,7 +429,6 @@ select {
 .lede {
 	margin: 0 0 var(--space-lg);
 	color: var(--muted);
-	max-width: var(--measure);
 	line-height: 1.7;
 }
 
@@ -475,8 +437,6 @@ select {
 	color: var(--ink);
 }
 
-/* ── Movement 1: theorem query. The target editor is a fixed M plus an I/U
- * tail; the verdict is a verified theoremhood statement beside it. ── */
 .theorem-query {
 	display: grid;
 	grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
@@ -511,7 +471,7 @@ select {
 	line-height: 1.15;
 }
 
-/* The display steps down as the tail grows: designed for the grown state. */
+/* The display steps down as the tail grows. */
 .target-editor--long .target-editor__prefix,
 .target-editor--long .target-editor__input {
 	font-size: clamp(1.3rem, 2.2vw, 2.1rem);
@@ -560,8 +520,6 @@ select {
 	color: var(--act);
 }
 
-/* The verdict card: a verified statement about one string. Formulas inside
- * never restate the string — the headline names it. */
 .verdict {
 	padding: 14px 16px;
 	border-left: 3px solid var(--ink);
@@ -604,15 +562,12 @@ select {
 	border-top: 1px solid var(--line);
 }
 
-/* Each row is a full statement about one derivation, never a label:value
- * fragment; the panel is read as prose. */
 .verdict__row {
 	margin: 0;
 	font-size: var(--t-caption);
 	line-height: 1.6;
 }
 
-/* A reveal-action shows something already computed: inline link. */
 .reveal {
 	margin-left: 8px;
 	padding: 0 2px;
@@ -629,7 +584,6 @@ select {
 	text-decoration: underline;
 }
 
-/* A compute-action spends search budget: a bordered control, not prose. */
 .compute {
 	display: inline-block;
 	margin: 2px 0 0 10px;
@@ -648,10 +602,6 @@ select {
 	background: rgba(138, 59, 46, 0.07);
 }
 
-/* ── The derivation worksheet ──
- * One sheet of paper: thin numbered spine lines, the current string written
- * large (sites of the selected rule are click targets in the string itself),
- * and the four-rule ledger on a sticky rail. */
 .worksheet {
 	margin: var(--space-md) 0 0;
 	padding: var(--space-lg) var(--space-xl);
@@ -697,8 +647,6 @@ select {
 	color: var(--act);
 }
 
-/* The derivation and the rules sit side by side: the derivation is the main
- * column, the rules a right-hand rail. */
 .worksheet__cols {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) 21rem;
@@ -710,17 +658,12 @@ select {
 	min-width: 0;
 }
 
-/* The rail is sticky so the four-rule ledger stays on screen as the derivation
- * grows. Each producible string in it is its own control: hover lights the
- * site it fills in the focal string; click takes that step. */
 .rules-rail {
 	position: sticky;
 	top: var(--space-md);
 	min-width: 0;
 }
 
-/* The spine: each past (or ahead) step is one thin line — number · string ·
- * rule note. The whole line is a jump target. */
 .spine {
 	font-family: var(--mono);
 	font-size: 0.86rem;
@@ -846,7 +789,6 @@ select {
 	font-size: 0.8rem;
 }
 
-/* The current step: the last written line of the derivation, set large. */
 .focal {
 	display: flex;
 	gap: 14px;
@@ -954,10 +896,6 @@ select {
 	line-height: 1.5;
 }
 
-/* ── The bit-count explainer: click the encoded-bit total to read out how the
- * program code is framed — tag bit, one instruction per move, terminator. The
- * count is a real result the reader can audit, so opening the audit is an
- * action and earns the accent affordance. */
 .bit-explainer {
 	position: relative;
 	display: inline-block;
@@ -1058,12 +996,8 @@ select {
 	line-height: 1.55;
 }
 
-/* In-string rule sites. A site is typographically invisible — it is just
- * characters of the string — until a rule is selected, when its characters
- * carry the site marks. Sites are role="button" spans rather than <button>s
- * because buttons cannot break across lines and a site can span the whole
- * string (Rule 2). Overlapping sites resolve per character to the
- * latest-starting window; hover always shows the exact replaced span. */
+/* Sites are role="button" spans rather than <button>s because buttons cannot
+ * break across lines and a site can span the whole string (Rule 2). */
 .string-site {
 	cursor: pointer;
 }
@@ -1097,10 +1031,6 @@ select {
 	max-width: 100%;
 }
 
-/* The rules ledger: four fixed rows, always on screen. Unavailable rules stay
- * visible with their exact reason — the "why not" is the lesson. Available
- * rules list every producible string as a hover-to-locate, click-to-apply
- * control. */
 .rules-ledger {
 	font-size: 0.84rem;
 	min-width: 0;
@@ -1212,15 +1142,10 @@ select {
 	letter-spacing: 0.08em;
 }
 
-/* A revisited string is written on its line, not passed silently: the
- * system's degeneracy becomes a recorded observation. */
 .spine-line__again {
 	color: var(--muted);
 }
 
-/* ── The dead-branch note: a verified meta-fact about the current branch
- * (isDeadBranch's closure proof), solid graphite left rule. Shown only when
- * proven; the jump phrase is a real action, earning the accent. */
 .dead-branch {
 	margin-top: 14px;
 	padding: 10px 14px;
@@ -1250,8 +1175,6 @@ select {
 	text-decoration: underline;
 }
 
-/* The witness menu: the next step of a computed derivation, dotted while the
- * walk is underway, solid when the target is reached. */
 .witness-menu {
 	margin: 8px 0 8px calc(2.5ch + 14px);
 	padding: 8px 12px;
@@ -1302,10 +1225,6 @@ select {
 	text-decoration: underline;
 }
 
-/* ── Movement 2: the certificate document, two simultaneous columns.
- * Left, the invariant established: lede, theorem, certificate, proof.
- * Right, the invariant at work: the non-theorem class and the contrast set
- * justifying the modulus. ── */
 .cert-grid {
 	display: grid;
 	grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -1327,7 +1246,6 @@ select {
 	margin-top: var(--space-xl);
 }
 
-/* Displayed claim: solid left rule, the verified register. */
 .result {
 	margin: 0 0 var(--space-lg);
 	padding: 16px 20px;
@@ -1390,8 +1308,6 @@ select {
 	font-size: var(--t-caption);
 }
 
-/* The movement's culminating displayed theorem: the iff, with the proof
- * pointers beside it. Both directions are established above it. */
 .characterization {
 	display: grid;
 	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -1444,8 +1360,6 @@ select {
 	line-height: 1.55;
 }
 
-/* The characters of ℤ/3 close the movement: the finished invariant
- * re-expressed in the Fourier basis, the lede beside the tables. */
 .characters {
 	margin: var(--space-2xl) 0 0;
 	border-top: 1px solid var(--ink);
@@ -1583,8 +1497,6 @@ select {
 	border-bottom: none;
 }
 
-/* ── Movement 3: one definition display — the code left, the measures it
- * induces right — then the specimen table at full width. ── */
 .defs {
 	margin: 0 0 var(--space-lg);
 	padding: 18px 24px;
@@ -1688,14 +1600,10 @@ select {
 	min-width: 26ch;
 }
 
-/* The closing horizon: marked as the page's coda, not a table footnote. The
- * body keeps the dotted, horizon register the named-but-unbuilt constructions
- * belong to. */
 .coda {
 	margin: var(--space-2xl) 0 0;
 	padding: 14px 18px;
 	border-left: 2px dotted var(--faint);
-	max-width: 78ch;
 }
 
 .coda__body {
@@ -1719,8 +1627,8 @@ select {
 	color: var(--faint);
 }
 
-/* ── Collapse points: 1180 folds the parallel columns, 860 stacks the
- * worksheet rail, 780 stacks the theorem query, 640 tightens padding. ── */
+/* Collapse points: 1180 folds the parallel columns, 860 stacks the worksheet
+ * rail, 780 stacks the theorem query, 640 tightens padding. */
 @media (max-width: 1180px) {
 	.site-shell {
 		padding-inline: 24px;
