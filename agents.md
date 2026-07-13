@@ -78,6 +78,7 @@ corresponding docs in the same pass.
 - Preserve the epistemic contract: mechanically checked results, measured (empirical) results, and LLM coaching must stay clearly separated.
 - Add new local skills only when a workflow becomes repeated, specialized, and hard to recover from repo context alone.
 - Keep the repo clean: no stale docs, no obsolete writings. Working artifacts (mockups, screenshots, scratch output) are gitignored, never committed, and deleted as soon as the build they served ships. When state changes, fix the affected docs in the same pass.
+- Rules live only in skills (`.agents/skills/`) and docs (`docs/`). Never encode a rule, design principle, or constraint as a comment in a source file (`.css`, `.ts`, `.svelte`, etc.). Source comments may explain what a specific line does locally; they must never be the home of a rule. If you find a rule embedded in source, move it to the relevant doc or skill. A rule stated in a `.css` comment is a defect, not a source of truth — do not cite it, follow it, or preserve it in place.
 
 ## Design law (binding for all learner-facing work)
 
