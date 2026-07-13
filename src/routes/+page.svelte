@@ -38,6 +38,7 @@
 						<span class="instrument-name">MIU</span>
 						<span class="instrument-status">built</span>
 					</a>
+					<a class="instrument-notes-link" href="/form-and-meaning/miu/notes">notes</a>
 				</li>
 				<li class="instrument-entry instrument-entry--next">
 					<a href="/form-and-meaning/pq">
