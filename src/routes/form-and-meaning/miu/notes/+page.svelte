@@ -553,5 +553,89 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 
 	<section class="notes-section" id="universality">
 		<h2>§4 The passage to universality</h2>
+
+		<p class="lede">
+			Everything above happened on a machine with four rules and one axiom. The instrument's
+			coda names what changes when the machine becomes universal; this section states those
+			results precisely, cites them, and marks the exact joint where each MIU argument breaks.
+		</p>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Definition 4.1</b> (Kolmogorov complexity).</span> A universal
+				machine <span class="mv">U</span> takes any finite binary program and runs it;
+				<span class="mv">K<sub>U</sub>(s)</span> is the length of the shortest program whose
+				output is <span class="mv">s</span> (Solomonoff 1964; Kolmogorov 1965; Chaitin 1966).
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 4.2</b> (invariance; cited).</span> For universal
+				<span class="mv">U</span> and any machine <span class="mv">V</span> there is a
+				constant <span class="mv">c<sub>V</sub></span> with
+				<span class="mv">K<sub>U</sub>(s)</span> ≤ <span class="mv">K<sub>V</sub>(s)</span> +
+				<span class="mv">c<sub>V</sub></span> for all <span class="mv">s</span>. In particular
+				<span class="mv">K</span><sub>bits</sub> bounds <span class="mv">K<sub>U</sub></span>
+				from above up to a constant: a universal machine can simulate the four-rule decoder of
+				Proposition 3.3. Description length becomes machine-independent up to O(1), which is
+				what earns it the name Kolmogorov complexity. What does not transfer:
+				<span class="mv">K<sub>U</sub></span> is defined for every string, while
+				<span class="mv">K</span><sub>bits</sub> exists only for MIU theorems.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 4.3</b> (producibility becomes halting; cited).</span>
+				For universal <span class="mv">U</span> the set of producible strings is computably
+				enumerable and not decidable (Turing 1936). Where the MIU argument breaks: Theorem 2.3
+				rested on a computable map to a finite set, commuting with the rules and separating
+				reachable from unreachable. For <span class="mv">U</span> no such computable invariant
+				exists — it would decide an undecidable set. The residue certificate is available on
+				the fixed machine and on no universal one.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 4.4</b> (Chaitin's incompleteness; cited).</span> For
+				each sound, computably axiomatized theory <span class="mv">T</span> able to state
+				facts <span class="mv">K<sub>U</sub>(s)</span> &gt; <span class="mv">n</span>, there
+				is a constant <span class="mv">c<sub>T</sub></span> such that <span class="mv">T</span>
+				proves no true statement of the form <span class="mv">K<sub>U</sub>(s)</span> &gt;
+				<span class="mv">c<sub>T</sub></span> — although all but finitely many strings satisfy
+				such bounds (Chaitin 1974).
+			</p>
+			<p>
+				<span class="leadin">Proof sketch.</span> A program that searches
+				<span class="mv">T</span>'s theorems for the first proof of some
+				<span class="mv">K<sub>U</sub>(s)</span> &gt; <span class="mv">c<sub>T</sub></span>
+				and prints that <span class="mv">s</span> is itself a description of
+				<span class="mv">s</span>, of length about log <span class="mv">c<sub>T</sub></span>
+				plus a constant — below <span class="mv">c<sub>T</sub></span> for large
+				<span class="mv">c<sub>T</sub></span>, contradicting soundness. ∎
+			</p>
+			<p>
+				Where the MIU argument breaks: Theorem 3.7's lower bounds were proved by finite
+				exhaustion of a finitely-branching search. At a universal machine the candidate
+				programs of length ≤ <span class="mv">d</span> cannot be exhausted, because ruling
+				each one out asks whether it halts.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin">Remark 4.5 (what survives).</span> Upper bounds. Exhibiting a
+				program still proves <span class="mv">K<sub>U</sub>(s)</span> ≤
+				|<span class="mv">p</span>|, at any machine — one witness, no exhaustion. The
+				asymmetry of Theorem 3.7 is not a feature of MIU; MIU is where both sides of it are
+				small enough to watch.
+			</p>
+			<p>
+				These four statements are the instrument's coda made precise. They are theorems about
+				other machines, cited here, proved elsewhere; nothing on this page depends on them.
+			</p>
+		</div>
 	</section>
 </div>
