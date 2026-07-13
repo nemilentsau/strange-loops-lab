@@ -107,6 +107,118 @@ R4   UU  → ∅      delete an occurrence; one site per occurrence of UU in the
 
 	<section class="notes-section" id="theoremhood">
 		<h2>§1 Theoremhood and construction</h2>
+
+		<p class="lede">
+			The instrument's verdict is instant because theoremhood is decided by a residue, and its
+			constructed witness is produced by an explicit algorithm, not a search. This section
+			proves both halves.
+		</p>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 1.1</b> (characterization).</span>
+				<span class="mv">s</span> <span class="mv">∈</span> Th(MIU) ⟺ <span class="mv">s</span>
+				is a MIU string and <span class="mv">I(s)</span> ≢ 0 (mod 3).
+			</p>
+			<p>
+				The forward direction is Theorem 2.3, the invariant. The converse occupies the rest of
+				this section: given a MIU string <span class="mv">s</span> =
+				<span class="o">M</span>·<span class="mv">t</span> with <span class="mv">I(s)</span> ≢
+				0 (mod 3), construct a derivation.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Definition 1.2</b> (expanded length).</span>
+				<span class="mv">E(s)</span> = <span class="mv">I(s)</span> +
+				3·<span class="mv">U(s)</span> — the <span class="o">I</span>-count the target would
+				have if every <span class="o">U</span> in its tail were re-expanded to
+				<span class="o">III</span>. Since 3·<span class="mv">U(s)</span> ≡ 0 (mod 3),
+				<span class="mv">E(s)</span> ≡ <span class="mv">I(s)</span> ≢ 0 (mod 3).
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Lemma 1.3</b> (a matching power of two exists).</span> For
+				every <span class="mv">E</span> ≥ 1 with <span class="mv">E</span> mod 3 ∈ {'{'}1,
+				2{'}'} there is a <span class="mv">k</span> with <span class="mv">2ᵏ</span> ≥
+				<span class="mv">E</span> and <span class="mv">2ᵏ</span> ≡ <span class="mv">E</span>
+				(mod 3).
+			</p>
+			<p>
+				<span class="leadin">Proof.</span> <span class="mv">2ᵏ</span> mod 3 is 1 for even
+				<span class="mv">k</span> and 2 for odd <span class="mv">k</span>: it alternates. Take
+				the least <span class="mv">j</span> with <span class="mv">2ʲ</span> ≥
+				<span class="mv">E</span>; either <span class="mv">2ʲ</span> or
+				<span class="mv">2ʲ⁺¹</span> has the required residue. ∎
+			</p>
+			<p>
+				Note <span class="mv">2ᵏ</span> &lt; 4<span class="mv">E</span> for the chosen
+				<span class="mv">k</span> — used in Corollary 1.5.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Construction 1.4</b> (expand–double–contract).</span> With
+				<span class="mv">E</span> = <span class="mv">E(s)</span>, <span class="mv">k</span>
+				from Lemma 1.3, <span class="mv">D</span> = <span class="mv">2ᵏ</span> −
+				<span class="mv">E</span> ≡ 0 (mod 3), and <span class="mv">m</span> =
+				<span class="mv">D</span>/3, the count of surplus <span class="o">III</span>-triples:
+			</p>
+			<pre class="displaybox">Stage A — grow.      k applications of R2 take MI to M I^(2^k).
+
+Stage B — shed.      Convert surplus triples (sites past position E) to U by R3.
+                       m even:  m conversions leave M I^E U^m; then m/2 applications
+                                of R4 delete the U's in pairs.
+                       m odd:   m−1 conversions leave one triple: M I^E U^(m−1) III.
+                                R1 appends U (the string ends in I); one final R3
+                                turns the triple into U, giving M I^E U^(m+1); then
+                                (m+1)/2 applications of R4 delete the U's in pairs.
+                     Both cases end at M I^E.
+
+Stage C — contract.  Scan the target tail t left to right with a cursor. At each I,
+                     advance. At each U, apply R3 at the cursor: the III standing
+                     where the target wants U becomes U. Invariant: after processing
+                     a prefix p of t, the string is M · p · I^E′, where E′ is the
+                     expanded length of the unprocessed suffix. When the scan ends,
+                     the string is M·t = s.</pre>
+			<p>
+				Two facts to check. Every move is legal when applied: Stage B's R1 requires a terminal
+				<span class="o">I</span>, which the odd case has; Stage B's R4 sites and Stage C's R3
+				sites exist by the displayed invariants. And the parity fix is necessary: R4 deletes
+				<span class="o">U</span>s only in pairs, so an odd number of surplus
+				<span class="o">U</span>s cannot be cleared without manufacturing one more.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Corollary 1.5</b> (an explicit upper bound).</span> The
+				construction uses <span class="mv">k</span> doublings, then in Stage B exactly
+				<span class="mv">m</span> conversions, at most one append, and
+				⌈<span class="mv">m</span>/2⌉ deletions, then <span class="mv">U(s)</span> conversions
+				in Stage C. With <span class="mv">E</span> = <span class="mv">E(s)</span>:
+			</p>
+			<pre class="displaybox">K_steps(s)  ≤  k + (3/2)m + U(s) + 2,   where  k ≤ ⌈log₂ E⌉ + 1  and  m &lt; E.</pre>
+			<p>
+				Since <span class="mv">E</span> ≤ 3|<span class="mv">s</span>|, the constructed
+				derivation has length O(|<span class="mv">s</span>|). It makes no minimality claim;
+				<span class="mv">K</span><sub>steps</sub> is defined and bounded in §3.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin">Remark 1.6 (decidability).</span> Theorem 1.1 makes Th(MIU)
+				decidable by inspection: validate the string, count <span class="o">I</span>s mod 3.
+				The instrument's verdict never searches. Membership always has a finite witness — a
+				derivation; what Theorem 1.1 adds is that non-membership is also decided, by the §2
+				certificate rather than by any exhaustion of derivations.
+			</p>
+		</div>
 	</section>
 
 	<section class="notes-section" id="invariant">
