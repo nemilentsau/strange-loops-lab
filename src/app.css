@@ -1706,6 +1706,36 @@ select {
 	letter-spacing: -0.01em;
 }
 
+.notes-section .lede {
+	margin-bottom: 0;
+}
+
+.stmt {
+	border-left: 2px solid var(--line-strong);
+	padding-left: var(--space-lg);
+}
+
+.stmt > p {
+	margin: 0 0 10px;
+	line-height: 1.7;
+}
+
+.stmt > p:last-child {
+	margin-bottom: 0;
+}
+
+.displaybox {
+	margin: 4px 0 10px;
+	padding: var(--space-sm) var(--space-md);
+	overflow-x: auto;
+	background: var(--panel);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	font-family: var(--mono);
+	font-size: 0.88rem;
+	line-height: 1.75;
+}
+
 @media (max-width: 1180px) {
 	.site-shell {
 		padding-inline: 24px;
