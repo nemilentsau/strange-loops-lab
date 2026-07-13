@@ -1672,7 +1672,8 @@ select {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2xl);
-	max-width: var(--measure);
+	max-width: 84ch;
+	margin-inline: auto;
 	padding-top: var(--space-sm);
 }
 

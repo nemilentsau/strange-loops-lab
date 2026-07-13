@@ -40,6 +40,8 @@ Responsibilities:
 
 - the editorial index at `/`,
 - the built MIU instrument at `/form-and-meaning/miu`,
+- the MIU lecture notes at `/form-and-meaning/miu/notes` — static prose with
+  full proofs, no engine wiring,
 - the empty pq destination at `/form-and-meaning/pq`, containing navigation but
   no pq mathematics,
 - composition of the three readings of one object — the derivation,
