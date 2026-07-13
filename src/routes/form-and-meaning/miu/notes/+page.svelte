@@ -372,6 +372,183 @@ mod 5:  R3 sends 3 to 0.         Witness M I⁸ ⇒ M U I⁵   (8 ≡ 3 ↦ 5 �
 
 	<section class="notes-section" id="programs">
 		<h2>§3 Programs and description length</h2>
+
+		<p class="lede">
+			A derivation is a finite record of choices — which rule, and where. Coding the record in
+			bits turns each derivation into a program for the fixed machine, and the length of the
+			shortest program is a description length. This section gives the exact code, says why it
+			is built the way it is, and proves what bounding each minimum costs.
+		</p>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Definition 3.1</b> (two costs).</span> For a derivation
+				<span class="mv">d</span> of <span class="mv">s</span>: steps(<span class="mv">d</span>)
+				is its number of moves; bits(<span class="mv">d</span>) is the length of its encoding
+				under Definition 3.2. <span class="mv">K</span><sub>steps</sub><span class="mv">(s)</span>
+				= min steps(<span class="mv">d</span>) and
+				<span class="mv">K</span><sub>bits</sub><span class="mv">(s)</span> = min
+				bits(<span class="mv">d</span>), both over derivations of <span class="mv">s</span>.
+				Both are description lengths relative to this fixed machine; neither is Kolmogorov
+				complexity (§4).
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p><span class="leadin"><b>Definition 3.2</b> (the program code).</span></p>
+			<pre class="displaybox">program  =  0 · instr₁ ⋯ instrₙ · 000
+
+instr    =  opcode · site
+opcode   =  R1 ↦ 001   R2 ↦ 010   R3 ↦ 011   R4 ↦ 100     (000 reserved: halt)
+site     =  empty if the rule has ≤ 1 legal site in the current string;
+            otherwise the site's ordinal in ⌈log₂ c⌉ bits, c = number of legal sites</pre>
+			<p>
+				The empty derivation of <span class="o">MI</span> encodes as
+				<span class="o">0·000</span> — 4 bits.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 3.3</b> (executable decodability).</span> The code
+				is uniquely decodable by a decoder that runs the machine. Starting at
+				<span class="o">MI</span>, read 3 bits; <span class="o">000</span> halts; otherwise
+				the opcode names a rule, the current string determines the site count
+				<span class="mv">c</span> and hence the selector width, so the decoder reads exactly
+				the right number of bits, applies the move, and repeats. The selector width is a
+				function of decoder state, not of the bitstream: the code is prefix-free conditional
+				on the machine. This is the content of "executable" — no delimiter and no global
+				table, just simulation.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin">Remark 3.4 (why this code).</span> Four design facts. (i) The
+				opcode block is a fixed-length prefix code on five words — four rules and halt — and
+				reserving <span class="o">000</span> for halt is what makes the program
+				self-delimiting. (ii) The site selector charges ⌈log₂ <span class="mv">c</span>⌉ bits,
+				the information cost of a <span class="mv">c</span>-way choice up to the less-than-one
+				bit lost to rounding; fixed-width words of that length over <span class="mv">c</span>
+				symbols satisfy Kraft's inequality Σ 2<sup>−ℓ</sup> ≤ 1 (Kraft 1949). (iii) Rules with
+				a forced site cost zero selector bits, so an R2 doubling always costs exactly 3 bits —
+				this is why structured targets compress. (iv) The leading flag bit makes the program
+				one branch of a two-branch code whose other branch is Definition 3.5, so program and
+				literal compete inside a single prefix code and their lengths are comparable.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Definition 3.5</b> (the literal branch).</span>
+			</p>
+			<pre class="displaybox">literal  =  1 · γ(|t|) · t          one bit per tail symbol; M implicit
+
+L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
+			<p>
+				γ is the Elias gamma code, |γ(<span class="mv">n</span>)| = 2⌊log₂
+				<span class="mv">n</span>⌋ + 1 (Elias 1975) — a self-delimiting code for the length,
+				so the literal needs no terminator.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 3.6</b> (the two minima are different optima).</span>
+				<span class="mv">K</span><sub>steps</sub> minimizes move count — computed by
+				breadth-first search with unit edge costs. <span class="mv">K</span><sub>bits</sub>
+				minimizes total instruction bits — computed by Dijkstra's algorithm with edge cost 3 +
+				selector width. Every instruction costs at least 3 bits, so
+			</p>
+			<pre class="displaybox">K_bits(s)  ≥  3 · K_steps(s) + 4,</pre>
+			<p>
+				with equality iff some stepwise-shortest derivation pays no site bits. Worked
+				comparison, computed by the engine:
+			</p>
+			<table class="notes-table">
+				<thead>
+					<tr>
+						<th><span class="mv">s</span></th>
+						<th><span class="mv">L</span><sub>literal</sub></th>
+						<th><span class="mv">K</span><sub>steps</sub></th>
+						<th><span class="mv">K</span><sub>bits</sub></th>
+						<th>shortest program</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><span class="o">MI</span></td>
+						<td>3</td>
+						<td>0</td>
+						<td>4</td>
+						<td><span class="o">0·000</span></td>
+					</tr>
+					<tr>
+						<td><span class="o">MIU</span></td>
+						<td>6</td>
+						<td>1</td>
+						<td>7</td>
+						<td><span class="o">0·001·000</span></td>
+					</tr>
+					<tr>
+						<td><span class="o">MUI</span></td>
+						<td>6</td>
+						<td>3</td>
+						<td>14</td>
+						<td><span class="o">0·010·010·011 0·000</span></td>
+					</tr>
+					<tr>
+						<td><span class="o">M I¹⁶</span></td>
+						<td>26</td>
+						<td>4</td>
+						<td>16</td>
+						<td><span class="o">0·010·010·010·010·000</span></td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				In <span class="o">MUI</span>'s program the R3 instruction pays one site bit — ordinal
+				0 of 2 sites in <span class="o">MIIII</span> — and the literal beats every program:
+				three moves cost more bits than naming two tail symbols. For
+				<span class="o">M I¹⁶</span> four doublings undercut the literal by ten bits:
+				structure compresses, arbitrary strings do not.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 3.7</b> (what bounds cost).</span> Any exhibited
+				derivation <span class="mv">d</span> of <span class="mv">s</span> proves
+				<span class="mv">K</span><sub>steps</sub><span class="mv">(s)</span> ≤
+				steps(<span class="mv">d</span>) and
+				<span class="mv">K</span><sub>bits</sub><span class="mv">(s)</span> ≤
+				bits(<span class="mv">d</span>): an upper bound costs one witness. A lower bound
+				<span class="mv">K</span><sub>steps</sub><span class="mv">(s)</span> &gt;
+				<span class="mv">d</span> asserts that all derivations of length ≤
+				<span class="mv">d</span> miss <span class="mv">s</span>, and costs exhaustion.
+			</p>
+			<p>
+				<span class="leadin">Proof (the lower-bound argument, as implemented).</span> Grow a
+				forward frontier from <span class="o">MI</span> under the rules and a backward
+				frontier from <span class="mv">s</span> under the exact rule preimages, completing
+				whole layers. If the forward frontier is complete to depth
+				<span class="mv">d<sub>f</sub></span> and the backward to
+				<span class="mv">d<sub>b</sub></span> with no string in both, then no derivation of
+				length ≤ <span class="mv">d<sub>f</sub></span> + <span class="mv">d<sub>b</sub></span>
+				exists — such a derivation's <span class="mv">d<sub>f</sub></span>-th string would lie
+				in both frontiers. Each layer is finite, because each string admits finitely many
+				moves and finitely many preimages, so completing layers is a terminating computation
+				and every reported bound is a theorem, not a heuristic. ∎
+			</p>
+			<p>
+				An exhausted search therefore reports a bracket <span class="mv">d</span> &lt;
+				<span class="mv">K</span><sub>steps</sub><span class="mv">(s)</span> ≤
+				<span class="mv">c</span>, with <span class="mv">d</span> from the argument above and
+				<span class="mv">c</span> from the constructed witness of §1. §4 turns on one property
+				of this proof: the exhaustion terminates because the search space per depth is finite
+				and enumerable.
+			</p>
+		</div>
 	</section>
 
 	<section class="notes-section" id="universality">
