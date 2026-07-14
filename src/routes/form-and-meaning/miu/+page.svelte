@@ -185,8 +185,8 @@
 		description length relative to this fixed machine.
 	</p>
 	<p class="overture__notes">
-		<a href="/form-and-meaning/miu/notes">Lecture notes</a> — full statements and proofs, and
-		the theory each fact instantiates.
+		<a href="/form-and-meaning/miu/notes">Lecture notes</a> — full statements and proofs, with
+		the surrounding theory.
 	</p>
 </div>
 

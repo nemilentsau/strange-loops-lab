@@ -118,7 +118,7 @@ Current reader routes:
 - `/` — the title and editorial index of the four arcs
 - `/form-and-meaning/miu` — the built MIU instrument
 - `/form-and-meaning/miu/notes` — lecture notes for the instrument: full
-  statements and proofs, and the theory each fact instantiates
+  statements and proofs, with the surrounding theory
 - `/form-and-meaning/pq` — the empty destination for the next instrument
 
 This is the Arc 1 minimal case: a wall exposed by an invariant, carried through

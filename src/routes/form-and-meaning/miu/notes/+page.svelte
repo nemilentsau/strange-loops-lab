@@ -21,11 +21,11 @@
 	<div class="notes-front">
 		<p class="microlabel">What is checked, what is cited</p>
 		<p>
-			Two kinds of statement appear below. Statements about this machine — the characterization
-			of Th(MIU), the invariant, the program code, the search bounds — are implemented and
-			mechanically checked in the instrument's source (<span class="o">src/lib/miu</span>).
-			Classical theorems — Kraft's inequality, the invariance theorem, Chaitin's incompleteness
-			— are cited with sources and proved elsewhere; nothing this machine does establishes them.
+			The results about MIU itself — the characterization of Th(MIU), the invariant, the
+			program code, the search bounds — are implemented and mechanically checked in the
+			instrument's source (<span class="o">src/lib/miu</span>). The classical theorems quoted
+			in §3 and §4 — Kraft's inequality, the invariance theorem, Chaitin's incompleteness —
+			are standard results cited with sources; nothing here proves them.
 		</p>
 	</div>
 
@@ -34,9 +34,9 @@
 
 		<p class="lede">
 			The MIU system is the opening formal system of <i>Gödel, Escher, Bach</i>. As mathematics
-			it is a string rewriting system, and the questions the instrument asks of it —
+			it is a string rewriting system, and the questions the instrument asks about it —
 			reachability, invariants, description length — are the standard questions about such
-			systems, small enough here to be answered completely.
+			systems. MIU is small enough that all of them can be answered completely.
 		</p>
 
 		<div class="stmt">
@@ -99,8 +99,8 @@ R4   UU  → ∅      delete an occurrence; one site per occurrence of UU in the
 				MIU strings to MIU strings, with one apparent exception: R4 applied to
 				<span class="o">MUU</span> would leave a bare <span class="o">M</span> with empty tail.
 				No derivation reaches <span class="o">MUU</span> — its <span class="o">I</span>-count
-				is 0 ≡ 0 (mod 3), which §2 shows is unreachable — so the exception never arises.
-				Definition 0.1's nonempty tail is an invariant, not an assumption.
+				is 0 ≡ 0 (mod 3), which §2 shows is unreachable — so the exception never arises, and
+				every derivation keeps the tail nonempty.
 			</p>
 		</div>
 	</section>
@@ -109,9 +109,9 @@ R4   UU  → ∅      delete an occurrence; one site per occurrence of UU in the
 		<h2>§1 Theoremhood and construction</h2>
 
 		<p class="lede">
-			The instrument's verdict is instant because theoremhood is decided by a residue, and its
-			constructed witness is produced by an explicit algorithm, not a search. This section
-			proves both halves.
+			Membership in Th(MIU) is decided by counting <span class="o">I</span>s, and a derivation
+			witnessing it can be written down by an explicit algorithm. This section proves both:
+			the characterization first, then the construction behind the instrument's witness.
 		</p>
 
 		<div class="stmt">
@@ -205,7 +205,7 @@ Stage C — contract.  Scan the target tail t left to right with a cursor. At ea
 			<pre class="displaybox">K_steps(s)  ≤  k + (3/2)m + U(s) + 2,   where  k ≤ ⌈log₂ E⌉ + 1  and  m &lt; E.</pre>
 			<p>
 				Since <span class="mv">E</span> ≤ 3|<span class="mv">s</span>|, the constructed
-				derivation has length O(|<span class="mv">s</span>|). It makes no minimality claim;
+				derivation has length O(|<span class="mv">s</span>|). No minimality is claimed;
 				<span class="mv">K</span><sub>steps</sub> is defined and bounded in §3.
 			</p>
 		</div>
@@ -225,9 +225,10 @@ Stage C — contract.  Scan the target tail t left to right with a cursor. At ea
 		<h2>§2 The invariant and the characters of ℤ/3</h2>
 
 		<p class="lede">
-			One number decides everything about MIU. This section proves it, says why the modulus is
-			3 and not anything else, and re-derives the same fact in the language of characters —
-			the form that generalizes.
+			The count of <span class="o">I</span>s mod 3 decides membership in Th(MIU). This section
+			proves the invariant, shows why the modulus is 3 and no other, and re-derives the same
+			fact in the language of characters — the form that generalizes to ℤ/<span class="mv"
+			>p</span>.
 		</p>
 
 		<div class="stmt">
@@ -271,10 +272,10 @@ R4   UU  → ∅      I-count unchanged     n ↦ n</pre>
 				<span class="leadin">Remark 2.4 (what an invariant is).</span> The proof used only: a
 				map from strings to a finite set, a compatible action of each rule on that set, and a
 				subset containing the image of <span class="o">MI</span>, closed under the actions,
-				missing the image of <span class="o">MU</span>. Reachability upstairs — infinitely
-				many strings — is settled by reachability downstairs — three residues, checked by
-				inspection. This is the general shape of a certificate for non-reachability, and the
-				shape the connection gate looks for elsewhere.
+				missing the image of <span class="o">MU</span>. A reachability question about
+				infinitely many strings is settled by a reachability question about three residues,
+				checked by inspection. This is the general shape of a certificate for
+				non-reachability.
 			</p>
 		</div>
 
@@ -289,7 +290,7 @@ mod 4:  R2 doubles 2 to 0.       Witness MII ⇒ MIIII     (2 ↦ 4 ≡ 0).
 mod 5:  R3 sends 3 to 0.         Witness M I⁸ ⇒ M U I⁵   (8 ≡ 3 ↦ 5 ≡ 0).</pre>
 			<p>
 				(<span class="o">MII</span> is reachable by one doubling,
-				<span class="o">M I⁸</span> by three. Mod 2 also loses to R3: subtracting 3 flips
+				<span class="o">M I⁸</span> by three. Mod 2 also fails at R3: subtracting 3 flips
 				parity.)
 				Modulus 3 works because it is the modulus at which R3 acts trivially, and doubling
 				permutes {'{'}1, 2{'}'} because 2 is a unit mod 3. The instrument's "why modulus 3"
@@ -374,10 +375,13 @@ mod 5:  R3 sends 3 to 0.         Witness M I⁸ ⇒ M U I⁵   (8 ≡ 3 ↦ 5 �
 		<h2>§3 Programs and description length</h2>
 
 		<p class="lede">
-			A derivation is a finite record of choices — which rule, and where. Coding the record in
-			bits turns each derivation into a program for the fixed machine, and the length of the
-			shortest program is a description length. This section gives the exact code, says why it
-			is built the way it is, and proves what bounding each minimum costs.
+			A derivation is a finite record of choices — which rule, and where. Read the record as a
+			program: the axiom <span class="o">MI</span> is the input, each rule application is an
+			instruction, the final string is the output. The machine running these programs is
+			fixed, and its entire instruction set is R1–R4. The length of the shortest program for
+			<span class="mv">s</span> is then a description length of <span class="mv">s</span>
+			relative to this machine. This section gives the exact code, says why it is built the
+			way it is, and proves what bounding each minimum costs.
 		</p>
 
 		<div class="stmt">
@@ -417,8 +421,8 @@ site     =  empty if the rule has ≤ 1 legal site in the current string;
 				<span class="mv">c</span> and hence the selector width, so the decoder reads exactly
 				the right number of bits, applies the move, and repeats. The selector width is a
 				function of decoder state, not of the bitstream: the code is prefix-free conditional
-				on the machine. This is the content of "executable" — no delimiter and no global
-				table, just simulation.
+				on the machine. This is what "executable" means here: the decoder needs no delimiters
+				and no table of the reachability graph, only the four rules.
 			</p>
 		</div>
 
@@ -537,8 +541,8 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				length ≤ <span class="mv">d<sub>f</sub></span> + <span class="mv">d<sub>b</sub></span>
 				exists — such a derivation's <span class="mv">d<sub>f</sub></span>-th string would lie
 				in both frontiers. Each layer is finite, because each string admits finitely many
-				moves and finitely many preimages, so completing layers is a terminating computation
-				and every reported bound is a theorem, not a heuristic. ∎
+				moves and finitely many preimages, so completing layers is a finite computation and
+				each reported bound is proved. ∎
 			</p>
 			<p>
 				An exhausted search therefore reports a bracket <span class="mv">d</span> &lt;
@@ -555,9 +559,9 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 		<h2>§4 The passage to universality</h2>
 
 		<p class="lede">
-			Everything above happened on a machine with four rules and one axiom. The instrument's
-			coda names what changes when the machine becomes universal; this section states those
-			results precisely, cites them, and marks the exact joint where each MIU argument breaks.
+			Everything above happened on a machine with four rules and one axiom. This section
+			states what changes when the machine becomes universal — the results the instrument's
+			coda names — and marks the exact point where each MIU argument breaks.
 		</p>
 
 		<div class="stmt">
@@ -578,8 +582,8 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				<span class="mv">c<sub>V</sub></span> for all <span class="mv">s</span>. In particular
 				<span class="mv">K</span><sub>bits</sub> bounds <span class="mv">K<sub>U</sub></span>
 				from above up to a constant: a universal machine can simulate the four-rule decoder of
-				Proposition 3.3. Description length becomes machine-independent up to O(1), which is
-				what earns it the name Kolmogorov complexity. What does not transfer:
+				Proposition 3.3. Description length is machine-independent up to O(1), and this
+				machine-independent quantity is Kolmogorov complexity. What does not transfer:
 				<span class="mv">K<sub>U</sub></span> is defined for every string, while
 				<span class="mv">K</span><sub>bits</sub> exists only for MIU theorems.
 			</p>
@@ -592,8 +596,8 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				enumerable and not decidable (Turing 1936). Where the MIU argument breaks: Theorem 2.3
 				rested on a computable map to a finite set, commuting with the rules and separating
 				reachable from unreachable. For <span class="mv">U</span> no such computable invariant
-				exists — it would decide an undecidable set. The residue certificate is available on
-				the fixed machine and on no universal one.
+				exists — it would decide an undecidable set. A residue certificate cannot exist for
+				any universal machine.
 			</p>
 		</div>
 
@@ -629,8 +633,8 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				<span class="leadin">Remark 4.5 (what survives).</span> Upper bounds. Exhibiting a
 				program still proves <span class="mv">K<sub>U</sub>(s)</span> ≤
 				|<span class="mv">p</span>|, at any machine — one witness, no exhaustion. The
-				asymmetry of Theorem 3.7 is not a feature of MIU; MIU is where both sides of it are
-				small enough to watch.
+				asymmetry of Theorem 3.7 holds at every machine; MIU is small enough that both sides
+				of it can be computed.
 			</p>
 			<p>
 				These four statements are the instrument's coda made precise. They are theorems about
