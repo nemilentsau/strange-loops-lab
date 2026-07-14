@@ -19,13 +19,19 @@
 
 <div class="notes">
 	<div class="notes-front">
-		<p class="microlabel">What is checked, what is cited</p>
+		<p class="microlabel">The machine</p>
 		<p>
-			The results about MIU itself — the characterization of Th(MIU), the invariant, the
-			program code, the search bounds — are implemented and mechanically checked in the
-			instrument's source (<span class="o">src/lib/miu</span>). The classical theorems quoted
-			in §3 and §4 — Kraft's inequality, the invariance theorem, Chaitin's incompleteness —
-			are standard results cited with sources; nothing here proves them.
+			These notes read the MIU system as a machine: one axiom, four rules, nothing else. §0
+			defines it. §§1–2 decide it: a string is a theorem iff its count of
+			<span class="o">I</span>s is ≢ 0 (mod 3) — the construction of §1 witnesses membership,
+			and the invariant of §2, re-derived in the characters of ℤ/3, certifies non-membership. §3
+			takes the machine reading literally: a derivation is a program, the four rules are its
+			instruction set, and the shortest program's length is a description length relative to
+			this machine. §4 replaces the fixed machine with a universal one and marks where each
+			argument breaks. Every result about MIU itself is proved here and mechanically checked
+			in the instrument's source (<span class="o">src/lib/miu</span>); the classical theorems
+			of §3 and §4 — Kraft's inequality, the invariance theorem, Chaitin's incompleteness —
+			are cited with sources, not proved.
 		</p>
 	</div>
 
