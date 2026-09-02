@@ -105,7 +105,8 @@ Responsibilities:
   layer so the UI can display the lower bound as it rises,
 - the executable prefix code and gamma-length-prefixed literal baseline
   (`coding.ts`),
-- minimum encoded program length by bounded Dijkstra search
+- minimum encoded program length by bounded Dijkstra search, with a certified
+  floor from the unexpanded frontier when the node budget stops it
   (`bitComplexity.ts`),
 - the character table of ℤ/3, pullback under doubling, and forbidden-residue
   identity (`characters.ts`),

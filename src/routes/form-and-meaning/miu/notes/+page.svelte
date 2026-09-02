@@ -647,8 +647,12 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 			</p>
 			<pre class="displaybox">3d + 7  ≤  K_bits(s)  ≤  bits(d_c),      d_c the derivation of Construction 1.4.</pre>
 			<p>
-				The instrument reports the step bracket; the bit search reports only its witness or
-				its exhaustion, and this bracket is what its exhaustion implies.
+				The bit search certifies its own floor independently of the step bracket. Dijkstra's
+				algorithm expands strings in nondecreasing program cost, so when the node budget stops
+				it, every string not yet expanded costs at least the cheapest one still queued, and
+				any program for <span class="mv">s</span> passes through such a string. The reported
+				floor is that cost plus the four framing bits. The two floors are not comparable in
+				general; either is a proved lower bound.
 			</p>
 		</div>
 

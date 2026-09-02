@@ -107,7 +107,8 @@ read three ways:
   rewrite-move count by bounded bidirectional BFS (forward from MI, backward
   from the target under the inverse rules); `K_bits` is minimum encoded length
   by bounded Dijkstra search. Both searches report an honest exhaustion
-  horizon. Compression is asserted only by comparing `K_bits` with the
+  horizon: `K_steps` strictly above the completed depth, `K_bits` at least the
+  cheapest unexpanded frontier cost. Compression is asserted only by comparing `K_bits` with the
   gamma-length-prefixed literal code.
 
 The page opens with a GEB epigraph and an orientation stating the three

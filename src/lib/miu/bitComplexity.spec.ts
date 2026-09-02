@@ -28,6 +28,30 @@ describe('K_bits', () => {
 		});
 	});
 
+	it('certifies a bit floor from the unexpanded frontier on exhaustion', () => {
+		// Expanding MI alone leaves MII and MIU queued at 3 payload bits each,
+		// so no program shorter than 1 + 3 + 3 bits can print anything further.
+		expect(shortestBitProgram('MUI', { maxNodes: 1 })).toMatchObject({
+			outcome: 'exhausted',
+			lowerBound: 7
+		});
+	});
+
+	it('never certifies a floor above the true minimum', () => {
+		for (const target of ['MUI', 'MIIIIU', 'MIUIUIUIU']) {
+			const exact = shortestBitProgram(target).bitLength!;
+			for (const maxNodes of [1, 2, 5, 20]) {
+				const result = shortestBitProgram(target, { maxNodes });
+				if (result.outcome === 'exhausted') {
+					expect(result.lowerBound).toBeGreaterThan(4);
+					expect(result.lowerBound).toBeLessThanOrEqual(exact);
+				} else {
+					expect(result.bitLength).toBe(exact);
+				}
+			}
+		}
+	});
+
 	it('clamps the node budget to the supported boundaries', () => {
 		expect(shortestBitProgram('MI', { maxNodes: 0 }).maxNodes).toBe(1);
 		expect(shortestBitProgram('MI', { maxNodes: 9_000_000 }).maxNodes).toBe(5_000_000);

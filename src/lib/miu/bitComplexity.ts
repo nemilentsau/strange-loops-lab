@@ -8,7 +8,20 @@ export interface BitProgramOptions {
 
 export type BitProgramResult =
 	| { outcome: 'found'; target: string; bitLength: number; path: MiuMove[]; maxNodes: number }
-	| { outcome: 'exhausted'; target: string; bitLength: null; path: null; maxNodes: number };
+	| {
+			outcome: 'exhausted';
+			target: string;
+			bitLength: null;
+			path: null;
+			/**
+			 * Certified floor: K_bits(target) ≥ lowerBound. Dijkstra expands strings
+			 * in nondecreasing payload cost, so when the node budget stops it every
+			 * unexpanded string costs at least the cheapest live queue entry, and any
+			 * program for the target passes through one of them.
+			 */
+			lowerBound: number;
+			maxNodes: number;
+	  };
 
 interface QueueItem {
 	value: string;
@@ -59,7 +72,21 @@ export function shortestBitProgram(
 		}
 	}
 
-	return { outcome: 'exhausted', target, bitLength: null, path: null, maxNodes };
+	while (queue.size > 0 && queue.peek()!.cost !== best.get(queue.peek()!.value)) {
+		queue.pop();
+	}
+	const frontier = queue.peek();
+	if (!frontier) {
+		throw new Error(`Search frontier emptied without reaching theorem ${target}`);
+	}
+	return {
+		outcome: 'exhausted',
+		target,
+		bitLength: null,
+		path: null,
+		lowerBound: 1 + frontier.cost + 3,
+		maxNodes
+	};
 }
 
 function reconstruct(links: Map<string, Link>, target: string): MiuMove[] {
@@ -79,6 +106,10 @@ class MinHeap {
 
 	get size(): number {
 		return this.items.length;
+	}
+
+	peek(): QueueItem | undefined {
+		return this.items[0];
 	}
 
 	push(item: QueueItem): void {
