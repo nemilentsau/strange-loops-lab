@@ -28,10 +28,12 @@
 			takes the machine reading literally: a derivation is a program, the four rules are its
 			instruction set, and the shortest program's length is a description length relative to
 			this machine. §4 replaces the fixed machine with a universal one and marks where each
-			argument breaks. Every result about MIU itself is proved here and mechanically checked
-			in the instrument's source (<span class="o">src/lib/miu</span>); the classical theorems
-			of §3 and §4 — Kraft's inequality, the invariance theorem, Chaitin's incompleteness —
-			are cited with sources, not proved.
+			argument breaks. Every result about MIU itself is proved here, on paper; the
+			instrument's source (<span class="o">src/lib/miu</span>) computes each of them and its
+			tests exercise them on examples. The classical theorems of §3 and §4 — Kraft's
+			inequality, the invariance theorem, the non-computability of
+			<span class="mv">K</span>, Chaitin's incompleteness — are cited with sources, not
+			proved.
 		</p>
 	</div>
 
@@ -90,12 +92,14 @@ R4   UU  → ∅      delete an occurrence; one site per occurrence of UU in the
 
 		<div class="stmt">
 			<p>
-				<span class="leadin">Remark 0.4 (where this sits).</span> This is a semi-Thue system
-				with anchored rules; the decision problem is reachability in the infinite directed
-				graph whose vertices are strings and whose edges are rule applications. For semi-Thue
-				systems in general, reachability is undecidable (Post 1947; Markov 1947). MIU is a
-				fixed, small system for which it is decidable — §1 proves this by exhibiting the
-				deciding residue and the witness construction.
+				<span class="leadin">Remark 0.4 (where this sits).</span> This is a string rewriting
+				system. R3 and R4 are semi-Thue rules, applying at any position; R1 and R2 are
+				anchored, at the right end and at the whole tail, which a semi-Thue presentation
+				simulates with end markers. The decision problem is reachability in the infinite
+				directed graph whose vertices are strings and whose edges are rule applications. For
+				semi-Thue systems in general, reachability is undecidable (Post 1947; Markov 1947).
+				MIU is a fixed, small system for which it is decidable — §1 proves this by exhibiting
+				the deciding residue and the witness construction.
 			</p>
 		</div>
 
@@ -225,6 +229,24 @@ Stage C — contract.  Scan the target tail t left to right with a cursor. At ea
 				certificate rather than by any exhaustion of derivations.
 			</p>
 		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Corollary 1.7</b> (Th(MIU) is regular).</span> By Theorem 1.1,
+				Th(MIU) = <span class="o">M[IU]⁺</span> ∩ {'{'}<span class="mv">s</span> :
+				<span class="mv">I(s)</span> ≢ 0 (mod 3){'}'}, an intersection of two regular
+				languages. A deterministic automaton with states start, 0, 1, 2 and a rejecting sink
+				recognizes it: <span class="o">M</span> sends start to 0, <span class="o">I</span>
+				advances the residue, <span class="o">U</span> holds it, and 1 and 2 accept. A
+				nonempty tail is automatic, since 1 and 2 are entered only by reading an
+				<span class="o">I</span>. The residue of §2 is the state of this automaton.
+			</p>
+			<p>
+				For a rewriting system this is unusual. The theorem set of a finite semi-Thue system
+				is computably enumerable, by listing derivations, and in general no better (Remark
+				0.4); here it is recognized by a four-state machine.
+			</p>
+		</div>
 	</section>
 
 	<section class="notes-section" id="invariant">
@@ -283,6 +305,15 @@ R4   UU  → ∅      I-count unchanged     n ↦ n</pre>
 				checked by inspection. This is the general shape of a certificate for
 				non-reachability.
 			</p>
+			<p>
+				Here the certificate is also complete: by Theorem 1.1, Th(MIU) =
+				<span class="mv">r</span><sup>−1</sup>{'{'}1, 2{'}'} on MIU strings, so reachability
+				in MIU is exactly reachability in the three-vertex quotient graph. In general an
+				invariant is sound and not complete — it certifies some non-theorems and is silent on
+				the rest — and for a semi-Thue system with undecidable reachability no computable
+				finite-valued invariant can be complete, since it would decide reachability
+				(Theorem 4.3).
+			</p>
 		</div>
 
 		<div class="stmt">
@@ -298,8 +329,10 @@ mod 5:  R3 sends 3 to 0.         Witness M I⁸ ⇒ M U I⁵   (8 ≡ 3 ↦ 5 �
 				(<span class="o">MII</span> is reachable by one doubling,
 				<span class="o">M I⁸</span> by three. Mod 2 also fails at R3: subtracting 3 flips
 				parity.)
-				Modulus 3 works because it is the modulus at which R3 acts trivially, and doubling
-				permutes {'{'}1, 2{'}'} because 2 is a unit mod 3. The instrument's "why modulus 3"
+				R3 acts trivially exactly at the multiples of 3, and each of these moduli yields a
+				certificate — mod 6 the admissible set is {'{'}1, 2, 4, 5{'}'} — refining the mod-3
+				one; 3 is the coarsest. Doubling permutes {'{'}1, 2{'}'} because 2 is a unit mod 3.
+				The instrument's "why modulus 3"
 				panel computes such witnesses for any candidate <span class="o">count(I) mod k</span>
 				invariant.
 			</p>
@@ -473,7 +506,7 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 			<pre class="displaybox">K_bits(s)  ≥  3 · K_steps(s) + 4,</pre>
 			<p>
 				with equality iff some stepwise-shortest derivation pays no site bits. Worked
-				comparison, computed by the engine:
+				comparison, computed by the engine; a site selector is written [·] after its opcode:
 			</p>
 			<table class="notes-table">
 				<thead>
@@ -505,7 +538,7 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 						<td>6</td>
 						<td>3</td>
 						<td>14</td>
-						<td><span class="o">0·010·010·011 0·000</span></td>
+						<td><span class="o">0·010·010·011[0]·000</span></td>
 					</tr>
 					<tr>
 						<td><span class="o">M I¹⁶</span></td>
@@ -514,14 +547,23 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 						<td>16</td>
 						<td><span class="o">0·010·010·010·010·000</span></td>
 					</tr>
+					<tr>
+						<td><span class="o">MUUI</span></td>
+						<td>7</td>
+						<td>10</td>
+						<td>40</td>
+						<td>ten instructions, six selector bits</td>
+					</tr>
 				</tbody>
 			</table>
 			<p>
 				In <span class="o">MUI</span>'s program the R3 instruction pays one site bit — ordinal
 				0 of 2 sites in <span class="o">MIIII</span> — and the literal beats every program:
 				three moves cost more bits than naming two tail symbols. For
-				<span class="o">M I¹⁶</span> four doublings undercut the literal by ten bits:
-				structure compresses, arbitrary strings do not.
+				<span class="o">M I¹⁶</span> four doublings undercut the literal by ten bits. For
+				<span class="o">MUUI</span> the literal wins by 33: the shortest derivation passes
+				through <span class="o">M I⁸</span> and back down, four of its ten instructions
+				paying selectors. Structure compresses; arbitrary strings do not.
 			</p>
 		</div>
 
@@ -538,17 +580,25 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				<span class="mv">d</span> miss <span class="mv">s</span>, and costs exhaustion.
 			</p>
 			<p>
-				<span class="leadin">Proof (the lower-bound argument, as implemented).</span> Grow a
-				forward frontier from <span class="o">MI</span> under the rules and a backward
-				frontier from <span class="mv">s</span> under the exact rule preimages, completing
-				whole layers. If the forward frontier is complete to depth
-				<span class="mv">d<sub>f</sub></span> and the backward to
-				<span class="mv">d<sub>b</sub></span> with no string in both, then no derivation of
-				length ≤ <span class="mv">d<sub>f</sub></span> + <span class="mv">d<sub>b</sub></span>
-				exists — such a derivation's <span class="mv">d<sub>f</sub></span>-th string would lie
-				in both frontiers. Each layer is finite, because each string admits finitely many
-				moves and finitely many preimages, so completing layers is a finite computation and
-				each reported bound is proved. ∎
+				<span class="leadin">Proof (the lower-bound argument, as implemented).</span> Write
+				<span class="mv">B<sub>f</sub>(d)</span> for the set of strings at rule distance ≤
+				<span class="mv">d</span> from <span class="o">MI</span> and
+				<span class="mv">B<sub>b</sub>(d)</span> for the set at distance ≤
+				<span class="mv">d</span> from <span class="mv">s</span> under the exact rule
+				preimages. The search computes both balls layer by layer. Suppose
+				<span class="mv">B<sub>f</sub>(d<sub>f</sub>)</span> ∩
+				<span class="mv">B<sub>b</sub>(d<sub>b</sub>)</span> = ∅, and let
+				<span class="mv">s₀</span> ⇒ ⋯ ⇒ <span class="mv">s<sub>n</sub></span> =
+				<span class="mv">s</span> be a derivation with <span class="mv">n</span> ≤
+				<span class="mv">d<sub>f</sub></span> + <span class="mv">d<sub>b</sub></span>. Put
+				<span class="mv">i</span> = min(<span class="mv">n</span>,
+				<span class="mv">d<sub>f</sub></span>). Then <span class="mv">s<sub>i</sub></span>
+				∈ <span class="mv">B<sub>f</sub>(d<sub>f</sub>)</span>, and
+				<span class="mv">n</span> − <span class="mv">i</span> ≤
+				<span class="mv">d<sub>b</sub></span> puts <span class="mv">s<sub>i</sub></span> ∈
+				<span class="mv">B<sub>b</sub>(d<sub>b</sub>)</span>: a contradiction. Each ball is
+				finite, because each string admits finitely many moves and finitely many preimages,
+				so completing a layer is a finite computation and each reported bound is proved. ∎
 			</p>
 			<p>
 				An exhausted search therefore reports a bracket <span class="mv">d</span> &lt;
@@ -557,6 +607,71 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				<span class="mv">c</span> from the constructed witness of §1. §4 turns on one property
 				of this proof: the exhaustion terminates because the search space per depth is finite
 				and enumerable.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Proposition 3.8</b> (a lower bound without exhaustion).</span>
+				With <span class="mv">E</span> the expanded length of Definition 1.2, every theorem
+				<span class="mv">s</span> satisfies
+			</p>
+			<pre class="displaybox">K_steps(s)  ≥  ⌈ log₂ ((E(s) + 2) / 3) ⌉.</pre>
+			<p>
+				<span class="leadin">Proof.</span> Each rule changes <span class="mv">E</span> by a
+				fixed amount:
+			</p>
+			<pre class="displaybox">R1   E ↦ E + 3        R2   E ↦ 2E        R3   E ↦ E        R4   E ↦ E − 6</pre>
+			<p>
+				Every MIU string has <span class="mv">E</span> ≥ 1, so in all four cases
+				<span class="mv">E(s′)</span> ≤ 2<span class="mv">E(s)</span> + 2, i.e.
+				<span class="mv">E(s′)</span> + 2 ≤ 2(<span class="mv">E(s)</span> + 2). From
+				<span class="mv">E(</span><span class="o">MI</span><span class="mv">)</span> + 2 = 3,
+				induction along a derivation gives <span class="mv">E(s<sub>n</sub>)</span> ≤
+				3·2<sup><span class="mv">n</span></sup> − 2. Solve for <span class="mv">n</span>. ∎
+			</p>
+			<p>
+				The bound is weak — 3 against the true 4 for <span class="o">M I¹⁶</span>, 2 against
+				10 for <span class="o">MUUI</span> — but it is certified by a computable potential
+				and costs no search. Theorem 3.7 is therefore about tight lower bounds: exhaustion is
+				what a bound better than any potential argument costs. The same shape recurs in §4,
+				where counting programs gives a free bound for most strings and for no specific one.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Corollary 3.9</b> (the bit bracket).</span> When the step
+				search halts with completed depth <span class="mv">d</span>, Proposition 3.6 turns
+				the step bracket into a bit bracket:
+			</p>
+			<pre class="displaybox">3d + 7  ≤  K_bits(s)  ≤  bits(d_c),      d_c the derivation of Construction 1.4.</pre>
+			<p>
+				The instrument reports the step bracket; the bit search reports only its witness or
+				its exhaustion, and this bracket is what its exhaustion implies.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Corollary 3.10</b> (both minima are computable).</span>
+				<span class="mv">K</span><sub>steps</sub> and <span class="mv">K</span><sub>bits</sub>
+				are computable functions on Th(MIU).
+			</p>
+			<p>
+				<span class="leadin">Proof.</span> Corollary 1.5 gives an explicit
+				<span class="mv">c</span> with <span class="mv">K</span><sub>steps</sub><span
+					class="mv">(s)</span> ≤ <span class="mv">c</span>; the derivations of length ≤
+				<span class="mv">c</span> are finitely many, since each string admits finitely many
+				moves, and enumerating them finds the minimum. For
+				<span class="mv">K</span><sub>bits</sub>, the constructed derivation gives a bit
+				ceiling, every instruction costs at least 3 bits, and the derivations under that
+				ceiling are again finitely many. ∎
+			</p>
+			<p>
+				So every exhausted verdict in the instrument is a resource limit — the node and depth
+				bounds of the search — and never a logical one: with enough time both minima are
+				computed exactly. This is the statement §4 negates.
 			</p>
 		</div>
 	</section>
@@ -576,6 +691,10 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 				machine <span class="mv">U</span> takes any finite binary program and runs it;
 				<span class="mv">K<sub>U</sub>(s)</span> is the length of the shortest program whose
 				output is <span class="mv">s</span> (Solomonoff 1964; Kolmogorov 1965; Chaitin 1966).
+				Programs are taken self-delimiting, as in Proposition 3.3, so
+				<span class="mv">K<sub>U</sub></span> is prefix complexity (Levin 1974; Chaitin 1975).
+				Plain complexity, defined without the prefix condition, differs from it by
+				O(log |<span class="mv">s</span>|); nothing below depends on the distinction.
 			</p>
 		</div>
 
@@ -597,19 +716,57 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 
 		<div class="stmt">
 			<p>
-				<span class="leadin"><b>Theorem 4.3</b> (producibility becomes halting; cited).</span>
-				For universal <span class="mv">U</span> the set of producible strings is computably
-				enumerable and not decidable (Turing 1936). Where the MIU argument breaks: Theorem 2.3
-				rested on a computable map to a finite set, commuting with the rules and separating
-				reachable from unreachable. For <span class="mv">U</span> no such computable invariant
-				exists — it would decide an undecidable set. A residue certificate cannot exist for
-				any universal machine.
+				<span class="leadin"><b>Theorem 4.3</b> (reachability becomes halting; cited).</span>
+				For a finite semi-Thue system <span class="mv">S</span> with axiom
+				<span class="mv">a</span>, Th(<span class="mv">S</span>) = {'{'}<span class="mv"
+				>s</span> : <span class="mv">a</span> ⇒* <span class="mv">s</span>{'}'} is computably
+				enumerable, by listing derivations. There are finite <span class="mv">S</span> for
+				which it is not decidable (Post 1947; Markov 1947). For a universal machine
+				<span class="mv">U</span> the halting set {'{'}<span class="mv">p</span> :
+				<span class="mv">U(p)</span> halts{'}'} is computably enumerable and not decidable
+				(Turing 1936); Post's theorem is proved by reducing the one to the other.
+			</p>
+			<p>
+				Where the MIU argument breaks: Theorem 2.3 rested on a computable map to a finite
+				set, commuting with the rules and separating Th from its complement. For such an
+				<span class="mv">S</span> no such map exists — it would decide
+				Th(<span class="mv">S</span>). Complete residue certificates exist only where
+				reachability was decidable already. Note what is undecidable at
+				<span class="mv">U</span>: every string is the output of some program, so the
+				question is never whether <span class="mv">s</span> has a program, but whether a
+				given program halts — equivalently, whether <span class="mv">s</span> has a program
+				of length ≤ <span class="mv">n</span> (Theorem 4.4).
 			</p>
 		</div>
 
 		<div class="stmt">
 			<p>
-				<span class="leadin"><b>Theorem 4.4</b> (Chaitin's incompleteness; cited).</span> For
+				<span class="leadin"><b>Theorem 4.4</b> (<span class="mv">K<sub>U</sub></span> is not
+				computable; cited).</span> The function <span class="mv">s</span> ↦
+				<span class="mv">K<sub>U</sub>(s)</span> is not computable. The set
+				{'{'}(<span class="mv">s</span>, <span class="mv">n</span>) :
+				<span class="mv">K<sub>U</sub>(s)</span> ≤ <span class="mv">n</span>{'}'} is
+				computably enumerable and not decidable (Kolmogorov 1965; Zvonkin–Levin 1970).
+			</p>
+			<p>
+				<span class="leadin">Proof sketch.</span> If <span class="mv">K<sub>U</sub></span>
+				were computable, the program "print the first string, in length-lexicographic order,
+				with <span class="mv">K<sub>U</sub>(s)</span> &gt; <span class="mv">n</span>" would
+				describe a string of complexity greater than <span class="mv">n</span> in log
+				<span class="mv">n</span> + O(1) bits — below <span class="mv">n</span> for large
+				<span class="mv">n</span>. ∎
+			</p>
+			<p>
+				Where the MIU argument breaks: Corollary 3.10. A ceiling still exists —
+				<span class="mv">K<sub>U</sub>(s)</span> ≤ |<span class="mv">s</span>| + O(1), by the
+				literal program — but exhausting the programs beneath it asks of each one whether it
+				halts. The finite enumeration behind Corollary 3.10 has no analogue.
+			</p>
+		</div>
+
+		<div class="stmt">
+			<p>
+				<span class="leadin"><b>Theorem 4.5</b> (Chaitin's incompleteness; cited).</span> For
 				each sound, computably axiomatized theory <span class="mv">T</span> able to state
 				facts <span class="mv">K<sub>U</sub>(s)</span> &gt; <span class="mv">n</span>, there
 				is a constant <span class="mv">c<sub>T</sub></span> such that <span class="mv">T</span>
@@ -628,22 +785,23 @@ L_literal(s)  =  1 + (2⌊log₂ |t|⌋ + 1) + |t|</pre>
 			</p>
 			<p>
 				Where the MIU argument breaks: Theorem 3.7's lower bounds were proved by finite
-				exhaustion of a finitely-branching search. At a universal machine the candidate
-				programs of length ≤ <span class="mv">d</span> cannot be exhausted, because ruling
-				each one out asks whether it halts.
+				exhaustion of a finitely-branching search. Theorem 4.4 removes the algorithm;
+				Chaitin's theorem removes the proofs: above <span class="mv">c<sub>T</sub></span> no
+				lower bound is provable in <span class="mv">T</span>, by any method, although almost
+				every string satisfies one.
 			</p>
 		</div>
 
 		<div class="stmt">
 			<p>
-				<span class="leadin">Remark 4.5 (what survives).</span> Upper bounds. Exhibiting a
+				<span class="leadin">Remark 4.6 (what survives).</span> Upper bounds. Exhibiting a
 				program still proves <span class="mv">K<sub>U</sub>(s)</span> ≤
 				|<span class="mv">p</span>|, at any machine — one witness, no exhaustion. The
 				asymmetry of Theorem 3.7 holds at every machine; MIU is small enough that both sides
 				of it can be computed.
 			</p>
 			<p>
-				These four statements are the instrument's coda made precise. They are theorems about
+				These statements are the instrument's coda made precise. They are theorems about
 				other machines, cited here, proved elsewhere; nothing on this page depends on them.
 			</p>
 		</div>
