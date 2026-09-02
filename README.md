@@ -107,7 +107,8 @@ read three ways:
   rewrite-move count by bounded bidirectional BFS (forward from MI, backward
   from the target under the inverse rules); `K_bits` is minimum encoded length
   by bounded Dijkstra search. Both searches report an honest exhaustion
-  horizon. Compression is asserted only by comparing `K_bits` with the
+  horizon: `K_steps` strictly above the completed depth, `K_bits` at least the
+  cheapest unexpanded frontier cost. Compression is asserted only by comparing `K_bits` with the
   gamma-length-prefixed literal code.
 
 The page opens with a GEB epigraph and an orientation stating the three
@@ -117,6 +118,8 @@ Current reader routes:
 
 - `/` — the title and editorial index of the four arcs
 - `/form-and-meaning/miu` — the built MIU instrument
+- `/form-and-meaning/miu/notes` — lecture notes for the instrument: full
+  statements and proofs, with the surrounding theory
 - `/form-and-meaning/pq` — the empty destination for the next instrument
 
 This is the Arc 1 minimal case: a wall exposed by an invariant, carried through

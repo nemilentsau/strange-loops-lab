@@ -3,25 +3,43 @@
 	import { encodeDerivation, literalMiuBitLength } from '$lib/miu/coding';
 	import { MIU_QUERY_BOUNDS, shortestTheoremDerivation } from '$lib/miu/complexity';
 	import { DESCRIPTION_LENGTH_EXAMPLES } from '$lib/miu/examples';
+	import { constructMiuDerivation } from '$lib/miu/theoremhood';
 
 	const specimenRows = DESCRIPTION_LENGTH_EXAMPLES.map((example) => {
 		const stepResult = shortestTheoremDerivation(example.value, MIU_QUERY_BOUNDS);
 		const bitResult = shortestBitProgram(example.value, {
 			maxNodes: MIU_QUERY_BOUNDS.maxNodes
 		});
-		const program =
-			bitResult.outcome === 'found'
-				? encodeDerivation(bitResult.path)
+		if (bitResult.outcome === 'found') {
+			return {
+				...example,
+				literalBits: literalMiuBitLength(example.value),
+				stepLength: stepResult.outcome === 'found' ? stepResult.length : null,
+				bitCell: String(bitResult.bitLength),
+				program:
+					encodeDerivation(bitResult.path)
 						.instructions.map((instruction) => instruction.display)
 						.join(' ') || 'halt'
-				: 'unresolved at this search bound';
-
+			};
+		}
+		const constructed = encodeDerivation(constructMiuDerivation(example.value));
+		const literalBits = literalMiuBitLength(example.value);
+		const stepLength = stepResult.outcome === 'found' ? stepResult.length : null;
+		if (bitResult.lowerBound === constructed.bitLength) {
+			return {
+				...example,
+				literalBits,
+				stepLength,
+				bitCell: String(constructed.bitLength),
+				program: constructed.instructions.map((instruction) => instruction.display).join(' ')
+			};
+		}
 		return {
 			...example,
-			literalBits: literalMiuBitLength(example.value),
-			stepLength: stepResult.outcome === 'found' ? stepResult.length : null,
-			bitLength: bitResult.bitLength,
-			program
+			literalBits,
+			stepLength,
+			bitCell: `≥ ${bitResult.lowerBound}`,
+			program: `no program under ${bitResult.lowerBound} bits prints it; the construction's program has ${constructed.bitLength}; the minimum is open — the search stopped at ${bitResult.maxNodes.toLocaleString('en-US')} stored strings`
 		};
 	});
 </script>
@@ -120,7 +138,7 @@
 					<td class="o">{row.value}</td>
 					<td class="num">{row.literalBits}</td>
 					<td class="num">{row.stepLength ?? '—'}</td>
-					<td class="num">{row.bitLength ?? '—'}</td>
+					<td class="num">{row.bitCell}</td>
 					<td class="program">{row.program}</td>
 					<td class="reading">{row.reading}</td>
 				</tr>

@@ -40,6 +40,8 @@ Responsibilities:
 
 - the editorial index at `/`,
 - the built MIU instrument at `/form-and-meaning/miu`,
+- the MIU lecture notes at `/form-and-meaning/miu/notes` — static prose with
+  full proofs, no engine wiring,
 - the empty pq destination at `/form-and-meaning/pq`, containing navigation but
   no pq mathematics,
 - composition of the three readings of one object — the derivation,
@@ -103,7 +105,8 @@ Responsibilities:
   layer so the UI can display the lower bound as it rises,
 - the executable prefix code and gamma-length-prefixed literal baseline
   (`coding.ts`),
-- minimum encoded program length by bounded Dijkstra search
+- minimum encoded program length by bounded Dijkstra search, with a certified
+  floor from the unexpanded frontier when the node budget stops it
   (`bitComplexity.ts`),
 - the character table of ℤ/3, pullback under doubling, and forbidden-residue
   identity (`characters.ts`),

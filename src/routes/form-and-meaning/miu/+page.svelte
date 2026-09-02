@@ -184,6 +184,10 @@
 		finite record that can be coded in bits; the length of the shortest such code is a
 		description length relative to this fixed machine.
 	</p>
+	<p class="overture__notes">
+		<a href="/form-and-meaning/miu/notes">Lecture notes</a> — full statements and proofs, with
+		the surrounding theory.
+	</p>
 </div>
 
 <section class="movement">

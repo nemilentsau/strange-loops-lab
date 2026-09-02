@@ -260,6 +260,25 @@ select {
 	text-transform: lowercase;
 }
 
+.instrument-entry .instrument-notes-link {
+	display: inline-block;
+	width: auto;
+	margin-top: 2px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	letter-spacing: 0.08em;
+	text-decoration: underline;
+	text-decoration-color: var(--line-strong);
+	text-underline-offset: 0.25em;
+}
+
+.instrument-entry .instrument-notes-link:hover,
+.instrument-entry .instrument-notes-link:focus-visible {
+	color: var(--act);
+	text-decoration-color: var(--act);
+}
+
 .instrument-breadcrumb {
 	display: flex;
 	flex-wrap: wrap;
@@ -379,6 +398,26 @@ select {
 
 .overture__reading .o {
 	color: var(--ink);
+}
+
+.overture__notes {
+	grid-column: 1 / -1;
+	margin: 0;
+	color: var(--muted);
+	font-size: var(--t-caption);
+}
+
+.overture__notes a {
+	color: var(--ink);
+	text-decoration: underline;
+	text-decoration-color: var(--line-strong);
+	text-underline-offset: 0.25em;
+}
+
+.overture__notes a:hover,
+.overture__notes a:focus-visible {
+	color: var(--act);
+	text-decoration-color: var(--act);
 }
 
 .movement {
@@ -1629,6 +1668,93 @@ select {
 
 /* Collapse points: 1180 folds the parallel columns, 860 stacks the worksheet
  * rail, 780 stacks the theorem query, 640 tightens padding. */
+.notes {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2xl);
+	max-width: 84ch;
+	margin-inline: auto;
+	padding-top: var(--space-sm);
+}
+
+.notes-front {
+	border-left: 2px solid var(--line-strong);
+	padding-left: var(--space-lg);
+}
+
+.notes-front > p:not(.microlabel) {
+	margin: 0;
+	color: var(--muted);
+	line-height: 1.7;
+}
+
+.notes-front .o {
+	color: var(--ink);
+}
+
+.notes-section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-md);
+}
+
+.notes-section h2 {
+	margin: 0 0 var(--space-xs);
+	padding-bottom: 8px;
+	border-bottom: 2px solid var(--ink);
+	font-size: var(--t-title);
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.notes-section .lede {
+	margin-bottom: 0;
+}
+
+.stmt {
+	border-left: 2px solid var(--line-strong);
+	padding-left: var(--space-lg);
+}
+
+.stmt > p {
+	margin: 0 0 10px;
+	line-height: 1.7;
+}
+
+.stmt > p:last-child {
+	margin-bottom: 0;
+}
+
+.displaybox {
+	margin: 4px 0 10px;
+	padding: var(--space-sm) var(--space-md);
+	overflow-x: auto;
+	background: var(--panel);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	font-family: var(--mono);
+	font-size: 0.88rem;
+	line-height: 1.75;
+}
+
+.notes-table {
+	margin: 4px 0 10px;
+	border-collapse: collapse;
+}
+
+.notes-table th,
+.notes-table td {
+	border: 1px solid var(--line-strong);
+	padding: 6px 18px;
+	text-align: center;
+	font-weight: 400;
+}
+
+.notes-table thead th {
+	color: var(--muted);
+	font-size: var(--t-caption);
+}
+
 @media (max-width: 1180px) {
 	.site-shell {
 		padding-inline: 24px;
