@@ -4,6 +4,8 @@
 	import MiuSheet from '$lib/components/miu/MiuSheet.svelte';
 	import MiuInvariant from '$lib/components/miu/MiuInvariant.svelte';
 	import MiuBridge from '$lib/components/miu/MiuBridge.svelte';
+	import MiuDials from '$lib/components/miu/MiuDials.svelte';
+	import { readDerivationTrace } from '$lib/miu/traceReadings';
 	import {
 		analyzeMiuRuleAvailability,
 		applyMoveToTrace,
@@ -43,6 +45,13 @@
 	const validProduceTarget = $derived(isValidMiuString(trimmedProduceTarget));
 	const theoremDecision = $derived(
 		validProduceTarget ? decideMiuTheorem(trimmedProduceTarget) : decideMiuTheorem('')
+	);
+	const traceReading = $derived(readDerivationTrace(draft.trace));
+	const reachedTarget = $derived(
+		trimmedProduceTarget !== '' && currentString === trimmedProduceTarget
+	);
+	const targetResidue = $derived(
+		theoremDecision.outcome === 'invalid' ? null : theoremDecision.residue
 	);
 	const constructedPath = $derived(
 		theoremDecision.outcome === 'theorem' ? constructMiuDerivation(trimmedProduceTarget) : null
@@ -212,6 +221,7 @@
 
 	<MiuSheet
 		trace={draft.trace}
+		{traceReading}
 		{currentString}
 		{ruleAvailability}
 		target={produceTarget}
@@ -221,10 +231,12 @@
 		onApplyMove={applyMove}
 		onJumpToStep={jumpToStep}
 		onReset={resetSession}
-	/>
+	>
+		<MiuDials {traceReading} target={trimmedProduceTarget} {targetResidue} {reachedTarget} />
+	</MiuSheet>
 </section>
 
-<section class="movement">
+<section class="movement" id="invariant">
 	<div class="movement__head">
 		<h2 class="movement__title">Invariant certificate</h2>
 		<span class="movement__altitude">across all derivations</span>
@@ -239,7 +251,7 @@
 	<MiuInvariant />
 </section>
 
-<section class="movement">
+<section class="movement" id="description-length">
 	<div class="movement__head">
 		<h2 class="movement__title">Description length</h2>
 		<span class="movement__altitude">as a program</span>

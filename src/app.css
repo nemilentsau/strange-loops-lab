@@ -900,48 +900,6 @@ select {
 	text-transform: uppercase;
 }
 
-.derivation-readings {
-	display: grid;
-	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-	gap: var(--space-xl);
-	margin-top: var(--space-lg);
-	padding-top: var(--space-md);
-	border-top: 1px solid var(--ink);
-}
-
-.derivation-readings p {
-	margin: 0;
-	min-width: 0;
-}
-
-.derivation-readings .microlabel {
-	display: block;
-	margin-bottom: 6px;
-}
-
-.derivation-readings__sequence {
-	display: block;
-	font-family: var(--mono);
-	font-size: 0.78rem;
-	line-height: 1.65;
-	overflow-wrap: anywhere;
-}
-
-.derivation-readings__claim {
-	display: block;
-	margin-top: 5px;
-	color: var(--muted);
-	font-size: var(--t-caption);
-	line-height: 1.5;
-}
-
-.derivation-readings__turn {
-	margin: var(--space-sm) 0 0;
-	color: var(--faint);
-	font-size: var(--t-caption);
-	line-height: 1.55;
-}
-
 /* Sites are role="button" spans rather than <button>s because buttons cannot
  * break across lines and a site can span the whole string (Rule 2). */
 .string-site {
@@ -1436,6 +1394,130 @@ select {
 	color: var(--faint);
 }
 
+.dials {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--space-lg);
+	margin-top: var(--space-lg);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--ink);
+}
+
+.dials > div {
+	min-width: 0;
+}
+
+.dials .microlabel {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.dial-link {
+	display: inline-block;
+	margin-top: 4px;
+	color: var(--act);
+	font-size: var(--t-caption);
+	text-decoration: underline dashed var(--line-strong);
+	text-underline-offset: 3px;
+}
+
+.dial-link:hover,
+.dial-link:focus-visible {
+	text-decoration-color: var(--act);
+}
+
+.figure {
+	margin: 0;
+	min-width: 0;
+}
+
+.figure svg {
+	display: block;
+	width: 100%;
+	height: auto;
+	overflow: visible;
+}
+
+.figure__caption {
+	margin: 8px 0 0;
+	color: var(--muted);
+	font-size: var(--t-caption);
+	line-height: 1.55;
+}
+
+.figure__key {
+	display: block;
+	margin-bottom: 4px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	letter-spacing: 0.04em;
+}
+
+.fig-move {
+	transition: transform 220ms ease;
+}
+
+.fig-edge {
+	fill: none;
+	stroke: var(--ink);
+	stroke-width: 1;
+}
+
+.fig-edge--traversed {
+	stroke-linecap: round;
+}
+
+.fig-arrowhead {
+	fill: var(--ink);
+}
+
+.fig-sep {
+	stroke: var(--faint);
+	stroke-dasharray: 2 4;
+}
+
+.fig-node {
+	fill: var(--panel);
+	stroke: var(--ink);
+	stroke-width: 1.5;
+}
+
+.fig-node--current {
+	fill: var(--ink);
+}
+
+.fig-node-text {
+	fill: var(--ink);
+	font-family: var(--mono);
+	font-size: 12px;
+	text-anchor: middle;
+	dominant-baseline: central;
+}
+
+.fig-node-text--current {
+	fill: var(--panel);
+}
+
+.fig-ring {
+	fill: none;
+	stroke: var(--ink);
+	stroke-width: 1.25;
+}
+
+.fig-label {
+	fill: var(--ink);
+	font-family: var(--serif);
+	font-size: 12px;
+}
+
+.fig-text {
+	fill: var(--muted);
+	font-family: var(--mono);
+	font-size: 10px;
+	letter-spacing: 0.04em;
+}
+
 /* Collapse points: 1180 folds the parallel columns, 860 stacks the worksheet
  * rail, 780 stacks the theorem query, 640 tightens padding. */
 .notes {
@@ -1557,6 +1639,10 @@ select {
 		border-left: none;
 		padding-left: 0;
 	}
+
+	.dials {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 860px) {
@@ -1578,10 +1664,6 @@ select {
 		margin-top: var(--space-lg);
 		padding-top: var(--space-sm);
 		border-top: 1px solid var(--line-strong);
-	}
-
-	.derivation-readings {
-		grid-template-columns: 1fr;
 	}
 }
 

@@ -12,12 +12,14 @@
 		ruleShortLabel,
 		traceRevisitIndices
 	} from '$lib/miu/core';
-	import { readDerivationTrace } from '$lib/miu/traceReadings';
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
+	import type { Snippet } from 'svelte';
+	import type { DerivationTraceReading } from '$lib/miu/traceReadings';
 
 	let {
 		trace,
+		traceReading,
 		currentString,
 		ruleAvailability,
 		target,
@@ -26,9 +28,11 @@
 		witnessKind,
 		onApplyMove,
 		onJumpToStep,
-		onReset
+		onReset,
+		children
 	}: {
 		trace: DerivationTrace;
+		traceReading: DerivationTraceReading;
 		currentString: string;
 		ruleAvailability: MiuRuleAvailability[];
 		target: string;
@@ -38,6 +42,7 @@
 		onApplyMove: (move: MiuMove) => void;
 		onJumpToStep: (index: number) => void;
 		onReset: () => void;
+		children?: Snippet;
 	} = $props();
 
 	let hoverRuleId = $state<MiuRuleId | null>(null);
@@ -51,16 +56,6 @@
 	const activeMoves = $derived(activeRule?.moves ?? []);
 	const hoverMove = $derived(activeMoves.find((move) => move.key === hoverMoveKey) ?? null);
 	const revisits = $derived(traceRevisitIndices(trace));
-	const traceReading = $derived(readDerivationTrace(trace));
-	const activeProgramParts = $derived([
-		'0',
-		...traceReading.activeProgram.instructions.map((instruction) =>
-			instruction.siteBits
-				? `${instruction.opcode} ${instruction.siteBits}`
-				: instruction.opcode
-		),
-		'000'
-	]);
 
 	// A rule can apply at many sites on a long string; listing every one floods the
 	// rail with near-identical results. Show a handful — any specific site is applied
@@ -318,33 +313,7 @@
 				{/if}
 			</div>
 
-			<div class="derivation-readings" aria-label="Two readings of the active derivation">
-				<p>
-					<span class="microlabel">Invariant reading</span>
-					<span class="derivation-readings__sequence">
-						{traceReading.activeResidues.join(' → ')}
-					</span>
-					<span class="derivation-readings__claim">
-						<span class="stamp" aria-hidden="true">✓</span>
-						every reached string remains in {'{'}1, 2{'}'}
-					</span>
-				</p>
-				<p>
-					<span class="microlabel">Program reading</span>
-					<span class="derivation-readings__sequence">
-						{activeProgramParts.join(' · ')}
-					</span>
-					<span class="derivation-readings__claim">
-						{traceReading.activeMoves.length}
-						{traceReading.activeMoves.length === 1 ? ' step' : ' steps'} ·
-						{traceReading.activeProgram.bitLength} encoded bits
-					</span>
-				</p>
-			</div>
-			<p class="derivation-readings__turn">
-				The invariant section proves why the residue column cannot reach 0. The
-				description-length section defines the instruction code and minimizes its length.
-			</p>
+			{@render children?.()}
 
 			{#if deadBranchStart !== null && doublingsToTarget !== 0}
 				<div class="dead-branch">
