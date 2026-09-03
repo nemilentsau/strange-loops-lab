@@ -313,8 +313,6 @@
 				{/if}
 			</div>
 
-			{@render children?.()}
-
 			{#if deadBranchStart !== null && doublingsToTarget !== 0}
 				<div class="dead-branch">
 					<strong>This branch is closed.</strong> Only R2 applies, and doubling this tail can never
@@ -399,4 +397,6 @@
 			</div>
 		</aside>
 	</div>
+
+	{@render children?.()}
 </div>
