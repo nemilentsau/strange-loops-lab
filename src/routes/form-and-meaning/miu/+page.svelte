@@ -19,7 +19,9 @@
 		type ShortestDerivation
 	} from '$lib/miu/complexity';
 	import SearchWorker from '$lib/miu/searchWorker?worker';
-	import type { SearchResponse } from '$lib/miu/searchWorker';
+	import type { SearchRequest, SearchResponse } from '$lib/miu/searchWorker';
+	import type { BitProgramResult } from '$lib/miu/bitComplexity';
+	import { encodeDerivation } from '$lib/miu/coding';
 	import { constructMiuDerivation, decideMiuTheorem } from '$lib/miu/theoremhood';
 	import {
 		createModule1Draft,
@@ -87,18 +89,60 @@
 			} else if (message.kind === 'result') {
 				shortestStepResult = message.result;
 				searchRunning = false;
-			} else {
+			} else if (message.kind === 'error') {
 				console.error(`K_steps search failed for ${searchTarget}: ${message.message}`);
 				searchRunning = false;
 			}
 		};
 		worker.postMessage({
+			kind: 'steps',
 			target: searchTarget,
 			maxDepth: MIU_QUERY_BOUNDS.maxDepth,
 			maxNodes
-		});
+		} satisfies SearchRequest);
 
 		return () => worker.terminate();
+	});
+	const constructedBits = $derived(
+		constructedPath ? encodeDerivation(constructedPath).bitLength : null
+	);
+	let bitResult = $state<BitProgramResult | null>(null);
+	let bitSearchRunning = $state(false);
+
+	$effect(() => {
+		const searchTarget = trimmedProduceTarget;
+		const maxNodes = queryMaxNodes;
+
+		if (!browser || theoremDecision.outcome !== 'theorem') {
+			bitResult = null;
+			bitSearchRunning = false;
+			return;
+		}
+
+		bitResult = null;
+		bitSearchRunning = true;
+
+		const worker = new SearchWorker();
+		worker.onmessage = (event: MessageEvent<SearchResponse>) => {
+			const message = event.data;
+			if (message.kind === 'bits-result') {
+				bitResult = message.result;
+				bitSearchRunning = false;
+			} else if (message.kind === 'error') {
+				console.error(`K_bits search failed for ${searchTarget}: ${message.message}`);
+				bitSearchRunning = false;
+			}
+		};
+		worker.postMessage({ kind: 'bits', target: searchTarget, maxNodes } satisfies SearchRequest);
+
+		return () => worker.terminate();
+	});
+	// Not read anywhere yet; Task 9 wires these into MiuBridge. Kept live here so
+	// noUnusedLocals doesn't fail this task's check before that wiring lands.
+	$effect(() => {
+		void constructedBits;
+		void bitResult;
+		void bitSearchRunning;
 	});
 	const witnessPath = $derived(
 		witnessKind === 'constructed'
