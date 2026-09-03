@@ -92,7 +92,7 @@
 				<span
 					>the least <span class="mv">n</span> with <span class="o">MI</span>
 					<span class="mv">⇒</span><sup><span class="mv">n</span></sup>
-					<span class="mv">s</span> — the quantity the verdict above brackets.</span
+					<span class="mv">s</span>.</span
 				>
 			</div>
 			<div class="defs__row">
@@ -114,7 +114,10 @@
 					>| — the cost of writing <span class="mv">s</span> down.</span
 				>
 			</div>
-			<p class="defs__rel">Both minima are relative to this machine and this code.</p>
+			<p class="defs__rel">
+				Both minima are relative to this machine and this code; the verdict above brackets both
+				for the target.
+			</p>
 		</div>
 	</div>
 </div>

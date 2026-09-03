@@ -4,7 +4,6 @@
 	import MiuSheet from '$lib/components/miu/MiuSheet.svelte';
 	import MiuInvariant from '$lib/components/miu/MiuInvariant.svelte';
 	import MiuBridge from '$lib/components/miu/MiuBridge.svelte';
-	import MiuDials from '$lib/components/miu/MiuDials.svelte';
 	import { readDerivationTrace } from '$lib/miu/traceReadings';
 	import {
 		analyzeMiuRuleAvailability,
@@ -21,7 +20,7 @@
 	import SearchWorker from '$lib/miu/searchWorker?worker';
 	import type { SearchRequest, SearchResponse } from '$lib/miu/searchWorker';
 	import type { BitProgramResult } from '$lib/miu/bitComplexity';
-	import { encodeDerivation } from '$lib/miu/coding';
+	import { encodeDerivation, literalMiuBitLength } from '$lib/miu/coding';
 	import { constructMiuDerivation, decideMiuTheorem } from '$lib/miu/theoremhood';
 	import {
 		createModule1Draft,
@@ -49,12 +48,6 @@
 		validProduceTarget ? decideMiuTheorem(trimmedProduceTarget) : decideMiuTheorem('')
 	);
 	const traceReading = $derived(readDerivationTrace(draft.trace));
-	const reachedTarget = $derived(
-		trimmedProduceTarget !== '' && currentString === trimmedProduceTarget
-	);
-	const targetResidue = $derived(
-		theoremDecision.outcome === 'invalid' ? null : theoremDecision.residue
-	);
 	const constructedPath = $derived(
 		theoremDecision.outcome === 'theorem' ? constructMiuDerivation(trimmedProduceTarget) : null
 	);
@@ -105,6 +98,9 @@
 	});
 	const constructedBits = $derived(
 		constructedPath ? encodeDerivation(constructedPath).bitLength : null
+	);
+	const literalBits = $derived(
+		theoremDecision.outcome === 'theorem' ? literalMiuBitLength(trimmedProduceTarget) : null
 	);
 	let bitResult = $state<BitProgramResult | null>(null);
 
@@ -244,6 +240,9 @@
 		shortest={shortestStepResult}
 		{searchRunning}
 		{searchRuledOut}
+		{constructedBits}
+		{literalBits}
+		{bitResult}
 		queryMaxNodes={queryMaxNodes}
 		{witnessKind}
 		onUpdateTarget={updateTarget}
@@ -263,22 +262,7 @@
 		onApplyMove={applyMove}
 		onJumpToStep={jumpToStep}
 		onReset={resetSession}
-	>
-		<MiuDials
-			{traceReading}
-			{currentString}
-			target={trimmedProduceTarget}
-			{targetResidue}
-			{reachedTarget}
-			isTheorem={theoremDecision.outcome === 'theorem'}
-			shortest={shortestStepResult}
-			{searchRuledOut}
-			{searchRunning}
-			constructedLength={constructedPath?.length ?? null}
-			{constructedBits}
-			{bitResult}
-		/>
-	</MiuSheet>
+	/>
 </section>
 
 <section class="movement" id="invariant">

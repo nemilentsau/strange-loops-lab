@@ -118,6 +118,13 @@ These rules are binding for all learner-facing work — interface, copy, pedagog
     case; engine vocabulary (node, draft, snapshot) never reaches the reader.
 12. **Name the real mathematics when it is earned.** Where a surface touches a
     structurally real connection, state it in those terms.
+13. **An instrument must answer a question notes cannot.** A live surface earns
+    its place only where the reader can pose an input whose result neither
+    they nor the author can produce by hand, and the result is not known in
+    advance. A figure whose moving part encodes a number already printed in
+    its caption is exposition; it goes to the notes or is deleted. The MIU
+    dial row (residue action, layer sizes, bit costs) failed this test and was
+    cut.
 
 The higher architectural lessons — the conceptual move as the unit, contrast
 sets, instruments over dashboards, earning abstractions from instances, and the

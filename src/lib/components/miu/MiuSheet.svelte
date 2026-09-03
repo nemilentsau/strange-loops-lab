@@ -14,7 +14,6 @@
 	} from '$lib/miu/core';
 	import { ellipsizeMiddle } from '$lib/state/module1';
 	import { nextWitnessStep } from '$lib/miu/witness';
-	import type { Snippet } from 'svelte';
 	import type { DerivationTraceReading } from '$lib/miu/traceReadings';
 
 	let {
@@ -28,8 +27,7 @@
 		witnessKind,
 		onApplyMove,
 		onJumpToStep,
-		onReset,
-		children
+		onReset
 	}: {
 		trace: DerivationTrace;
 		traceReading: DerivationTraceReading;
@@ -42,7 +40,6 @@
 		onApplyMove: (move: MiuMove) => void;
 		onJumpToStep: (index: number) => void;
 		onReset: () => void;
-		children?: Snippet;
 	} = $props();
 
 	let hoverRuleId = $state<MiuRuleId | null>(null);
@@ -397,6 +394,4 @@
 			</div>
 		</aside>
 	</div>
-
-	{@render children?.()}
 </div>

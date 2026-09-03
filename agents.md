@@ -16,13 +16,19 @@ read three ways:
 
 - manipulate it (the worksheet: the four rules always on screen, each with the
   exact reason it cannot fire when it cannot);
-- see the wall (MU rejected by the I-count invariant, with the rule action on
-  ℤ/3 drawn as a figure the reader's own derivation traces);
+- see the wall (MU rejected by the I-count invariant: R2 swaps residues 1 and
+  2, the other rules fix every residue, and no rule enters 0 from {1, 2});
 - read the derivation as a program (`K_steps` by bounded bidirectional BFS and `K_bits` by
   bounded Dijkstra search under the executable prefix code, compared with a
-  gamma-length-prefixed literal), each drawn as a dial under the current
-  string beside the reader's own derivation. Kolmogorov complexity and
-  Chaitin are later destinations, not claims made by this fixed machine.
+  gamma-length-prefixed literal), both reported for the reader's target in the
+  verdict, with the horizon stated when a search stops. Kolmogorov complexity
+  and Chaitin are later destinations, not claims made by this fixed machine.
+
+The page is kept to what lecture notes cannot do: the worksheet, and the two
+bounded searches on a target the reader chooses. The dial row that drew the
+residue action, the layer sizes, and the bit costs under the current string was
+cut on 2026-09-03: its live content was one integer per figure, already stated
+in the caption. Static exposition belongs in the notes.
 
 See `docs/strange-loops-vision.md` for the direction and
 `docs/module-1-postmortem.md` for the build this replaced and the binding design

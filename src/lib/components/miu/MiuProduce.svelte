@@ -2,6 +2,7 @@
 	import { normalizeMiuTailInput } from '$lib/miu/core';
 	import { THEOREM_TARGETS } from '$lib/miu/examples';
 	import { nextMiuQueryNodeBound, type ShortestDerivation } from '$lib/miu/complexity';
+	import type { BitProgramResult } from '$lib/miu/bitComplexity';
 	import { countI } from '$lib/miu/invariants';
 	import type { MiuTheoremDecision } from '$lib/miu/theoremhood';
 
@@ -14,6 +15,9 @@
 		shortest,
 		searchRunning,
 		searchRuledOut,
+		constructedBits,
+		literalBits,
+		bitResult,
 		queryMaxNodes,
 		witnessKind,
 		onUpdateTarget,
@@ -26,6 +30,9 @@
 		shortest: ShortestDerivation | null;
 		searchRunning: boolean;
 		searchRuledOut: number | null;
+		constructedBits: number | null;
+		literalBits: number | null;
+		bitResult: BitProgramResult | null;
 		queryMaxNodes: number;
 		witnessKind: WitnessKind | null;
 		onUpdateTarget: (target: string) => void;
@@ -197,6 +204,43 @@
 							{/if}
 						{/if}
 					{/if}
+				{/if}
+				{#if bitResult === null}
+					<p class="verdict__row">
+						The bounded search for <span class="mv">K</span><sub>bits</sub> is running.
+					</p>
+				{:else if bitResult.outcome === 'found'}
+					<p class="verdict__row">
+						The shortest program printing it has {bitResult.bitLength} bits:
+						<span class="mv">K</span><sub>bits</sub> = {bitResult.bitLength}.
+						{#if literalBits !== null}
+							{#if bitResult.bitLength < literalBits}
+								The literal costs {literalBits}; the program is shorter by
+								{literalBits - bitResult.bitLength}.
+							{:else if bitResult.bitLength > literalBits}
+								The literal costs {literalBits} and is shorter by
+								{bitResult.bitLength - literalBits}.
+							{:else}
+								The literal costs the same {literalBits}.
+							{/if}
+						{/if}
+					</p>
+				{:else if constructedBits !== null && bitResult.lowerBound === constructedBits}
+					<p class="verdict__row">
+						No program under {bitResult.lowerBound} bits prints it, and the construction's
+						program has {constructedBits}, so <span class="mv">K</span><sub>bits</sub> =
+						{constructedBits}: the construction's program is minimal.
+						{#if literalBits !== null}The literal costs {literalBits}.{/if}
+					</p>
+				{:else}
+					<p class="verdict__row">
+						No program under {bitResult.lowerBound} bits prints it; the construction's program
+						has {constructedBits}: {bitResult.lowerBound} ≤
+						<span class="mv">K</span><sub>bits</sub> ≤ {constructedBits} — the exact minimum
+						is still open. The search stopped at
+						{bitResult.maxNodes.toLocaleString('en-US')} stored strings.
+						{#if literalBits !== null}The literal costs {literalBits}.{/if}
+					</p>
 				{/if}
 			</div>
 		{/if}
