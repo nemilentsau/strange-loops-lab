@@ -93,9 +93,8 @@ read three ways:
   cannot. The theorem query decides membership by the complete I-count
   characterization, constructs a witness for every theorem, and keeps bounded
   shortest-witness search separate. Each active trace is annotated in place
-  with its I-count residue and executable instruction code, so the same
-  derivation is visible in all three readings before later movements generalize
-  them.
+  with its I-count residue and executable instruction code, and the two later
+  sections read the same derivation through their figures.
 - **Invariant certificate** (about the system — the wall): the invariant
   `#I ≢ 0 (mod 3)` rejects MU and every residue-zero target.
   The rule action on ℤ/3 is drawn: R2 swaps residues 1 and 2, the other rules
@@ -111,6 +110,8 @@ read three ways:
   horizon: `K_steps` strictly above the completed depth, `K_bits` at least the
   cheapest unexpanded frontier cost. Compression is asserted only by comparing `K_bits` with the
   gamma-length-prefixed literal code.
+  Both minima are drawn as dials under the current string, beside the reader's
+  own derivation as an exhibited upper bound.
 
 The page opens with a GEB epigraph and an orientation stating the three
 readings; a turn sentence at each seam names the altitude change.

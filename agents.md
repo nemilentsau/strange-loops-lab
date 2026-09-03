@@ -20,8 +20,9 @@ read three ways:
   ℤ/3 drawn as a figure the reader's own derivation traces);
 - read the derivation as a program (`K_steps` by bounded bidirectional BFS and `K_bits` by
   bounded Dijkstra search under the executable prefix code, compared with a
-  gamma-length-prefixed literal). Kolmogorov complexity and Chaitin are later
-  destinations, not claims made by this fixed machine.
+  gamma-length-prefixed literal), each drawn as a dial under the current
+  string beside the reader's own derivation. Kolmogorov complexity and
+  Chaitin are later destinations, not claims made by this fixed machine.
 
 See `docs/strange-loops-vision.md` for the direction and
 `docs/module-1-postmortem.md` for the build this replaced and the binding design

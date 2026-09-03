@@ -66,16 +66,27 @@ reads it three ways with focused components under `src/lib/components/miu`:
   cannot fire. Each worksheet row carries deterministic I-count residue and
   encoded instruction annotations derived from the same formal state.
   Active-prefix summaries exclude retained future steps after a jump.
-  Constructed and shortest witnesses are labeled independently.
+  Constructed and shortest witnesses are labeled independently. The worksheet
+  hosts the dial row after its two columns, so the rail, the current string,
+  and the three dials share one screen.
+- `MiuDials.svelte` with `MiuResidueFigure.svelte`, `MiuDepthFigure.svelte`,
+  and `MiuLengthFigure.svelte` — the dial row under the current string. The
+  three dials read the active derivation and the target live: the residue
+  figure draws the rule action on ℤ/3 with the reader's path on it; the depth
+  figure draws `K_steps` for the target as a tick or a bracket over the layer
+  sizes of the rewrite graph; the length figure draws `K_bits` against the
+  literal cost on a log₂ tail-length axis with the I-run family and the
+  reader's own program marked. The dials are displays, not controls; each
+  caption links into the section that proves what it shows.
 - `MiuInvariant.svelte` — the wall. The I-count certificate rejects residue
   zero. The rule action on ℤ/3 is drawn by the residue dial in the worksheet
   (`MiuResidueFigure.svelte`, hosted by `MiuDials.svelte`). The characters of
   ℤ/3 stay in the formal layer (`characters.ts`) for the pq bridge and are not
   displayed on this instrument.
-- `MiuBridge.svelte` — the derivation read as a program. It displays `K_steps`,
-  `K_bits`, literal code length, and one minimum-bit instruction sequence under
-  the stated executable code. Kolmogorov complexity and Chaitin are later
-  destinations, not claims made here.
+- `MiuBridge.svelte` — the derivation read as a program. It states the
+  definitions and the specimen table, the table view of the bits dial.
+  Kolmogorov complexity and Chaitin are later destinations, not claims made
+  here.
 
 The exactness pass extended the deterministic formal layer without moving its
 boundary: no state-shape, persistence, or dialogue responsibility shifted. The
@@ -103,7 +114,8 @@ Responsibilities:
   sum of the completed frontier depths. The instrument runs this search in a
   Web Worker (`searchWorker.ts`) so the page never blocks: each query owns one
   worker, termination is cancellation, and the search reports each completed
-  layer so the UI can display the lower bound as it rises,
+  layer so the UI can display the lower bound as it rises, and the same worker
+  answers `K_bits` requests for the target,
 - the executable prefix code and gamma-length-prefixed literal baseline
   (`coding.ts`),
 - minimum encoded program length by bounded Dijkstra search, with a certified
@@ -111,6 +123,10 @@ Responsibilities:
   (`bitComplexity.ts`),
 - the character table of ℤ/3, pullback under doubling, and forbidden-residue
   identity (`characters.ts`),
+- the figure data — the rule arrows on ℤ/3 and the reader's residue
+  trajectory (`residueFigure.ts`), the layer sizes from `MI` and the step
+  bracket (`depthFigure.ts`), the literal curve, the I-run family, and the bit
+  bracket (`lengthFigure.ts`),
 - and explicit rejection of invalid user proposals.
 
 This layer is the current verifier boundary. If the UI says something is a
@@ -215,7 +231,9 @@ flatten the three registers into one undifferentiated assistant channel.
    constructs, `complexity.ts` and `bitComplexity.ts` perform the two bounded
    optimizations, `coding.ts` fixes their units, and `invariants.ts` supplies
    the wall while `residueFigure.ts` supplies the drawn rule action on ℤ/3.
-   Each reading renders directly from those results.
+   Each reading renders directly from those results. The three dials render
+   from `residueFigure.ts`, `depthFigure.ts`, and `lengthFigure.ts` applied to
+   the same state.
 4. On change, the page writes the draft — the trace and its edit stamp, which
    is all the draft now holds — to localStorage (`writeModule1Draft`) and reads
    it back on load (`readModule1Draft`), so a reload restores the trace in
