@@ -16,7 +16,7 @@ describe('length figure data', () => {
 		expect(points.map((point) => point.programBits)).toEqual([4, 7, 10, 13, 16, 19]);
 	});
 
-	it('has the program overtake the literal exactly at tail length 4', () => {
+	it('matches the literal at tail length 4 and undercuts it from tail length 8', () => {
 		const points = iRunPoints();
 		const shorter = points.filter((point) => point.programBits < point.literalBits);
 		expect(shorter.map((point) => point.tailLength)).toEqual([8, 16, 32]);
