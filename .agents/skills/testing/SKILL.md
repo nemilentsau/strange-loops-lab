@@ -61,4 +61,4 @@ def test_timeout_populates_error_field():
 Use the test command that exists in the current scaffold.
 
 - If the repo does not yet have a test harness, add the smallest useful one with the code you introduce.
-- If you add a new command or test location, update `agents.md` so future work can discover it quickly.
+- If you add a new command or test location, update `CLAUDE.md` so future work can discover it quickly.

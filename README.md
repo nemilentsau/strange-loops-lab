@@ -15,8 +15,6 @@ The goal is simple: make abstract ideas tangible.
 
 The current scaffold is a root **SvelteKit** app.
 
-Dialogue mode expects a local Claude Code installation and authentication.
-
 ```bash
 npm install
 npm run dev
@@ -45,7 +43,7 @@ npm run smoke:dialogue -- http://127.0.0.1:4175
 npm run smoke:persistence -- http://127.0.0.1:4175
 ```
 
-Optional dialogue env:
+The dormant dialogue layer shells out to a local Claude Code installation; the instrument does not use it. Optional dialogue env:
 
 ```bash
 CLAUDE_CLI_PATH=claude

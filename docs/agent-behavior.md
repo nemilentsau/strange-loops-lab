@@ -10,9 +10,6 @@ This document is the single current reference for:
 - and the runtime behavior expected when the layer is re-wired to an
   instrument.
 
-It replaces the older split between `docs/spec.md` and
-`docs/agents-prompt.md`.
-
 **Status: dormant.** The dialogue/coaching layer still exists in the repo
 (`src/lib/server/dialogue`, the `/api/modules/[slug]/dialogue` route,
 `src/lib/dialogue/types.ts`), but it is not wired into the current app. The
@@ -29,7 +26,7 @@ recursively-enumerable-versus-recursive figure/ground obstruction because MIU
 theoremhood is decidable. No unchecked proposal may reach the reader as a
 witness.
 
-Last updated: July 9, 2026.
+Last updated: September 2, 2026.
 
 ---
 
