@@ -217,10 +217,10 @@ with
 `docs/product-architecture.md` §2.1 — replace the `MiuInvariant.svelte` and `MiuCharacters.svelte` bullet with:
 
 ```markdown
-- `MiuInvariant.svelte` and `MiuResidueFigure.svelte` — the wall. The I-count
-  certificate rejects residue zero; the residue figure draws the rule action on
-  ℤ/3 and traces the reader's active derivation on it. The characters of ℤ/3
-  stay in the formal layer (`characters.ts`) for the pq bridge and are not
+- `MiuInvariant.svelte` — the wall. The I-count certificate rejects residue
+  zero. The rule action on ℤ/3 is drawn by the residue dial in the worksheet
+  (`MiuResidueFigure.svelte`, hosted by `MiuDials.svelte`). The characters of
+  ℤ/3 stay in the formal layer (`characters.ts`) for the pq bridge and are not
   displayed on this instrument.
 ```
 
@@ -404,24 +404,27 @@ git commit -m "feat: residue figure data — rule arrows on Z/3 and the reader's
 
 ---
 
-### Task 5: The residue figure component, wired to the reader's derivation and target
+### Task 5: The residue dial inside the worksheet, wired to the reader's derivation and target
 
 **Files:**
 - Create: `src/lib/components/miu/MiuResidueFigure.svelte`
-- Modify: `src/lib/components/miu/MiuInvariant.svelte` (props; render the figure at the top of `cert-side`)
-- Modify: `src/lib/components/miu/MiuSheet.svelte` (take `traceReading` as a prop instead of computing it)
-- Modify: `src/routes/form-and-meaning/miu/+page.svelte` (lift the trace reading; pass new props)
-- Modify: `src/app.css` (figure classes)
+- Create: `src/lib/components/miu/MiuDials.svelte`
+- Modify: `src/lib/components/miu/MiuSheet.svelte` (take `traceReading` as a prop; replace the readings footer with a `children` snippet)
+- Modify: `src/routes/form-and-meaning/miu/+page.svelte` (lift the trace reading; compose the dials into the worksheet; section ids)
+- Modify: `src/app.css` (delete the readings-footer classes; add dial and figure classes)
 
 **Interfaces:**
 - Consumes: `residueArrows`, `residueTrajectory` from Task 4; `readDerivationTrace` and `DerivationTraceReading` from `$lib/miu/traceReadings`; `Z3Residue` from `$lib/miu/characters`; `ellipsizeMiddle` from `$lib/state/module1`.
-- Produces: `MiuResidueFigure` props `{ residues: number[]; moves: number; targetResidue: Z3Residue | null; targetLabel: string | null; reachedTarget: boolean }`. `MiuInvariant` takes the same five props and forwards them. `MiuSheet` gains the prop `traceReading: DerivationTraceReading`. The page exposes `traceReading`, `targetResidue`, and `reachedTarget` for Task 9.
+- Produces: `MiuResidueFigure` props `{ residues: number[]; moves: number; targetResidue: Z3Residue | null; targetLabel: string | null; reachedTarget: boolean }`. `MiuDials` props (this task) `{ traceReading: DerivationTraceReading; target: string; targetResidue: Z3Residue | null; reachedTarget: boolean }` — Task 9 extends this list. `MiuSheet` gains `traceReading: DerivationTraceReading` and `children?: Snippet`. The page exposes `traceReading`, `targetResidue`, and `reachedTarget`. Section anchors `#invariant` and `#description-length` exist on the page.
 
-- [ ] **Step 1: Lift the trace reading to the page**
+The dial row is the design decision from the played review: everything that reacts to a click sits on one screen — the rules rail on the right, the current string, and the three dials directly under it. The dials are not controls; the inputs remain the rail and the target field.
+
+- [ ] **Step 1: Lift the trace reading to the page and add section anchors**
 
 In `src/routes/form-and-meaning/miu/+page.svelte` add the imports
 
 ```ts
+import MiuDials from '$lib/components/miu/MiuDials.svelte';
 import { readDerivationTrace } from '$lib/miu/traceReadings';
 ```
 
@@ -439,21 +442,50 @@ const targetResidue = $derived(
 
 (`decideMiuTheorem` already returns the residue as `0 | 1 | 2`, which is `Z3Residue`.)
 
-Pass `{traceReading}` to `<MiuSheet … />` and replace `<MiuInvariant />` with
+Change the self-closing `<MiuSheet … />` into a component with children, keeping every existing prop and adding `{traceReading}`:
 
 ```svelte
-<MiuInvariant
-	residues={traceReading.activeResidues}
-	moves={traceReading.activeMoves.length}
-	{targetResidue}
-	targetLabel={theoremDecision.outcome === 'invalid' ? null : trimmedProduceTarget}
-	{reachedTarget}
-/>
+<MiuSheet
+	trace={draft.trace}
+	{traceReading}
+	{currentString}
+	{ruleAvailability}
+	target={produceTarget}
+	witnessTarget={witnessKind ? trimmedProduceTarget : null}
+	{witnessPath}
+	{witnessKind}
+	onApplyMove={applyMove}
+	onJumpToStep={jumpToStep}
+	onReset={resetSession}
+>
+	<MiuDials {traceReading} target={trimmedProduceTarget} {targetResidue} {reachedTarget} />
+</MiuSheet>
 ```
 
-- [ ] **Step 2: Make the worksheet take the reading as a prop**
+Add `id="invariant"` to the `<section class="movement">` whose title is "Invariant certificate" and `id="description-length"` to the one titled "Description length".
 
-In `src/lib/components/miu/MiuSheet.svelte`: delete `import { readDerivationTrace } from '$lib/miu/traceReadings';` and add `import type { DerivationTraceReading } from '$lib/miu/traceReadings';`. Add `traceReading` to the destructured props and its type `traceReading: DerivationTraceReading;`. Delete the line `const traceReading = $derived(readDerivationTrace(trace));`.
+- [ ] **Step 2: Replace the worksheet's readings footer with the children snippet**
+
+In `src/lib/components/miu/MiuSheet.svelte`:
+
+Delete `import { readDerivationTrace } from '$lib/miu/traceReadings';` and add
+
+```ts
+import type { Snippet } from 'svelte';
+import type { DerivationTraceReading } from '$lib/miu/traceReadings';
+```
+
+Add `traceReading` and `children` to the destructured props with the types `traceReading: DerivationTraceReading;` and `children?: Snippet;`.
+
+Delete the line `const traceReading = $derived(readDerivationTrace(trace));`.
+
+Delete `const activeProgramParts = $derived([...])` (the whole `$derived` that builds `'0'`, the instruction parts, and `'000'`) — nothing uses it once the footer is gone.
+
+Replace the whole `<div class="derivation-readings" aria-label="Two readings of the active derivation">…</div>` element and the `<p class="derivation-readings__turn">…</p>` that follows it with:
+
+```svelte
+{@render children?.()}
+```
 
 - [ ] **Step 3: Write the figure component**
 
@@ -542,10 +574,12 @@ In `src/lib/components/miu/MiuSheet.svelte`: delete `import { readDerivationTrac
 		<line x1="336" y1="66" x2="336" y2="174" class="fig-sep" />
 		<text x="336" y="196" class="fig-text" text-anchor="middle">{arrowsEnteringZero === 0 ? 'no arrow enters 0 from {1, 2}' : `${arrowsEnteringZero} arrows enter 0`}</text>
 
+		{#if targetResidue !== null}
+			<g class="fig-move" style={`transform: translate(${NODE[targetResidue].x}px, ${NODE[targetResidue].y}px)`}>
+				<circle cx="0" cy="0" r="23" class="fig-ring" />
+			</g>
+		{/if}
 		{#each ORDER as residue (residue)}
-			{#if targetResidue === residue}
-				<circle cx={NODE[residue].x} cy={NODE[residue].y} r="23" class="fig-ring" />
-			{/if}
 			<circle cx={NODE[residue].x} cy={NODE[residue].y} r="16" class="fig-node" class:fig-node--current={trajectory.current === residue} />
 			<text x={NODE[residue].x} y={NODE[residue].y} class="fig-node-text" class:fig-node-text--current={trajectory.current === residue}>{residue}</text>
 		{/each}
@@ -556,6 +590,7 @@ In `src/lib/components/miu/MiuSheet.svelte`: delete `import { readDerivationTrac
 		{/if}
 	</svg>
 	<figcaption class="figure__caption">
+		<span class="figure__key">● current residue · ○ target · thick edge = traversed</span>
 		{#if targetResidue === 0 && targetLabel}
 			<span class="o">{shortTarget}</span> has residue 0. No arrow enters 0 from {'{'}1, 2{'}'}, so
 			no derivation reaches it. Your derivation is at residue {trajectory.current} after {moves}
@@ -571,47 +606,86 @@ In `src/lib/components/miu/MiuSheet.svelte`: delete `import { readDerivationTrac
 			Your derivation is at residue {trajectory.current} after {moves}
 			{moves === 1 ? 'move' : 'moves'}; every string on the way stayed in {'{'}1, 2{'}'}.
 		{/if}
+		<a class="dial-link" href="#invariant">why 0 is never entered ↓</a>
 	</figcaption>
 </figure>
 ```
 
-- [ ] **Step 4: Render it in the invariant section**
-
-In `src/lib/components/miu/MiuInvariant.svelte` add
-
-```ts
-import MiuResidueFigure from './MiuResidueFigure.svelte';
-import type { Z3Residue } from '$lib/miu/characters';
-
-let {
-	residues,
-	moves,
-	targetResidue,
-	targetLabel,
-	reachedTarget
-}: {
-	residues: number[];
-	moves: number;
-	targetResidue: Z3Residue | null;
-	targetLabel: string | null;
-	reachedTarget: boolean;
-} = $props();
-```
-
-and, as the first child of `<div class="cert-side">`, before the `ruledout` block:
+- [ ] **Step 4: Write the dial row (this task: the residue dial only)**
 
 ```svelte
-<div>
-	<p class="microlabel">The rule action on ℤ/3</p>
-	<MiuResidueFigure {residues} {moves} {targetResidue} {targetLabel} {reachedTarget} />
+<!-- src/lib/components/miu/MiuDials.svelte -->
+<script lang="ts">
+	import MiuResidueFigure from './MiuResidueFigure.svelte';
+	import type { Z3Residue } from '$lib/miu/characters';
+	import type { DerivationTraceReading } from '$lib/miu/traceReadings';
+
+	let {
+		traceReading,
+		target,
+		targetResidue,
+		reachedTarget
+	}: {
+		traceReading: DerivationTraceReading;
+		target: string;
+		targetResidue: Z3Residue | null;
+		reachedTarget: boolean;
+	} = $props();
+</script>
+
+<div class="dials" aria-label="Three readings of the active derivation">
+	<div>
+		<p class="microlabel">Invariant: residue mod 3</p>
+		<MiuResidueFigure
+			residues={traceReading.activeResidues}
+			moves={traceReading.activeMoves.length}
+			{targetResidue}
+			targetLabel={targetResidue === null ? null : target}
+			{reachedTarget}
+		/>
+	</div>
 </div>
 ```
 
-- [ ] **Step 5: Add the figure CSS**
+- [ ] **Step 5: CSS — delete the footer classes, add the dial and figure classes**
 
-Append to `src/app.css` before the `/* Collapse points` media blocks:
+In `src/app.css` delete the rules `.derivation-readings`, `.derivation-readings p`, `.derivation-readings .microlabel`, `.derivation-readings__sequence`, `.derivation-readings__claim`, `.derivation-readings__turn`, and the `.derivation-readings { grid-template-columns: 1fr; }` entry inside `@media (max-width: 860px)`.
+
+Append before the `/* Collapse points` media blocks:
 
 ```css
+.dials {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--space-lg);
+	margin-top: var(--space-lg);
+	padding-top: var(--space-md);
+	border-top: 1px solid var(--ink);
+}
+
+.dials > div {
+	min-width: 0;
+}
+
+.dials .microlabel {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.dial-link {
+	display: inline-block;
+	margin-top: 4px;
+	color: var(--act);
+	font-size: var(--t-caption);
+	text-decoration: underline dashed var(--line-strong);
+	text-underline-offset: 3px;
+}
+
+.dial-link:hover,
+.dial-link:focus-visible {
+	text-decoration-color: var(--act);
+}
+
 .figure {
 	margin: 0;
 	min-width: 0;
@@ -629,7 +703,19 @@ Append to `src/app.css` before the `/* Collapse points` media blocks:
 	color: var(--muted);
 	font-size: var(--t-caption);
 	line-height: 1.55;
-	max-width: var(--measure);
+}
+
+.figure__key {
+	display: block;
+	margin-bottom: 4px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: var(--t-micro);
+	letter-spacing: 0.04em;
+}
+
+.fig-move {
+	transition: transform 220ms ease;
 }
 
 .fig-edge {
@@ -693,18 +779,26 @@ Append to `src/app.css` before the `/* Collapse points` media blocks:
 }
 ```
 
+Inside the existing `@media (max-width: 1180px)` block add:
+
+```css
+	.dials {
+		grid-template-columns: 1fr;
+	}
+```
+
 - [ ] **Step 6: Check, test, and play**
 
 Run: `npm run check && npm run test`
-Expected: pass.
+Expected: pass; the dead-CSS gate reports nothing.
 
-Start `npm run dev`, open `/form-and-meaning/miu` at 1800 px wide, and play: apply `→ MII`, `→ MIIII`, `→ MIIIIU`, then double again. The R2 edge and the loop on 1 thicken, the current disc fills, the residue caption updates. Type target `MUIIIU`: the ring moves to 0 and the caption states the residue-0 case. Type `MUIIU`: the ring sits on 2. Screenshot at full page to `.playwright-mcp/residue-figure-played.png` and inspect it.
+Start `npm run dev`, open `/form-and-meaning/miu` at 1800 px wide. The dial row sits under the current string, one third wide, with the rail beside it. Play: apply `→ MII`, `→ MIIII`, `→ MIIIIU`, then double again. The R2 edge and the loop on 1 thicken, the current disc fills, the caption updates, all without scrolling. Type target `MUIIIU`: the ring slides to 0 and the caption states the residue-0 case. Type `MUIIU`: the ring slides to 2. Click the caption link: the page scrolls to the invariant section. Screenshot at 1800 × 1000 (viewport, not full page) to `.playwright-mcp/residue-dial-played.png` and confirm the rail, the current string, and the dial are all inside the viewport.
 
 - [ ] **Step 7: Commit**
 
 ```bash
 git add -A src
-git commit -m "feat: draw the rule action on Z/3 and trace the reader's derivation on it"
+git commit -m "feat: residue dial under the current string, traced by the reader's derivation"
 ```
 
 ---
@@ -1161,21 +1255,27 @@ git commit -m "feat: depth figure data — layer sizes from MI and the step brac
 
 ---
 
-### Task 9: The depth and length figures, wired into the description-length section
+### Task 9: The moves and bits dials, completing the dial row
 
 **Files:**
 - Create: `src/lib/components/miu/MiuDepthFigure.svelte`
 - Create: `src/lib/components/miu/MiuLengthFigure.svelte`
-- Modify: `src/lib/components/miu/MiuBridge.svelte` (props; section order; figure pair)
-- Modify: `src/routes/form-and-meaning/miu/+page.svelte` (pass props to `MiuBridge`)
-- Modify: `src/app.css` (figure-pair and plot classes; media query)
+- Modify: `src/lib/components/miu/MiuDials.svelte` (full file below; adds the two dials and their inputs)
+- Modify: `src/routes/form-and-meaning/miu/+page.svelte` (pass the search results to `MiuDials`)
+- Modify: `src/app.css` (plot classes)
+
+`MiuBridge.svelte` and `MiuInvariant.svelte` are not touched: the sections keep their prose, definitions, and specimen table; the dials live in the worksheet.
 
 **Interfaces:**
-- Consumes: `stepBracket`, `StepBracket`, `MIU_LAYER_SIZES` (Task 8); `bitBracket`, `BitBracket`, `iRunPoints`, `literalCurve`, `LengthPoint` (Task 7); page state `shortestStepResult`, `searchRuledOut`, `searchRunning`, `constructedPath`, `constructedBits`, `bitResult`, `bitSearchRunning`, `traceReading`, `reachedTarget`, `theoremDecision`, `currentString` (Tasks 5–6); `literalMiuBitLength` from `$lib/miu/coding`; `ellipsizeMiddle` from `$lib/state/module1`.
-- Produces: `MiuBridge` props
+- Consumes: `stepBracket`, `StepBracket`, `MIU_LAYER_SIZES` (Task 8); `bitBracket`, `BitBracket`, `iRunPoints`, `literalCurve`, `LengthPoint` (Task 7); page state `shortestStepResult`, `searchRuledOut`, `searchRunning`, `constructedPath`, `constructedBits`, `bitResult`, `traceReading`, `reachedTarget`, `targetResidue`, `theoremDecision`, `currentString` (Tasks 5–6); `literalMiuBitLength` from `$lib/miu/coding`; `ellipsizeMiddle` from `$lib/state/module1`.
+- Produces: `MiuDials` props
   ```ts
   {
+  	traceReading: DerivationTraceReading;
+  	currentString: string;
   	target: string;
+  	targetResidue: Z3Residue | null;
+  	reachedTarget: boolean;
   	isTheorem: boolean;
   	shortest: ShortestDerivation | null;
   	searchRuledOut: number | null;
@@ -1183,19 +1283,24 @@ git commit -m "feat: depth figure data — layer sizes from MI and the step brac
   	constructedLength: number | null;
   	constructedBits: number | null;
   	bitResult: BitProgramResult | null;
-  	reader: { value: string; steps: number; bits: number; atTarget: boolean };
   }
   ```
   `MiuDepthFigure` props `{ target: string; bracket: StepBracket | null; reader: { steps: number; atTarget: boolean } }`.
   `MiuLengthFigure` props `{ family: LengthPoint[]; literal: { tailLength: number; bits: number }[]; target: { value: string; tailLength: number; literalBits: number; bracket: BitBracket } | null; reader: { value: string; tailLength: number; bits: number; steps: number; atTarget: boolean } }`.
 
-- [ ] **Step 1: Pass the props from the page**
+Design rulings from the played mockup, binding here: the reader's diamond carries no in-plot label (each caption opens with a mark key instead); no reader mark is drawn for the empty derivation (the axiom coincides with the family's first point); the depth figure keeps its bracket annotations in a row above the bars (`TOP = 56`); the length figure's top tick reads `64 bits` and there is no separate axis label; every dial is drawn for a column about 410 px wide, so viewBoxes are roughly 470 wide and 10 px labels render near 1:1.
 
-Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
+- [ ] **Step 1: Pass the search results from the page**
+
+Replace the `<MiuDials … />` inside `<MiuSheet>` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 
 ```svelte
-<MiuBridge
+<MiuDials
+	{traceReading}
+	{currentString}
 	target={trimmedProduceTarget}
+	{targetResidue}
+	{reachedTarget}
 	isTheorem={theoremDecision.outcome === 'theorem'}
 	shortest={shortestStepResult}
 	{searchRuledOut}
@@ -1203,12 +1308,6 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 	constructedLength={constructedPath?.length ?? null}
 	{constructedBits}
 	{bitResult}
-	reader={{
-		value: currentString,
-		steps: traceReading.activeMoves.length,
-		bits: traceReading.activeProgram.bitLength,
-		atTarget: reachedTarget
-	}}
 />
 ```
 
@@ -1230,10 +1329,10 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		reader: { steps: number; atTarget: boolean };
 	} = $props();
 
-	const STEP = 48;
-	const LEFT = 40;
+	const STEP = 36;
+	const LEFT = 30;
 	const BASE = 150;
-	const TOP = 40;
+	const TOP = 56;
 	const BAR_MAX = BASE - TOP;
 	const LOG_MAX = Math.log10(MIU_LAYER_SIZES[MIU_LAYER_SIZES.length - 1]);
 
@@ -1241,7 +1340,7 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		bracket === null ? 0 : bracket.kind === 'exact' ? bracket.steps : bracket.upper
 	);
 	const columns = $derived(
-		Math.max(MIU_LAYER_SIZES.length + 2, upperMark + 2, reader.atTarget ? reader.steps + 2 : 0)
+		Math.max(MIU_LAYER_SIZES.length + 1, upperMark + 2, reader.atTarget ? reader.steps + 2 : 0)
 	);
 	const width = $derived(LEFT + STEP * columns + 8);
 	function x(n: number): number {
@@ -1250,18 +1349,23 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 	function barHeight(size: number): number {
 		return (Math.log10(size) / LOG_MAX) * BAR_MAX + 4;
 	}
+	function tick(n: number): string {
+		return `M ${x(n) - 6} ${BASE + 2} L ${x(n) + 6} ${BASE + 2} L ${x(n)} ${BASE - 8} z`;
+	}
+	function formatCount(size: number): string {
+		return size.toLocaleString('en-US').replace(/,/g, ' ');
+	}
 	const shortTarget = $derived(ellipsizeMiddle(target));
-	const formatCount = (size: number) => size.toLocaleString('en-US').replace(/,/g, ' ');
 </script>
 
 <figure class="figure" aria-label="Derivation length and the strings first reached at each length">
-	<svg viewBox={`0 0 ${width} 200`} role="img">
+	<svg viewBox={`0 0 ${width} 196`} role="img">
 		{#if bracket?.kind === 'bracket'}
-			<rect x={LEFT} y={TOP - 12} width={STEP * (bracket.ruledOut + 1)} height={BASE - TOP + 12} class="fig-shade" />
+			<rect x={LEFT} y={TOP - 14} width={STEP * (bracket.ruledOut + 1)} height={BASE - TOP + 14} class="fig-shade" />
 		{/if}
 
 		{#each MIU_LAYER_SIZES as size, n (n)}
-			<rect x={x(n) - 10} y={BASE - barHeight(size)} width="20" height={barHeight(size)} class="fig-bar" />
+			<rect x={x(n) - 8} y={BASE - barHeight(size)} width="16" height={barHeight(size)} class="fig-bar" />
 			<text x={x(n)} y={BASE - barHeight(size) - 4} class="fig-text" text-anchor="middle">{formatCount(size)}</text>
 		{/each}
 
@@ -1269,29 +1373,31 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		{#each Array.from({ length: columns }, (_, n) => n) as n (n)}
 			<text x={x(n)} y={BASE + 16} class="fig-text" text-anchor="middle">{n}</text>
 		{/each}
-		<text x={LEFT} y={BASE + 34} class="fig-text">n = derivation length; bar = strings first reached at n (log scale)</text>
+		<text x={LEFT} y={BASE + 34} class="fig-text">n = moves; bar = strings first reached at n (log scale)</text>
 
 		{#if bracket?.kind === 'exact'}
-			<path d={`M ${x(bracket.steps) - 6} ${BASE + 2} L ${x(bracket.steps) + 6} ${BASE + 2} L ${x(bracket.steps)} ${BASE - 8} z`} class="fig-tick" />
-			<text x={x(bracket.steps)} y={TOP - 18} class="fig-label" text-anchor="middle">K<tspan class="fig-sub">steps</tspan> = {bracket.steps}</text>
+			<path d={tick(bracket.steps)} class="fig-tick" />
+			<text x={x(bracket.steps)} y="18" class="fig-label" text-anchor="middle">K<tspan class="fig-sub">steps</tspan> = {bracket.steps}</text>
 		{:else if bracket?.kind === 'bracket'}
-			<path d={`M ${x(bracket.upper) - 6} ${BASE + 2} L ${x(bracket.upper) + 6} ${BASE + 2} L ${x(bracket.upper)} ${BASE - 8} z`} class="fig-tick fig-tick--hollow" />
-			<text x={x(bracket.upper)} y={TOP - 18} class="fig-label" text-anchor="middle">construction: {bracket.upper}</text>
-			<text x={x(bracket.ruledOut) + STEP / 2} y={TOP - 4} class="fig-text" text-anchor="end">ruled out ≤ {bracket.ruledOut}</text>
+			<path d={tick(bracket.upper)} class="fig-tick fig-tick--hollow" />
+			<text x={x(bracket.upper)} y="18" class="fig-label" text-anchor="middle">construction: {bracket.upper}</text>
+			<text x={x(bracket.ruledOut) + STEP / 2} y="32" class="fig-text" text-anchor="end">ruled out ≤ {bracket.ruledOut}</text>
 		{/if}
 
 		{#if reader.atTarget && bracket !== null}
-			<path d={`M ${x(reader.steps)} ${BASE - 26} l 6 6 l -6 6 l -6 -6 z`} class="fig-diamond" />
-			<text x={x(reader.steps)} y={BASE - 32} class="fig-text" text-anchor="middle">your derivation</text>
+			<g class="fig-move" style={`transform: translate(${x(reader.steps)}px, ${BASE - 22}px)`}>
+				<path d="M 0 -6 l 6 6 l -6 6 l -6 -6 z" class="fig-diamond" />
+			</g>
 		{/if}
 	</svg>
 	<figcaption class="figure__caption">
+		<span class="figure__key">▲ K<sub>steps</sub> · △ construction · ◆ your derivation</span>
 		{#if bracket === null}
 			{#if target === ''}
-				No target is set; the axis shows how fast the layers grow.
+				No target is set; the bars show how fast the layers grow.
 			{:else}
-				No derivation reaches <span class="o">{shortTarget}</span>: the invariant above excludes it,
-				so <span class="mv">K</span><sub>steps</sub> is undefined for it.
+				No derivation reaches <span class="o">{shortTarget}</span>: the invariant excludes it, so
+				<span class="mv">K</span><sub>steps</sub> is undefined for it.
 			{/if}
 		{:else if bracket.kind === 'exact'}
 			<span class="mv">K</span><sub>steps</sub>(<span class="o">{shortTarget}</span>) = {bracket.steps}:
@@ -1312,6 +1418,7 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 				Your derivation has {reader.steps} {reader.steps === 1 ? 'move' : 'moves'}.
 			{/if}
 		{/if}
+		<a class="dial-link" href="#description-length">how the bounds are proved ↓</a>
 	</figcaption>
 </figure>
 ```
@@ -1336,10 +1443,10 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		reader: { value: string; tailLength: number; bits: number; steps: number; atTarget: boolean };
 	} = $props();
 
-	const LEFT = 50;
-	const RIGHT = 600;
-	const TOP = 20;
-	const BASE = 220;
+	const LEFT = 40;
+	const RIGHT = 450;
+	const TOP = 22;
+	const BASE = 200;
 	const LOG_MAX = 10;
 	const BITS_MAX = 64;
 
@@ -1359,6 +1466,9 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		};
 	}
 	const FAMILY_LABELS = ['MI', 'MII', 'MIIII', 'MI⁸', 'MI¹⁶', 'MI³²'];
+	const X_TICKS = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+	const Y_TICKS = [0, 16, 32, 48, 64];
+
 	const literalPath = $derived(
 		literal.map((point, index) => `${index === 0 ? 'M' : 'L'} ${x(point.tailLength)} ${y(point.bits)}`).join(' ')
 	);
@@ -1366,6 +1476,7 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		family.map((point, index) => `${index === 0 ? 'M' : 'L'} ${x(point.tailLength)} ${y(point.programBits)}`).join(' ')
 	);
 	const literalExit = $derived(literal.find((point) => point.bits > BITS_MAX) ?? null);
+	const familyLast = $derived(family[family.length - 1] ?? null);
 	const targetMark = $derived(
 		target === null
 			? null
@@ -1377,15 +1488,12 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 		target !== null && target.bracket.kind === 'bracket' ? place(target.tailLength, target.bracket.floor) : null
 	);
 	const readerMark = $derived(place(reader.tailLength, reader.bits));
-	const familyLast = $derived(family[family.length - 1] ?? null);
 	const shortTarget = $derived(target ? ellipsizeMiddle(target.value) : null);
 	const shortReader = $derived(ellipsizeMiddle(reader.value));
-	const X_TICKS = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
-	const Y_TICKS = [0, 16, 32, 48, 64];
 </script>
 
 <figure class="figure" aria-label="Bits against tail length: the literal, the I-run programs, the target, and the reader's derivation">
-	<svg viewBox="0 0 620 262" role="img">
+	<svg viewBox="0 0 470 240" role="img">
 		<defs>
 			<clipPath id="length-plot">
 				<rect x={LEFT} y={TOP} width={RIGHT - LEFT} height={BASE - TOP} />
@@ -1394,14 +1502,13 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 
 		{#each Y_TICKS as bits (bits)}
 			<line x1={LEFT} y1={y(bits)} x2={RIGHT} y2={y(bits)} class="fig-grid" />
-			<text x={LEFT - 8} y={y(bits) + 3} class="fig-text" text-anchor="end">{bits}</text>
+			<text x={LEFT - 6} y={y(bits) + 3} class="fig-text" text-anchor="end">{bits === BITS_MAX ? `${bits} bits` : bits}</text>
 		{/each}
 		{#each X_TICKS as tailLength (tailLength)}
-			<text x={x(tailLength)} y={BASE + 16} class="fig-text" text-anchor="middle">{tailLength}</text>
+			<text x={x(tailLength)} y={BASE + 14} class="fig-text" text-anchor="middle">{tailLength}</text>
 		{/each}
 		<line x1={LEFT} y1={BASE} x2={RIGHT} y2={BASE} class="fig-axis" />
-		<text x={RIGHT} y={BASE + 34} class="fig-text" text-anchor="end">|t| = tail length after M (log₂ axis)</text>
-		<text x={LEFT - 8} y={TOP - 6} class="fig-text" text-anchor="end">bits</text>
+		<text x={RIGHT} y={BASE + 30} class="fig-text" text-anchor="end">|t| = tail length after M (log₂ axis)</text>
 
 		<path d={literalPath} class="fig-literal" clip-path="url(#length-plot)" />
 		{#if literalExit}
@@ -1410,11 +1517,11 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 
 		<path d={familyPath} class="fig-family" />
 		{#each family as point, index (point.value)}
-			<circle cx={x(point.tailLength)} cy={y(point.programBits)} r="4" class="fig-dot" />
-			<text x={x(point.tailLength) + 7} y={y(point.programBits) + 12} class="fig-text">{FAMILY_LABELS[index]}</text>
+			<circle cx={x(point.tailLength)} cy={y(point.programBits)} r="3.5" class="fig-dot" />
+			<text x={x(point.tailLength) + 6} y={y(point.programBits) + 11} class="fig-text">{FAMILY_LABELS[index]}</text>
 		{/each}
 		{#if familyLast}
-			<text x={x(familyLast.tailLength) + 10} y={y(familyLast.programBits) - 4} class="fig-label">K<tspan class="fig-sub">bits</tspan> of M·I<tspan class="fig-sup">2ᵏ</tspan></text>
+			<text x={x(familyLast.tailLength) + 8} y={y(familyLast.programBits) - 5} class="fig-label">K<tspan class="fig-sub">bits</tspan> of M·I<tspan class="fig-sup">2ᵏ</tspan></text>
 		{/if}
 
 		{#if targetFloor && targetMark}
@@ -1423,14 +1530,20 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 			<line x1={targetMark.x - 5} y1={targetMark.y} x2={targetMark.x + 5} y2={targetMark.y} class="fig-bracket" />
 		{/if}
 		{#if targetMark && target}
-			<circle cx={targetMark.x} cy={targetMark.y} r="7" class="fig-ring" class:fig-ring--pending={target.bracket.kind === 'pending'} />
-			<text x={targetMark.x} y={targetMark.y - 12} class="fig-label" text-anchor="middle">{shortTarget}{targetMark.clipped ? ' ↑' : ''}</text>
+			<g class="fig-move" style={`transform: translate(${targetMark.x}px, ${targetMark.y}px)`}>
+				<circle cx="0" cy="0" r="7" class="fig-ring" class:fig-ring--pending={target.bracket.kind === 'pending'} />
+				<text x="0" y="-11" class="fig-label" text-anchor="middle">{shortTarget}{targetMark.clipped ? ' ↑' : ''}</text>
+			</g>
 		{/if}
 
-		<path d={`M ${readerMark.x} ${readerMark.y - 7} l 7 7 l -7 7 l -7 -7 z`} class="fig-diamond" />
-		<text x={readerMark.x} y={readerMark.y + 22} class="fig-text" text-anchor="middle">your derivation{readerMark.clipped ? ` (${reader.bits} bits)` : ''}</text>
+		{#if reader.steps > 0}
+			<g class="fig-move" style={`transform: translate(${readerMark.x}px, ${readerMark.y}px)`}>
+				<path d="M 0 -7 l 7 7 l -7 7 l -7 -7 z" class="fig-diamond" />
+			</g>
+		{/if}
 	</svg>
 	<figcaption class="figure__caption">
+		<span class="figure__key">— L<sub>literal</sub> · ● M·I<sup>2ᵏ</sup> · ○ target · ◆ your derivation</span>
 		{#if target === null}
 			No program prints a non-theorem, so <span class="mv">K</span><sub>bits</sub> is undefined for the
 			target.
@@ -1454,7 +1567,9 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 			The construction's program for <span class="o">{shortTarget}</span> has {target.bracket.upper}
 			bits; the search for <span class="mv">K</span><sub>bits</sub> is running.
 		{/if}
-		{#if reader.atTarget && target}
+		{#if reader.steps === 0}
+			Your derivation is empty: the axiom <span class="o">MI</span> is a program of {reader.bits} bits.
+		{:else if reader.atTarget && target}
 			Your derivation is a program of {reader.bits} bits for the same string{target.bracket.kind === 'exact'
 				? reader.bits === target.bracket.bits
 					? ' and is minimal.'
@@ -1462,40 +1577,52 @@ Replace `<MiuBridge />` in `src/routes/form-and-meaning/miu/+page.svelte` with:
 				: '.'}
 		{:else}
 			Your derivation, at <span class="o">{shortReader}</span> after {reader.steps}
-			{reader.steps === 1 ? 'move' : 'moves'}, is a program of {reader.bits} bits.
+			{reader.steps === 1 ? 'move' : 'moves'}, is a program of {reader.bits} bits{readerMark.clipped
+				? ', off this axis'
+				: ''}.
 		{/if}
+		<a class="dial-link" href="#description-length">definitions and specimens ↓</a>
 	</figcaption>
 </figure>
 ```
 
-- [ ] **Step 4: Restructure `MiuBridge`**
+- [ ] **Step 4: Complete the dial row**
 
-Replace the `<script>` of `src/lib/components/miu/MiuBridge.svelte` with:
+Replace `src/lib/components/miu/MiuDials.svelte` with:
 
 ```svelte
+<!-- src/lib/components/miu/MiuDials.svelte -->
 <script lang="ts">
 	import MiuDepthFigure from './MiuDepthFigure.svelte';
 	import MiuLengthFigure from './MiuLengthFigure.svelte';
-	import { shortestBitProgram, type BitProgramResult } from '$lib/miu/bitComplexity';
-	import { encodeDerivation, literalMiuBitLength } from '$lib/miu/coding';
-	import { MIU_QUERY_BOUNDS, shortestTheoremDerivation, type ShortestDerivation } from '$lib/miu/complexity';
+	import MiuResidueFigure from './MiuResidueFigure.svelte';
+	import type { BitProgramResult } from '$lib/miu/bitComplexity';
+	import type { Z3Residue } from '$lib/miu/characters';
+	import { literalMiuBitLength } from '$lib/miu/coding';
+	import type { ShortestDerivation } from '$lib/miu/complexity';
 	import { stepBracket } from '$lib/miu/depthFigure';
-	import { DESCRIPTION_LENGTH_EXAMPLES } from '$lib/miu/examples';
 	import { bitBracket, iRunPoints, literalCurve } from '$lib/miu/lengthFigure';
-	import { constructMiuDerivation } from '$lib/miu/theoremhood';
+	import type { DerivationTraceReading } from '$lib/miu/traceReadings';
 
 	let {
+		traceReading,
+		currentString,
 		target,
+		targetResidue,
+		reachedTarget,
 		isTheorem,
 		shortest,
 		searchRuledOut,
 		searchRunning,
 		constructedLength,
 		constructedBits,
-		bitResult,
-		reader
+		bitResult
 	}: {
+		traceReading: DerivationTraceReading;
+		currentString: string;
 		target: string;
+		targetResidue: Z3Residue | null;
+		reachedTarget: boolean;
 		isTheorem: boolean;
 		shortest: ShortestDerivation | null;
 		searchRuledOut: number | null;
@@ -1503,12 +1630,12 @@ Replace the `<script>` of `src/lib/components/miu/MiuBridge.svelte` with:
 		constructedLength: number | null;
 		constructedBits: number | null;
 		bitResult: BitProgramResult | null;
-		reader: { value: string; steps: number; bits: number; atTarget: boolean };
 	} = $props();
 
 	const family = iRunPoints();
 	const literal = literalCurve(1024);
 
+	const steps = $derived(traceReading.activeMoves.length);
 	const depthBracket = $derived(
 		isTheorem && constructedLength !== null
 			? stepBracket(shortest, searchRuledOut, constructedLength, searchRunning)
@@ -1525,50 +1652,43 @@ Replace the `<script>` of `src/lib/components/miu/MiuBridge.svelte` with:
 			: null
 	);
 	const lengthReader = $derived({
-		value: reader.value,
-		tailLength: reader.value.length - 1,
-		bits: reader.bits,
-		steps: reader.steps,
-		atTarget: reader.atTarget
+		value: currentString,
+		tailLength: currentString.length - 1,
+		bits: traceReading.activeProgram.bitLength,
+		steps,
+		atTarget: reachedTarget
 	});
-
-	// the existing `const specimenRows = DESCRIPTION_LENGTH_EXAMPLES.map(...)` block follows here, unchanged
 </script>
-```
 
-The existing `const specimenRows = …` block (from `const specimenRows` through its closing `});`) stays exactly as it is in the file today, directly below `lengthReader`; only the imports and props above it change. Then in the markup, move the `<p class="microlabel">Specimen strings</p>` table below a new block inserted directly after the closing `</div>` of `.defs`:
-
-```svelte
-<div class="figure-pair">
+<div class="dials" aria-label="Three readings of the active derivation">
 	<div>
-		<p class="microlabel">Moves: <span class="mv">K</span><sub>steps</sub> on the length axis</p>
-		<MiuDepthFigure {target} bracket={depthBracket} reader={{ steps: reader.steps, atTarget: reader.atTarget }} />
+		<p class="microlabel">Invariant: residue mod 3</p>
+		<MiuResidueFigure
+			residues={traceReading.activeResidues}
+			moves={steps}
+			{targetResidue}
+			targetLabel={targetResidue === null ? null : target}
+			{reachedTarget}
+		/>
 	</div>
 	<div>
-		<p class="microlabel">Bits: <span class="mv">K</span><sub>bits</sub> against the literal</p>
+		<p class="microlabel">Program: moves</p>
+		<MiuDepthFigure {target} bracket={depthBracket} reader={{ steps, atTarget: reachedTarget }} />
+	</div>
+	<div>
+		<p class="microlabel">Program: bits</p>
 		<MiuLengthFigure {family} {literal} target={lengthTarget} reader={lengthReader} />
 	</div>
 </div>
 ```
 
-The figures compute the target's `K_bits` only via the worker result passed in; the family's six searches run once at component creation, like the specimen rows.
+The family's six bit searches run once at component creation, like the specimen rows in `MiuBridge`; the target's `K_bits` arrives from the worker through `bitResult`.
 
 - [ ] **Step 5: Add the plot CSS**
 
 Append to `src/app.css` after the figure rules from Task 5:
 
 ```css
-.figure-pair {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: var(--space-2xl);
-	margin: 0 0 var(--space-xl);
-}
-
-.figure-pair > div {
-	min-width: 0;
-}
-
 .fig-axis {
 	stroke: var(--line-strong);
 	stroke-width: 1;
@@ -1638,34 +1758,26 @@ Append to `src/app.css` after the figure rules from Task 5:
 }
 ```
 
-Inside the existing `@media (max-width: 1180px)` block add:
-
-```css
-	.figure-pair {
-		grid-template-columns: 1fr;
-		gap: var(--space-xl);
-	}
-```
-
 - [ ] **Step 6: Check, test, and play every state**
 
 Run: `npm run check && npm run test`
 Expected: pass; the dead-CSS gate reports nothing.
 
-In the dev server at 1800 px, play through and screenshot each to `.playwright-mcp/`:
-1. Fresh page (`MUI`): depth tick at 3, length ring for `MUI` at (2, 14) above the literal, reader diamond at `MI` (1, 4).
-2. Type `MUIIU`, show the shortest derivation and apply it to the end (5 moves): the depth caption states that your derivation is minimal; the length caption compares your program's bits with `K_bits` = 23 (the move-shortest derivation need not be the bit-shortest one, so the two marks may sit apart on the length figure).
-3. Type `MUIIIU`: both captions state the non-theorem case; no marks for the target.
-4. Type `MIUIIIIIUIIII`: the depth shading advances while the search runs, then settles to the tick at 5; the length figure shows the ring at (12, 22).
-5. From `MI`, keep applying moves past 20 (for instance alternate R1 and R2) until the program exceeds 64 bits and the tail exceeds 1024: the diamond clips to the top edge and then to the right edge, and its label carries the bit count.
+In the dev server at 1800 × 1000, play through and take a viewport screenshot of each into `.playwright-mcp/`:
+1. Fresh page (`MUI`): the three dials sit under the current string with the rail beside them, all inside the viewport. Depth tick at 3. Length ring for `MUI` at (2, 14) above the literal; no diamond, and the caption states the empty derivation.
+2. Click `→ MII`: a diamond appears at (2, 7) and the residue disc moves to 2, without scrolling.
+3. Type `MUIIU`, show the shortest derivation and apply it to the end (5 moves): the depth caption states your derivation is minimal; the length caption compares your bits with `K_bits` = 23 (the move-shortest derivation need not be the bit-shortest, so the two marks may sit apart).
+4. Type `MUIIIU`: both captions state the non-theorem case; the ring slides to 0.
+5. Type `MIUIIIIIUIIII`: the depth shading advances while the search runs, then settles to the tick at 5; the length ring lands at (12, 22).
+6. From `MI`, keep applying moves past 20 (alternate R1 and R2) until the program exceeds 64 bits and the tail exceeds 1024: the diamond clips to the top edge, then the right edge, and the caption says "off this axis".
 
-Resize to 1100 px and confirm the pair stacks.
+Resize to 1100 px and confirm the dials stack.
 
 - [ ] **Step 7: Commit**
 
 ```bash
 git add -A src
-git commit -m "feat: draw K_steps and K_bits as brackets against the reader's derivation"
+git commit -m "feat: moves and bits dials under the current string, bracketed against the reader's derivation"
 ```
 
 ---
@@ -1687,23 +1799,27 @@ Fresh page, mid-session with a tail past 64 characters, target reached, residue-
 `README.md`, "Current focus", description-length bullet — append after `gamma-length-prefixed literal code.`:
 
 ```markdown
-  Both minima are drawn as brackets on their length axes, beside the reader's
+  Both minima are drawn as dials under the current string, beside the reader's
   own derivation as an exhibited upper bound.
 ```
 
 `README.md`, "Current focus" theoremhood bullet — the sentence `Each active trace is annotated in place with its I-count residue and executable instruction code, so the same derivation is visible in all three readings before later movements generalize them.` becomes `Each active trace is annotated in place with its I-count residue and executable instruction code, and the two later sections read the same derivation through their figures.`
 
-`docs/product-architecture.md` §2.1 — replace the `MiuBridge.svelte` bullet with:
+`docs/product-architecture.md` §2.1 — after the `MiuSheet.svelte` bullet add:
 
 ```markdown
-- `MiuBridge.svelte`, `MiuDepthFigure.svelte`, and `MiuLengthFigure.svelte` —
-  the derivation read as a program. The depth figure draws `K_steps` for the
-  target as a tick or a bracket over the layer sizes of the rewrite graph; the
-  length figure draws `K_bits` against the literal cost on a log₂ tail-length
-  axis with the I-run family and the reader's own program marked. The specimen
-  table remains the figures' table view. Kolmogorov complexity and Chaitin are
-  later destinations, not claims made here.
+- `MiuDials.svelte` with `MiuResidueFigure.svelte`, `MiuDepthFigure.svelte`,
+  and `MiuLengthFigure.svelte` — the dial row under the current string. The
+  three dials read the active derivation and the target live: the residue
+  figure draws the rule action on ℤ/3 with the reader's path on it; the depth
+  figure draws `K_steps` for the target as a tick or a bracket over the layer
+  sizes of the rewrite graph; the length figure draws `K_bits` against the
+  literal cost on a log₂ tail-length axis with the I-run family and the
+  reader's own program marked. The dials are displays, not controls; each
+  caption links into the section that proves what it shows.
 ```
+
+and in the `MiuBridge.svelte` bullet replace `It displays `K_steps`, `K_bits`, literal code length, and one minimum-bit instruction sequence under the stated executable code.` with `It states the definitions and the specimen table, the table view of the bits dial.`
 
 §2.2, the `complexity.ts` bullet: after `so the UI can display the lower bound as it rises,` add ` and the same worker answers `K_bits` requests for the target,`. Add to the list:
 
@@ -1714,9 +1830,9 @@ Fresh page, mid-session with a tail past 64 characters, target reached, residue-
   bracket (`lengthFigure.ts`),
 ```
 
-§4 item 3: after `Each reading renders directly from those results.` add ` The three figures render from `residueFigure.ts`, `depthFigure.ts`, and `lengthFigure.ts` applied to the same state.`
+§4 item 3: after `Each reading renders directly from those results.` add ` The three dials render from `residueFigure.ts`, `depthFigure.ts`, and `lengthFigure.ts` applied to the same state.`
 
-`CLAUDE.md`, "Current stage" third bullet — after `compared with a gamma-length-prefixed literal)` add `, each drawn as a bracket figure beside the reader's own derivation`.
+`CLAUDE.md`, "Current stage" third bullet — after `compared with a gamma-length-prefixed literal)` add `, each drawn as a dial under the current string beside the reader's own derivation`.
 
 - [ ] **Step 3: Delete the working artifacts**
 

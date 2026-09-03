@@ -61,13 +61,21 @@ is the pq comparison, which does not exist yet.
 
 ## Layout
 
-- Invariant section: the residue figure is the first item of the right column
-  (`cert-side`), above "Strings ruled out by the invariant", beside the proof
-  step it draws. The characterization box stays. The characters block is
-  gone.
-- Description-length section order: turn paragraph → lede → definitions →
-  figure pair (depth | length, side by side at full width) → specimen table →
-  coda.
+Revised after the played mockup review: a dial three screens below the
+control it reads from is useless.
+
+- The three figures form a dial row inside the worksheet, directly under the
+  current string, replacing the two footer lines ("invariant reading",
+  "program reading"). Everything that reacts to a click is on one screen: the
+  rules rail on the right, the current string, and the dials under it. The
+  rail stays sticky. The dials are not controls; the inputs remain the rail
+  and the target field. Marks move with a short transition so the eye
+  follows a change.
+- Each dial caption opens with a mark key and ends with one link into the
+  section that explains it (`#invariant`, `#description-length`).
+- The invariant and description-length sections keep their prose, boxes, and
+  the specimen table; the characters block is gone. Trimming those sections
+  behind disclosures is a separate decision, not taken in this pass.
 - Theoremhood section: unchanged except the popover removal.
 
 ## Figure conventions
