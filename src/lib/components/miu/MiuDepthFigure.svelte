@@ -67,7 +67,7 @@
 			<text x={x(bracket.ruledOut) + STEP / 2} y="32" class="fig-text" text-anchor="end">ruled out ≤ {bracket.ruledOut}</text>
 		{/if}
 
-		{#if reader.atTarget && bracket !== null}
+		{#if reader.steps > 0 && reader.atTarget && bracket !== null}
 			<g class="fig-move" style={`transform: translate(${x(reader.steps)}px, ${BASE - 22}px)`}>
 				<path d="M 0 -6 l 6 6 l -6 6 l -6 -6 z" class="fig-diamond" />
 			</g>
