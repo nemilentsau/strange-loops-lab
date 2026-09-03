@@ -1,5 +1,4 @@
 <script lang="ts">
-	import MiuCharacters from './MiuCharacters.svelte';
 	import { analyzeInvariantCandidate, builtInInvariantAnalysis } from '$lib/miu/invariants';
 	import { patternForRule, ruleNumber, type MiuRuleId } from '$lib/miu/core';
 
@@ -155,5 +154,3 @@
 		bound on <span class="mv">K</span><sub>steps</sub>, with no claim of minimality.
 	</p>
 </div>
-
-<MiuCharacters />

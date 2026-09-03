@@ -132,10 +132,10 @@ construction admission test for connections — are carried in
 - The epistemic contract and its form-based registers.
 - The graphite-and-parchment visual language with a single action accent.
 - The instinct behind the residue-wheel interaction — the one place the build
-  reached the structural mathematics and held attention. The wheel itself was
-  later replaced by the explicit ℤ/3 character table (`MiuCharacters.svelte`);
-  what stayed is the lesson that the algebra of the invariant is where
-  attention lives.
+  reached the structural mathematics and held attention. The wheel was
+  replaced by a character table in July 2026 and, in September 2026, by a
+  drawn rule action on ℤ/3 that the reader's derivation traces; what stayed is
+  the lesson that the algebra of the invariant is where attention lives.
 - The desktop-first stance.
 
 ## Going forward

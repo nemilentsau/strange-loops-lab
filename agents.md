@@ -16,8 +16,8 @@ read three ways:
 
 - manipulate it (the worksheet: the four rules always on screen, each with the
   exact reason it cannot fire when it cannot);
-- see the wall (MU rejected by the I-count invariant, followed by the character
-  table, rule pullbacks, and forbidden-residue indicator of ℤ/3);
+- see the wall (MU rejected by the I-count invariant, with the rule action on
+  ℤ/3 drawn as a figure the reader's own derivation traces);
 - read the derivation as a program (`K_steps` by bounded bidirectional BFS and `K_bits` by
   bounded Dijkstra search under the executable prefix code, compared with a
   gamma-length-prefixed literal). Kolmogorov complexity and Chaitin are later

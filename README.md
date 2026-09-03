@@ -97,9 +97,12 @@ read three ways:
   derivation is visible in all three readings before later movements generalize
   them.
 - **Invariant certificate** (about the system — the wall): the invariant
-  `#I ≢ 0 (mod 3)` rejects MU and every residue-zero target. The proof
-  constructs all three characters of ℤ/3, their rule pullbacks, and the
-  Fourier indicator of the forbidden residue.
+  `#I ≢ 0 (mod 3)` rejects MU and every residue-zero target.
+  The rule action on ℤ/3 is drawn: R2 swaps residues 1 and 2, the other rules
+  fix every residue, and no arrow enters 0 from {1, 2}; the reader's derivation
+  traces its path on that figure. The characters of ℤ/3 are built in the formal
+  layer and proved in the notes; they are displayed when the pq instrument has
+  a measured table to set beside them.
 - **Description length** (as a program — the bridge): the derivation
   read as a program under a fixed executable prefix code. `K_steps` is minimum
   rewrite-move count by bounded bidirectional BFS (forward from MI, backward
@@ -215,8 +218,9 @@ trained weights remains measured.
 ## Status
 
 The MIU instrument is built: the worksheet, complete theoremhood decision,
-constructive witnesses, invariant certificate, character construction, and two
-explicit description-length costs.
+constructive witnesses, invariant certificate with its residue figure, the
+ℤ/3 characters in the formal layer, and two explicit description-length
+costs.
 
 Built now:
 - the deterministic MIU layer: rule engine and derivation trace (`core`),

@@ -373,8 +373,9 @@ mod 5:  R3 sends 3 to 0.         Witness M I⁸ ⇒ M U I⁵   (8 ≡ 3 ↦ 5 �
 			<pre class="displaybox">δ₀(n)  =  (χ₀(n) + χ₁(n) + χ₂(n)) / 3</pre>
 			<p>
 				is 1 at <span class="mv">n</span> = 0 and 0 elsewhere: the indicator of the forbidden
-				residue is the uniform combination of characters. This is the identity the
-				instrument's indicator row computes.
+				residue is the uniform combination of characters. This identity is computed by
+				<span class="o">deltaZeroFromCharacters</span> in the instrument's source and exercised by
+				its tests.
 			</p>
 		</div>
 

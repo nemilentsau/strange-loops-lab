@@ -320,9 +320,10 @@ length relative to a fixed machine**. The derivation is manipulated directly.
 The complete I-count characterization decides theoremhood and constructs one
 witness for every theorem. Bounded bidirectional BFS separately minimizes rewrite moves as
 `K_steps`; bounded Dijkstra search minimizes executable code length as `K_bits`.
-The invariant certificate excludes residue zero, and the same surface
-constructs the character table of ℤ/3, the rule pullbacks, and the Fourier
-indicator of the forbidden residue.
+The invariant certificate excludes residue zero and draws the rule action on
+ℤ/3 with the reader's derivation traced on it. The character table, rule
+pullbacks, and forbidden indicator of ℤ/3 are built in the formal layer and
+proved in the lecture notes, held for the pq comparison.
 
 The binding build order is:
 

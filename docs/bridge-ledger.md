@@ -60,8 +60,10 @@ minimum construction is not yet available) · **sidebar** (labeled analogy) ·
   the two displays only share periodic appearance without sharing characters.
 - **Evidence:** Nanda et al., [*Progress measures for grokking via mechanistic
   interpretability*](https://arxiv.org/abs/2301.05217), and
-  `src/lib/miu/characters.ts`, `characters.spec.ts`, and
-  `src/lib/components/miu/MiuCharacters.svelte` for the shipped prerequisite.
+  `src/lib/miu/characters.ts`, `characters.spec.ts`,
+  and §2 of the MIU lecture notes for the built prerequisite. The instrument's
+  character display was removed on 2026-09-02: a built table with no measured
+  table beside it teaches nothing the induction did not (notes, Remark 2.9).
 - **Status:** next; the formal-side prerequisite is built. No modular-addition
   model or measured Fourier extraction has been run in this project.
 

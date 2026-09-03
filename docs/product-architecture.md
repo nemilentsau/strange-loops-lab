@@ -8,7 +8,7 @@ constraints that should guide the next refinement passes.
 It is not a speculative service map. It should match the repo as it exists now
 while keeping room for later expansion only where there is a clear reason.
 
-Last updated: July 12, 2026.
+Last updated: September 2, 2026.
 
 ---
 
@@ -67,10 +67,11 @@ reads it three ways with focused components under `src/lib/components/miu`:
   encoded instruction annotations derived from the same formal state.
   Active-prefix summaries exclude retained future steps after a jump.
   Constructed and shortest witnesses are labeled independently.
-- `MiuInvariant.svelte` and `MiuCharacters.svelte` — the wall and its finite
-  harmonic analysis. The I-count certificate rejects residue zero; the
-  character table, rule pullbacks, and Fourier indicator construct the explicit
-  ℤ/3 object needed by the pq bridge.
+- `MiuInvariant.svelte` — the wall. The I-count certificate rejects residue
+  zero. The rule action on ℤ/3 is drawn by the residue dial in the worksheet
+  (`MiuResidueFigure.svelte`, hosted by `MiuDials.svelte`). The characters of
+  ℤ/3 stay in the formal layer (`characters.ts`) for the pq bridge and are not
+  displayed on this instrument.
 - `MiuBridge.svelte` — the derivation read as a program. It displays `K_steps`,
   `K_bits`, literal code length, and one minimum-bit instruction sequence under
   the stated executable code. Kolmogorov complexity and Chaitin are later
@@ -212,9 +213,9 @@ flatten the three registers into one undifferentiated assistant channel.
 2. Page state updates the local draft (`Module1Draft`).
 3. Deterministic MIU logic runs in-process: `theoremhood.ts` decides and
    constructs, `complexity.ts` and `bitComplexity.ts` perform the two bounded
-   optimizations, `coding.ts` fixes their units, and `invariants.ts` plus
-   `characters.ts` supply the wall and its Fourier form. Each reading renders
-   directly from those results.
+   optimizations, `coding.ts` fixes their units, and `invariants.ts` supplies
+   the wall while `residueFigure.ts` supplies the drawn rule action on ℤ/3.
+   Each reading renders directly from those results.
 4. On change, the page writes the draft — the trace and its edit stamp, which
    is all the draft now holds — to localStorage (`writeModule1Draft`) and reads
    it back on load (`readModule1Draft`), so a reload restores the trace in
