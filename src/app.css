@@ -1518,6 +1518,74 @@ select {
 	letter-spacing: 0.04em;
 }
 
+.fig-axis {
+	stroke: var(--line-strong);
+	stroke-width: 1;
+}
+
+.fig-grid {
+	stroke: var(--line);
+	stroke-width: 1;
+}
+
+.fig-shade {
+	fill: var(--line);
+	opacity: 0.55;
+}
+
+.fig-bar {
+	fill: var(--line-strong);
+}
+
+.fig-tick {
+	fill: var(--ink);
+	stroke: var(--ink);
+}
+
+.fig-tick--hollow {
+	fill: var(--panel);
+}
+
+.fig-diamond {
+	fill: var(--ink);
+}
+
+.fig-literal {
+	fill: none;
+	stroke: var(--ink);
+	stroke-width: 1.25;
+}
+
+.fig-family {
+	fill: none;
+	stroke: var(--ink);
+	stroke-width: 1;
+	stroke-dasharray: 3 3;
+}
+
+.fig-dot {
+	fill: var(--ink);
+}
+
+.fig-ring--pending {
+	stroke-dasharray: 2 2;
+}
+
+.fig-bracket {
+	stroke: var(--ink);
+	stroke-width: 1.25;
+}
+
+.fig-sub {
+	font-size: 8px;
+	baseline-shift: sub;
+}
+
+.fig-sup {
+	font-size: 8px;
+	baseline-shift: super;
+}
+
 /* Collapse points: 1180 folds the parallel columns, 860 stacks the worksheet
  * rail, 780 stacks the theorem query, 640 tightens padding. */
 .notes {

@@ -107,7 +107,6 @@
 		constructedPath ? encodeDerivation(constructedPath).bitLength : null
 	);
 	let bitResult = $state<BitProgramResult | null>(null);
-	let bitSearchRunning = $state(false);
 
 	$effect(() => {
 		const searchTarget = trimmedProduceTarget;
@@ -115,34 +114,23 @@
 
 		if (!browser || theoremDecision.outcome !== 'theorem') {
 			bitResult = null;
-			bitSearchRunning = false;
 			return;
 		}
 
 		bitResult = null;
-		bitSearchRunning = true;
 
 		const worker = new SearchWorker();
 		worker.onmessage = (event: MessageEvent<SearchResponse>) => {
 			const message = event.data;
 			if (message.kind === 'bits-result') {
 				bitResult = message.result;
-				bitSearchRunning = false;
 			} else if (message.kind === 'error') {
 				console.error(`K_bits search failed for ${searchTarget}: ${message.message}`);
-				bitSearchRunning = false;
 			}
 		};
 		worker.postMessage({ kind: 'bits', target: searchTarget, maxNodes } satisfies SearchRequest);
 
 		return () => worker.terminate();
-	});
-	// Not read anywhere yet; Task 9 wires these into MiuBridge. Kept live here so
-	// noUnusedLocals doesn't fail this task's check before that wiring lands.
-	$effect(() => {
-		void constructedBits;
-		void bitResult;
-		void bitSearchRunning;
 	});
 	const witnessPath = $derived(
 		witnessKind === 'constructed'
@@ -276,7 +264,20 @@
 		onJumpToStep={jumpToStep}
 		onReset={resetSession}
 	>
-		<MiuDials {traceReading} target={trimmedProduceTarget} {targetResidue} {reachedTarget} />
+		<MiuDials
+			{traceReading}
+			{currentString}
+			target={trimmedProduceTarget}
+			{targetResidue}
+			{reachedTarget}
+			isTheorem={theoremDecision.outcome === 'theorem'}
+			shortest={shortestStepResult}
+			{searchRuledOut}
+			{searchRunning}
+			constructedLength={constructedPath?.length ?? null}
+			{constructedBits}
+			{bitResult}
+		/>
 	</MiuSheet>
 </section>
 
